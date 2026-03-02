@@ -90,3 +90,43 @@
     transform: translateY(-2px);
   }
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #39FF14;
+}
+
+.glass-premium {
+  background: linear-gradient(135deg, rgba(57, 255, 20, 0.1) 0%, rgba(0, 224, 255, 0.1) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-premium::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform: rotate(45deg);
+  animation: shine 6s infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}

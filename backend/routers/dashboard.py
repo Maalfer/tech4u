@@ -6,7 +6,6 @@ from schemas import DashboardStats, SubjectStats
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
-
 @router.get("/stats", response_model=DashboardStats)
 def get_stats(
     current_user: User = Depends(get_current_user),
@@ -30,6 +29,7 @@ def get_stats(
 
     return DashboardStats(
         streak_count=current_user.streak_count,
+        months_subscribed=current_user.months_subscribed, # <-- Añadido
         last_login=current_user.last_login,
         subscription_type=current_user.subscription_type,
         subjects=subjects,

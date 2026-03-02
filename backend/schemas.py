@@ -1,9 +1,8 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime
 
-
-# Auth
+# --- AUTH & USER MODELS ---
 class UserRegister(BaseModel):
     nombre: str
     email: EmailStr
@@ -14,31 +13,92 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str
-    user: "UserOut"
-
 class UserOut(BaseModel):
     id: int
     nombre: str
     email: str
     streak_count: int
+    months_subscribed: int 
     subscription_type: str
     subscription_end: Optional[datetime]
     role: str
+    
     class Config:
         from_attributes = True
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserOut
 
 class UserRoleUpdate(BaseModel):
     role: str
 
 class UserPasswordUpdate(BaseModel):
+    current_password: str
     new_password: str
 
-TokenResponse.model_rebuild()
+class UserSubscriptionUpdate(BaseModel):
+    subscription_type: str 
+    subscription_end: Optional[datetime] = None
 
-# Dashboard
+# --- TICKETS ---
+class TicketCreate(BaseModel):
+    subject: str
+    description: str
+
+class TicketOut(BaseModel):
+    id: int
+    user_id: int
+    subject: str
+    description: str
+    status: str 
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# --- NUEVO: BROADCAST (ANUNCIOS) ---
+class AnnouncementCreate(BaseModel):
+    content: str
+
+class AnnouncementOut(BaseModel):
+    id: int
+    content: str
+    is_active: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# --- NUEVO: SUGERENCIAS DE PREGUNTAS ---
+class SuggestionCreate(BaseModel):
+    subject: str
+    text: str
+
+class SuggestionOut(BaseModel):
+    id: int
+    user_id: int
+    subject: str
+    text: str
+    status: str
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# --- ADMIN DASHBOARD ESTRATÉGICO ---
+class AdminDashboardStats(BaseModel):
+    total_users: int
+    active_subscriptions: int
+    revenue_this_month: float
+    pending_tickets: int
+    total_questions: int
+    users_by_role: Dict[str, int]
+    revenue_history: List[float]
+    login_peaks: List[int]
+
+# --- DASHBOARD ALUMNO ---
 class SubjectStats(BaseModel):
     subject: str
     total_answered: int
@@ -48,13 +108,14 @@ class SubjectStats(BaseModel):
 
 class DashboardStats(BaseModel):
     streak_count: int
+    months_subscribed: int
     last_login: Optional[datetime]
     subscription_type: str
     subjects: List[SubjectStats]
     total_questions_answered: int
     total_errors: int
 
-# Questions
+# --- QUESTIONS & TESTS ---
 class QuestionOut(BaseModel):
     id: int
     subject: str
@@ -63,9 +124,10 @@ class QuestionOut(BaseModel):
     option_b: str
     option_c: str
     option_d: str
-    correct_answer: Optional[str] = None  # Added for admin view, normal endpoints obfuscate this
+    correct_answer: Optional[str] = None
     difficulty: str
     explanation: Optional[str] = None
+    
     class Config:
         from_attributes = True
 
@@ -82,13 +144,13 @@ class QuestionCreate(BaseModel):
 
 class AnswerItem(BaseModel):
     question_id: int
-    selected_answer: str  # "a", "b", "c", "d"
+    selected_answer: str
     time_spent_seconds: Optional[float] = 0
 
 class TestSubmit(BaseModel):
     subject: str
     answers: List[AnswerItem]
-    test_mode: str  # normal | exam | errors
+    test_mode: str
 
 class AnswerResult(BaseModel):
     question_id: int
@@ -102,7 +164,7 @@ class TestResult(BaseModel):
     accuracy: float
     results: List[AnswerResult]
 
-# Resources
+# --- RESOURCES ---
 class ResourceOut(BaseModel):
     id: int
     title: str
@@ -111,6 +173,7 @@ class ResourceOut(BaseModel):
     file_type: str
     url: Optional[str]
     requires_subscription: bool
+    
     class Config:
         from_attributes = True
 
@@ -121,3 +184,5 @@ class ResourceCreate(BaseModel):
     file_type: str
     url: Optional[str] = None
     requires_subscription: bool = True
+
+TokenResponse.model_rebuild()

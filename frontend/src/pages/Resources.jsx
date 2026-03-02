@@ -1,108 +1,213 @@
-import { useEffect, useState } from 'react'
-import { FileText, ExternalLink, Lock, AlertCircle } from 'lucide-react'
-import Sidebar from '../components/Sidebar'
-import api from '../services/api'
-import { useAuth } from '../context/AuthContext'
-
-const TYPE_ICON = {
-    pdf: '📄',
-    cheatsheet: '⚡',
-}
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+    FileText,
+    BookOpen,
+    Search,
+    Folder,
+    Lock,
+    CheckCircle
+} from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import api from '../services/api';
 
 export default function Resources() {
-    const { user } = useAuth()
-    const [resources, setResources] = useState([])
-    const [error, setError] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const hasSub = user?.subscription_type !== 'free'
+    const [resources, setResources] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        // Try to get all resources if subscribed, otherwise get free ones
-        const endpoint = hasSub ? '/resources/' : '/resources/free'
-        api.get(endpoint)
-            .then(r => setResources(r.data))
-            .catch(() => setError('Error cargando recursos. Verifica tu conexión.'))
-            .finally(() => setLoading(false))
-    }, [hasSub])
+        const controller = new AbortController();
 
-    const subjects = [...new Set(resources.map(r => r.subject))]
+        const fetchResources = async () => {
+            try {
+                const res = await api.get('/resources', {
+                    signal: controller.signal
+                });
+
+                setResources(Array.isArray(res.data) ? res.data : []);
+            } catch (err) {
+                if (err.response?.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "/login";
+                    return;
+                }
+
+                if (err.name !== "CanceledError") {
+                    console.error("Error cargando recursos:", err);
+                    setResources([]);
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchResources();
+        return () => controller.abort();
+    }, []);
+
+    // 🔎 Filtrado seguro
+    const filteredResources = useMemo(() => {
+        const term = searchTerm.toLowerCase();
+
+        return resources.filter(r =>
+            (r.title || "").toLowerCase().includes(term) ||
+            (r.subject || "").toLowerCase().includes(term)
+        );
+    }, [resources, searchTerm]);
+
+    // 📁 Agrupación optimizada
+    const groupedResources = useMemo(() => {
+        return filteredResources.reduce((acc, item) => {
+            const key = item.subject || "Sin Categoría";
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(item);
+            return acc;
+        }, {});
+    }, [filteredResources]);
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
+
             <main className="flex-1 ml-64 p-8">
-                <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-1">
-                        <FileText className="w-5 h-5 text-[#39FF14]" />
-                        <h1 className="text-2xl font-black text-white">Recursos</h1>
-                    </div>
-                    <p className="text-slate-500 font-mono text-sm">Cheat Sheets y PDFs de referencia profesional</p>
-                </div>
 
-                {/* Subscription banner */}
-                {!hasSub && (
-                    <div className="glass rounded-xl p-5 mb-8 border border-orange-500/30 flex items-start gap-3">
-                        <Lock className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                            <p className="text-sm font-black text-orange-400 mb-0.5">Acceso limitado</p>
-                            <p className="text-xs text-slate-500 font-mono">Con una suscripción de pago accedes a todos los Cheat Sheets y PDFs premium.</p>
+                {/* HEADER */}
+                <header className="mb-10 flex justify-between items-end border-b border-white/5 pb-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-[#39FF14]/10 rounded-lg border border-[#39FF14]/20">
+                                <BookOpen className="w-6 h-6 text-[#39FF14]" />
+                            </div>
+                            <h1 className="text-3xl font-black uppercase italic">
+                                REPOSITORIO DE <span className="text-[#39FF14]">RECURSOS</span>
+                            </h1>
                         </div>
-                        <a href="/#pricing" className="text-xs btn-neon whitespace-nowrap py-1.5">Ver planes →</a>
+                        <p className="text-slate-500 font-mono text-[10px] uppercase tracking-[0.3em]">
+                            Material técnico clasificado
+                        </p>
                     </div>
-                )}
 
-                {loading ? (
-                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-40 rounded-2xl bg-[rgba(57,255,20,0.03)] animate-pulse border border-[rgba(57,255,20,0.08)]" />)}
+                    <div className="relative group">
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#39FF14]" />
+                        <input
+                            type="text"
+                            placeholder="Buscar en la base de datos..."
+                            className="bg-black/60 border border-slate-800 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-[#39FF14] focus:border-[#39FF14] outline-none w-72"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                ) : error ? (
-                    <div className="flex items-center gap-2 text-red-400 text-sm font-mono">
-                        <AlertCircle className="w-4 h-4" /> {error}
+                </header>
+
+                {/* LOADING */}
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                        <div className="w-10 h-10 border-2 border-[#39FF14] border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-[#39FF14] font-mono text-[10px] uppercase tracking-widest">
+                            Cargando módulos...
+                        </span>
                     </div>
                 ) : (
-                    subjects.map(sub => (
-                        <section key={sub} className="mb-8">
-                            <h2 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <span className="flex-shrink-0">//</span> {sub}
-                            </h2>
-                            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-                                {resources.filter(r => r.subject === sub).map(r => (
-                                    <div key={r.id} className={`glass glass-hover rounded-xl p-5 neon-border flex flex-col gap-3 ${r.requires_subscription && !hasSub ? 'opacity-50' : ''}`}>
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div>
-                                                <span className="text-xl mr-2">{TYPE_ICON[r.file_type] || '📁'}</span>
-                                                <span className="text-xs font-mono text-slate-500 uppercase">{r.file_type}</span>
-                                            </div>
-                                            {r.requires_subscription && !hasSub && <Lock className="w-4 h-4 text-orange-400 flex-shrink-0" />}
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-black text-white mb-1">{r.title}</h3>
-                                            {r.description && <p className="text-xs text-slate-500 leading-relaxed">{r.description}</p>}
-                                        </div>
-                                        <a
-                                            href={r.url || '#'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`mt-auto flex items-center justify-center gap-1.5 text-xs font-mono py-2 rounded-lg border transition-all duration-200 ${r.requires_subscription && !hasSub
-                                                    ? 'text-slate-600 border-slate-800 cursor-not-allowed'
-                                                    : 'btn-neon text-[#39FF14]'
-                                                }`}
-                                            onClick={r.requires_subscription && !hasSub ? (e) => e.preventDefault() : undefined}
-                                        >
-                                            <ExternalLink className="w-3.5 h-3.5" />
-                                            {r.requires_subscription && !hasSub ? 'Requiere suscripción' : 'Ver recurso'}
-                                        </a>
+                    <div className="space-y-16">
+                        {Object.keys(groupedResources).length > 0 ? (
+                            Object.entries(groupedResources).map(([subject, items]) => (
+                                <section key={subject}>
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <h2 className="text-xs font-black uppercase tracking-[0.5em] bg-white/5 px-4 py-2 rounded-md border-l-2 border-[#39FF14] flex items-center gap-3">
+                                            <Folder className="w-4 h-4 text-[#39FF14]" /> {subject}
+                                        </h2>
+                                        <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-800 to-transparent"></div>
                                     </div>
-                                ))}
-                            </div>
-                        </section>
-                    ))
-                )}
 
-                {!loading && resources.length === 0 && !error && (
-                    <p className="text-slate-600 font-mono text-sm">No hay recursos disponibles por el momento.</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        {items.map((res) => {
+                                            const locked = res.requires_subscription && !res.url;
+
+                                            return (
+                                                <div
+                                                    key={res.id}
+                                                    className={`glass group rounded-3xl border border-white/5 p-6 transition-all relative flex flex-col justify-between overflow-hidden ${
+                                                        locked
+                                                            ? 'cursor-not-allowed'
+                                                            : 'hover:border-[#39FF14]/40 hover:shadow-[0_0_30px_rgba(57,255,20,0.1)]'
+                                                    }`}
+                                                >
+
+                                                    {/* OVERLAY BLOQUEADO */}
+                                                    {locked && (
+                                                        <div className="absolute inset-0 z-10 bg-black/70 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center p-6 text-center">
+                                                            <Lock className="w-8 h-8 text-yellow-500 mb-3" />
+                                                            <p className="text-[10px] font-black uppercase text-white mb-1">
+                                                                Contenido Protegido
+                                                            </p>
+                                                            <p className="text-[9px] font-mono text-yellow-500/80 uppercase mb-4">
+                                                                Requiere suscripción PRO
+                                                            </p>
+                                                            <button className="px-4 py-2 bg-[#39FF14] text-black text-[9px] font-black uppercase rounded-lg">
+                                                                Ver Planes
+                                                            </button>
+                                                        </div>
+                                                    )}
+
+                                                    <div className={`${locked ? 'grayscale blur-[1px]' : ''} flex flex-col h-full`}>
+                                                        <div className="flex justify-between items-start mb-6">
+                                                            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest bg-black/40 px-2 py-1 rounded">
+                                                                {res.file_type || 'DOC'}
+                                                            </span>
+
+                                                            {locked ? (
+                                                                <Lock className="w-3 h-3 text-yellow-500" />
+                                                            ) : (
+                                                                <CheckCircle className="w-4 h-4 text-[#39FF14] opacity-60" />
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex items-start gap-4 mb-8">
+                                                            <div className="p-3 bg-white/5 rounded-xl">
+                                                                <FileText className={`w-6 h-6 ${locked ? 'text-slate-700' : 'text-slate-500 group-hover:text-[#39FF14]'}`} />
+                                                            </div>
+                                                            <div>
+                                                                <h3 className={`text-sm font-black mb-1 uppercase ${locked ? 'text-slate-500' : 'text-white group-hover:text-[#39FF14]'}`}>
+                                                                    {res.title}
+                                                                </h3>
+                                                                <p className="text-[11px] text-slate-600 font-mono italic">
+                                                                    {res.description || "Material clasificado."}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        {locked ? (
+                                                            <div className="w-full py-3 bg-white/5 border border-white/10 text-slate-700 rounded-xl text-[10px] font-black uppercase flex justify-center">
+                                                                Bloqueado
+                                                            </div>
+                                                        ) : (
+                                                            <a
+                                                                href={res.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="w-full py-3 bg-[#39FF14] text-black rounded-xl text-[10px] font-black uppercase flex justify-center"
+                                                            >
+                                                                Acceder al recurso
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            ))
+                        ) : (
+                            <div className="py-32 flex flex-col items-center border border-dashed border-white/5 rounded-[40px]">
+                                <Search className="w-12 h-12 text-slate-800 mb-4" />
+                                <p className="text-slate-600 font-mono text-[10px] uppercase tracking-[0.5em]">
+                                    No se han encontrado recursos
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 )}
             </main>
         </div>
-    )
+    );
 }

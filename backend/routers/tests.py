@@ -1,13 +1,12 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-from database import get_db, User, Question, UserError, UserProgress
+from database import get_db, User, Question, UserError, UserProgress, Ticket 
 from auth import get_current_user
-from schemas import QuestionOut, TestSubmit, TestResult, AnswerResult
+from schemas import QuestionOut, TestSubmit, TestResult, AnswerResult, TicketCreate 
 
 router = APIRouter(prefix="/tests", tags=["Tests"])
-
 
 @router.get("/questions", response_model=List[QuestionOut])
 def get_questions(
@@ -23,7 +22,6 @@ def get_questions(
     questions = query.order_by(Question.id).limit(limit).all()
     return questions
 
-
 @router.get("/failed", response_model=List[QuestionOut])
 def get_failed_questions(
     subject: Optional[str] = Query(None),
@@ -36,7 +34,6 @@ def get_failed_questions(
     if subject:
         questions_query = questions_query.filter(Question.subject == subject)
     return questions_query.all()
-
 
 @router.post("/submit", response_model=TestResult)
 def submit_test(
@@ -59,13 +56,11 @@ def submit_test(
 
         if is_correct:
             correct_count += 1
-            # Remove from errors if it was there
             db.query(UserError).filter(
                 UserError.user_id == current_user.id,
                 UserError.question_id == question.id,
             ).delete()
         else:
-            # Upsert into UserErrors
             existing_error = db.query(UserError).filter(
                 UserError.user_id == current_user.id,
                 UserError.question_id == question.id,
@@ -87,7 +82,6 @@ def submit_test(
             explanation=question.explanation,
         ))
 
-    # Update UserProgress for this subject
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
         UserProgress.subject == payload.subject,
@@ -115,9 +109,44 @@ def submit_test(
         results=results,
     )
 
-
 @router.get("/subjects")
 def get_subjects(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     """Return list of available subjects."""
     subjects = db.query(Question.subject).distinct().all()
     return [s[0] for s in subjects]
+
+# --- RUTA PARA REPORTE DE ERRORES CORREGIDA (MÁS INFO) ---
+@router.post("/report-error")
+def report_error(
+    data: TicketCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Recibe reporte de error, busca info de la pregunta y guarda ticket."""
+    try:
+        # Intentamos extraer el ID de la cadena "Error en Pregunta ID: X"
+        try:
+            q_id = int(data.subject.split(":")[-1].strip())
+            pregunta = db.query(Question).filter(Question.id == q_id).first()
+        except:
+            pregunta = None
+
+        # Si encontramos la pregunta, enriquecemos el asunto del ticket
+        if pregunta:
+            asunto_enriquecido = f"[{pregunta.subject.upper()}] Pregunta #{pregunta.id}: {pregunta.text[:50]}..."
+        else:
+            asunto_enriquecido = data.subject
+
+        new_ticket = Ticket(
+            user_id=current_user.id,
+            subject=asunto_enriquecido,
+            description=data.description,
+            status="pendiente"
+        )
+        db.add(new_ticket)
+        db.commit()
+        db.refresh(new_ticket)
+        return {"message": "Reporte enviado con éxito."}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error en servidor: {str(e)}")
