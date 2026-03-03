@@ -43,8 +43,20 @@ export function AuthProvider({ children }) {
         setUser(null)
     }
 
+    const refreshUser = async () => {
+        try {
+            const res = await api.get('/auth/me')
+            const updatedUser = res.data
+            localStorage.setItem('tech4u_user', JSON.stringify(updatedUser))
+            setUser(updatedUser)
+            return updatedUser
+        } catch (err) {
+            console.error('Error refreshing user:', err)
+        }
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
             {children}
         </AuthContext.Provider>
     )

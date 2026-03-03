@@ -1,18 +1,27 @@
-# ====== Entornos ======
+# ====== Entornos virtuales ======
 node_modules/
 venv/
 env/
-.env
 .venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+
+# ====== Variables de entorno (NUNCA subir a git) ======
+.env
+.env.*
+!.env.example
 
 # ====== Base de Datos ======
 *.sqlite3
 *.db
-backend/tech4u.db
+*.db-shm
+*.db-wal
+
+# ====== Python caché ======
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+.pytest_cache/
 
 # ====== Frontend (Vite/React) ======
 frontend/dist/

@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-    LayoutDashboard, 
-    BookOpen, 
-    Users, 
-    Ticket, 
-    Database, 
+import {
+    LayoutDashboard,
+    BookOpen,
+    Users,
+    Ticket,
+    Database,
     LogOut,
     FlaskConical,
     Shield,
-    Lightbulb // Ícono para sugerencias
+    Lightbulb,
+    CreditCard
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -48,10 +49,10 @@ export default function Sidebar() {
     };
 
     const menuItems = [
-        { 
-            icon: LayoutDashboard, 
-            label: 'Dashboard', 
-            path: user?.role === 'admin' ? '/admin-dashboard' : '/dashboard' 
+        {
+            icon: LayoutDashboard,
+            label: 'Dashboard',
+            path: user?.role === 'admin' ? '/admin-dashboard' : '/dashboard'
         },
         { icon: BookOpen, label: 'Asignaturas', path: '/courses' },
         { icon: FlaskConical, label: 'Test Center', path: '/tests' },
@@ -72,16 +73,33 @@ export default function Sidebar() {
             </div>
 
             <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+
+                {/* BOTÓN SUSCRIPCIÓN — solo alumnos sin plan activo */}
+                {user.role === 'alumno' && (user.subscription_type === 'free' || !user.subscription_type) && (
+                    <NavLink
+                        to="/suscripcion"
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-mono text-xs mb-3 border ${isActive
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/60 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
+                                : 'bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20 hover:border-amber-500/60 hover:shadow-[0_0_12px_rgba(245,158,11,0.2)] animate-pulse'
+                            }`
+                        }
+                    >
+                        <CreditCard className="w-4 h-4 flex-shrink-0" />
+                        <span className="flex-1">Suscripción</span>
+                        <span className="text-[9px] px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/40 rounded text-amber-400 font-black">🔒</span>
+                    </NavLink>
+                )}
+
                 <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-4 mb-2 text-center">Menú Principal</p>
                 {menuItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
-                        className={({ isActive }) => `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-mono text-xs ${
-                            isActive 
-                            ? 'bg-[rgba(57,255,20,0.12)] text-[#39FF14] border border-[rgba(57,255,20,0.4)]' 
-                            : 'text-slate-400 hover:text-[#39FF14] hover:bg-[rgba(57,255,20,0.06)]'
-                        }`}
+                        className={({ isActive }) => `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-mono text-xs ${isActive
+                                ? 'bg-[rgba(57,255,20,0.12)] text-[#39FF14] border border-[rgba(57,255,20,0.4)]'
+                                : 'text-slate-400 hover:text-[#39FF14] hover:bg-[rgba(57,255,20,0.06)]'
+                            }`}
                     >
                         <item.icon className="w-4 h-4 flex-shrink-0" />
                         {item.label}
@@ -93,7 +111,7 @@ export default function Sidebar() {
                         <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-4 mb-2 flex items-center gap-2">
                             <Shield className="w-3 h-3 text-yellow-500" /> Gestión
                         </p>
-                        
+
                         <NavLink to="/gestion-contenido" className={({ isActive }) => `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-mono text-xs ${isActive ? 'bg-[rgba(57,255,20,0.12)] text-[#39FF14] border border-[rgba(57,255,20,0.4)]' : 'text-slate-400 hover:text-[#39FF14] hover:bg-[rgba(57,255,20,0.06)]'}`}>
                             <Database className="w-4 h-4 flex-shrink-0" />
                             Banco de Preguntas
@@ -141,7 +159,7 @@ export default function Sidebar() {
                     <p className="text-xs text-[#39FF14] font-mono truncate">{user.nombre}</p>
                     <p className="text-[10px] text-slate-500 truncate lowercase">{user.role} • {user.subscription_type}</p>
                 </div>
-                <button 
+                <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 w-full px-3 py-2.5 text-slate-500 hover:text-red-400 hover:bg-[rgba(255,50,50,0.06)] rounded-lg text-xs font-mono transition-all"
                 >

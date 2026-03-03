@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import create_tables
 # Añadimos 'announcements' a las importaciones
-from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements
+from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements, subscriptions
 
 app = FastAPI(
     title="Tech4U API",
@@ -32,6 +32,7 @@ app.include_router(users_admin.router)
 app.include_router(content_admin.router)
 # --- NUEVO ROUTER REGISTRADO ---
 app.include_router(announcements.router)
+app.include_router(subscriptions.router)
 
 
 @app.get("/")
