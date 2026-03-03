@@ -115,6 +115,41 @@ class AcademyStats(Base):
     total_revenue = Column(Float, default=0.0)
     monthly_target = Column(Float, default=5000.0)
 
+# --- MODELOS DE CURSOS EN VÍDEO ---
+
+class VideoCourse(Base):
+    __tablename__ = "video_courses"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    thumbnail_url = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    lessons = relationship("VideoLesson", back_populates="course", cascade="all, delete-orphan")
+
+class VideoLesson(Base):
+    __tablename__ = "video_lessons"
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("video_courses.id"), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    youtube_url = Column(String, nullable=False)
+    order_index = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    course = relationship("VideoCourse", back_populates="lessons")
+    progress = relationship("LessonProgress", back_populates="lesson", cascade="all, delete-orphan")
+
+class LessonProgress(Base):
+    __tablename__ = "lesson_progress"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lesson_id = Column(Integer, ForeignKey("video_lessons.id"), nullable=False)
+    completed_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User")
+    lesson = relationship("VideoLesson", back_populates="progress")
+
 # --- UTILIDADES ---
 
 def get_db():

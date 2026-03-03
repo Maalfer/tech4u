@@ -239,6 +239,54 @@ class ResourceCreate(BaseModel):
     url: Optional[str] = None
     requires_subscription: bool = True
 
+# ==============================
+# VIDEO COURSES
+# ==============================
+
+class VideoLessonCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    youtube_url: str
+    order_index: Optional[int] = 0
+
+class VideoLessonOut(BaseModel):
+    id: int
+    course_id: int
+    title: str
+    description: Optional[str]
+    youtube_url: str
+    order_index: int
+    created_at: datetime
+    is_completed: Optional[bool] = False  # Set dynamically when listing for a user
+
+    class Config:
+        from_attributes = True
+
+class VideoCourseCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+
+class VideoCourseOut(BaseModel):
+    id: int
+    title: str
+    description: Optional[str]
+    thumbnail_url: Optional[str]
+    created_at: datetime
+    lessons: List[VideoLessonOut] = []
+    progress_percentage: Optional[int] = 0  # Set dynamically when listing for a user
+
+    class Config:
+        from_attributes = True
+
+class LessonProgressOut(BaseModel):
+    id: int
+    user_id: int
+    lesson_id: int
+    completed_at: datetime
+
+    class Config:
+        from_attributes = True
 
 # Rebuild models (Pydantic v2)
 TokenResponse.model_rebuild()

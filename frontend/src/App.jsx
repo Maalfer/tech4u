@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
+import PremiumRoute from './components/PremiumRoute';
 
 // Public Pages
 import LandingPage from './pages/LandingPage';
@@ -14,6 +15,8 @@ import TestCenter from './pages/TestCenter';
 import Resources from './pages/Resources';
 import SubscriptionPage from './pages/SubscriptionPage';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
+import VideoCoursesList from './pages/VideoCoursesList';
+import VideoCourseDetail from './pages/VideoCourseDetail';
 
 // Admin & Docente Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -21,6 +24,7 @@ import AdminUsers from './pages/AdminUsers';
 import AdminContent from './pages/AdminContent';
 import AdminTickets from './pages/AdminTickets';
 import AdminSuggestions from './pages/AdminSuggestions';
+import AdminVideoCourses from './pages/AdminVideoCourses';
 
 export default function App() {
   return (
@@ -35,19 +39,27 @@ export default function App() {
           {/* Las ponemos antes de los dashboards para asegurar prioridad de coincidencia */}
           <Route
             path="/resources"
-            element={<ProtectedRoute><Resources /></ProtectedRoute>}
+            element={<PremiumRoute><Resources /></PremiumRoute>}
           />
           <Route
             path="/tests"
-            element={<ProtectedRoute><TestCenter /></ProtectedRoute>}
+            element={<PremiumRoute><TestCenter /></PremiumRoute>}
           />
           <Route
             path="/courses"
-            element={<ProtectedRoute><Courses /></ProtectedRoute>}
+            element={<PremiumRoute><Courses /></PremiumRoute>}
           />
           <Route
             path="/dashboard"
             element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
+          />
+          <Route
+            path="/video-cursos"
+            element={<PremiumRoute><VideoCoursesList /></PremiumRoute>}
+          />
+          <Route
+            path="/video-cursos/:id"
+            element={<PremiumRoute><VideoCourseDetail /></PremiumRoute>}
           />
           <Route
             path="/suscripcion"
@@ -70,6 +82,10 @@ export default function App() {
           <Route
             path="/gestion-contenido"
             element={<RoleRoute allowedRoles={['admin', 'docente']}><AdminContent /></RoleRoute>}
+          />
+          <Route
+            path="/admin/cursos"
+            element={<RoleRoute allowedRoles={['admin', 'docente']}><AdminVideoCourses /></RoleRoute>}
           />
           <Route
             path="/admin/tickets"

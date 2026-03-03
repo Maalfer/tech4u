@@ -11,7 +11,8 @@ import {
     FlaskConical,
     Shield,
     Lightbulb,
-    CreditCard
+    CreditCard,
+    Video
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -57,6 +58,7 @@ export default function Sidebar() {
         { icon: BookOpen, label: 'Asignaturas', path: '/courses' },
         { icon: FlaskConical, label: 'Test Center', path: '/tests' },
         { icon: BookOpen, label: 'Recursos', path: '/resources' },
+        { icon: Video, label: 'Cursos en Vídeo', path: '/video-cursos' }
     ];
 
     if (!user) return null;
@@ -97,8 +99,8 @@ export default function Sidebar() {
                         key={item.path}
                         to={item.path}
                         className={({ isActive }) => `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-mono text-xs ${isActive
-                                ? 'bg-[rgba(57,255,20,0.12)] text-[#39FF14] border border-[rgba(57,255,20,0.4)]'
-                                : 'text-slate-400 hover:text-[#39FF14] hover:bg-[rgba(57,255,20,0.06)]'
+                            ? 'bg-[rgba(57,255,20,0.12)] text-[#39FF14] border border-[rgba(57,255,20,0.4)]'
+                            : 'text-slate-400 hover:text-[#39FF14] hover:bg-[rgba(57,255,20,0.06)]'
                             }`}
                     >
                         <item.icon className="w-4 h-4 flex-shrink-0" />
@@ -115,6 +117,11 @@ export default function Sidebar() {
                         <NavLink to="/gestion-contenido" className={({ isActive }) => `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-mono text-xs ${isActive ? 'bg-[rgba(57,255,20,0.12)] text-[#39FF14] border border-[rgba(57,255,20,0.4)]' : 'text-slate-400 hover:text-[#39FF14] hover:bg-[rgba(57,255,20,0.06)]'}`}>
                             <Database className="w-4 h-4 flex-shrink-0" />
                             Banco de Preguntas
+                        </NavLink>
+
+                        <NavLink to="/admin/cursos" className={({ isActive }) => `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-mono text-xs ${isActive ? 'bg-[rgba(57,255,20,0.12)] text-[#39FF14] border border-[rgba(57,255,20,0.4)]' : 'text-slate-400 hover:text-[#39FF14] hover:bg-[rgba(57,255,20,0.06)]'}`}>
+                            <Video className="w-4 h-4 flex-shrink-0" />
+                            Gestión Cursos
                         </NavLink>
 
                         {user.role === 'admin' && (
