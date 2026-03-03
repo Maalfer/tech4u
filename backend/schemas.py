@@ -2,79 +2,103 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict
 from datetime import datetime
 
-# --- AUTH & USER MODELS ---
+# ==============================
+# AUTH & USER MODELS
+# ==============================
+
 class UserRegister(BaseModel):
     nombre: str
     email: EmailStr
     password: str
     subscription_type: Optional[str] = "free"
 
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
 
 class UserOut(BaseModel):
     id: int
     nombre: str
     email: str
     streak_count: int
-    months_subscribed: int 
+    months_subscribed: int
     subscription_type: str
     subscription_end: Optional[datetime]
     role: str
-    
+
     class Config:
         from_attributes = True
+
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     user: UserOut
 
+
 class UserRoleUpdate(BaseModel):
     role: str
+
 
 class UserPasswordUpdate(BaseModel):
     current_password: str
     new_password: str
 
+
 class UserSubscriptionUpdate(BaseModel):
-    subscription_type: str 
+    subscription_type: str
     subscription_end: Optional[datetime] = None
 
-# --- TICKETS ---
+
+# ==============================
+# TICKETS
+# ==============================
+
 class TicketCreate(BaseModel):
     subject: str
     description: str
+
 
 class TicketOut(BaseModel):
     id: int
     user_id: int
     subject: str
     description: str
-    status: str 
+    status: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# --- NUEVO: BROADCAST (ANUNCIOS) ---
+
+# ==============================
+# ANNOUNCEMENTS
+# ==============================
+
 class AnnouncementCreate(BaseModel):
     content: str
+
 
 class AnnouncementOut(BaseModel):
     id: int
     content: str
     is_active: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# --- NUEVO: SUGERENCIAS DE PREGUNTAS ---
+
+# ==============================
+# QUESTION SUGGESTIONS
+# ==============================
+
 class SuggestionCreate(BaseModel):
     subject: str
     text: str
+
 
 class SuggestionOut(BaseModel):
     id: int
@@ -83,11 +107,15 @@ class SuggestionOut(BaseModel):
     text: str
     status: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# --- ADMIN DASHBOARD ESTRATÉGICO ---
+
+# ==============================
+# ADMIN DASHBOARD
+# ==============================
+
 class AdminDashboardStats(BaseModel):
     total_users: int
     active_subscriptions: int
@@ -98,13 +126,18 @@ class AdminDashboardStats(BaseModel):
     revenue_history: List[float]
     login_peaks: List[int]
 
-# --- DASHBOARD ALUMNO ---
+
+# ==============================
+# DASHBOARD ALUMNO
+# ==============================
+
 class SubjectStats(BaseModel):
     subject: str
     total_answered: int
     correct_answers: int
     accuracy: float
     time_invested_minutes: float
+
 
 class DashboardStats(BaseModel):
     streak_count: int
@@ -115,7 +148,11 @@ class DashboardStats(BaseModel):
     total_questions_answered: int
     total_errors: int
 
-# --- QUESTIONS & TESTS ---
+
+# ==============================
+# QUESTIONS & TESTS
+# ==============================
+
 class QuestionOut(BaseModel):
     id: int
     subject: str
@@ -127,9 +164,10 @@ class QuestionOut(BaseModel):
     correct_answer: Optional[str] = None
     difficulty: str
     explanation: Optional[str] = None
-    
+
     class Config:
         from_attributes = True
+
 
 class QuestionCreate(BaseModel):
     subject: str
@@ -142,29 +180,44 @@ class QuestionCreate(BaseModel):
     difficulty: str
     explanation: Optional[str] = None
 
+
 class AnswerItem(BaseModel):
     question_id: int
     selected_answer: str
     time_spent_seconds: Optional[float] = 0
+
 
 class TestSubmit(BaseModel):
     subject: str
     answers: List[AnswerItem]
     test_mode: str
 
-class AnswerResult(BaseModel):
+
+# 🔥 MODELO DETALLADO PARA REVISIÓN DE TEST
+class DetailedAnswerResult(BaseModel):
     question_id: int
-    correct: bool
+    question_text: str
+    option_a: str
+    option_b: str
+    option_c: str
+    option_d: str
+    selected_answer: str
     correct_answer: str
-    explanation: Optional[str]
+    correct: bool
+    explanation: Optional[str] = None
+
 
 class TestResult(BaseModel):
     total: int
     correct: int
     accuracy: float
-    results: List[AnswerResult]
+    detailed_results: List[DetailedAnswerResult]
 
-# --- RESOURCES ---
+
+# ==============================
+# RESOURCES
+# ==============================
+
 class ResourceOut(BaseModel):
     id: int
     title: str
@@ -173,9 +226,10 @@ class ResourceOut(BaseModel):
     file_type: str
     url: Optional[str]
     requires_subscription: bool
-    
+
     class Config:
         from_attributes = True
+
 
 class ResourceCreate(BaseModel):
     title: str
@@ -185,4 +239,6 @@ class ResourceCreate(BaseModel):
     url: Optional[str] = None
     requires_subscription: bool = True
 
+
+# Rebuild models (Pydantic v2)
 TokenResponse.model_rebuild()

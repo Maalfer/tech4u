@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { 
-    TrendingUp, Target, Clock, AlertTriangle, 
-    Megaphone, Lightbulb, Send, MessageSquare, 
-    Shield, CheckCircle 
+import {
+    TrendingUp, Target, Clock, AlertTriangle,
+    Megaphone, Lightbulb, Send, MessageSquare,
+    Shield, CheckCircle, Star, Zap, ChevronRight
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import StreakCounter from '../components/StreakCounter'
@@ -11,16 +11,46 @@ import ProgressBar from '../components/ProgressBar'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
+const initialState = {
+    stats: null,
+    loading: true,
+    announcements: [],
+    mySuggestions: [],
+}
+
+function dashboardReducer(state, action) {
+    switch (action.type) {
+        case 'LOADED':
+            return {
+                ...state,
+                stats: action.stats,
+                announcements: action.announcements,
+                mySuggestions: action.mySuggestions,
+                loading: false,
+            }
+        case 'ERROR':
+            return { ...state, loading: false }
+        case 'SET_SUGGESTIONS':
+            return { ...state, mySuggestions: action.mySuggestions }
+        default:
+            return state
+    }
+}
+
 export default function Dashboard() {
     const { user } = useAuth()
     const navigate = useNavigate()
-    const [stats, setStats] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [announcements, setAnnouncements] = useState([])
-    const [mySuggestions, setMySuggestions] = useState([])
+    const [state, dispatch] = useReducer(dashboardReducer, initialState)
     const [suggestion, setSuggestion] = useState({ subject: '', text: '' })
 
-    // Lógica de Suscripción: Cálculo de días restantes
+    const { stats, loading, announcements, mySuggestions } = state
+
+    // --- LÓGICA DE GAMIFICACIÓN REAL ---
+    const currentXP = stats?.current_xp || 0;
+    const nextLevelXP = stats?.next_level_xp || 1000;
+    const xpPercentage = Math.min(Math.round((currentXP / nextLevelXP) * 100), 100);
+    const userRank = stats?.rank_name || "Recruit";
+
     const getDaysLeft = () => {
         if (!user?.subscription_end) return null;
         const end = new Date(user.subscription_end);
@@ -45,13 +75,15 @@ export default function Dashboard() {
                     api.get('/announcements/active'),
                     api.get('/announcements/my-suggestions')
                 ]);
-                setStats(statsRes.data);
-                setAnnouncements(annRes.data);
-                setMySuggestions(sugRes.data);
+                dispatch({
+                    type: 'LOADED',
+                    stats: statsRes.data,
+                    announcements: annRes.data,
+                    mySuggestions: sugRes.data,
+                });
             } catch (err) {
                 console.error("Error cargando Dashboard:", err);
-            } finally {
-                setLoading(false);
+                dispatch({ type: 'ERROR' });
             }
         };
         fetchData();
@@ -64,7 +96,7 @@ export default function Dashboard() {
             alert("🚀 ¡Gracias! Tu sugerencia ha sido enviada con éxito.");
             setSuggestion({ subject: '', text: '' });
             const res = await api.get('/announcements/my-suggestions');
-            setMySuggestions(res.data);
+            dispatch({ type: 'SET_SUGGESTIONS', mySuggestions: res.data });
         } catch (err) {
             alert("Error al enviar la sugerencia.");
         }
@@ -85,14 +117,14 @@ export default function Dashboard() {
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
             <main className="flex-1 ml-64 p-8">
-                
+
                 {/* ANUNCIOS GLOBALES */}
                 {announcements.length > 0 && (
                     <div className="mb-8 space-y-3">
                         {announcements.map(ann => (
                             <div key={ann.id} className="flex items-center gap-4 p-4 bg-[#39FF14]/5 border border-[#39FF14]/30 rounded-2xl animate-pulse">
                                 <Megaphone className="w-5 h-5 text-[#39FF14]" />
-                                <p className="text-sm font-mono text-[#39FF14] font-bold">[SISTEMA]: {ann.content}</p>
+                                <p className="text-sm font-mono text-[#39FF14] font-bold uppercase tracking-tighter">[SISTEMA]: {ann.content}</p>
                             </div>
                         ))}
                     </div>
@@ -100,10 +132,10 @@ export default function Dashboard() {
 
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-black text-white mb-1">
-                        Bienvenido, <span className="text-[#39FF14] glow-text">{user?.nombre}</span> 👋
+                    <h1 className="text-3xl font-black text-white mb-1 uppercase italic">
+                        Bienvenido, <span className="text-[#39FF14] shadow-[#39FF14]/20 drop-shadow-lg">{user?.nombre}</span> 👋
                     </h1>
-                    <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Protocolo de aprendizaje activo</p>
+                    <p className="text-slate-500 font-mono text-xs uppercase tracking-[0.3em]">Protocolo de aprendizaje activo</p>
                 </div>
 
                 {/* KPIs SUPERIORES */}
@@ -115,32 +147,32 @@ export default function Dashboard() {
 
                     <div className="glass p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
                         <p className="text-[10px] font-mono text-slate-500 uppercase mb-3 tracking-widest">Precisión</p>
-                        <span className="text-3xl font-black font-mono text-[#39FF14] glow-text">{overallAcc}%</span>
+                        <span className="text-3xl font-black font-mono text-[#39FF14]">{overallAcc}%</span>
                         <div className="mt-4"><ProgressBar percent={overallAcc} /></div>
                     </div>
 
-                    {/* TARJETA DE SUSCRIPCIÓN PREMIUM */}
-                    <div className="glass-premium p-5 rounded-2xl flex flex-col justify-between group transition-all duration-500 hover:scale-[1.02]">
+                    {/* TARJETA DE RANGO PROFESIONAL (GAMIFICADA) */}
+                    <div className="glass p-5 rounded-2xl border border-[#39FF14]/30 bg-gradient-to-br from-[#39FF14]/10 to-transparent flex flex-col justify-between group transition-all duration-500 hover:scale-[1.02]">
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                                <h3 className="text-xl font-black italic text-white uppercase tracking-tighter group-hover:text-[#39FF14] transition-colors">
-                                    {user?.subscription_type === 'free' ? 'Core' : user?.subscription_type}
+                                <p className="text-[10px] font-mono text-[#39FF14] uppercase tracking-widest mb-1">Estatus</p>
+                                <h3 className="text-lg font-black italic text-white uppercase tracking-tighter group-hover:text-[#39FF14] transition-colors">
+                                    {userRank}
                                 </h3>
                             </div>
-                            <Shield className={`w-5 h-5 ${user?.subscription_type === 'free' ? 'text-slate-500' : 'text-[#39FF14]'}`} />
+                            <Shield className="w-5 h-5 text-[#39FF14] animate-pulse" />
                         </div>
                         <div className="mt-4">
                             <div className="flex justify-between items-end mb-1">
-                                <span className="text-[9px] font-mono text-slate-400 uppercase">Validez</span>
+                                <span className="text-[9px] font-mono text-slate-400 uppercase">Experiencia</span>
                                 <span className="text-[10px] font-mono text-[#39FF14] font-bold">
-                                    {user?.subscription_type === 'free' ? '∞' : `${daysLeft}D`}
+                                    {currentXP} / {nextLevelXP} XP
                                 </span>
                             </div>
-                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-gradient-to-r from-[#39FF14] to-cyan-400 shadow-[0_0_10px_#39FF14]" 
-                                    style={{ width: user?.subscription_type === 'free' ? '100%' : `${(daysLeft / 30) * 100}%` }}
+                            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-gradient-to-r from-[#39FF14] to-cyan-400 shadow-[0_0_10px_#39FF14] transition-all duration-1000"
+                                    style={{ width: `${xpPercentage}%` }}
                                 ></div>
                             </div>
                         </div>
@@ -182,39 +214,57 @@ export default function Dashboard() {
                                 <MessageSquare className="w-4 h-4" /> Mis Propuestas
                             </h3>
                             <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                                {mySuggestions.map(sug => (
+                                {mySuggestions.length > 0 ? mySuggestions.map(sug => (
                                     <div key={sug.id} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
                                         <p className="text-[11px] text-slate-300 font-mono truncate max-w-[70%]">"{sug.text}"</p>
                                         <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border flex items-center gap-1 ${
-                                            sug.status === 'aprobada' ? 'bg-[#39FF14]/10 text-[#39FF14] border-[#39FF14]/30 animate-pulse' : 
-                                            sug.status === 'descartada' ? 'bg-red-500/10 text-red-500 border-red-500/30' : 
+                                            sug.status === 'aprobada' ? 'bg-[#39FF14]/10 text-[#39FF14] border-[#39FF14]/30 animate-pulse' :
+                                            sug.status === 'descartada' ? 'bg-red-500/10 text-red-500 border-red-500/30' :
                                             'bg-yellow-500/10 text-yellow-500 border-yellow-500/30'
                                         }`}>
                                             {sug.status === 'aprobada' && <CheckCircle className="w-2 h-2" />}
                                             {sug.status === 'aprobada' ? '¡Añadida!' : sug.status}
                                         </span>
                                     </div>
-                                ))}
+                                )) : (
+                                    <p className="text-[10px] font-mono text-slate-600 italic">No hay propuestas enviadas aún.</p>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Columna Derecha: Sugerir + Anomalías */}
+                    {/* Columna Derecha: Sugerir + Acceso Rápido */}
                     <div className="flex flex-col gap-6">
-                        <div className="glass rounded-3xl p-6 border border-[#39FF14]/20 bg-[#39FF14]/5">
+                        {/* ACCESO RÁPIDO AL TEST CENTER */}
+                        <button 
+                            onClick={() => navigate('/test-center')}
+                            className="glass rounded-3xl p-6 border border-[#39FF14]/40 bg-[#39FF14]/5 group hover:bg-[#39FF14] transition-all duration-300 text-left"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] font-mono text-[#39FF14] group-hover:text-black uppercase mb-1 font-bold">Siguiente Misión</p>
+                                    <h4 className="text-white group-hover:text-black font-black uppercase italic text-sm">Entrenar Sectores 🚀</h4>
+                                </div>
+                                <ChevronRight className="w-6 h-6 text-[#39FF14] group-hover:text-black group-hover:translate-x-1 transition-all" />
+                            </div>
+                        </button>
+
+                        <div className="glass rounded-3xl p-6 border border-slate-800">
                             <h2 className="text-xs font-black font-mono uppercase tracking-widest mb-4 text-[#39FF14] flex items-center gap-2">
                                 <Lightbulb className="w-4 h-4" /> Sugerir Pregunta
                             </h2>
                             <form onSubmit={handleSuggest} className="space-y-3">
                                 <select required className="w-full bg-black border border-slate-800 rounded-xl p-2 text-[11px] font-mono text-white outline-none focus:border-[#39FF14]"
-                                    value={suggestion.subject} onChange={(e) => setSuggestion({...suggestion, subject: e.target.value})}>
+                                    value={suggestion.subject} onChange={(e) => setSuggestion(prev => ({ ...prev, subject: e.target.value }))}>
                                     <option value="">Módulo</option>
                                     <option value="Redes">Redes</option>
                                     <option value="Sistemas Operativos">Sistemas Operativos</option>
                                     <option value="Bases de Datos">Bases de Datos</option>
+                                    <option value="Ciberseguridad">Ciberseguridad</option>
+                                    <option value="Programación">Programación</option>
                                 </select>
                                 <textarea required className="w-full bg-black border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-white outline-none h-24 focus:border-[#39FF14] resize-none"
-                                    placeholder="Enunciado de la pregunta..." value={suggestion.text} onChange={(e) => setSuggestion({...suggestion, text: e.target.value})} />
+                                    placeholder="Enunciado de la pregunta..." value={suggestion.text} onChange={(e) => setSuggestion(prev => ({ ...prev, text: e.target.value }))} />
                                 <button className="w-full py-2 bg-[#39FF14] text-black text-[10px] font-black uppercase rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(57,255,20,0.4)] transition-all">
                                     <Send className="w-3 h-3" /> Enviar Propuesta
                                 </button>
@@ -228,7 +278,7 @@ export default function Dashboard() {
                             </div>
                             <div className="flex items-end gap-3">
                                 <span className="text-5xl font-black font-mono text-orange-400">{stats?.total_errors || 0}</span>
-                                <p className="text-[10px] text-slate-500 font-mono mb-1 leading-tight">Fallos que<br />debes corregir</p>
+                                <p className="text-[10px] text-slate-500 font-mono mb-1 leading-tight uppercase tracking-tighter font-bold">Fallos por<br />corregir</p>
                             </div>
                         </div>
                     </div>
