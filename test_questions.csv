@@ -1,0 +1,6 @@
+subject, text, option_a, option_b, option_c, option_d, correct_answer, difficulty, explanation
+Bases de Datos, "¿Qué significa SQL?", "Structured Query Language", "Simple Query Logic", "System Query Language", "Structured Question Language", "a", "easy", "SQL es el lenguaje estándar para manejar BD relacionales."
+Redes, "¿Qué puerto usa HTTP por defecto?", "443", "80", "21", "22", "b", "easy", "HTTP usa el puerto 80. HTTPS usa el 443."
+Ciberseguridad, "¿Qué es el Phishing?", "Un ataque de fuerza bruta", "Un malware que cifra archivos", "Ingeniería social para engañar al usuario", "Un tipo de firewall", "c", "medium", "Phishing busca pescar contraseñas engañando a usuarios."
+Sistemas Operativos, "¿Qué comando en Linux muestra el directorio actual?", "ls", "pwd", "cd", "mkdir", "b", "easy", "pwd significa print working directory."
+Programación, "¿Qué significa DOM en JavaScript?", "Document Object Model", "Data Object Memory", "Display Object Module", "Digital Output Method", "a", "medium", "El DOM es la estructura de los objetos que genera el navegador."

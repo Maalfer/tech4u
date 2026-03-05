@@ -1,0 +1,145 @@
+[
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'Lectura Sucia' (Dirty Read)?",
+        "option_a": "Leer datos con fallos de ortografía",
+        "option_b": "Una transacción lee datos que han sido modificados por otra pero aún no confirmados (no commit)",
+        "option_c": "Leer datos de una tabla borrada",
+        "option_d": "Un tipo de error de hardware",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Ocurre en el nivel de aislamiento READ UNCOMMITTED."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Cuál es el nivel de aislamiento más alto y restrictivo?",
+        "option_a": "READ COMMITTED",
+        "option_b": "SERIALIZABLE",
+        "option_c": "REPEATABLE READ",
+        "option_d": "SNAPSHOT",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Asegura que las transacciones parezcan ejecutarse en serie, evitando todos los fenómenos de lectura."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Backup Incremental'?",
+        "option_a": "Una copia de toda la base de datos cada hora",
+        "option_b": "Copia solo de los datos que han cambiado desde la última copia (del tipo que sea)",
+        "option_c": "Un backup que se hace más grande cada vez",
+        "option_d": "Una copia de seguridad que nunca termina",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Es el más rápido de realizar pero el más lento de restaurar (requiere toda la cadena)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Backup Diferencial'?",
+        "option_a": "Un backup que es distinto a los demás",
+        "option_b": "Copia de los datos que han cambiado desde el último backup COMPLETO",
+        "option_c": "Un backup que solo copia índices",
+        "option_d": "Una copia de red",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Crece con el tiempo hasta el siguiente backup completo, pero es más fácil de restaurar que el incremental."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué archivo almacena todas las sentencias de cambio para recuperación ante desastres?",
+        "option_a": "Archivo de configuración",
+        "option_b": "Registro de transacciones o Log (Redo Log)",
+        "option_c": "Archivo de índices",
+        "option_d": "Base de datos maestra",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Sin el log, no se pueden garantizar las propiedades ACID tras un fallo."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es una base de datos en memoria (In-Memory Database)?",
+        "option_a": "Una que el usuario recuerda",
+        "option_b": "Aquella que almacena los datos principalmente en RAM para máxima velocidad",
+        "option_c": "Un tipo de caché de navegador",
+        "option_d": "Una base de datos que no usa disco",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Ejemplo: SAP HANA o Redis (usada principalmente como caché)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué tipo de NoSQL es Redis?",
+        "option_a": "Documental",
+        "option_b": "Clave-Valor",
+        "option_c": "Grafos",
+        "option_d": "Orientada a columnas",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Es extremadamente rápida para sesiones, cachés y colas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué tipo de NoSQL usarías para analizar una red social compleja?",
+        "option_a": "Documental",
+        "option_b": "Grafos (ej. Neo4j)",
+        "option_c": "Relacional",
+        "option_d": "Clave-Valor",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Las bases de datos de grafos son ideales para conexiones y relaciones profundas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Tablespace'?",
+        "option_a": "El espacio entre tablas",
+        "option_b": "Estructura lógica que agrupa uno o varios archivos físicos de datos",
+        "option_c": "El nombre del servidor",
+        "option_d": "Una tabla gigante",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Permite al DBA gestionar el almacenamiento de forma flexible e independiente del hardware."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace 'UPDATE inventario SET stock = stock - 1 WHERE id = 5;'?",
+        "option_a": "Crea un registro con stock -1",
+        "option_b": "Resta una unidad al stock del producto con ID 5",
+        "option_c": "Borra el producto si el stock llega a cero",
+        "option_d": "Muestra el stock actual",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Es una actualización aritmética sobre un campo existente."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es SQL injection prevention?",
+        "option_a": "Usar antivirus",
+        "option_b": "Usar sentencias preparadas (Prepared Statements) con parámetros",
+        "option_c": "No usar SQL",
+        "option_d": "Encriptar toda la base de datos",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Los parámetros aseguran que el input del usuario no se interprete como código SQL."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué significa 'Big Data' en el contexto de bases de datos?",
+        "option_a": "Servidores muy grandes",
+        "option_b": "Volumen, Velocidad y Variedad de datos que superan la capacidad de los SGBD tradicionales",
+        "option_c": "Bases de datos con muchas tablas",
+        "option_d": "Empresas que venden datos",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Se resume en las '3Vs' (o más, según el autor)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un Agregado en NoSQL?",
+        "option_a": "Una suma de valores",
+        "option_b": "Una unidad de datos que se guarda y recupera junta (como un documento JSON)",
+        "option_c": "Un nuevo usuario",
+        "option_d": "Una tabla añadida",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "A diferencia del modelo relacional normalizado, el NoSQL suele desnormalizar en 'agregados'."
+    }
+]

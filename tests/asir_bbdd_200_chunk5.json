@@ -1,0 +1,178 @@
+[
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace 'SELECT ROUND(15.67, 1);'?",
+        "option_a": "Devuelve 16",
+        "option_b": "Devuelve 15.7",
+        "option_c": "Devuelve 15.6",
+        "option_d": "Error de sintaxis",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "ROUND redondea al número de decimales especificado (en este caso 1)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué función devuelve la parte entera de un número decimal sin redondear?",
+        "option_a": "CEILING()",
+        "option_b": "FLOOR() o TRUNCATE()",
+        "option_c": "ROUND()",
+        "option_d": "INT()",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "FLOOR() redondea hacia abajo al entero más cercano."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el comando 'LIKE \"H_la\"'?",
+        "option_a": "Busca palabras que empiecen por H y terminen por la",
+        "option_b": "Busca palabras de 4 letras que empiecen por H, tengan cualquier carácter en medio y terminen por la",
+        "option_c": "Busca cualquier palabra con H",
+        "option_d": "Es un error",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "El guion bajo '_' representa exactamente UN carácter cualquiera."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Para qué sirve el operador 'CASE' en SQL?",
+        "option_a": "Para crear carpetas",
+        "option_b": "Para implementar lógica condicional (IF-THEN) dentro de una consulta",
+        "option_c": "Para buscar mayúsculas",
+        "option_d": "Para borrar casos de prueba",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Permite transformar valores en el resultado basándose en condiciones."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Self Join'?",
+        "option_a": "Una consulta que se une a internet",
+        "option_b": "Una tabla que se une consigo misma",
+        "option_c": "Un usuario que se conecta solo",
+        "option_d": "Una tabla que se borra sola",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Útil para relaciones jerárquicas (ej. empleado y su jefe en la misma tabla)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un índice agrupado (Clustered Index)?",
+        "option_a": "Un índice que guarda los datos por duplicado",
+        "option_b": "Un índice que ordena físicamente las filas de la tabla en disco",
+        "option_c": "Un índice que solo funciona con números",
+        "option_d": "Un índice muy lento",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Solo puede haber uno por tabla porque los datos solo pueden estar ordenados de una forma."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'B-Tree' en el contexto de índices?",
+        "option_a": "Un tipo de árbol de navidad binario",
+        "option_b": "La estructura de datos más común para organizar índices de forma balanceada",
+        "option_c": "Un software de monitorización",
+        "option_d": "Un tipo de cable de red",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Permite búsquedas, inserciones y borrados en tiempo logarítmico."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué comando elimina un índice en SQL Estándar?",
+        "option_a": "DELETE INDEX",
+        "option_b": "DROP INDEX",
+        "option_c": "REMOVE INDEX",
+        "option_d": "ALTER TABLE DELETE INDEX",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Al igual que tablas o bases de datos, los índices se eliminan con DROP."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'Atomicidad' en el modelo ACID?",
+        "option_a": "Poder dividir la tarea en trozos",
+        "option_b": "Garantizar que una transacción se realiza por completo o no se realiza nada",
+        "option_c": "Rapidez atómica",
+        "option_d": "Seguridad ante ataques nucleares",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Garantiza que no queden transacciones a medias ante fallos."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué significa 'Consistencia' en ACID?",
+        "option_a": "Que los datos no se borren",
+        "option_b": "Que la base de datos pase de un estado válido a otro estado válido tras la transacción",
+        "option_c": "Que el servidor sea robusto",
+        "option_d": "Que los datos sean iguales en todas las copias",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Asegura que se cumplan todas las reglas de integridad (claves, tipos, etc.)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el 'Aislamiento' (Isolation) en ACID?",
+        "option_a": "Mover el servidor a una sala fría",
+        "option_b": "Asegurar que las operaciones concurrentes no interfieran entre sí",
+        "option_c": "Bloquear a los usuarios externos",
+        "option_d": "Encriptar la conexión",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Define niveles de visibilidad entre transacciones que ocurren al mismo tiempo."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'Durabilidad' en ACID?",
+        "option_a": "Que el disco duro sea de buena calidad",
+        "option_b": "Que una vez confirmada la transacción, los cambios persistan incluso ante fallos del sistema",
+        "option_c": "Que el software dure muchos años",
+        "option_d": "Que los datos se guarden en cinta",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Garantiza que el 'COMMIT' se ha escrito físicamente en el registro de log o disco."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Rollforward'?",
+        "option_a": "Girar la base de datos",
+        "option_b": "Recuperar la base de datos aplicando los cambios del log tras restaurar un backup",
+        "option_c": "Un error de bucle infinito",
+        "option_d": "Borrar los datos nuevos",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Se usa tras un fallo físico para llevar la base de datos al punto más reciente posible."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué significan las siglas DDL?",
+        "option_a": "Data Design Language",
+        "option_b": "Data Definition Language (Lenguaje de Definición de Datos)",
+        "option_c": "Dynamic Data Link",
+        "option_d": "Direct Data Layer",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Son comandos que definen la estructura (CREATE, ALTER, DROP)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué significan las siglas DML?",
+        "option_a": "Data Markup Language",
+        "option_b": "Data Manipulation Language (Lenguaje de Manipulación de Datos)",
+        "option_c": "Digital Music Library",
+        "option_d": "Direct Memory Link",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Son comandos para operar con los datos (SELECT, INSERT, UPDATE, DELETE)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el álgebra relacional?",
+        "option_a": "Una asignatura de matemáticas avanzadas",
+        "option_b": "El conjunto de operaciones teóricas que sustentan el lenguaje SQL",
+        "option_c": "Un tipo de base de datos no relacional",
+        "option_d": "Un servidor de cálculos",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Define cómo se manipulan las relaciones (tablas) matemáticamente."
+    }
+]

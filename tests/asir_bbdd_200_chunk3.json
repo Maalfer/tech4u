@@ -1,0 +1,145 @@
+[
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Cuál es la Tercera Forma Normal (3FN)?",
+        "option_a": "Que esté en 2FN y no haya dependencias transitivas",
+        "option_b": "Eliminar todas las claves foráneas",
+        "option_c": "Que la tabla tenga al menos 3 columnas",
+        "option_d": "Separar los datos numéricos de los de texto",
+        "correct_answer": "a",
+        "difficulty": "hard",
+        "explanation": "La 3FN elimina atributos que dependen de otros atributos no clave."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué restricción asegura que un valor cumpla una condición lógica?",
+        "option_a": "UNIQUE",
+        "option_b": "DEFAULT",
+        "option_c": "CHECK",
+        "option_d": "NOT NULL",
+        "correct_answer": "c",
+        "difficulty": "medium",
+        "explanation": "Ejemplo: CHECK (Edad >= 18); solo permite adultos."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace la restricción 'ON DELETE CASCADE'?",
+        "option_a": "Evita borrar registros padres",
+        "option_b": "Borra automáticamente los registros hijos cuando se borra el padre",
+        "option_c": "Crea una copia de seguridad al borrar",
+        "option_d": "Convierte los valores borrados en cero",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Mantiene la integridad referencial borrando en cadena."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un atributo atómico?",
+        "option_a": "Un atributo que explota",
+        "option_b": "Un valor que no se puede dividir en partes más pequeñas",
+        "option_c": "Un atributo secreto con contraseña",
+        "option_d": "Un atributo que solo acepta números",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Es la base de la 1FN (indivisibilidad)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Para qué sirve el operador 'BETWEEN 10 AND 20'?",
+        "option_a": "Para seleccionar el 10 y el 20 únicamente",
+        "option_b": "Para seleccionar valores en el rango inclusivo de 10 a 20",
+        "option_c": "Para dividir un número entre 10 y 20",
+        "option_d": "Para multiplicar el 10 por el 20",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Es un filtro de rango numérico o de fechas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué comando añade una columna nueva a una tabla existente?",
+        "option_a": "UPDATE TABLE ADD",
+        "option_b": "ALTER TABLE ADD",
+        "option_c": "INSERT COLUMN",
+        "option_d": "CREATE COLUMN",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Sintaxis: ALTER TABLE nombre_tabla ADD nombre_columna tipo_dato."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Cuál es la diferencia entre CHAR y VARCHAR?",
+        "option_a": "VARCHAR es más rápido",
+        "option_b": "CHAR es de longitud fija y VARCHAR de longitud variable",
+        "option_c": "VARCHAR solo acepta números",
+        "option_d": "No hay diferencia",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "CHAR rellena con espacios hasta el tamaño definido, VARCHAR solo ocupa lo necesario."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un valor NULL?",
+        "option_a": "Cero",
+        "option_b": "Un espacio en blanco",
+        "option_c": "La ausencia de valor o valor desconocido",
+        "option_d": "Un error del programa",
+        "correct_answer": "c",
+        "difficulty": "easy",
+        "explanation": "NULL representa un dato no disponible o no aplicable."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué función devuelve la fecha actual del sistema?",
+        "option_a": "DATE()",
+        "option_b": "CURDATE() o NOW()",
+        "option_c": "SYSTEM_DATE()",
+        "option_d": "TODAY()",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Depende del SGBD (MySQL usa NOW() o CURDATE(), SQL Server GETDATE())."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la cardinalidad en una relación E/R?",
+        "option_a": "El número de atributos de la tabla",
+        "option_b": "El número máximo de instancias de una entidad vinculadas a otra",
+        "option_c": "El nombre de la clave primaria",
+        "option_d": "La cantidad de tablas en la base de datos",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Define si la relación es 1:1, 1:N o N:M."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Cuál es el riesgo de un CROSS JOIN sin filtros?",
+        "option_a": "Se borran los datos",
+        "option_b": "Genera el producto cartesiano, resultando en millones de filas innecesarias",
+        "option_c": "Se detiene el servidor de inmediato",
+        "option_d": "No hay riesgo alguno",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Combina cada fila de A con cada fila de B sin criterio de unión."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es una clave candidata?",
+        "option_a": "Una clave que se postula a las elecciones",
+        "option_b": "Cualquier atributo o conjunto de atributos que identifica unívocamente a la tupla",
+        "option_c": "Una clave foránea que no se usa",
+        "option_d": "La segunda opción de clave primaria",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "De entre las claves candidatas, se elige una como Primary Key."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Para qué sirve el comando 'UNION'?",
+        "option_a": "Para multiplicar dos tablas",
+        "option_b": "Para combinar los resultados de dos consultas SELECT (sin duplicados)",
+        "option_c": "Para crear un enlace físico entre bases de datos",
+        "option_d": "Para borrar registros comunes",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Requiere que las consultas tengan el mismo número y tipo de columnas."
+    }
+]

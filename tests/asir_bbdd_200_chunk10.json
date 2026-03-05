@@ -1,0 +1,222 @@
+[
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el operador 'REGEXP' en MySQL?",
+        "option_a": "Registra una nueva tabla",
+        "option_b": "Busca patrones complejos usando expresiones regulares",
+        "option_c": "Borra el registro actual",
+        "option_d": "Comprime los datos",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Permite búsquedas mucho más potentes que 'LIKE'."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es una Vista Materializada?",
+        "option_a": "Una vista que se puede tocar",
+        "option_b": "Una vista cuyos resultados se almacenan físicamente en disco para mejorar el rendimiento",
+        "option_c": "Una vista que se borra al cerrar la sesión",
+        "option_d": "Una vista que solo tiene números",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "A diferencia de una vista normal, esta consume espacio en disco pero es mucho más rápida de consultar."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el comando 'REPLACE INTO' en MySQL?",
+        "option_a": "Cambia el nombre de la tabla",
+        "option_b": "Inserta un registro o lo reemplaza si ya existe la clave primaria/única",
+        "option_c": "Cambia todas las letras de la tabla",
+        "option_d": "Busca y borra un texto",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Es una forma atómica de hacer 'DELETE' e 'INSERT'."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'Cláusula WITH' (CTE)?",
+        "option_a": "Un comando para borrar tablas",
+        "option_b": "Define un conjunto de resultados temporal que se puede referenciar dentro de una consulta",
+        "option_c": "Una forma de dar permisos",
+        "option_d": "Un tipo de unión",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Mejora la legibilidad de consultas complejas y permite recursividad."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace la función 'RANK()'?",
+        "option_a": "Borra los peores registros",
+        "option_b": "Asigna un número de orden a cada fila dentro de una partición de un conjunto de resultados",
+        "option_c": "Muestra el nivel de seguridad",
+        "option_d": "Suma los valores de una columna",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Es una función de ventana (Window Function)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el modelo BASE en NoSQL?",
+        "option_a": "Una base de datos básica",
+        "option_b": "Basically Available, Soft state, Eventual consistency",
+        "option_c": "Base de Almacenamiento Seguro y Eficiente",
+        "option_d": "Un tipo de encriptación",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Es la alternativa al modelo ACID para sistemas distribuidos."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué herramienta de MySQL se usa para exportar la base de datos a un archivo .sql?",
+        "option_a": "mysql_export",
+        "option_b": "mysqldump",
+        "option_c": "mysql_save",
+        "option_d": "mysql_backup",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Es la utilidad estándar de línea de comandos para copias de seguridad lógicas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'Transparencia de Ubicación' en bases de datos distribuidas?",
+        "option_a": "Que el usuario sabe dónde están los datos",
+        "option_b": "Que el usuario accede a los datos sin saber en qué nodo físico están almacenados",
+        "option_c": "Que el servidor tiene carcasa de cristal",
+        "option_d": "Que los datos son públicos",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "El sistema se encarga de localizar y recuperar los datos de forma transparente."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el 'Two-Phase Commit' (2PC)?",
+        "option_a": "Hacer dos copias de seguridad",
+        "option_b": "Protocolo para asegurar que una transacción distribuida se confirma en todos los nodos o en ninguno",
+        "option_c": "Hacer COMMIT dos veces seguidas",
+        "option_d": "Una transacción con dos usuarios",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Garantiza la atomicidad en entornos distribuidos mediante fases de 'preparación' y 'decisión'."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué tipo de dato es un 'UUID'?",
+        "option_a": "Un número entero largo",
+        "option_b": "Un identificador único universal de 128 bits",
+        "option_c": "Un tipo de fecha",
+        "option_d": "Un error de sistema",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Muy útil como PK en sistemas distribuidos para evitar colisiones sin coordinación central."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace 'SELECT * FROM tabla LIMIT 10 OFFSET 5;'?",
+        "option_a": "Muestra 10 filas saltándose las 5 primeras",
+        "option_b": "Muestra 5 filas saltándose las 10 primeras",
+        "option_c": "Muestra solo 15 filas",
+        "option_d": "Borra 5 filas",
+        "correct_answer": "a",
+        "difficulty": "medium",
+        "explanation": "Es la base de la paginación de resultados en aplicaciones web."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Foreign Key Constraint Violation'?",
+        "option_a": "Un error al borrar un registro que tiene hijos asociados o al insertar un hijo sin padre",
+        "option_b": "Un error de contraseña",
+        "option_c": "Un error de red",
+        "option_d": "Borrar la clave primaria",
+        "correct_answer": "a",
+        "difficulty": "easy",
+        "explanation": "El SGBD protege la integridad referencial impidiendo la operación."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Virtual Column' (Columna Virtual)?",
+        "option_a": "Una columna que no existe en el disco pero se calcula al consultar",
+        "option_b": "Una columna invisible",
+        "option_c": "Una columna de una base de datos en la nube",
+        "option_d": "Un tipo de índice",
+        "correct_answer": "a",
+        "difficulty": "hard",
+        "explanation": "Ahorra espacio en disco y asegura que el valor siempre esté actualizado."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace la directiva 'WITH CHECK OPTION' en una vista?",
+        "option_a": "Comprueba si la vista tiene virus",
+        "option_b": "Impide insertar o actualizar filas a través de la vista que no cumplan la condición de la propia vista",
+        "option_c": "Hace que la vista sea más rápida",
+        "option_d": "Permite borrar la vista",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Mantiene la coherencia de los datos insertados a través de la vista."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el 'Cost-Based Optimizer' (CBO)?",
+        "option_a": "Un software que calcula el precio del servidor",
+        "option_b": "El motor que elige el plan de ejecución más barato basándose en estadísticas (filas, índices...)",
+        "option_c": "Un programa de facturación",
+        "option_d": "Un tipo de hardware",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Es el cerebro que decide cómo ejecutar tu SQL de la forma más eficiente."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Full Table Scan'?",
+        "option_a": "Una búsqueda muy rápida",
+        "option_b": "El SGBD lee todas las filas de la tabla para encontrar el dato (generalmente lento)",
+        "option_c": "Un escaneo de virus",
+        "option_d": "Un backup completo",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Ocurre cuando no hay índices adecuados para la consulta."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'Normalización'?",
+        "option_a": "Poner los nombres en minúsculas",
+        "option_b": "Proceso de organizar los datos para minimizar la redundancia y evitar anomalías",
+        "option_c": "Borrar los datos antiguos",
+        "option_d": "Usar solo tipos de datos estándar",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Se basa en una serie de reglas llamadas Formas Normales."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es una anomalía de borrado?",
+        "option_a": "Borrar sin querer",
+        "option_b": "Al borrar un dato perder información adicional que no queríamos borrar debido a un mal diseño",
+        "option_c": "Un error de disco",
+        "option_d": "No poder borrar a un usuario",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Se evita separando las entidades en tablas distintas (Normalización)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'De-normalización'?",
+        "option_a": "Cometer errores de diseño a propósito",
+        "option_b": "Añadir redundancia controlada para mejorar el rendimiento de las lecturas",
+        "option_c": "Borrar las claves foráneas",
+        "option_d": "No usar más de una tabla",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Se usa mucho en Data Warehousing para evitar JOINS costosos."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Cuál es la función del comando 'SET TRANSACTION ISOLATION LEVEL'?",
+        "option_a": "Cambiar la contraseña del administrador",
+        "option_b": "Configurar cómo de aisladas estarán las transacciones de esta sesión",
+        "option_c": "Poner el servidor en modo mantenimiento",
+        "option_d": "Borrar el historial",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Permite equilibrar consistencia y rendimiento según la necesidad."
+    }
+]

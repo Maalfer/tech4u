@@ -1,0 +1,40 @@
+# ====== Entornos virtuales ======
+node_modules/
+venv/
+env/
+.venv/
+
+# ====== Variables de entorno (NUNCA subir a git) ======
+.env
+.env.*
+!.env.example
+
+# ====== Base de Datos ======
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# ====== Python caché ======
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+.pytest_cache/
+
+# ====== Frontend (Vite/React) ======
+frontend/dist/
+frontend/build/
+frontend/.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ====== IDEs y OS ======
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

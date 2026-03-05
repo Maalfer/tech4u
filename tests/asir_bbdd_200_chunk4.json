@@ -1,0 +1,233 @@
+[
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el operador 'EXISTS' en una subconsulta?",
+        "option_a": "Crea una tabla si no existe",
+        "option_b": "Devuelve verdadero si la subconsulta retorna al menos un registro",
+        "option_c": "Comprueba si el usuario existe en el sistema",
+        "option_d": "Borra los datos duplicados",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Es un operador de cuantificación existencial muy eficiente."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un Deadlock (bloqueo mutuo)?",
+        "option_a": "Un cable roto en el servidor",
+        "option_b": "Dos transacciones que esperan recursos bloqueados mutuamente",
+        "option_c": "El cierre de la base de datos por mantenimiento",
+        "option_d": "Un tipo de contraseña muy segura",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "El SGBD debe detectar y romper el ciclo matando una de las transacciones."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Lock' (bloqueo) exclusivo?",
+        "option_a": "Permite que todos lean menos uno",
+        "option_b": "Impide que cualquier otra transacción acceda al dato",
+        "option_c": "Solo permite el acceso a los administradores",
+        "option_d": "Solo funciona en modo lectura",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Se usa principalmente durante las operaciones de escritura (X-lock)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué comando retira privilegios a un usuario?",
+        "option_a": "DENY",
+        "option_b": "REVOKE",
+        "option_c": "REMOVE",
+        "option_d": "RESTRICT",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "REVOKE es la contraparte de GRANT."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el SQL Injection?",
+        "option_a": "Una técnica para acelerar el SQL",
+        "option_b": "Un tipo de ataque que inserta código malicioso en consultas",
+        "option_c": "Una herramienta de reparación de bases de datos",
+        "option_d": "Un nuevo estándar de SQL 2024",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Se previene usando consultas preparadas y parámetros."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Para qué sirve el comando 'CASCADE' en un 'DROP'?",
+        "option_a": "Para que el borrado sea más rápido",
+        "option_b": "Para borrar también los objetos que dependen del que se va a borrar",
+        "option_c": "Para pedir confirmación al usuario",
+        "option_d": "Para que el borrado se haga en segundo plano",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Evita errores de dependencia borrando vistas o restricciones asociadas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué función de agregado devuelve el valor más alto?",
+        "option_a": "HIGH()",
+        "option_b": "MAX()",
+        "option_c": "TOP()",
+        "option_d": "GREATEST()",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "MAX() encuentra el valor máximo de un conjunto."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el comando 'UNION ALL'?",
+        "option_a": "Une tablas eliminando duplicados",
+        "option_b": "Une tablas manteniendo todos los registros, incluidos duplicados",
+        "option_c": "Suma los valores de las columnas",
+        "option_d": "Divide la tabla en dos partes",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Es más rápido que UNION porque no realiza la operación de eliminación de duplicados."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la cardinalidad '1:N'?",
+        "option_a": "Un registro de A se relaciona con un solo registro de B",
+        "option_b": "Un registro de A se relaciona con varios registros de B",
+        "option_c": "Varios registros de A se relacionan con varios de B",
+        "option_d": "Ninguna de las anteriores",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Ejemplo: Un Departamento (1) tiene muchos Empleados (N)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué tabla resuelve una relación 'N:M'?",
+        "option_a": "Una tabla asociativa o intermedia con claves foráneas",
+        "option_b": "La tabla maestra",
+        "option_c": "Una vista temporal",
+        "option_d": "Un índice único",
+        "correct_answer": "a",
+        "difficulty": "medium",
+        "explanation": "Se crea una tabla que contiene las PKs de ambas tablas originales."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la redundancia de datos?",
+        "option_a": "La seguridad de los datos",
+        "option_b": "La duplicación innecesaria de información",
+        "option_c": "La velocidad de acceso",
+        "option_d": "La encriptación de claves",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Uno de los objetivos de las bases de datos es minimizarla mediante normalización."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué comando cambia el nombre de una tabla?",
+        "option_a": "CHANGE TABLE",
+        "option_b": "RENAME TABLE",
+        "option_c": "MOVE TABLE",
+        "option_d": "ALTER NAME",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Sintaxis común: RENAME TABLE vieja TO nueva; (o ALTER TABLE RENAME TO)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué significa que una transacción sea 'Atómica'?",
+        "option_a": "Que es muy pequeña",
+        "option_b": "Que es indivisible: o se hace todo o no se hace nada",
+        "option_c": "Que usa energía nuclear",
+        "option_d": "Que es muy rápida",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Es la 'A' de ACID."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Savepoint'?",
+        "option_a": "Un punto de guardado en una transacción para poder volver a él mediante rollback parcial",
+        "option_b": "Una copia de seguridad diaria",
+        "option_c": "El botón de guardar en el editor",
+        "option_d": "Un servidor de respaldo",
+        "correct_answer": "a",
+        "difficulty": "hard",
+        "explanation": "Permite mayor flexibilidad en transacciones complejas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace 'COALESCE(columna, 0)'?",
+        "option_a": "Suma la columna",
+        "option_b": "Devuelve el primer valor no nulo de la lista",
+        "option_c": "Borra los nulos",
+        "option_d": "Convierte la columna en numérica",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Se usa mucho para dar valores por defecto a los NULLs."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un Plan de Ejecución (Execution Plan)?",
+        "option_a": "Un manual de usuario",
+        "option_b": "La secuencia de operaciones que el SGBD seguirá para ejecutar una consulta",
+        "option_c": "El horario de backups",
+        "option_d": "Un tipo de contrato de licencia",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Vital para analizar y optimizar el rendimiento de las consultas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué comando permite ver el plan de ejecución en la mayoría de SGBD?",
+        "option_a": "SHOW PLAN",
+        "option_b": "EXPLAIN",
+        "option_c": "DESCRIBE",
+        "option_d": "VIEW PLAN",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Se antepone a la consulta (ej. EXPLAIN SELECT...)."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la integridad referencial?",
+        "option_a": "Que los datos sean secretos",
+        "option_b": "Asegurar que las claves foráneas siempre apunten a una clave primaria válida o sean nulas",
+        "option_c": "Que el servidor no se apague",
+        "option_d": "Que los nombres de columnas no tengan espacios",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Evita que existan 'hijos' sin 'padre' en la base de datos."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué tipo de dato usarías para almacenar una imagen pequeña en la propia base de datos?",
+        "option_a": "VARCHAR",
+        "option_b": "BLOB (Binary Large Object)",
+        "option_c": "INT",
+        "option_d": "DATE",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "BLOB permite guardar datos binarios como imágenes, sonidos o ejecutables."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es una base de datos relacional?",
+        "option_a": "Un conjunto de archivos Excel",
+        "option_b": "Basada en el modelo de tablas relacionadas por claves",
+        "option_c": "Una que no usa SQL",
+        "option_d": "Una base de datos solo para la familia",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Es el modelo dominante desde los años 70, basado en el álgebra relacional."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el comando 'DESCRIBE tabla;'?",
+        "option_a": "Muestra los datos de la tabla",
+        "option_b": "Muestra la estructura técnica (columnas, tipos, claves) de la tabla",
+        "option_c": "Borra la descripción de la tabla",
+        "option_d": "Busca errores en la tabla",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Muy útil en MySQL y Oracle para conocer el esquema rápidamente."
+    }
+]

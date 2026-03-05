@@ -1,0 +1,178 @@
+[
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el operador '$match' en MongoDB?",
+        "option_a": "Busca coincidencias exactas de texto",
+        "option_b": "Filtra los documentos para pasar solo los que cumplen una condición al siguiente paso",
+        "option_c": "Enciende el motor de base de datos",
+        "option_d": "Borra los duplicados de una colección",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Es el equivalente al WHERE de SQL en un pipeline de agregación."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el operador '$group' en MongoDB?",
+        "option_a": "Agrupa usuarios por contraseñas",
+        "option_b": "Agrupa documentos por una clave especificada y permite realizar cálculos (suma, media...)",
+        "option_c": "Ordena los documentos",
+        "option_d": "Crea una nueva base de datos",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Es el equivalente al GROUP BY de SQL."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Cómo se concatenan dos strings en Oracle SQL?",
+        "option_a": "string1 + string2",
+        "option_b": "string1 || string2",
+        "option_c": "CONCAT_STR(string1, string2)",
+        "option_d": "string1 & string2",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Oracle utiliza el doble pipe || como operador estándar de concatenación."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace la función 'TRIM(\"   Hola   \")'?",
+        "option_a": "Borra la palabra 'Hola'",
+        "option_b": "Elimina los espacios en blanco al principio y al final",
+        "option_c": "Divide la cadena en tres partes",
+        "option_d": "Pone el texto en negrita",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Esencial para limpiar entradas de datos antes de procesarlas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace la función 'YEAR('2024-03-03')'?",
+        "option_a": "Devuelve la fecha completa",
+        "option_b": "Devuelve el número 2024",
+        "option_c": "Calcula los días que quedan de año",
+        "option_d": "Error de formato",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Extrae el componente de año de una fecha o timestamp."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué comando crea un nuevo usuario en MySQL?",
+        "option_a": "USER ADD 'henko' IDENTIFIED BY 'pass';",
+        "option_b": "CREATE USER 'henko'@'localhost' IDENTIFIED BY 'pass';",
+        "option_c": "INSERT INTO users VALUES ('henko');",
+        "option_d": "GRANT USER 'henko';",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Sintaxis estándar para la gestión de cuentas en MySQL/MariaDB."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es la 'IOPS' en el rendimiento de bases de datos?",
+        "option_a": "Input/Output Operations Per Second (Operaciones de E/S por segundo)",
+        "option_b": "Instalación de Objetos y Procesos Seguros",
+        "option_c": "Internet Online Payment System",
+        "option_d": "Índice de Objetos Por Segundo",
+        "correct_answer": "a",
+        "difficulty": "hard",
+        "explanation": "Métrica crítica para medir el rendimiento del almacenamiento en bases de datos masivas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Covering Index' (índice de cobertura)?",
+        "option_a": "Un índice que tapa los errores",
+        "option_b": "Un índice que contiene todas las columnas requeridas por una consulta",
+        "option_c": "Un índice de archivos comprimidos",
+        "option_d": "Un tipo de backup",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Permite resolver la consulta leyendo solo el índice, sin tener que acceder a la tabla principal."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es un 'Trigger de tipo AFTER UPDATE'?",
+        "option_a": "Uno que se ejecuta antes de actualizar",
+        "option_b": "Uno que se ejecuta inmediatamente después de que se confirma el cambio en la tabla",
+        "option_c": "Uno que borra la tabla después de actualizar",
+        "option_d": "Un error de bucle",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Ideal para auditar cambios o actualizar tablas de resumen."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué comando permite ver qué usuarios están conectados en MySQL?",
+        "option_a": "SHOW USERS;",
+        "option_b": "SHOW PROCESSLIST;",
+        "option_c": "SELECT * FROM sessions;",
+        "option_d": "DESCRIBE connections;",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Muestra las consultas actuales, el tiempo de ejecución y el estado de cada sesión."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el 'RTO' (Recovery Time Objective)?",
+        "option_a": "El tiempo máximo aceptable que la base de datos puede estar offline después de un fallo",
+        "option_b": "El precio de la licencia del software",
+        "option_c": "La cantidad de datos que se pueden perder",
+        "option_d": "El tiempo de vida del servidor",
+        "correct_answer": "a",
+        "difficulty": "hard",
+        "explanation": "Parámetro crítico en planes de continuidad de negocio."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el 'RPO' (Recovery Point Objective)?",
+        "option_a": "El tiempo de restauración",
+        "option_b": "La cantidad máxima de datos (medida en tiempo) que es aceptable perder ante un fallo",
+        "option_c": "El punto donde se guarda la base de datos",
+        "option_d": "El número de copias de seguridad",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Define la frecuencia con la que debemos realizar backups o réplicas."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es el sharding en bases de datos?",
+        "option_a": "Borrar la base de datos",
+        "option_b": "Dividir una base de datos gigante en partes más pequeñas (shards) distribuidas entre varios servidores",
+        "option_c": "Un tipo de encriptación",
+        "option_d": "Un lenguaje de programación",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Técnica fundamental para el escalado horizontal masivo."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué es una clave primaria compuesta?",
+        "option_a": "Una que tiene muchos caracteres",
+        "option_b": "Una que utiliza dos o más columnas para identificar de forma única cada fila",
+        "option_c": "Una que tiene dos nombres",
+        "option_d": "Una clave foránea que funciona como primaria",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Se usa cuando un solo atributo no es suficiente para garantizar la unicidad."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué ventaja tiene usar el tipo de dato DECIMAL en lugar de FLOAT para dinero?",
+        "option_a": "Ocupa menos espacio",
+        "option_b": "Evita errores de redondeo de precisión de coma flotante",
+        "option_c": "Es más rápido",
+        "option_d": "No permite decimales",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "DECIMAL es un tipo de dato de coma fija exacto, esencial para contabilidad."
+    },
+    {
+        "subject": "Bases de Datos",
+        "text": "¿Qué hace el comando 'ALTER TABLE empleados RENAME TO trabajadores;'?",
+        "option_a": "Cambia el nombre de la base de datos",
+        "option_b": "Cambia el nombre de la tabla de 'empleados' a 'trabajadores'",
+        "option_c": "Crea una tabla nueva",
+        "option_d": "Borra la tabla",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Operación DDL común para renombrar tablas."
+    }
+]

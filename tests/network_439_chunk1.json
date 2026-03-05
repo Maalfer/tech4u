@@ -1,0 +1,222 @@
+[
+    {
+        "subject": "Redes",
+        "text": "¿Qué capa del modelo OSI es responsable del enrutamiento de paquetes?",
+        "option_a": "Capa 2 (Enlace)",
+        "option_b": "Capa 3 (Red)",
+        "option_c": "Capa 4 (Transporte)",
+        "option_d": "Capa 1 (Física)",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "La capa de Red se encarga del direccionamiento lógico y el enrutamiento."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Cuál es la unidad de datos (PDU) de la capa de transporte?",
+        "option_a": "Bit",
+        "option_b": "Trama (Frame)",
+        "option_c": "Segmento",
+        "option_d": "Paquete",
+        "correct_answer": "c",
+        "difficulty": "medium",
+        "explanation": "En transporte se habla de Segmentos (TCP) o Datagramas (UDP)."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué protocolo se utiliza para convertir una dirección IP en una dirección MAC?",
+        "option_a": "DNS",
+        "option_b": "DHCP",
+        "option_c": "ARP",
+        "option_d": "ICMP",
+        "correct_answer": "c",
+        "difficulty": "easy",
+        "explanation": "Address Resolution Protocol (ARP) resuelve la MAC de una IP conocida en la red local."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Cuál es el rango de puertos 'bien conocidos' (well-known ports)?",
+        "option_a": "0 - 1023",
+        "option_b": "1024 - 49151",
+        "option_c": "0 - 255",
+        "option_d": "1 - 65535",
+        "correct_answer": "a",
+        "difficulty": "medium",
+        "explanation": "Los primeros 1024 puertos están reservados para servicios estándar."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué topología de red requiere un dispositivo central como un Switch?",
+        "option_a": "Bus",
+        "option_b": "Anillo",
+        "option_c": "Estrella",
+        "option_d": "Malla",
+        "correct_answer": "c",
+        "difficulty": "easy",
+        "explanation": "En la topología en estrella, todos los nodos se conectan a un punto central."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué cable UTP se utiliza para conectar un PC directamente a un Router (dispositivos distintos)?",
+        "option_a": "Cable cruzado (Crossover)",
+        "option_b": "Cable directo (Straight-through)",
+        "option_c": "Cable de consola",
+        "option_d": "Cable coaxial",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Para conectar dispositivos de distintas capas (PC capa 7 vs Router capa 3) se usa cable directo."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué capa del modelo OSI gestiona el cifrado y la compresión de datos?",
+        "option_a": "Sesión",
+        "option_b": "Presentación",
+        "option_c": "Aplicación",
+        "option_d": "Transporte",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "La capa 6 (Presentación) asegura que la información sea legible para la capa de aplicación."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Cuál es la máscara de subred por defecto para una clase C?",
+        "option_a": "255.0.0.0",
+        "option_b": "255.255.0.0",
+        "option_c": "255.255.255.0",
+        "option_d": "255.255.255.128",
+        "correct_answer": "c",
+        "difficulty": "easy",
+        "explanation": "La Clase C utiliza 24 bits para la red (/24)."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué protocolo utiliza el comando 'ping'?",
+        "option_a": "TCP",
+        "option_b": "UDP",
+        "option_c": "ICMP",
+        "option_d": "HTTP",
+        "correct_answer": "c",
+        "difficulty": "easy",
+        "explanation": "Ping usa mensajes ICMP Echo Request y Echo Reply."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Cuál es la función principal de la capa de Enlace de Datos?",
+        "option_a": "Enrutamiento",
+        "option_b": "Transferencia de datos fiable a través del medio físico local",
+        "option_c": "Presentación de caracteres",
+        "option_d": "Gestión de correos electrónicos",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Se encarga del direccionamiento físico (MAC) y la detección de errores en el segmento físico."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué dispositivo opera principalmente en la Capa 2?",
+        "option_a": "Hub",
+        "option_b": "Switch",
+        "option_c": "Router",
+        "option_d": "Repetidor",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "El Switch conmuta tramas basándose en direcciones MAC."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué significa Full-Duplex?",
+        "option_a": "Solo se puede enviar o recibir de uno en uno",
+        "option_b": "Se puede enviar y recibir simultáneamente",
+        "option_c": "Transmisión en una sola dirección",
+        "option_d": "Doble velocidad de cable",
+        "correct_answer": "b",
+        "difficulty": "easy",
+        "explanation": "Permite comunicación bidireccional al mismo tiempo sin colisiones."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Cuál es el tamaño total de una dirección MAC en bits?",
+        "option_a": "32 bits",
+        "option_b": "48 bits",
+        "option_c": "64 bits",
+        "option_d": "128 bits",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Las MAC son 12 dígitos hexadecimales (6 bytes * 8 = 48 bits)."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué organización asigna las direcciones IP a nivel mundial?",
+        "option_a": "IEEE",
+        "option_b": "IANA/ICANN",
+        "option_c": "ISO",
+        "option_d": "Cisco",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "IANA supervisa la asignación global de IPs."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué tecnología permite que varios dispositivos usen una sola IP pública?",
+        "option_a": "DHCP",
+        "option_b": "NAT",
+        "option_c": "VLAN",
+        "option_d": "STP",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "Network Address Translation (NAT) traduce IPs privadas a una pública compartida."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué capa del modelo OSI es responsable de la entrega 'extremo a extremo' (end-to-end)?",
+        "option_a": "Red",
+        "option_b": "Transporte",
+        "option_c": "Enlace",
+        "option_d": "Sesión",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "La capa de transporte asegura que los datos lleguen del origen al destino final correctamente."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Cuál es la principal diferencia entre TCP y UDP?",
+        "option_a": "UDP es más seguro",
+        "option_b": "TCP es orientado a conexión y fiable; UDP no",
+        "option_c": "TCP es más rápido que UDP",
+        "option_d": "UDP solo sirve para webs",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "TCP garantiza la entrega; UDP prioriza la velocidad (streaming, juegos)."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué sucede en el 'Three-way handshake' de TCP?",
+        "option_a": "Se cierran tres conexiones",
+        "option_b": "Se establece la conexión mediante SYN, SYN-ACK y ACK",
+        "option_c": "Se envían tres correos",
+        "option_d": "Se resuelven tres IPs",
+        "correct_answer": "b",
+        "difficulty": "hard",
+        "explanation": "Es el proceso de negociación inicial de toda conexión TCP."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué fibra óptica permite distancias de hasta 40km sin repetidores?",
+        "option_a": "Multimodo",
+        "option_b": "Monomodo",
+        "option_c": "Coaxial",
+        "option_d": "UTP Cat 6",
+        "correct_answer": "b",
+        "difficulty": "medium",
+        "explanation": "La fibra monomodo usa un núcleo más fino y láser, permitiendo gran alcance."
+    },
+    {
+        "subject": "Redes",
+        "text": "¿Qué rango de IP es privado en Clase A?",
+        "option_a": "172.16.x.x",
+        "option_b": "192.168.x.x",
+        "option_c": "10.x.x.x",
+        "option_d": "127.x.x.x",
+        "correct_answer": "c",
+        "difficulty": "easy",
+        "explanation": "El segmento 10.0.0.0 a 10.255.255.255 es privado."
+    }
+]
