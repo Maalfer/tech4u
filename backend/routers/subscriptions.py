@@ -99,6 +99,8 @@ def validate_coupon(code: str, db: Session = Depends(get_db)):
 def create_checkout_session(
     plan: str,
     coupon_code: Optional[str] = None,
+    use_referral_discount: bool = False,
+    use_free_month: bool = False,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -112,8 +114,36 @@ def create_checkout_session(
     selected = PLANS[plan]
     final_amount = selected["amount"]
     applied_coupon = None
+    reward_used_type = None
 
-    if coupon_code:
+    # 1. Prioridad: Mes Gratis (si el usuario lo activa y tiene acumulados)
+    if use_free_month:
+        if (current_user.free_months_accumulated or 0) > 0:
+            current_user.free_months_accumulated -= 1
+            current_user.subscription_type = selected["subscription_type"]
+            current_user.subscription_start = datetime.utcnow()
+            current_user.subscription_end = datetime.utcnow() + timedelta(days=selected["days"])
+            current_user.months_subscribed = (current_user.months_subscribed or 0) + (1 if plan == "monthly" else (3 if plan == "quarterly" else 12))
+            db.commit()
+            url_success = f"{FRONTEND_URL}/suscripcion/exito?session_id=free_reward_applied"
+            return {"url": url_success}
+        else:
+            raise HTTPException(status_code=400, detail="No tienes meses gratis acumulados.")
+
+    # 2. Descuento del 10% por Referido (No acumulable con cupones manuales)
+    if use_referral_discount:
+        if (current_user.pending_10p_discounts or 0) > 0:
+            if coupon_code:
+                raise HTTPException(status_code=400, detail="El descuento de referido no es acumulable con otros cupones.")
+            
+            discount = int(0.10 * final_amount)
+            final_amount = max(0, final_amount - discount)
+            reward_used_type = "referral_10p"
+        else:
+            raise HTTPException(status_code=400, detail="No tienes descuentos de referido pendientes.")
+
+    # 3. Cupón Estándar (si no se usó descuento de referido)
+    if coupon_code and not reward_used_type:
         c = db.query(Coupon).filter(Coupon.code == coupon_code.upper(), Coupon.is_active == True).first()
         if not c or c.current_uses >= c.max_uses:
             raise HTTPException(status_code=400, detail="Cupón inválido o agotado.")
@@ -122,7 +152,7 @@ def create_checkout_session(
         discount = int((c.discount_percent / 100.0) * final_amount)
         final_amount = max(0, final_amount - discount)
 
-    # 🚀 EXCEPCIÓN: Si el descuento es del 100%, evitamos Stripe completamente.
+    # 🚀 EXCEPCIÓN: Si el descuento es del 100% via CUPÓN
     if final_amount == 0 and applied_coupon:
         current_user.subscription_type = selected["subscription_type"]
         current_user.subscription_start = datetime.utcnow()
@@ -130,7 +160,6 @@ def create_checkout_session(
         current_user.months_subscribed = (current_user.months_subscribed or 0) + (1 if plan == "monthly" else 12)
         applied_coupon.current_uses += 1
         db.commit()
-        # Redirigimos simulando un éxito con un session_id falso que interceptaremos luego
         url_success = f"{FRONTEND_URL}/suscripcion/exito?session_id=free_bypass_{applied_coupon.code}"
         return {"url": url_success}
 
@@ -158,7 +187,8 @@ def create_checkout_session(
             metadata={
                 "plan": plan, 
                 "user_id": str(current_user.id),
-                "coupon_code": applied_coupon.code if applied_coupon else ""
+                "coupon_code": applied_coupon.code if applied_coupon else "",
+                "reward_used": reward_used_type if reward_used_type else ""
             },
             success_url=f"{FRONTEND_URL}/suscripcion/exito?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{FRONTEND_URL}/suscripcion?cancelled=true",
@@ -235,6 +265,10 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 coupon = db.query(Coupon).filter(Coupon.code == coupon_code).first()
                 if coupon:
                     coupon.current_uses += 1
+            
+            reward_used = metadata.get("reward_used")
+            if reward_used == "referral_10p":
+                user.pending_10p_discounts = max(0, (user.pending_10p_discounts or 0) - 1)
                     
             db.commit()
 

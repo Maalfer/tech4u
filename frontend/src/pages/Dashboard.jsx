@@ -352,7 +352,18 @@ export default function Dashboard() {
 
                         <div className="mt-4 flex items-center justify-between">
                             <span className="text-[10px] font-mono text-slate-500 uppercase">Éxitos:</span>
-                            <span className="text-xl font-black font-mono text-indigo-400">{user?.referral_reward_count || 0}</span>
+                            <span className="text-xl font-black font-mono text-indigo-400">{stats?.referral_reward_count || 0}</span>
+                        </div>
+
+                        <div className="mt-2 text-[9px] font-mono space-y-1">
+                            <div className="flex justify-between items-center text-slate-400">
+                                <span>10% OFF Pendientes:</span>
+                                <span className="font-bold text-indigo-400">{stats?.pending_10p_discounts || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-slate-400">
+                                <span>Meses Gratis:</span>
+                                <span className="font-bold text-indigo-400">{stats?.free_months_accumulated || 0}</span>
+                            </div>
                         </div>
                     </div>
 

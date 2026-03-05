@@ -31,6 +31,11 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
         if referrer:
             referred_by_id = referrer.id
             referrer.referral_reward_count = (referrer.referral_reward_count or 0) + 1
+            # Cada referido da un 10% de descuento
+            referrer.pending_10p_discounts = (referrer.pending_10p_discounts or 0) + 1
+            # Cada 10 referidos da un mes gratis adicional
+            if referrer.referral_reward_count % 10 == 0:
+                referrer.free_months_accumulated = (referrer.free_months_accumulated or 0) + 1
 
     now = datetime.utcnow()
 
