@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Video, Plus, Edit2, Trash2, X, ChevronRight, Save, Layout } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 
 export default function AdminVideoCourses() {
     const [courses, setCourses] = useState([]);
@@ -109,64 +110,63 @@ export default function AdminVideoCourses() {
             <main className="flex-1 ml-64 p-8 overflow-y-auto">
 
                 {/* HEADERS */}
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-4xl font-black text-white uppercase italic mb-2">
-                            YT <span className="text-neon">Help</span>
-                        </h1>
-                        <p className="text-slate-400 font-mono text-sm max-w-2xl">
-                            Comparte contenido de otros creadores. Añade cursos basados en vídeos de YouTube para ayudar a los alumnos.
-                        </p>
-                    </div>
-                </div>
-
-                {/* VIEW: COURSE LIST */}
-                {view === 'list' && (
-                    <>
+                <PageHeader
+                    title={<>YT <span className="text-neon">Help</span></>}
+                    subtitle="Cursos basados en contenido externo de YouTube para apoyo de los alumnos."
+                    Icon={Video}
+                    gradient="from-white via-slate-100 to-neon"
+                    iconColor="text-neon"
+                    iconBg="bg-neon/20"
+                    iconBorder="border-neon/30"
+                    glowColor="bg-neon/20"
+                >
+                    {view === 'list' && (
                         <button
                             onClick={() => { setSelectedCourse(null); setCourseForm({ title: '', description: '', thumbnail_url: '' }); setView('course_form'); }}
-                            className="mb-8 px-6 py-3 bg-neon text-black font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-transform flex items-center gap-2"
+                            className="px-6 py-3 bg-neon text-black font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_20px_var(--neon-alpha-40)]"
                         >
                             <Plus className="w-5 h-5" />
                             Nuevo Curso
                         </button>
+                    )}
+                </PageHeader>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {courses.map(course => (
-                                <div key={course.id} className="bg-[#111] border border-white/5 rounded-3xl p-6 flex flex-col justify-between">
-                                    <div>
-                                        <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center border border-white/10 mb-4">
-                                            <Video className="w-6 h-6 text-neon" />
-                                        </div>
-                                        <h3 className="text-white font-black uppercase text-lg mb-2">{course.title}</h3>
-                                        <p className="text-slate-500 font-mono text-[10px] mb-6">{course.lessons?.length || 0} Clases</p>
+                {view === 'list' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {courses.map(course => (
+                            <div key={course.id} className="bg-[#111] border border-white/5 rounded-3xl p-6 flex flex-col justify-between">
+                                <div>
+                                    <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center border border-white/10 mb-4">
+                                        <Video className="w-6 h-6 text-neon" />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <h3 className="text-white font-black uppercase text-lg mb-2">{course.title}</h3>
+                                    <p className="text-slate-500 font-mono text-[10px] mb-6">{course.lessons?.length || 0} Clases</p>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <button
+                                        onClick={() => handleManageLessons(course)}
+                                        className="w-full py-2 bg-white/5 text-white font-mono text-xs uppercase tracking-wide rounded-lg hover:bg-white/10 transition-colors flex justify-center items-center gap-2"
+                                    >
+                                        <Layout className="w-4 h-4" /> Temario
+                                    </button>
+                                    <div className="flex gap-2">
                                         <button
-                                            onClick={() => handleManageLessons(course)}
-                                            className="w-full py-2 bg-white/5 text-white font-mono text-xs uppercase tracking-wide rounded-lg hover:bg-white/10 transition-colors flex justify-center items-center gap-2"
+                                            onClick={() => { setSelectedCourse(course); setCourseForm({ title: course.title, description: course.description || '', thumbnail_url: course.thumbnail_url || '' }); setView('course_form'); }}
+                                            className="flex-1 py-2 bg-blue-500/10 text-blue-400 font-mono text-xs uppercase tracking-wide rounded-lg hover:bg-blue-500/20 transition-colors flex justify-center items-center gap-2"
                                         >
-                                            <Layout className="w-4 h-4" /> Temario
+                                            <Edit2 className="w-3 h-3" /> Editar
                                         </button>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => { setSelectedCourse(course); setCourseForm({ title: course.title, description: course.description || '', thumbnail_url: course.thumbnail_url || '' }); setView('course_form'); }}
-                                                className="flex-1 py-2 bg-blue-500/10 text-blue-400 font-mono text-xs uppercase tracking-wide rounded-lg hover:bg-blue-500/20 transition-colors flex justify-center items-center gap-2"
-                                            >
-                                                <Edit2 className="w-3 h-3" /> Editar
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteCourse(course.id)}
-                                                className="flex-1 py-2 bg-red-500/10 text-red-400 font-mono text-xs uppercase tracking-wide rounded-lg hover:bg-red-500/20 transition-colors flex justify-center items-center gap-2"
-                                            >
-                                                <Trash2 className="w-3 h-3" /> Borrar
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteCourse(course.id)}
+                                            className="flex-1 py-2 bg-red-500/10 text-red-400 font-mono text-xs uppercase tracking-wide rounded-lg hover:bg-red-500/20 transition-colors flex justify-center items-center gap-2"
+                                        >
+                                            <Trash2 className="w-3 h-3" /> Borrar
+                                        </button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </>
+                            </div>
+                        ))}
+                    </div>
                 )}
 
                 {/* VIEW: COURSE FORM */}
@@ -282,6 +282,6 @@ export default function AdminVideoCourses() {
                     </div>
                 )}
             </main>
-        </div>
+        </div >
     );
 }

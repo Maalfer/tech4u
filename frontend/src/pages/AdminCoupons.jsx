@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Ticket, Plus, Trash2, Power, Percent, Users, CheckCircle, XCircle, Shield } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 
 export default function AdminCoupons() {
@@ -69,18 +70,20 @@ export default function AdminCoupons() {
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
             <main className="flex-1 ml-64 p-8 relative">
-                <div className="flex justify-between items-end mb-8">
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <Ticket className="w-5 h-5 text-neon" />
-                            <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Gestión de Cupones</h1>
-                        </div>
-                        <p className="text-slate-500 font-mono text-xs italic">Crea y administra códigos de descuento o acceso gratuito</p>
-                    </div>
-                    <button onClick={() => setShowModal(true)} className="btn-neon text-xs py-2 px-4 shadow-[0_0_15px_var(--neon-alpha-40)] flex gap-2 items-center">
+                <PageHeader
+                    title={<>Gestión de <span className="text-white">Cupones</span></>}
+                    subtitle="Crea y administra códigos de descuento o acceso gratuito"
+                    Icon={Ticket}
+                    gradient="from-white via-green-100 to-[var(--color-neon)]"
+                    iconColor="text-neon"
+                    iconBg="bg-[var(--color-neon)]/20"
+                    iconBorder="border-[var(--color-neon)]/30"
+                    glowColor="bg-[var(--color-neon)]/20"
+                >
+                    <button onClick={() => setShowModal(true)} className="btn-neon text-xs py-2.5 px-6 shadow-[0_0_15px_var(--neon-alpha-40)] flex gap-2 items-center hover:scale-105 transition-all">
                         <Plus className="w-4 h-4" /> Crear Cupón
                     </button>
-                </div>
+                </PageHeader>
 
                 <div className="glass rounded-xl overflow-hidden neon-border">
                     <table className="w-full text-left border-collapse">

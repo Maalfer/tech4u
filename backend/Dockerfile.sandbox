@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+
+# Install basic tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    iputils-ping \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create student user
+RUN useradd -m -s /bin/bash student
+
+# Set working directory
+WORKDIR /home/student
+
+# Default to student user
+USER student
+
+CMD ["/bin/bash"]

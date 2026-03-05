@@ -71,11 +71,23 @@ def get_all_courses(current_user: User = Depends(get_current_user), db: Session 
 def get_course_detail(course_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Obtiene un curso específico con sus lecciones preparadas y el estado de completado.
+    Verifica propiedad si es un curso de tienda.
     """
     course = db.query(VideoCourse).filter(VideoCourse.id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Curso no encontrado")
         
+    # IDOR Fix: Si es un curso de tienda, verificar que el usuario lo haya comprado
+    # Los administradores/docentes saltan esta comprobación por el middleware de require_subscription
+    # pero aquí necesitamos ser más granulares.
+    if course.is_shop_course:
+        is_owner = db.query(UserCoursePurchase).filter(
+            UserCoursePurchase.user_id == current_user.id,
+            UserCoursePurchase.course_id == course_id
+        ).first()
+        if not is_owner and current_user.role not in ["admin", "docente", "developer"]:
+            raise HTTPException(status_code=403, detail="No tienes acceso a este curso de la tienda")
+
     course_out = VideoCourseOut.model_validate(course)
     
     # Obtener IDs de lecciones completadas por el usuario actual
@@ -105,11 +117,23 @@ def get_course_detail(course_id: int, current_user: User = Depends(get_current_u
 def toggle_lesson_complete(lesson_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Marca o desmarca una lección como completada para el usuario.
+    Verifica que el usuario tenga acceso al curso al que pertenece la lección.
     """
     lesson = db.query(VideoLesson).filter(VideoLesson.id == lesson_id).first()
     if not lesson:
         raise HTTPException(status_code=404, detail="Lección no encontrada")
-        
+    
+    # IDOR Fix: Verificar acceso al curso
+    course = lesson.course
+    if course.is_shop_course:
+        is_owner = db.query(UserCoursePurchase).filter(
+            UserCoursePurchase.user_id == current_user.id,
+            UserCoursePurchase.course_id == course.id
+        ).first()
+        if not is_owner and current_user.role not in ["admin", "docente", "developer"]:
+            raise HTTPException(status_code=403, detail="No tienes acceso a este curso")
+    # else: public_router ya está protegido por require_subscription
+
     progress = db.query(LessonProgress).filter(
         LessonProgress.user_id == current_user.id,
         LessonProgress.lesson_id == lesson_id

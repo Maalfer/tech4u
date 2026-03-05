@@ -5,6 +5,7 @@ import {
     Shield, Code2, Database, Wifi, Monitor, Cpu, FileCode, ArrowLeft, Star, Sparkles, Terminal
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import SkillEngine from '../components/SkillEngine'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -86,40 +87,18 @@ export default function SkillLabs() {
             <main className="flex-1 ml-64 p-8">
 
                 {/* ── Header ── */}
-                <header className="mb-14 flex justify-between items-end relative z-10">
-                    <div className="animate-in fade-in slide-in-from-left duration-700">
-                        <div className="flex items-center gap-5 mb-4">
-                            {phase !== 'subjects' && phase !== 'running' && (
-                                <button onClick={handleReset} className="p-4 rounded-2xl text-slate-500 hover:text-fuchsia-400 border border-transparent hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10 transition-all bg-black/40 mb-1 shadow-2xl backdrop-blur-xl group">
-                                    <ArrowLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
-                                </button>
-                            )}
-
-                            <div className="relative group">
-                                <div className="absolute -inset-2 bg-fuchsia-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <div className="p-4 bg-gradient-to-br from-fuchsia-500/20 to-transparent rounded-2xl border-2 border-fuchsia-500/30 shadow-[0_0_40px_rgba(217,70,239,0.15)] relative overflow-hidden backdrop-blur-xl">
-                                    <Hammer className="w-10 h-10 text-fuchsia-500 group-hover:-rotate-[15deg] transition-transform duration-500" />
-                                    <div className="absolute top-0 right-0 p-1">
-                                        <Sparkles className="w-3 h-3 text-fuchsia-300 animate-pulse" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-fuchsia-100 to-fuchsia-500 drop-shadow-sm">
-                                    Skill<span className="text-white">Labs</span>
-                                </h1>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="h-px w-8 bg-fuchsia-500/50" />
-                                    <p className="text-[10px] font-mono text-fuchsia-500/70 uppercase tracking-[0.4em] font-black">
-                                        {phase === 'subjects' ? 'Ensamblaje y Pruebas PRÁCTICAS' :
-                                            phase === 'detail' ? `Laboratorio: ${selectedSubject?.label}` :
-                                                phase === 'running' ? 'Ensamblaje en curso...' : 'Reporte de Síntesis'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Skill<span className="text-white">Labs</span></>}
+                    subtitle={phase === 'subjects' ? 'Ensamblaje y Pruebas PRÁCTICAS' :
+                        phase === 'detail' ? `Laboratorio: ${selectedSubject?.label}` :
+                            phase === 'running' ? 'Ensamblaje en curso...' : 'Reporte de Síntesis'}
+                    Icon={Hammer}
+                    gradient="from-white via-fuchsia-100 to-fuchsia-500"
+                    iconColor="text-fuchsia-400"
+                    iconBg="bg-fuchsia-500/20"
+                    iconBorder="border-fuchsia-500/30"
+                    glowColor="bg-fuchsia-500/20"
+                />
 
                 {phase === 'subjects' && (
                     <div className="animate-in fade-in duration-500">

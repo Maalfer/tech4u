@@ -69,5 +69,8 @@ def get_stats(
         current_xp=user_xp,
         next_level_xp=get_next_level_xp(user_level),
         rank_name=get_rank_name(user_level),
-        level=user_level
+        level=user_level,
+        pending_10p_discounts=current_user.pending_10p_discounts or 0,
+        free_months_accumulated=current_user.free_months_accumulated or 0,
+        referral_reward_count=current_user.referral_reward_count or 0
     )

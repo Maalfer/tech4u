@@ -4,11 +4,41 @@ import {
     ArrowLeft, Shield, Zap, Flame, Crown, Key, User as UserIcon,
     Mail, Calendar, CreditCard, Star, BarChart2, ShieldCheck,
     Save, AlertTriangle, Trash2, RefreshCw, ChevronRight, Clock,
-    TrendingUp
+    TrendingUp, Layers
 } from 'lucide-react';
-import Sidebar from '../components/Sidebar';
 import api from '../services/api';
+import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
+
+import marcoImg from '../assets/marco_pj.png';
+import pj1 from '../assets/pj_lvl_1.png';
+import pj2 from '../assets/pj_lvl_2.png';
+import pj3 from '../assets/pj_lvl_3.png';
+import pj4 from '../assets/pj_lvl_4.png';
+import pj5 from '../assets/pj_lvl_5.png';
+import pj6 from '../assets/pj_lvl_6.png';
+import pj7 from '../assets/pj_lvl_7.png';
+import pj8 from '../assets/pj_lvl_8.png';
+import pj9 from '../assets/pj_lvl_9.png';
+import pj10 from '../assets/pj_lvl_10.png';
+import pj11 from '../assets/pj_lvl_11.png';
+import pj12 from '../assets/pj_lvl_12.png';
+import pj13 from '../assets/pj_lvl_13.png';
+import pj14 from '../assets/pj_lvl_14.png';
+import pj15 from '../assets/pj_lvl_15.png';
+import pj16 from '../assets/pj_lvl_16.png';
+import pj17 from '../assets/pj_lvl_17.png';
+import pj18 from '../assets/pj_lvl_18.png';
+import pj19 from '../assets/pj_lvl_19.png';
+import pj20 from '../assets/pj_lvl_20.png';
+
+const PJ_ASSETS = {
+    1: pj1, 2: pj2, 3: pj3, 4: pj4, 5: pj5,
+    6: pj6, 7: pj7, 8: pj8, 9: pj9, 10: pj10,
+    11: pj11, 12: pj12, 13: pj13, 14: pj14, 15: pj15,
+    16: pj16, 17: pj17, 18: pj18, 19: pj19, 20: pj20
+};
 
 const RANK_MAP = {
     1: '🥉 Estudiante ASIR', 2: '🥉 Estudiante ASIR', 3: '🥉 Estudiante ASIR', 4: '🥉 Estudiante ASIR',
@@ -203,19 +233,20 @@ export default function AdminUserDetail() {
             <Sidebar />
 
             <main className="flex-1 ml-60 min-h-screen">
-                {/* Sticky header */}
-                <div className="sticky top-0 z-40 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 px-10 py-4">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => navigate('/admin-users')} className="p-2 rounded-xl border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all active:scale-95">
-                            <ArrowLeft className="w-5 h-5 text-slate-400" />
-                        </button>
-                        <div className="flex-1">
-                            <span className="text-xs font-mono text-slate-600 uppercase tracking-widest">Gestión de usuario</span>
-                            <h1 className="text-lg font-black text-white uppercase tracking-tighter">{userData?.nombre}</h1>
-                        </div>
-                        <span className="text-[10px] font-mono text-slate-600">ID: #{userData?.id}</span>
-                    </div>
-                </div>
+                <PageHeader
+                    title={<>{userData?.nombre} <span className="text-white/40">[{userData?.id}]</span></>}
+                    subtitle="Gestión de usuario y expediente académico Tech4U"
+                    Icon={ShieldCheck}
+                    gradient="from-white via-blue-100 to-blue-500"
+                    iconColor="text-blue-400"
+                    iconBg="bg-blue-600/20"
+                    iconBorder="border-blue-500/30"
+                    glowColor="bg-blue-600/20"
+                >
+                    <button onClick={() => navigate('/admin-users')} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-2xl backdrop-blur-xl">
+                        <ArrowLeft className="w-4 h-4" /> Volver a Lista
+                    </button>
+                </PageHeader>
 
                 <div className="px-10 py-8 max-w-6xl mx-auto">
 
@@ -224,8 +255,22 @@ export default function AdminUserDetail() {
                         <div className="absolute top-0 right-0 w-40 h-40 opacity-5 pointer-events-none flex items-center justify-center">
                             <span className="text-[80px]">{rank.split(' ')[0]}</span>
                         </div>
-                        <div className="p-4 rounded-2xl bg-black/40 border border-white/10">
-                            <UserIcon className={`w-10 h-10 ${lc.text}`} />
+                        <div className="relative w-24 h-24 shrink-0 group">
+                            <div className="absolute -inset-2 bg-white/5 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                            {/* Frame */}
+                            <img
+                                src={marcoImg}
+                                alt="Frame"
+                                className="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+                            />
+                            {/* PJ Avatar */}
+                            <div className="absolute inset-0 flex items-center justify-center p-2.5">
+                                <img
+                                    src={PJ_ASSETS[userData?.level] || pj1}
+                                    alt="User Character"
+                                    className="w-full h-full object-contain z-10 drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-transform group-hover:scale-110"
+                                />
+                            </div>
                         </div>
                         <div className="flex-1 min-w-0">
                             <h2 className={`text-2xl font-black uppercase tracking-tighter ${lc.text}`}>{userData?.nombre}</h2>
@@ -481,6 +526,55 @@ export default function AdminUserDetail() {
                                 </button>
                             </Card>
                         )}
+                    </div>
+
+                    {/* ── User Character Progression Gallery ── */}
+                    <div className="mt-12 p-8 rounded-3xl border border-white/5 bg-black/20 backdrop-blur-md relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-neon/5 blur-[100px] pointer-events-none" />
+
+                        <div className="flex items-center gap-4 mb-8">
+                            <Layers className="w-5 h-5 text-neon" />
+                            <div>
+                                <h3 className="text-white font-black uppercase tracking-widest text-sm">Progreso del Personaje</h3>
+                                <p className="text-[10px] font-mono text-slate-500 uppercase">Visualización de evolución y niveles desbloqueados</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
+                            {Object.entries(PJ_ASSETS).map(([lvl, img]) => {
+                                const l = parseInt(lvl);
+                                const isCurrent = userData?.level === l;
+                                const isUnlocked = userData?.level >= l;
+
+                                return (
+                                    <div
+                                        key={lvl}
+                                        className={`relative aspect-[4/5] rounded-xl border transition-all duration-300 flex items-center justify-center p-1 group
+                                            ${isCurrent
+                                                ? 'border-neon bg-neon/10 shadow-[0_0_15px_rgba(0,255,136,0.2)]'
+                                                : isUnlocked
+                                                    ? 'border-white/10 bg-white/5 hover:border-white/30'
+                                                    : 'border-white/5 bg-black/40 opacity-40 grayscale'}`}
+                                    >
+                                        <div className={`absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded text-[7px] font-black font-mono border z-20
+                                            ${isCurrent ? 'bg-neon text-black border-neon' : 'bg-black text-slate-500 border-white/10'}`}>
+                                            LV.{lvl}
+                                        </div>
+
+                                        <img
+                                            src={img}
+                                            alt={`PJ ${lvl}`}
+                                            className={`w-full h-full object-contain transition-transform duration-500
+                                                ${isCurrent ? 'scale-110 drop-shadow-[0_0_8px_rgba(0,255,136,0.5)]' : 'group-hover:scale-110'}`}
+                                        />
+
+                                        {isCurrent && (
+                                            <div className="absolute inset-0 bg-neon/5 animate-pulse rounded-xl pointer-events-none" />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     <div className="h-16" />

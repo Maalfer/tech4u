@@ -19,6 +19,7 @@ import {
     Flame
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import api from '../services/api'
 
 export default function AdminTickets() {
@@ -93,29 +94,24 @@ export default function AdminTickets() {
             <main className="flex-1 ml-64 p-8 relative">
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 blur-[100px] -z-10" />
 
-                <div className="flex justify-between items-end mb-10">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-orange-500/10 border border-orange-500/20 rounded-xl">
-                                <ShieldAlert className="w-6 h-6 text-orange-400" />
-                            </div>
-                            <h1 className="text-3xl font-black text-white uppercase tracking-tighter italic">
-                                Terminal de Soporte
-                            </h1>
-                        </div>
-                        <p className="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em]">
-                            Gestión de incidencias y comunicaciones // SECTOR ALPHA
-                        </p>
-                    </div>
-
+                <PageHeader
+                    title={<>Terminal <span className="text-white">de Soporte</span></>}
+                    subtitle="Gestión de incidencias y comunicaciones // SECTOR ALPHA"
+                    Icon={ShieldAlert}
+                    gradient="from-white via-orange-100 to-orange-500"
+                    iconColor="text-orange-400"
+                    iconBg="bg-orange-500/20"
+                    iconBorder="border-orange-500/30"
+                    glowColor="bg-orange-500/20"
+                >
                     <button
                         onClick={fetchTickets}
-                        className="group flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-mono font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-95"
+                        className="group flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-mono font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-2xl backdrop-blur-xl"
                     >
                         <RefreshCcw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-700'}`} />
                         Sincronizar Mainframe
                     </button>
-                </div>
+                </PageHeader>
 
                 <div className="relative mb-12">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

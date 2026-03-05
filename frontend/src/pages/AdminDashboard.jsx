@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
 
 export default function AdminDashboard() {
@@ -98,16 +99,11 @@ export default function AdminDashboard() {
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-neon/5 blur-[120px] rounded-full -z-10 animate-pulse" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-sky-500/5 blur-[100px] rounded-full -z-10" />
 
-                <header className="mb-10 relative">
-                    <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-12 bg-neon rounded-full shadow-[0_0_15px_var(--color-neon)]" />
-                    <h1 className="text-4xl font-black text-white mb-2 uppercase italic tracking-tighter">
-                        Terminal <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon via-green-400 to-neon animate-text-shimmer bg-[length:200%_auto]">Alpha</span>
-                    </h1>
-                    <div className="flex items-center gap-4">
-                        <p className="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em]">Protocolo de administración activo // Módulo Central</p>
-                        <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-800 to-transparent" />
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Terminal <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon via-green-400 to-neon animate-text-shimmer bg-[length:200%_auto]">Alpha</span></>}
+                    subtitle="Protocolo de administración activo // Módulo Central"
+                    Icon={Activity}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                     <StatCard

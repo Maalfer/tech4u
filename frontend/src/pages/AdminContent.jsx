@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 
 const SUBJECTS = [
     { id: "Bases de Datos", icon: "🗄️", color: "text-blue-400" },
@@ -195,24 +196,31 @@ export default function AdminContent() {
             <main className="flex-1 ml-64 p-8">
 
                 {/* Header Dinámico */}
-                <header className="mb-10 flex justify-between items-end">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <Database className="w-8 h-8 text-neon" />
-                            <h1 className="text-3xl font-black uppercase tracking-tighter italic">
-                                GESTIÓN DE <span className="text-neon">{activeTab === 'questions' ? 'PREGUNTAS' : 'RECURSOS'}</span>
-                            </h1>
-                        </div>
-                        <p className="text-slate-500 font-mono text-[10px] uppercase tracking-widest italic">
-                            {selectedSubject ? `Sector Activo: ${selectedSubject}` : "Selección de unidad de almacenamiento"}
-                        </p>
-                    </div>
-
+                <PageHeader
+                    title={<>Gestión de <span className="text-neon">{activeTab === 'questions' ? 'Preguntas' : 'Recursos'}</span></>}
+                    subtitle={selectedSubject ? `Sector Activo: ${selectedSubject}` : "Selección de unidad de almacenamiento"}
+                    Icon={Database}
+                    gradient="from-white via-slate-100 to-neon"
+                    iconColor="text-neon"
+                    iconBg="bg-neon/20"
+                    iconBorder="border-neon/30"
+                    glowColor="bg-neon/20"
+                >
                     <div className="flex bg-black/40 border border-slate-800 rounded-xl p-1">
-                        <button onClick={() => { setActiveTab('questions'); setSelectedSubject(null) }} className={`px-4 py-2 text-xs font-mono rounded-lg transition-all ${activeTab === 'questions' ? 'bg-neon/10 text-neon border border-neon/20' : 'text-slate-500'}`}>Preguntas</button>
-                        <button onClick={() => { setActiveTab('resources'); setSelectedSubject(null) }} className={`px-4 py-2 text-xs font-mono rounded-lg transition-all ${activeTab === 'resources' ? 'bg-neon/10 text-neon border border-neon/20' : 'text-slate-500'}`}>Recursos</button>
+                        <button
+                            onClick={() => { setActiveTab('questions'); setSelectedSubject(null) }}
+                            className={`px-4 py-2 text-[10px] font-mono rounded-lg transition-all uppercase tracking-widest ${activeTab === 'questions' ? 'bg-neon/10 text-neon border border-neon/20' : 'text-slate-500 hover:text-white'}`}
+                        >
+                            Preguntas
+                        </button>
+                        <button
+                            onClick={() => { setActiveTab('resources'); setSelectedSubject(null) }}
+                            className={`px-4 py-2 text-[10px] font-mono rounded-lg transition-all uppercase tracking-widest ${activeTab === 'resources' ? 'bg-neon/10 text-neon border border-neon/20' : 'text-slate-500 hover:text-white'}`}
+                        >
+                            Recursos
+                        </button>
                     </div>
-                </header>
+                </PageHeader>
 
                 {!selectedSubject ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in zoom-in-95 duration-500">

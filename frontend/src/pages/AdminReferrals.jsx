@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 
 const AdminReferrals = () => {
     const [referrers, setReferrers] = useState([]);
@@ -66,39 +67,35 @@ const AdminReferrals = () => {
 
                 {/* Header Area */}
                 <div className="max-w-7xl mx-auto space-y-8 pb-20">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-8">
-                        <div>
-                            <div className="flex items-center gap-3 text-indigo-400 mb-2">
-                                <TrendingUp className="w-6 h-6" />
-                                <span className="text-xs font-black tracking-[0.3em] uppercase">Security Engine</span>
-                            </div>
-                            <h1 className="text-4xl font-black tracking-tighter uppercase italic">
-                                Ecosistema <span className="text-neon">Referidos</span>
-                            </h1>
-                            <p className="text-slate-500 mt-2 max-w-2xl text-sm leading-relaxed">
-                                Monitorización avanzada del tráfico de invitaciones, detección de fraude algorítmica y gestión de recompensas.
-                            </p>
-                        </div>
-
+                    <PageHeader
+                        title={<>Ecosistema <span className="text-neon">Referidos</span></>}
+                        subtitle="Monitorización avanzada del tráfico de invitaciones, detección de fraude algorítmica y gestión de recompensas."
+                        Icon={TrendingUp}
+                        gradient="from-white via-indigo-100 to-indigo-500"
+                        iconColor="text-indigo-400"
+                        iconBg="bg-indigo-500/20"
+                        iconBorder="border-indigo-500/30"
+                        glowColor="bg-indigo-500/20"
+                    >
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <input
                                     type="text"
                                     placeholder="BUSCAR USUARIO / CÓDIGO..."
-                                    className="bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-xs focus:border-neon/50 outline-none w-64 transition-all"
+                                    className="bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-xs focus:border-neon/50 outline-none w-64 transition-all font-mono"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
                             <button
                                 onClick={fetchData}
-                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-neon"
+                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-neon shadow-2xl backdrop-blur-xl"
                             >
                                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                             </button>
                         </div>
-                    </div>
+                    </PageHeader>
 
                     {/* Main Stats Summary Blocks (Optional - can add totals here) */}
 

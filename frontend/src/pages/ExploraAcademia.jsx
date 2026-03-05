@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import {
     Zap, BookOpen, FlaskConical, Layers, Trophy, Shield,
     Star, BarChart2, CreditCard, Play, Wrench, Globe2,
@@ -7,6 +8,35 @@ import {
     ShieldCheck, ShieldOff, Award, Hammer, Target, AlertTriangle,
     Map, Compass
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+import pj1 from '../assets/pj_lvl_1.png';
+import pj2 from '../assets/pj_lvl_2.png';
+import pj3 from '../assets/pj_lvl_3.png';
+import pj4 from '../assets/pj_lvl_4.png';
+import pj5 from '../assets/pj_lvl_5.png';
+import pj6 from '../assets/pj_lvl_6.png';
+import pj7 from '../assets/pj_lvl_7.png';
+import pj8 from '../assets/pj_lvl_8.png';
+import pj9 from '../assets/pj_lvl_9.png';
+import pj10 from '../assets/pj_lvl_10.png';
+import pj11 from '../assets/pj_lvl_11.png';
+import pj12 from '../assets/pj_lvl_12.png';
+import pj13 from '../assets/pj_lvl_13.png';
+import pj14 from '../assets/pj_lvl_14.png';
+import pj15 from '../assets/pj_lvl_15.png';
+import pj16 from '../assets/pj_lvl_16.png';
+import pj17 from '../assets/pj_lvl_17.png';
+import pj18 from '../assets/pj_lvl_18.png';
+import pj19 from '../assets/pj_lvl_19.png';
+import pj20 from '../assets/pj_lvl_20.png';
+
+const PJ_ASSETS = {
+    1: pj1, 2: pj2, 3: pj3, 4: pj4, 5: pj5,
+    6: pj6, 7: pj7, 8: pj8, 9: pj9, 10: pj10,
+    11: pj11, 12: pj12, 13: pj13, 14: pj14, 15: pj15,
+    16: pj16, 17: pj17, 18: pj18, 19: pj19, 20: pj20
+};
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -228,6 +258,8 @@ const COLOR_MAP = {
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ExploraAcademia() {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const level = user?.level || 1;
 
     const Section = ({ id, title, icon, color = 'neon', children }) => (
         <section id={id} className="mb-16 scroll-mt-8">
@@ -254,13 +286,12 @@ export default function ExploraAcademia() {
             <Sidebar />
 
             <main className="flex-1 ml-60 min-h-screen">
-                {/* Header */}
-                <div className="sticky top-0 z-40 bg-[#080810]/80 backdrop-blur-xl border-b border-white/5 px-10 py-4">
-                    <div className="flex items-center gap-3">
-                        <Compass className="w-5 h-5 text-neon" />
-                        <span className="font-black font-mono uppercase tracking-widest text-sm text-neon">Explora la Academia</span>
-                        <span className="text-slate-600 font-mono text-xs ml-auto">Tu guía completa de Tech4U</span>
-                    </div>
+                <div className="px-10 pt-10">
+                    <PageHeader
+                        title="Explora"
+                        subtitle="Tu guía completa de Tech4U // Protocolo de Reconocimiento"
+                        Icon={Compass}
+                    />
                 </div>
 
                 <div className="px-10 py-10 max-w-6xl mx-auto">
@@ -528,7 +559,7 @@ export default function ExploraAcademia() {
                             <h3 className="font-black text-white text-base mb-5 flex items-center gap-2">
                                 <BarChart2 className="w-4 h-4 text-yellow-400" /> Tabla completa de niveles y XP
                             </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2">
+                            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2 mb-8">
                                 {[
                                     { lv: 1, xp: '0', tag: 'Estudiante ASIR', c: 'border-slate-700 bg-slate-900/30 text-slate-400' },
                                     { lv: 2, xp: '500', tag: 'Estudiante ASIR', c: 'border-slate-700 bg-slate-900/30 text-slate-400' },
@@ -551,12 +582,48 @@ export default function ExploraAcademia() {
                                     { lv: 19, xp: '45.000', tag: 'Admin Senior', c: 'border-purple-600/40 bg-purple-900/20 text-purple-400' },
                                     { lv: 20, xp: '50.000', tag: 'SysAdmin Dios', c: 'border-yellow-400/50 bg-yellow-900/30 text-yellow-300' },
                                 ].map(({ lv, xp, tag, c }) => (
-                                    <div key={lv} className={`rounded-xl border p-3 text-center ${c}`}>
+                                    <div key={lv} className={`rounded-xl border p-3 text-center transition-all hover:scale-105 ${c}`}>
                                         <div className="font-black font-mono text-lg mb-0.5">Lv.{lv}</div>
                                         <div className="text-[10px] font-mono text-slate-500">{xp} XP</div>
                                         <div className="text-[9px] font-mono mt-1 opacity-70">{tag}</div>
                                     </div>
                                 ))}
+                            </div>
+
+                            {/* Mini Character Gallery Section */}
+                            <div className="p-6 rounded-2xl border border-white/5 bg-black/40 backdrop-blur-md">
+                                <h4 className="text-[10px] font-black font-mono text-slate-500 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                    <Layers className="w-3 h-3" /> Previsualización de evolución de personaje
+                                </h4>
+                                <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
+                                    {Object.entries(PJ_ASSETS).map(([lvl, img]) => {
+                                        const isCurrent = level === parseInt(lvl);
+                                        const isUnlocked = level >= parseInt(lvl);
+                                        return (
+                                            <div
+                                                key={lvl}
+                                                className={`relative aspect-square rounded-lg border flex items-center justify-center p-1 group transition-all
+                                                    ${isCurrent ? 'border-neon bg-neon/10 ring-1 ring-neon/40' :
+                                                        isUnlocked ? 'border-white/20 bg-white/5' :
+                                                            'border-white/5 bg-black/60 grayscale opacity-40'}`}
+                                            >
+                                                <img
+                                                    src={img}
+                                                    alt={`PJ ${lvl}`}
+                                                    className={`w-full h-full object-contain ${isCurrent ? 'animate-pulse' : ''}`}
+                                                />
+                                                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full bg-black border border-white/10 text-[7px] font-bold font-mono text-white pointer-events-none">
+                                                    {lvl}
+                                                </div>
+
+                                                {/* Tooltip hint on hover */}
+                                                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-black/90 border border-white/10 text-[7px] font-mono text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-tighter">
+                                                    Nivel {lvl} {isCurrent ? '(Actual)' : !isUnlocked ? '(Bloqueado)' : ''}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
                     </Section>

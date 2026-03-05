@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 
 export default function AdminAcademyShop() {
     const [courses, setCourses] = useState([]);
@@ -155,21 +156,16 @@ export default function AdminAcademyShop() {
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/5 blur-[150px] rounded-full -z-10 pointer-events-none animate-pulse" />
 
                 {/* ── HEADER ── */}
-                <div className="flex items-center justify-between mb-10">
-                    <div className="flex items-center gap-5">
-                        <div className="p-4 bg-gradient-to-br from-purple-600/20 to-violet-600/10 rounded-2xl border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-                            <ShoppingBag className="w-8 h-8 text-purple-400" />
-                        </div>
-                        <div>
-                            <h1 className="text-4xl font-black uppercase italic text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400 leading-none">
-                                Academy Shop
-                            </h1>
-                            <p className="text-[11px] font-mono text-purple-400/60 uppercase tracking-[0.3em] mt-1">
-                                Gestión de cursos de compra vitalicia
-                            </p>
-                        </div>
-                    </div>
-
+                <PageHeader
+                    title={<>Academy <span className="text-purple-400">Shop</span></>}
+                    subtitle="Gestión de cursos de compra vitalicia"
+                    Icon={ShoppingBag}
+                    gradient="from-white via-purple-100 to-purple-500"
+                    iconColor="text-purple-400"
+                    iconBg="bg-purple-600/20"
+                    iconBorder="border-purple-500/30"
+                    glowColor="bg-purple-600/20"
+                >
                     {view === 'list' && (
                         <button
                             onClick={() => { setSelectedCourse(null); setCourseForm(emptyForm); setView('course_form'); }}
@@ -178,7 +174,7 @@ export default function AdminAcademyShop() {
                             <Plus className="w-4 h-4" /> Nuevo Curso
                         </button>
                     )}
-                </div>
+                </PageHeader>
 
                 {/* ── VIEW: LIST ── */}
                 {view === 'list' && (

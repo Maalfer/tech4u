@@ -46,6 +46,7 @@ class User(Base):
     errors = relationship("UserError", back_populates="user")
     progress = relationship("UserProgress", back_populates="user")
     suggestions = relationship("QuestionSuggestion", back_populates="user")
+    achievements = relationship("UserAchievement", back_populates="user")
 
 
 class UserProgress(Base):
@@ -247,6 +248,40 @@ class UserItem(Base):
     obtained_at = Column(DateTime, default=datetime.utcnow)
     user = relationship("User")
 
+class Achievement(Base):
+    __tablename__ = "achievements"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    icon = Column(String, nullable=True) # Emoji o URL
+    rarity = Column(String, default="común")
+    xp_bonus = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class UserAchievement(Base):
+    __tablename__ = "user_achievements"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=False)
+    obtained_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="achievements")
+    achievement = relationship("Achievement")
+
+# --- TRANSACCIONES PAYPAL ---
+
+class PayPalOrder(Base):
+    __tablename__ = "paypal_orders"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    paypal_order_id = Column(String, unique=True, index=True, nullable=False)
+    status = Column(String, default="CREATED") # CREATED, CAPTURED, FAILED
+    amount = Column(Float, nullable=False)
+    subscription_type = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
+
 
 # --- SKILL LABS ---
 
@@ -262,6 +297,37 @@ class SkillLabExercise(Base):
     difficulty = Column(String, default="medium")
     approved = Column(Boolean, default=True)
 
+class Lab(Base):
+    """Terminal Simulator Labs for ASIR/Sistemas."""
+    __tablename__ = "terminal_labs"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    docker_image = Column(String, default="ubuntu:22.04") # Base image for the lab
+    scenario_setup = Column(Text, nullable=True) # JSON describing the initial VM/State
+    goal_description = Column(Text, nullable=False)
+    validation_command = Column(String, nullable=True) # Command to run for checking success
+    expected_result = Column(String, nullable=True) # Expected output from validation command
+    difficulty = Column(String, default="medium") # easy | medium | hard
+    category = Column(String, default="Linux") # Linux | Redes | Seguridad
+    time_limit = Column(Integer, default=30) # Time limit in minutes
+    xp_reward = Column(Integer, default=150)
+    is_active = Column(Boolean, default=True)
+    step_by_step_guide = Column(Text, nullable=True) # Markdown guide for the student
+    expected_flag = Column(String, nullable=True) # For CTF-style labs (flag{...})
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class UserLabCompletion(Base):
+    """Tracks which users have successfully completed which labs."""
+    __tablename__ = "user_lab_completions"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lab_id = Column(Integer, ForeignKey("terminal_labs.id"), nullable=False)
+    completed_at = Column(DateTime, default=datetime.utcnow)
+    xp_gained = Column(Integer, default=0)
+
+    user = relationship("User")
+    lab = relationship("Lab")
 
 # --- UTILIDADES ---
 

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional, List, Dict
 from datetime import datetime
 
@@ -7,17 +7,17 @@ from datetime import datetime
 # ==============================
 
 class UserRegister(BaseModel):
-    nombre: str
+    nombre: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=6)
     subscription_type: Optional[str] = "free"
     referral_code: Optional[str] = None
 
 class AdminUserCreate(BaseModel):
-    nombre: str
+    nombre: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
-    password: str
-    role: str = "alumno"
+    password: str = Field(..., min_length=6)
+    role: str = Field("alumno", pattern="^(admin|developer|docente|alumno)$")
     subscription_type: str = "free"
 
 
@@ -35,7 +35,7 @@ class UserOut(BaseModel):
     subscription_type: str
     role: str
     streak_protections: int
-    subscription_end: Optional[datetime]
+    subscription_end: Optional[datetime] = None
     referral_code: Optional[str] = None
     referral_reward_count: int = 0
     pending_10p_discounts: int = 0
@@ -52,17 +52,38 @@ class TokenResponse(BaseModel):
 
 
 class UserRoleUpdate(BaseModel):
-    role: str
+    role: str = Field(..., pattern="^(admin|developer|docente|alumno)$")
 
 
 class UserPasswordUpdate(BaseModel):
     current_password: str
-    new_password: str
+    new_password: str = Field(..., min_length=6)
 
 
 class UserSubscriptionUpdate(BaseModel):
-    subscription_type: str
+    subscription_type: str = Field(..., pattern="^(free|monthly|quarterly|annual|lifetime)$")
     subscription_end: Optional[datetime] = None
+
+
+class AdminPasswordReset(BaseModel):
+    password: str = Field(..., min_length=6)
+
+
+class AdminProfileUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, min_length=2, max_length=100)
+    email: Optional[EmailStr] = None
+
+
+class AdminSetShields(BaseModel):
+    shields: int = Field(..., ge=0, le=10)
+
+
+class AdminModifyXP(BaseModel):
+    xp: int = Field(..., ge=0)
+
+
+class AdminSetStreak(BaseModel):
+    streak: int = Field(..., ge=0)
 
 
 # ==============================
@@ -70,12 +91,12 @@ class UserSubscriptionUpdate(BaseModel):
 # ==============================
 
 class TicketCreate(BaseModel):
-    subject: str
-    description: str
+    subject: str = Field(..., min_length=5, max_length=150)
+    description: str = Field(..., min_length=10)
 
 
 class TicketMessageCreate(BaseModel):
-    content: str
+    content: str = Field(..., min_length=1)
 
 
 class TicketMessageOut(BaseModel):
@@ -120,7 +141,7 @@ class TicketOut(BaseModel):
 
 
 class TicketUpdate(BaseModel):
-    status: Optional[str] = None
+    status: Optional[str] = Field(None, pattern="^(pendiente|resuelto)$")
     admin_reply: Optional[str] = None
 
 
@@ -129,7 +150,7 @@ class TicketUpdate(BaseModel):
 # ==============================
 
 class AnnouncementCreate(BaseModel):
-    content: str
+    content: str = Field(..., min_length=1, max_length=1000)
 
 
 class AnnouncementOut(BaseModel):
@@ -147,8 +168,8 @@ class AnnouncementOut(BaseModel):
 # ==============================
 
 class SuggestionCreate(BaseModel):
-    subject: str
-    text: str
+    subject: str = Field(..., min_length=2, max_length=100)
+    text: str = Field(..., min_length=10)
 
 
 class SuggestionOut(BaseModel):
@@ -183,9 +204,9 @@ class AdminDashboardStats(BaseModel):
 # ==============================
 
 class CouponCreate(BaseModel):
-    code: str
-    discount_percent: float
-    max_uses: int = 1
+    code: str = Field(..., min_length=3, max_length=20, pattern="^[A-Z0-9_-]+$")
+    discount_percent: float = Field(..., ge=0, le=100)
+    max_uses: int = Field(1, ge=1)
     is_active: bool = True
     assigned_to_id: Optional[int] = None
 
@@ -245,7 +266,7 @@ class QuestionOut(BaseModel):
     option_c: str
     option_d: str
     correct_answer: Optional[str] = None
-    difficulty: str
+    difficulty: str = Field(..., pattern="^(easy|medium|hard)$")
     explanation: Optional[str] = None
 
     class Config:
@@ -253,14 +274,14 @@ class QuestionOut(BaseModel):
 
 
 class QuestionCreate(BaseModel):
-    subject: str
-    text: str
-    option_a: str
-    option_b: str
-    option_c: str
-    option_d: str
-    correct_answer: str
-    difficulty: str
+    subject: str = Field(..., min_length=2, max_length=100)
+    text: str = Field(..., min_length=5)
+    option_a: str = Field(..., min_length=1)
+    option_b: str = Field(..., min_length=1)
+    option_c: str = Field(..., min_length=1)
+    option_d: str = Field(..., min_length=1)
+    correct_answer: str = Field(..., pattern="^[abcd]$")
+    difficulty: str = Field("medium", pattern="^(easy|medium|hard)$")
     explanation: Optional[str] = None
 
 
@@ -330,11 +351,11 @@ class ResourceCreate(BaseModel):
 # ==============================
 
 class VideoLessonCreate(BaseModel):
-    title: str
+    title: str = Field(..., min_length=2, max_length=150)
     description: Optional[str] = None
     youtube_url: Optional[str] = None       # YT Help courses
     video_file_path: Optional[str] = None   # Shop courses (self-hosted)
-    order_index: Optional[int] = 0
+    order_index: Optional[int] = Field(0, ge=0)
 
 class VideoLessonOut(BaseModel):
     id: int
@@ -351,10 +372,10 @@ class VideoLessonOut(BaseModel):
         from_attributes = True
 
 class VideoCourseCreate(BaseModel):
-    title: str
+    title: str = Field(..., min_length=2, max_length=150)
     description: Optional[str] = None
     thumbnail_url: Optional[str] = None
-    price: Optional[float] = None
+    price: Optional[float] = Field(None, ge=0)
     is_shop_course: Optional[bool] = False
     is_active: Optional[bool] = True
 
@@ -392,6 +413,128 @@ class LessonProgressOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+# ==============================
+# SKILL LABS (Drag and Drop)
+# ==============================
+
+class SkillLabOut(BaseModel):
+    id: int
+    subject: str
+    sentence_template: str
+    correct_answers: str
+    distractors: str
+    explanation: Optional[str] = None
+    difficulty: str
+
+    class Config:
+        from_attributes = True
+
+class SkillLabCreate(BaseModel):
+    subject: str 
+    sentence_template: str
+    correct_answers: str # JSON
+    distractors: str # JSON
+    explanation: Optional[str] = None
+    difficulty: str = "medium"
+
+
+# ==============================
+# PAYPAL
+# ==============================
+
+class PayPalOrderCreate(BaseModel):
+    amount: float = Field(..., ge=0)
+    subscription_type: str = Field(..., pattern="^(monthly|quarterly|annual)$")
+
+
+class PayPalOrderOut(BaseModel):
+    id: int
+    paypal_order_id: str
+    status: str
+    amount: float
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ==============================
+# ACHIEVEMENTS
+# ==============================
+
+class AchievementOut(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    icon: Optional[str] = None
+    rarity: str
+    xp_bonus: int
+
+    class Config:
+        from_attributes = True
+
+
+class UserAchievementOut(BaseModel):
+    id: int
+    achievement: AchievementOut
+    obtained_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ==============================
+# TERMINAL LABS
+# ==============================
+
+class LabOut(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    goal_description: str
+    difficulty: str
+    category: str
+    time_limit: int
+    xp_reward: int
+    is_active: bool
+    step_by_step_guide: Optional[str] = None
+    expected_flag: Optional[str] = None
+    is_unlocked: bool = True  # Set dynamically in router
+    is_completed: bool = False # Set dynamically in router
+
+    class Config:
+        from_attributes = True
+
+
+class LabCreate(BaseModel):
+    title: str = Field(..., min_length=5, max_length=100)
+    description: Optional[str] = Field(None, max_length=1000)
+    docker_image: str = "ubuntu:22.04"
+    scenario_setup: Optional[str] = None
+    goal_description: str = Field(..., min_length=10)
+    step_by_step_guide: Optional[str] = None
+    validation_command: Optional[str] = None
+    expected_result: Optional[str] = None
+    difficulty: str = "medium"
+    category: str = "Linux"
+    time_limit: int = 30
+    xp_reward: int = Field(150, ge=0)
+    expected_flag: Optional[str] = None
+
+
+class TerminalStartResponse(BaseModel):
+    container_id: str
+    ws_url: str
+
+
+class LabCompleteResponse(BaseModel):
+    success: bool
+    message: str
+    xp_gained: int = 0
+    leveled_up: bool = False
+    new_level: int = 1
+    flag_found: bool = False
 
 # Rebuild models (Pydantic v2)
 TokenResponse.model_rebuild()

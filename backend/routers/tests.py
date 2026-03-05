@@ -7,6 +7,7 @@ import random
 from database import get_db, Question, User, UserError, UserProgress, TestSession, UserItem
 from schemas import TestSubmit, TestResult
 from auth import get_current_user
+from .achievements import award_achievement
 
 router = APIRouter(prefix="/tests", tags=["Tests"])
 
@@ -102,7 +103,7 @@ def get_failed_questions(
 # SUBMIT TEST
 # =====================================================
 @router.post("/submit", response_model=TestResult)
-def submit_test(
+async def submit_test(
     payload: TestSubmit,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -209,6 +210,15 @@ def submit_test(
             current_user.level = new_level
             leveled_up = True
             next_level_xp = new_level * 500
+
+        # Award Achievements
+        await award_achievement(current_user.id, "Primer Paso", db)
+        
+        if accuracy == 100:
+            await award_achievement(current_user.id, "Maestro de Redes", db)
+            
+        if payload.mode == "errors":
+            await award_achievement(current_user.id, "Cazador de Errores", db)
 
         db.commit()
 

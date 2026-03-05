@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trophy, Crown, Medal, Star, Zap, ArrowLeft, RefreshCw, Sparkles } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
@@ -66,39 +67,21 @@ export default function Leaderboard() {
                 <div className="max-w-[1400px] w-full mx-auto relative">
                     {/* Background glow */}
                     <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none -z-10" />                {/* Header */}
-                    <header className="mb-14 flex justify-between items-end relative z-10">
-                        <div className="animate-in fade-in slide-in-from-left duration-700">
-                            <div className="flex items-center gap-5 mb-4">
-                                <button onClick={() => navigate('/dashboard')} className="p-4 rounded-2xl text-slate-500 hover:text-yellow-400 border border-transparent hover:border-yellow-500/30 hover:bg-yellow-500/10 transition-all bg-black/40 mb-1 active:scale-95 shadow-2xl backdrop-blur-xl group">
-                                    <ArrowLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
-                                </button>
-
-                                <div className="relative group">
-                                    <div className="absolute -inset-2 bg-yellow-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="p-4 bg-gradient-to-br from-yellow-500/20 to-transparent rounded-2xl border-2 border-yellow-500/30 shadow-[0_0_40px_rgba(250,204,21,0.1)] relative overflow-hidden backdrop-blur-xl">
-                                        <Trophy className="w-10 h-10 text-yellow-500 group-hover:rotate-[15deg] transition-transform duration-500" />
-                                        <div className="absolute top-0 right-0 p-1">
-                                            <Sparkles className="w-3 h-3 text-yellow-300 animate-pulse" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-yellow-100 to-yellow-500 drop-shadow-sm">
-                                        Rank<span className="text-white">ing</span>
-                                    </h1>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <div className="h-px w-8 bg-yellow-500/50" />
-                                        <p className="text-[10px] font-mono text-yellow-500/70 uppercase tracking-[0.4em] font-black">
-                                            Hall of Fame
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    {/* Header */}
+                    <PageHeader
+                        title={<>Rank<span className="text-white">ing</span></>}
+                        subtitle="Hall of Fame"
+                        Icon={Trophy}
+                        gradient="from-white via-yellow-100 to-yellow-500"
+                        iconColor="text-yellow-500"
+                        iconBg="bg-yellow-500/20"
+                        iconBorder="border-yellow-500/30"
+                        glowColor="bg-yellow-500/20"
+                    >
                         <button onClick={() => fetch(true)} disabled={refreshing} className="flex items-center gap-2 px-6 py-3.5 rounded-2xl text-slate-400 hover:text-white border border-white/10 hover:border-yellow-500/30 hover:bg-yellow-500/10 hover:shadow-[0_0_20px_rgba(250,204,21,0.1)] text-[11px] uppercase font-black tracking-widest transition-all group">
                             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} /> Sincronizar Ranking
                         </button>
-                    </header>
+                    </PageHeader>
 
                     {loading ? (
                         <div className="flex items-center justify-center h-64">

@@ -8,6 +8,7 @@ import {
     CheckCircle2, XCircle, Info
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import TestEngine from '../components/TestEngine'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -124,38 +125,18 @@ export default function TestCenter() {
             <main className="flex-1 ml-64 p-8">
 
                 {/* ── Header ── */}
-                <header className="mb-14 flex justify-between items-end relative z-10">
-                    <div className="animate-in fade-in slide-in-from-left duration-700">
-                        <div className="flex items-center gap-5 mb-4">
-                            {phase !== 'subjects' && phase !== 'running' && (
-                                <button onClick={handleReset} className="p-4 rounded-2xl text-slate-500 hover:text-emerald-400 border border-transparent hover:border-emerald-500/30 hover:bg-emerald-500/10 transition-all bg-black/40 mb-1 active:scale-95 shadow-2xl backdrop-blur-xl group">
-                                    <ArrowLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
-                                </button>
-                            )}
-
-                            <div className="relative group flex items-center justify-center">
-                                <img src={testcenterUpIcon} alt="Test Center" className="w-24 h-24 object-contain group-hover:rotate-[15deg] transition-transform duration-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]" />
-                                <div className="absolute top-0 right-0">
-                                    <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-emerald-500 drop-shadow-sm">
-                                    Test<span className="text-white">Center</span>
-                                </h1>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="h-px w-8 bg-emerald-500/50" />
-                                    <p className="text-[10px] font-mono text-emerald-500/70 uppercase tracking-[0.4em] font-black">
-                                        {phase === 'subjects' ? 'Dungeon of Knowledge' :
-                                            phase === 'detail' ? `Asignatura: ${selectedSubject?.label}` :
-                                                phase === 'running' ? 'Test en curso...' : 'Resultados'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Test<span className="text-white">Center</span></>}
+                    subtitle={phase === 'subjects' ? 'Dungeon of Knowledge' :
+                        phase === 'detail' ? `Asignatura: ${selectedSubject?.label}` :
+                            phase === 'running' ? 'Test en curso...' : 'Resultados'}
+                    Icon={Target}
+                    gradient="from-white via-emerald-100 to-emerald-500"
+                    iconColor="text-emerald-400"
+                    iconBg="bg-emerald-500/20"
+                    iconBorder="border-emerald-500/30"
+                    glowColor="bg-emerald-500/20"
+                />
 
                 {/* ── PHASE: SUBJECTS GRID ── */}
                 {phase === 'subjects' && (

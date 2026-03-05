@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
     Shield, Zap, ChevronRight, Check, Terminal, Globe,
     Database, MessageCircle, Code2, Cpu, Lock, Star,
-    Trophy, FlaskConical, BookOpen
+    Trophy, FlaskConical, BookOpen, Gift, ShoppingBag, Fingerprint,
+    Gamepad2, Sparkles, Layout, Rocket, ArrowRight
 } from 'lucide-react'
 import Typewriter from 'typewriter-effect'
 import brandCombinedImg from '../assets/brand-combined.png'
@@ -47,10 +48,36 @@ const SUBJECTS = [
 ]
 
 const FEATURES = [
-    { icon: FlaskConical, title: 'Test Center', desc: '500+ preguntas tipo test para ASIR, DAW, DAM y SMR con explicaciones detalladas.' },
-    { icon: Trophy, title: 'Sistema de Rangos', desc: 'Sube de nivel, gana XP y compite en el ranking global contra otros alumnos.' },
-    { icon: BookOpen, title: 'Recursos & Apuntes', desc: 'Cheat sheets, PDFs y materiales de estudio organizados por asignatura.' },
-    { icon: Star, title: 'Logros y Medallas', desc: 'Desbloquea recompensas por tus rachas, tests perfectos y progreso semanal.' },
+    {
+        icon: FlaskConical,
+        title: 'Test Center v4.0',
+        desc: 'Simulacros de examen reales con explicaciones instantáneas y modo Error-Review.',
+        highlight: 'bg-blue-500/20 text-blue-400'
+    },
+    {
+        icon: Gamepad2,
+        title: 'Skill Labs',
+        desc: 'Experimentos interactivos "Drag & Drop" para dominar conceptos complejos de redes y sistemas.',
+        highlight: 'bg-purple-500/20 text-purple-400'
+    },
+    {
+        icon: Trophy,
+        title: 'RPG Engine',
+        desc: 'Sube de nivel, gana XP, desbloquea logros y compite en el ranking global de la academia.',
+        highlight: 'bg-amber-500/20 text-amber-400'
+    },
+    {
+        icon: ShoppingBag,
+        title: 'Marketplace',
+        desc: 'Canjea tus puntos por cursos exclusivos, items para tu perfil y recursos premium.',
+        highlight: 'bg-emerald-500/20 text-emerald-400'
+    },
+]
+
+const RECENT_ACTIVITY = [
+    { type: 'xp', user: 'AlexK', value: '+450 XP', label: 'Test Redes completado' },
+    { type: 'reward', user: 'Maria_IT', value: '1 Mes Gratis', label: '10 Referidos alcanzados' },
+    { type: 'shop', user: 'DevGhost', value: 'Curso Comprado', label: 'Ethical Hacking Intro' },
 ]
 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
@@ -67,225 +94,322 @@ export default function LandingPage() {
             <div className="landing-dot-grid" />
 
             {/* ── NAVBAR ── */}
-            <header className="relative z-20 flex items-center justify-between px-8 py-4 border-b border-white/5 bg-[#0D0D0D]/80 backdrop-blur-md sticky top-0">
-                <img
-                    src={brandCombinedImg}
-                    alt="Tech4U Academy"
-                    className="h-10 object-contain drop-shadow-[0_0_12px_rgba(0,255,100,0.5)]"
-                />
-                <nav className="flex items-center gap-2">
-                    <Link to="/descubre" className="px-4 py-2 text-sm font-mono text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/5">
-                        Descubre
+            <header className="relative z-20 flex items-center justify-between px-8 py-6 border-b border-white/5 bg-[#0D0D0D]/40 backdrop-blur-xl sticky top-0">
+                <div className="flex items-center gap-10">
+                    <img
+                        src={brandCombinedImg}
+                        alt="Tech4U Academy"
+                        className="h-10 object-contain drop-shadow-[0_0_15px_rgba(0,255,100,0.4)] hover:scale-105 transition-transform cursor-pointer"
+                        onClick={() => navigate('/')}
+                    />
+                    <nav className="hidden md:flex items-center gap-8">
+                        <Link to="/descubre" className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-neon transition-colors">
+                            Descubre
+                        </Link>
+                        <Link to="/planes" className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-neon transition-colors">
+                            Tarifas
+                        </Link>
+                    </nav>
+                </div>
+                <div className="flex items-center gap-4">
+                    <Link to="/login" className="px-5 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">
+                        Login
                     </Link>
-                    <Link to="/login" className="px-4 py-2 text-sm font-mono text-slate-300 border border-white/10 rounded-lg hover:border-neon/40 hover:text-neon transition-all">
-                        Iniciar sesión
+                    <Link to="/login?tab=register" className="relative group overflow-hidden px-6 py-2.5 bg-neon text-black text-[11px] font-black uppercase tracking-widest rounded-full transition-all hover:pr-8 hover:shadow-[0_0_20px_rgba(0,255,100,0.4)]">
+                        <span className="relative z-10">Crear cuenta</span>
+                        <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 opacity-0 group-hover:opacity-100 transition-all" />
                     </Link>
-                    <Link to="/login?tab=register" className="px-5 py-2 text-sm font-black bg-neon text-black rounded-lg hover:shadow-[0_0_20px_rgba(0,255,100,0.4)] transition-all">
-                        Empezar gratis →
-                    </Link>
-                </nav>
+                </div>
             </header>
 
             {/* ── HERO ── */}
-            <section className="relative z-10 flex flex-col items-center text-center px-8 pt-24 pb-20 max-w-5xl mx-auto">
+            <section className="relative z-10 flex flex-col items-center text-center px-8 pt-32 pb-24 max-w-6xl mx-auto">
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 text-xs font-mono text-neon border border-neon/25 bg-neon/5 px-4 py-1.5 rounded-full mb-8">
-                    <Zap className="w-3.5 h-3.5" />
-                    Comunidad #1 para Estudiantes de FP Informática
+                <div className="relative group mb-12 cursor-default">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-neon to-indigo-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                    <div className="relative inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-neon bg-black border border-white/10 px-6 py-2 rounded-full">
+                        <Fingerprint className="w-3.5 h-3.5" />
+                        Next-Gen Academy Engine v4.2.0
+                    </div>
                 </div>
 
-                <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.05] mb-6 max-w-4xl tracking-tight">
-                    Domina tu{' '}
-                    <span className="text-neon drop-shadow-[0_0_20px_rgba(0,255,100,0.3)]">
-                        FP de Informática
-                    </span>{' '}
-                    con práctica real
+                <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] mb-8 max-w-5xl tracking-tighter uppercase italic">
+                    Domina la <span className="text-neon selection:text-black">Infraestructura</span> <br />
+                    <span className="text-slate-800 outline-text">Digital</span> con Tech4U
                 </h1>
 
-                <div className="text-base text-slate-400 max-w-xl mb-10 leading-relaxed font-mono h-14 flex items-center justify-center">
-                    <Typewriter
-                        options={{
-                            strings: [
-                                'Tests para ASIR, DAW, DAM y SMR.',
-                                'Gamificación y Ranking Global.',
-                                'Cheat Sheets y Recursos Tech.',
-                                'Aprende Redes, Bases de Datos y Sistemas.',
-                            ],
-                            autoStart: true,
-                            loop: true,
-                            delay: 50,
-                            deleteSpeed: 30,
-                            wrapperClassName: 'text-neon opacity-80',
-                        }}
-                    />
-                </div>
+                <p className="text-lg text-slate-400 max-w-2xl mb-12 leading-relaxed font-mono font-medium">
+                    La primera plataforma RPG diseñada para transformar estudiantes de SMR y ASIR en arquitectos de sistemas de élite. XP, Rangos y Desafíos reales.
+                </p>
 
                 {/* CTAs */}
-                <div className="flex flex-wrap items-center justify-center gap-3 mb-16">
+                <div className="flex flex-wrap items-center justify-center gap-4 mb-24">
                     <button
                         onClick={() => navigate('/login?tab=register')}
-                        className="flex items-center gap-2 px-8 py-3.5 bg-neon text-black text-sm font-black rounded-xl hover:shadow-[0_0_30px_rgba(0,255,100,0.4)] hover:scale-[1.02] transition-all"
+                        className="group relative px-10 py-5 bg-neon text-black font-black uppercase tracking-widest text-xs rounded-2xl overflow-hidden transition-all hover:scale-105 active:scale-95"
                     >
-                        Empezar ahora <ChevronRight className="w-4 h-4" />
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <span className="relative flex items-center gap-2">
+                            Iniciar Operación <Rocket className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        </span>
                     </button>
                     <button
                         onClick={() => navigate('/descubre')}
-                        className="flex items-center gap-2 px-8 py-3.5 text-sm font-bold border border-neon/30 text-neon rounded-xl hover:border-neon/60 hover:bg-neon/5 transition-all"
+                        className="px-10 py-5 border border-white/10 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-white/5 transition-all"
                     >
-                        Ver cómo funciona
+                        Explorar Ecosistema
                     </button>
-                    <a
-                        href="https://discord.gg/tech4u"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-2 px-4 py-3.5 text-slate-500 hover:text-neon transition-colors font-mono text-sm"
-                    >
-                        <MessageCircle className="w-4 h-4" /> Discord
-                    </a>
                 </div>
 
-                {/* Stats strip */}
-                <div className="w-full flex flex-wrap items-center justify-center gap-8 md:gap-12 border border-white/5 rounded-2xl bg-white/[0.02] px-8 py-6">
-                    {[['500+', 'Preguntas'], ['6', 'Asignaturas'], ['3', 'Modos de test'], ['∞', 'Práctica libre']].map(([num, txt]) => (
-                        <div key={txt} className="text-center">
-                            <p className="text-3xl font-black font-mono text-neon drop-shadow-[0_0_8px_rgba(0,255,100,0.3)]">{num}</p>
-                            <p className="text-[11px] text-slate-500 uppercase tracking-widest mt-1 font-mono">{txt}</p>
+                {/* Stats strip Premium */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5 border border-white/10 rounded-3xl overflow-hidden w-full max-w-4xl shadow-2xl">
+                    {[
+                        ['850+', 'Simulacros examen', 'Redes, Sistemas, BBDD'],
+                        ['+3', 'Modos de práctica', 'Entrenamiento intensivo'],
+                        ['24/7', 'Entrenamiento', 'Skill labs interactivos'],
+                        ['100%', 'Gamificado', 'Ranking & Recompensas']
+                    ].map(([num, title, sub], idx) => (
+                        <div key={idx} className="bg-black/40 p-8 flex flex-col items-center justify-center hover:bg-white/[0.02] transition-colors group">
+                            <span className="text-3xl font-black text-neon mb-1 group-hover:scale-110 transition-transform tracking-tighter italic">{num}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white mb-1">{title}</span>
+                            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-tighter">{sub}</span>
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* ── SUBJECTS ── */}
-            <section className="relative z-10 px-8 py-20 max-w-5xl mx-auto">
-                <div className="text-center mb-12">
-                    <p className="text-[11px] font-mono text-neon uppercase tracking-[0.3em] mb-3">Contenido</p>
-                    <h2 className="text-3xl md:text-4xl font-black text-white">Asignaturas disponibles</h2>
-                    <p className="text-slate-500 font-mono text-sm mt-3">Temario completo del ciclo formativo ASIR</p>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {SUBJECTS.map(({ icon: Icon, label, color, bg }) => (
-                        <div
-                            key={label}
-                            className="group glass rounded-2xl p-6 flex items-center gap-4 border border-white/5 hover:border-white/15 transition-all duration-300 hover:-translate-y-0.5"
-                        >
-                            <div className={`w-11 h-11 rounded-xl border flex items-center justify-center flex-shrink-0 ${bg}`}>
-                                <Icon className={`w-5 h-5 ${color}`} />
-                            </div>
-                            <span className="text-sm font-bold text-slate-200 leading-tight">{label}</span>
+            {/* ── LIVE ACTIVITY (New) ── */}
+            <section className="relative z-10 py-12 border-y border-white/5 bg-white/[0.02]">
+                <div className="max-w-6xl mx-auto px-8 flex flex-col md:flex-row items-center gap-8 md:gap-20">
+                    <div className="flex-shrink-0">
+                        <div className="flex items-center gap-2 text-neon mb-2">
+                            <div className="w-2 h-2 bg-neon rounded-full animate-pulse"></div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Live Activity</span>
                         </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* ── FEATURES ── */}
-            <section className="relative z-10 px-8 py-20 bg-white/[0.01] border-t border-b border-white/5">
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-12">
-                        <p className="text-[11px] font-mono text-neon uppercase tracking-[0.3em] mb-3">Funcionalidades</p>
-                        <h2 className="text-3xl md:text-4xl font-black text-white">Todo lo que encontrarás</h2>
+                        <h2 className="text-xl font-black text-white italic uppercase tracking-tighter">Operaciones <br /> en Tiempo Real</h2>
                     </div>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-                        {FEATURES.map(({ icon: Icon, title, desc }) => (
-                            <div key={title} className="glass rounded-2xl p-6 border border-white/5 hover:border-neon/20 transition-all group">
-                                <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                    <Icon className="w-5 h-5 text-neon" />
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                        {RECENT_ACTIVITY.map((act, i) => (
+                            <div key={i} className="flex items-center gap-4 bg-black/40 border border-white/5 p-4 rounded-2xl group hover:border-white/10 transition-all">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border font-black text-xs ${act.type === 'xp' ? 'border-neon/30 bg-neon/10 text-neon' :
+                                    act.type === 'reward' ? 'border-orange-500/30 bg-orange-500/10 text-orange-500' :
+                                        'border-indigo-500/30 bg-indigo-500/10 text-indigo-500'
+                                    }`}>
+                                    {act.type === 'xp' ? 'XP' : act.type === 'reward' ? '🎁' : '🛒'}
                                 </div>
-                                <h3 className="font-black text-white uppercase text-sm mb-2">{title}</h3>
-                                <p className="text-xs text-slate-500 font-mono leading-relaxed">{desc}</p>
+                                <div>
+                                    <p className="text-[10px] font-black text-white uppercase">{act.user}</p>
+                                    <p className="text-[9px] text-slate-500 font-mono tracking-tighter">{act.label}</p>
+                                    <p className="text-[8px] font-black uppercase tracking-widest text-white mt-1">{act.value}</p>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
+            {/* ── SUBJECTS ── */}
+            <section className="relative z-10 px-8 py-32 max-w-6xl mx-auto">
+                <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+                    <div className="max-w-xl text-left">
+                        <p className="text-[11px] font-mono text-neon uppercase tracking-[0.3em] mb-4">Módulos Disponibles</p>
+                        <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none italic">Asignaturas de Alto Impacto</h2>
+                        <p className="text-slate-500 font-mono text-sm mt-6">Domina el ecosistema completo del ciclo formativo ASIR con contenido actualizado 2026.</p>
+                    </div>
+                    <Link to="/descubre" className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all whitespace-nowrap pb-1">
+                        Ver todos los módulos <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {SUBJECTS.map(({ icon: Icon, label, color, bg }) => (
+                        <div
+                            key={label}
+                            className="group relative bg-white/[0.03] border border-white/5 rounded-2xl p-6 flex flex-col items-center gap-4 text-center hover:bg-white/[0.07] hover:border-white/20 transition-all duration-500"
+                        >
+                            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-110 ${bg}`}>
+                                <Icon className={`w-6 h-6 ${color}`} />
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400 leading-tight uppercase tracking-widest group-hover:text-white transition-colors">{label}</span>
+                            <div className="absolute inset-x-0 bottom-0 h-1 bg-neon scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-b-2xl opacity-50"></div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* ── FEATURES ── */}
+            <section className="relative z-10 px-8 py-32 bg-black">
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid lg:grid-cols-2 gap-20 items-center">
+                        <div className="order-2 lg:order-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {FEATURES.map(({ icon: Icon, title, desc, highlight }) => (
+                                    <div key={title} className="group p-8 rounded-3xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition-all relative overflow-hidden">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:rotate-12 ${highlight}`}>
+                                            <Icon className="w-6 h-6" />
+                                        </div>
+                                        <h3 className="font-black text-white uppercase text-base mb-3 tracking-tighter italic">{title}</h3>
+                                        <p className="text-xs text-slate-500 font-mono leading-relaxed">{desc}</p>
+                                        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-10 transition-opacity">
+                                            <Sparkles className="w-12 h-12 text-white" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="order-1 lg:order-2 space-y-8">
+                            <div className="inline-flex items-center gap-2 text-[10px] font-black text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl uppercase tracking-widest">
+                                <Layout className="w-3.5 h-3.5" /> Ecosistema Operativo
+                            </div>
+                            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-[0.9]">Mucho más que una <span className="text-indigo-400">academia</span> normal</h2>
+                            <p className="text-lg text-slate-400 font-mono leading-relaxed">
+                                Hemos diseñado Tech4U como un simulador profesional. Aquí no solo estudias, sino que "operas" infraestructuras reales dentro de un entorno gamificado.
+                            </p>
+                            <div className="grid grid-cols-1 gap-4 pt-6">
+                                {[
+                                    { t: 'Detección de Errores', d: 'Algoritmo que prioriza tus puntos débiles automáticamente.' },
+                                    { t: 'Certificación On-Chain', d: 'Logros demostrables vinculados a tu progreso real.' }
+                                ].map((item, i) => (
+                                    <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/[0.08] transition-all">
+                                        <div className="mt-1"><Check className="w-4 h-4 text-neon" /></div>
+                                        <div>
+                                            <p className="text-sm font-black text-white uppercase tracking-widest">{item.t}</p>
+                                            <p className="text-[11px] text-slate-500 font-mono mt-1">{item.d}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* ── PRICING ── */}
-            <section className="relative z-10 px-8 py-20 max-w-5xl mx-auto" id="pricing">
-                <div className="text-center mb-12">
-                    <p className="text-[11px] font-mono text-neon uppercase tracking-[0.3em] mb-3">Planes</p>
-                    <h2 className="text-3xl md:text-4xl font-black text-white">Elige tu plan de acceso</h2>
-                    <p className="text-slate-500 font-mono text-sm mt-3">Sin permanencia. Cancela cuando quieras.</p>
+            <section className="relative z-10 px-8 py-32 max-w-6xl mx-auto" id="pricing">
+                <div className="text-center mb-20">
+                    <p className="text-[11px] font-mono text-neon uppercase tracking-[0.3em] mb-4">Investigación & Desarrollo</p>
+                    <h2 className="text-4xl md:text-5xl font-black text-white uppercase italic tracking-tighter leading-none">Planes de <span className="text-neon drop-shadow-[0_0_20px_rgba(0,255,100,0.3)]">Despliegue</span></h2>
+                    <p className="text-slate-500 font-mono text-sm mt-6">Escalabilidad total. Sin contratos de permanencia.</p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6 items-center">
+                <div className="grid md:grid-cols-3 gap-8 items-stretch pt-10">
                     {PLANS.map((plan) => (
                         <div
                             key={plan.type}
-                            className={`relative glass rounded-2xl p-8 flex flex-col gap-5 border transition-all duration-300 ${plan.highlight
-                                ? 'border-neon shadow-[0_0_40px_rgba(0,255,100,0.12)] scale-[1.03] z-10'
-                                : 'border-white/8 hover:border-white/20'
+                            className={`relative flex flex-col p-10 rounded-[2.5rem] transition-all duration-500 group ${plan.highlight
+                                ? 'bg-gradient-to-br from-neon/10 to-[#0D0D0D] border-2 border-neon shadow-[0_0_50px_rgba(0,255,100,0.15)] scale-[1.05] z-10'
+                                : 'bg-[#111] border border-white/10 hover:border-neon/30 hover:bg-[#151515]'
                                 }`}
                         >
                             {plan.badge && (
-                                <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] font-black font-mono bg-neon text-black px-4 py-1.5 rounded-full tracking-widest whitespace-nowrap">
-                                    {plan.badge}
-                                </span>
+                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-full flex justify-center">
+                                    <span className="px-6 py-2 bg-neon text-[#0D0D0D] text-[10px] font-black uppercase rounded-full tracking-widest shadow-[0_0_25px_rgba(0,255,100,0.6)] flex items-center gap-2 border border-neon">
+                                        <Star className="w-3 h-3 fill-current" /> {plan.badge}
+                                    </span>
+                                </div>
                             )}
-                            <div>
-                                <h3 className={`text-base font-black font-mono uppercase tracking-wide ${plan.highlight ? 'text-neon' : 'text-slate-300'}`}>
-                                    {plan.name}
+                            <div className="mb-8">
+                                <h3 className={`text-[11px] font-black font-mono uppercase tracking-[0.3em] mb-4 ${plan.highlight ? 'text-neon' : 'text-slate-500'}`}>
+                                    Lvl. {plan.name}
                                 </h3>
-                                <div className="flex items-baseline gap-1.5 mt-3">
-                                    <span className="text-4xl font-black text-white font-mono">{plan.price}€</span>
-                                    <span className="text-sm text-slate-500 font-mono">/{plan.period}</span>
+                                <div className="flex items-end gap-2">
+                                    <span className={`text-6xl font-black tracking-tighter italic ${plan.highlight ? 'text-neon drop-shadow-[0_0_15px_rgba(0,255,100,0.3)]' : 'text-white'}`}>{plan.price}€</span>
+                                    <span className="text-xs text-slate-500 font-mono uppercase tracking-widest mb-2">/ {plan.period}</span>
                                 </div>
                             </div>
-                            <ul className="flex flex-col gap-3 flex-1">
+                            <ul className="space-y-4 mb-10 flex-1">
                                 {plan.features.map(f => (
-                                    <li key={f} className="flex items-start gap-2.5 text-sm text-slate-300">
-                                        <Check className="w-4 h-4 text-neon flex-shrink-0 mt-0.5" />
-                                        {f}
+                                    <li key={f} className="flex items-start gap-3 text-xs font-medium text-slate-300">
+                                        <div className="p-0.5 rounded-full bg-neon/10 mt-0.5"><Check className={`w-3.5 h-3.5 ${plan.highlight ? 'text-neon drop-shadow-[0_0_8px_rgba(0,255,100,0.6)]' : 'text-neon'}`} /></div>
+                                        <span className={plan.highlight ? 'text-white' : 'text-slate-300'}>{f}</span>
                                     </li>
                                 ))}
                             </ul>
                             <Link
                                 to={`/login?tab=register&plan=${plan.type}`}
-                                className={`mt-auto text-center text-sm py-3.5 rounded-xl font-black transition-all ${plan.highlight
-                                    ? 'bg-neon text-black hover:shadow-[0_0_20px_rgba(0,255,100,0.4)]'
-                                    : 'border border-neon/30 text-neon hover:bg-neon/5 hover:border-neon/60'
+                                className={`group relative py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-center transition-all overflow-hidden ${plan.highlight
+                                    ? 'bg-neon text-black shadow-[0_0_30px_rgba(0,255,100,0.3)] hover:shadow-[0_0_50px_rgba(0,255,100,0.5)] active:scale-95'
+                                    : 'bg-white/5 text-white border border-white/10 hover:border-neon hover:text-neon active:scale-95'
                                     }`}
                             >
-                                Elegir {plan.name}
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    Activar Licencia <ArrowRight className="w-4 h-4" />
+                                </span>
                             </Link>
                         </div>
                     ))}
                 </div>
 
                 {/* Trust badges */}
-                <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
+                <div className="flex flex-wrap items-center justify-center gap-12 mt-24 opacity-40">
                     {[
-                        [Lock, 'Pago 100% seguro con Stripe'],
-                        [Shield, 'Sin permanencia'],
-                        [Zap, 'Acceso inmediato'],
+                        [Lock, 'Cifrado de Pago AES-256'],
+                        [Shield, 'Cancelación en 1-click'],
+                        [Zap, 'Acceso Cloud Instantáneo'],
                     ].map(([Icon, txt]) => (
-                        <div key={txt} className="flex items-center gap-2 text-slate-600 font-mono text-xs">
-                            <Icon className="w-3.5 h-3.5" />
+                        <div key={txt} className="flex items-center gap-3 text-slate-400 font-mono text-[10px] uppercase tracking-widest">
+                            <Icon className="w-4 h-4" />
                             {txt}
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* ── CTA DESCUBRE ── */}
-            <section className="relative z-10 py-24 bg-gradient-to-b from-transparent via-neon/[0.03] to-transparent border-t border-white/5">
-                <div className="max-w-2xl mx-auto text-center px-8">
-                    <h2 className="text-4xl md:text-5xl font-black uppercase italic tracking-tight text-white mb-5">
-                        ¿Aún tienes <span className="text-neon">dudas?</span>
+            {/* ── REFERRAL TEASER (New Feature) ── */}
+            <section className="relative z-10 py-32 border-y border-white/5 overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 blur-[150px] rounded-full -z-10"></div>
+                <div className="max-w-4xl mx-auto px-8 text-center">
+                    <div className="inline-flex items-center gap-2 text-indigo-400 font-black text-[9px] uppercase tracking-[0.4em] mb-6">
+                        <Gift className="w-4 h-4" /> Expand the Network
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-none mb-8">Invita a tu <span className="text-neon">Squad</span> y gana meses gratis</h2>
+                    <p className="text-slate-400 font-mono text-base mb-12 max-w-2xl mx-auto leading-relaxed">
+                        Nuestro nuevo sistema de referidos premia tu lealtad. Por cada amigo que se una, obtienes descuentos directos y meses de suscripción 100% gratuitos.
+                    </p>
+                    <div className="flex justify-center">
+                        <Link to="/login" className="px-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 hover:border-indigo-400 transition-all">
+                            Generar mi código de invitación
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── CTA FINAL ── */}
+            <section className="relative z-10 py-32">
+                <div className="max-w-4xl mx-auto text-center px-8 border border-white/5 rounded-[3rem] bg-gradient-to-br from-white/[0.03] to-transparent py-20 relative overflow-hidden">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-1 bg-neon/30"></div>
+                    <h2 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-white mb-6">
+                        ¿Estás listo para el <span className="text-neon">despegue?</span>
                     </h2>
-                    <p className="text-slate-400 font-mono mb-10 text-sm leading-relaxed max-w-lg mx-auto">
-                        Tech4U no es una academia normal. Es un RPG donde tu carrera IT es el personaje principal — XP, rangos, logros y mucho más.
+                    <p className="text-slate-400 font-mono mb-12 text-sm max-w-lg mx-auto leading-relaxed">
+                        Únete a la academia donde el código se encuentra con el juego. SMR y ASIR nunca volverán a ser lo mismo.
                     </p>
                     <button
-                        onClick={() => navigate('/descubre')}
-                        className="inline-flex items-center gap-3 px-10 py-4 bg-black border-2 border-neon text-neon font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-neon hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(0,255,100,0.15)] hover:shadow-[0_0_40px_rgba(0,255,100,0.35)]"
+                        onClick={() => navigate('/login?tab=register')}
+                        className="inline-flex items-center gap-4 px-12 py-5 bg-neon text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:shadow-[0_0_50px_rgba(0,255,100,0.5)] transition-all duration-300 transform hover:-translate-y-1"
                     >
-                        Descubre todo lo que encontrarás aquí <ChevronRight className="w-5 h-5" />
+                        Empezar mi Carrera IT <ChevronRight className="w-5 h-5" />
                     </button>
                 </div>
             </section>
 
             {/* ── FOOTER ── */}
-            <footer className="relative z-10 border-t border-white/5 text-center py-8 text-xs text-slate-700 font-mono">
-                © 2026 Tech4U Academy — ASIR · DAW · DAM · SMR. Todos los derechos reservados.
+            <footer className="relative z-10 border-t border-white/5 py-16 px-8 overflow-hidden">
+                <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
+                    <div className="col-span-2 md:col-span-3">
+                        <img src={brandCombinedImg} alt="Tech4U" className="h-8 mb-6 opacity-80" />
+                        <p className="text-slate-500 font-mono text-xs leading-relaxed max-w-sm">
+                            La plataforma de entrenamiento líder para el ciclo superior de informática. Tecnología, comunidad y gamificación.
+                        </p>
+                    </div>
+                </div>
+                <div className="max-w-6xl mx-auto pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-mono text-slate-700">
+                    <p>© 2026 Tech4U Academy — Developed for the next generation of SysAdmins.</p>
+                    <div className="flex gap-6">
+                        <a href="https://discord.gg/tech4u" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Discord</a>
+                        <a href="#" className="hover:text-white transition-colors">Twitter</a>
+                        <a href="#" className="hover:text-white transition-colors">GitHub</a>
+                    </div>
+                </div>
             </footer>
         </div>
     )

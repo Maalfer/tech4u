@@ -6,8 +6,36 @@ import {
     Coffee, Star, Gift, Lock, Crown
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
-import adminPjImg from '../assets/admin_pj.png';
+import marcoImg from '../assets/marco_pj.png';
+import pj1 from '../assets/pj_lvl_1.png';
+import pj2 from '../assets/pj_lvl_2.png';
+import pj3 from '../assets/pj_lvl_3.png';
+import pj4 from '../assets/pj_lvl_4.png';
+import pj5 from '../assets/pj_lvl_5.png';
+import pj6 from '../assets/pj_lvl_6.png';
+import pj7 from '../assets/pj_lvl_7.png';
+import pj8 from '../assets/pj_lvl_8.png';
+import pj9 from '../assets/pj_lvl_9.png';
+import pj10 from '../assets/pj_lvl_10.png';
+import pj11 from '../assets/pj_lvl_11.png';
+import pj12 from '../assets/pj_lvl_12.png';
+import pj13 from '../assets/pj_lvl_13.png';
+import pj14 from '../assets/pj_lvl_14.png';
+import pj15 from '../assets/pj_lvl_15.png';
+import pj16 from '../assets/pj_lvl_16.png';
+import pj17 from '../assets/pj_lvl_17.png';
+import pj18 from '../assets/pj_lvl_18.png';
+import pj19 from '../assets/pj_lvl_19.png';
+import pj20 from '../assets/pj_lvl_20.png';
+
+const PJ_ASSETS = {
+    1: pj1, 2: pj2, 3: pj3, 4: pj4, 5: pj5,
+    6: pj6, 7: pj7, 8: pj8, 9: pj9, 10: pj10,
+    11: pj11, 12: pj12, 13: pj13, 14: pj14, 15: pj15,
+    16: pj16, 17: pj17, 18: pj18, 19: pj19, 20: pj20
+};
 
 // ── Item Catalog List ────────────────────────────────────────────────────────
 const ITEM_CATALOG_LIST = [
@@ -126,34 +154,25 @@ export default function AdminCharacterProfile() {
 
                 <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-yellow-500/5 blur-[120px] rounded-full -z-10 animate-pulse" />
 
-                {/* ── Header ── */}
-                <header className="mb-10 flex justify-between items-end relative z-10">
-                    <div className="animate-in fade-in slide-in-from-left duration-700">
-                        <div className="flex items-center gap-5 mb-4">
-                            <button onClick={() => navigate('/admin-dashboard')} className="p-4 rounded-2xl text-slate-500 hover:text-white border border-transparent hover:border-white/30 hover:bg-white/10 transition-all bg-black/40 mb-1 active:scale-95 shadow-2xl backdrop-blur-xl group">
-                                <ArrowLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
-                            </button>
-
-                            <div className="relative group">
-                                <div className="absolute -inset-2 bg-yellow-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <div className="p-4 bg-gradient-to-br from-yellow-500/20 to-transparent rounded-2xl border-2 border-yellow-500/30 shadow-[0_0_40px_rgba(234,179,8,0.15)] relative overflow-hidden backdrop-blur-xl">
-                                    <Crown className="w-10 h-10 text-yellow-400 group-hover:rotate-[15deg] transition-transform duration-500" />
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-yellow-200 to-yellow-500 drop-shadow-sm">
-                                    Mi <span className="text-white">Personaje</span>
-                                </h1>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="h-px w-8 bg-yellow-500/50" />
-                                    <p className="text-[10px] font-mono text-yellow-500/70 uppercase tracking-[0.4em] font-black">
-                                        Perfil del Administrador · Nivel Máximo
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                <PageHeader
+                    title={<>Mi <span className="text-white">Personaje</span></>}
+                    subtitle="Perfil del Administrador · Nivel Máximo · TECH4U CORE"
+                    Icon={Crown}
+                    gradient="from-white via-yellow-100 to-yellow-500"
+                    iconColor="text-yellow-400"
+                    iconBg="bg-yellow-600/20"
+                    iconBorder="border-yellow-500/30"
+                    glowColor="bg-yellow-600/20"
+                >
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/admin-dashboard')}
+                            className="flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase text-slate-300 hover:text-white hover:bg-white/10 transition-all font-mono shadow-2xl backdrop-blur-xl"
+                        >
+                            <ArrowLeft className="w-4 h-4" /> Al Dashboard
+                        </button>
                     </div>
-                </header>
+                </PageHeader>
 
                 {/* ── JRPG Character Sheet ── */}
                 <div className="max-w-5xl mx-auto animate-in fade-in zoom-in-95 duration-500">
@@ -174,13 +193,25 @@ export default function AdminCharacterProfile() {
 
                             {/* LEFT COLUMN: Avatar & Identity */}
                             <div className="lg:col-span-5 flex flex-col items-center relative">
-                                <div className="w-full flex-1 min-h-[300px] relative flex items-end justify-center group mb-[-8px]">
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-yellow-500/15 blur-[60px] rounded-full -z-10 group-hover:bg-yellow-400/25 transition-colors duration-700" />
+                                {/* Avatar Portrait Box with Frame */}
+                                <div className="w-full flex-1 min-h-[400px] relative flex items-center justify-center group mb-4">
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-yellow-500/10 blur-[80px] rounded-full -z-10 group-hover:bg-yellow-400/20 transition-colors duration-700" />
+
+                                    {/* Frame Asset */}
                                     <img
-                                        src={adminPjImg}
-                                        alt="Admin Character"
-                                        className="w-auto max-w-full h-full max-h-[550px] object-contain object-bottom hover:scale-105 transition-transform duration-700 drop-shadow-[0_0_40px_rgba(234,179,8,0.35)] z-10"
+                                        src={marcoImg}
+                                        alt="Frame"
+                                        className="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
                                     />
+
+                                    {/* Character Image (Admin always level 20 image) */}
+                                    <div className="relative w-[70%] h-[70%] flex items-center justify-center overflow-hidden">
+                                        <img
+                                            src={pj20}
+                                            alt="Admin Character"
+                                            className="w-full h-full object-contain hover:scale-110 transition-transform duration-700 drop-shadow-[0_0_20px_rgba(234,179,8,0.2)] z-10"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Identity Plate */}
@@ -441,6 +472,61 @@ export default function AdminCharacterProfile() {
                         </div>
                     </div>
 
+                    {/* ══════════════════════════════════════════════
+                        GALERÍA DE PERSONAJES: Evolution Path (Admin View)
+                        ══════════════════════════════════════════════ */}
+                    <div className="max-w-5xl mx-auto mt-16 animate-in fade-in slide-in-from-bottom duration-1000 mb-20">
+                        {/* Section Header */}
+                        <div className="flex items-center gap-4 mb-10">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-yellow-500/30" />
+                            <div className="flex items-center gap-3 px-8 py-3 border border-yellow-500/30 rounded-full bg-yellow-900/20 backdrop-blur-md shadow-[0_0_20px_rgba(234,179,8,0.1)]">
+                                <Cpu className="w-5 h-5 text-yellow-400" />
+                                <h2 className="text-yellow-400 font-black font-mono uppercase tracking-[0.4em] text-sm">Archivo de Evolución Maestro</h2>
+                            </div>
+                            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-yellow-500/30" />
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                            {Object.entries(PJ_ASSETS).map(([lvl, img]) => {
+                                const isCurrent = parseInt(lvl) === 20; // Admin is level 20
+                                const isUnlocked = true; // Admin has all unlocked
+
+                                return (
+                                    <div
+                                        key={lvl}
+                                        className={`relative group rounded-2xl border aspect-[4/5] p-3 transition-all duration-500 overflow-hidden flex flex-col items-center justify-center
+                                            ${isCurrent
+                                                ? 'border-yellow-400 bg-yellow-400/5 shadow-[0_0_25px_rgba(234,179,8,0.15)] ring-1 ring-yellow-400/30'
+                                                : 'border-white/20 bg-white/5 hover:border-yellow-400/40 hover:bg-yellow-400/5'}`}
+                                    >
+                                        {/* Level Badge */}
+                                        <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-black font-mono border z-10
+                                            ${isCurrent ? 'bg-yellow-400 text-black border-yellow-400' : 'bg-black/60 text-slate-400 border-white/10'}`}>
+                                            LVL {lvl}
+                                        </div>
+
+                                        {/* Avatar in Gallery */}
+                                        <div className="relative w-full h-full flex items-center justify-center p-2">
+                                            <img
+                                                src={img}
+                                                alt={`PJ Nivel ${lvl}`}
+                                                className={`w-full h-full object-contain transition-all duration-700
+                                                    ${isCurrent ? 'scale-110 drop-shadow-[0_0_15px_rgba(234,179,8,0.4)] animate-pulse' : 'group-hover:scale-105'}`}
+                                            />
+                                        </div>
+
+                                        {/* Label */}
+                                        <div className={`absolute bottom-0 inset-x-0 p-2 text-center bg-gradient-to-t from-black to-transparent
+                                            ${isCurrent ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                                            <p className="text-[8px] font-black font-mono text-white uppercase tracking-tighter">
+                                                {isCurrent ? 'Tu Nivel Actual' : 'Estado: Maestro'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
 
             </main>

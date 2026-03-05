@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import List
 import json
 import random
+from websocket_manager import manager
 
 from database import get_db, SkillLabExercise, User, AcademyStats
 from auth import get_current_user
@@ -59,7 +60,7 @@ class SkillSubmitRequest(BaseModel):
     failed_attempts: int
 
 @router.post("/submit")
-def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Submits a final payload after finishing a Skill Lab run. 
     Grants XP and checks leveling up.
@@ -70,6 +71,7 @@ def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_db), cu
     
     net_xp = max((data.correct_exercises * MIN_XP_PER_EXERCISE), gross_xp - penalty)
 
+    old_level = current_user.level
     current_user.xp += net_xp
 
     leveled_up = False
@@ -92,6 +94,23 @@ def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_db), cu
     if leveled_up:
         new_level = current_user.level
         rank_name = current_user.rank_name
+        # Send Level Up Notification
+        await manager.send_personal_message({
+            "type": "LEVEL_UP",
+            "title": "¡NIVEL ALCANZADO!",
+            "message": f"Has subido al nivel {new_level} ({rank_name})",
+            "level": new_level,
+            "rank": rank_name
+        }, current_user.id)
+
+    # If perfect score, send a specific notification
+    if data.correct_exercises == data.total_exercises and data.failed_attempts == 0:
+        await manager.send_personal_message({
+            "type": "NOTIFICATION",
+            "title": "¡ENLACE PERFECTO!",
+            "message": f"Has completado el Skill Lab de {data.subject} sin errores.",
+            "severity": "success"
+        }, current_user.id)
 
     db.commit()
 

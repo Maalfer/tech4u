@@ -30,7 +30,8 @@ import {
     PlayCircle,
     Hammer,
     Wrench,
-    Compass
+    Compass,
+    Terminal
 } from 'lucide-react';
 import api from '../services/api';
 import logoImg from '../assets/logo.png';
@@ -58,6 +59,7 @@ import miSuscripcionIcon from '../assets/misuscripcion_icon.png';
 import noticiasAcademiaIcon from '../assets/noticiasacademia_icon.png';
 import skillLabsIcon from '../assets/skilllabs_icon.png';
 import exploraIcon from '../assets/explora_icon.png';
+import terminalIcon from '../assets/testcenter_up_icon.png';
 
 // ── Palette: every icon has a fixed semantic color ──────────────────────────
 const IC = {
@@ -109,34 +111,55 @@ export default function Sidebar() {
         navigate('/login');
     };
 
-    const menuItems = [
-        { icon: dashboardIcon, isCustom: true, label: 'Dashboard', path: (user?.role === 'admin' || user?.role === 'developer') ? '/admin-dashboard' : '/dashboard', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
+    const dashboardItem = {
+        icon: dashboardIcon,
+        isCustom: true,
+        label: 'Dashboard',
+        path: (user?.role === 'admin' || user?.role === 'developer') ? '/admin-dashboard' : '/dashboard',
+        customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1'
+    };
+
+    // --- ALUMNO SPECIFIC GROUPS ---
+    const studentStatsGroup = [
         { icon: exploraIcon, isCustom: true, label: 'Explora', path: '/explora', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        ...((user?.role !== 'admin' && user?.role !== 'developer')
-            ? [{ icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' }]
-            : [{ icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/admin/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' }]
-        ),
-        { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: recursosIcon, isCustom: true, label: 'Recursos', path: '/resources', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: cursosVideosIcon, isCustom: true, label: 'YT Videos', path: '/video-cursos', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        ...((user?.role !== 'admin' && user?.role !== 'developer') ? [{ icon: misCursosIcon, isCustom: true, label: 'Mis Cursos', path: '/my-courses', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' }] : []),
-        { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: herramientasIcon, isCustom: true, label: 'Herramientas', path: '/tools', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
-        ...((user?.role !== 'admin' && user?.role !== 'developer') ? [
-            { icon: rankingIcon, isCustom: true, label: 'Ranking', path: '/leaderboard', customSize: 'w-8 h-8 scale-[1.2] origin-center' },
-            { icon: miHistorialIcon, isCustom: true, label: 'Test Stats', path: '/test-stats', customSize: 'w-8 h-8 scale-[1.2] origin-center' },
-            { icon: miSuscripcionIcon, isCustom: true, label: 'Mi Suscripción', path: '/suscripcion/gestionar', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
-        ] : []),
+        { icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' },
+        { icon: miSuscripcionIcon, isCustom: true, label: 'Mi Suscripción', path: '/suscripcion/gestionar', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
+        { icon: miHistorialIcon, isCustom: true, label: 'Test Stats', path: '/test-stats', customSize: 'w-8 h-8 scale-[1.2] origin-center' },
+        { icon: rankingIcon, isCustom: true, label: 'Ranking', path: '/leaderboard', customSize: 'w-8 h-8 scale-[1.2] origin-center' },
     ];
 
-    const extraItems = [
-        { icon: mundoVirtualIcon, isCustom: true, label: 'Virtual World', path: '/mundo', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+    const studentAcademiaGroup = [
+        { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+        { icon: terminalIcon, isCustom: true, label: 'Terminal Simulator', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+        { icon: herramientasIcon, isCustom: true, label: 'Herramientas', path: '/tools', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
+    ];
+
+    const studentResourcesGroup = [
+        { icon: cursosVideosIcon, isCustom: true, label: 'YT Videos', path: '/video-cursos', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: misCursosIcon, isCustom: true, label: 'Mis Cursos', path: '/my-courses', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
+        { icon: academyShopIcon, isCustom: true, label: 'Academy Shop', path: '/shop', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+    ];
+
+    // --- ADMIN / DOCENTE GROUPS (Used in the other section) ---
+    const menuItemsRest = [
+        { icon: exploraIcon, isCustom: true, label: 'Explora', path: '/explora', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+        { icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/admin/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' },
+        { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+        { icon: terminalIcon, isCustom: true, label: 'Terminal Simulator', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: recursosIcon, isCustom: true, label: 'Recursos', path: '/resources', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: cursosVideosIcon, isCustom: true, label: 'YT Videos', path: '/video-cursos', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+        { icon: herramientasIcon, isCustom: true, label: 'Herramientas', path: '/tools', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
+        { icon: noticiasAcademiaIcon, isCustom: true, label: 'Noticias Comunidad', path: '/noticias', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: academyShopIcon, isCustom: true, label: 'Academy Shop', path: '/shop', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+    ];
+
+    const upcomingItems = [
         { icon: ciberseguridadIcon, isCustom: true, label: 'Ciberseguridad', path: '/ciberseguridad', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        ...((user?.role !== 'admin' && user?.role !== 'developer') ? [
-            { icon: noticiasAcademiaIcon, isCustom: true, label: 'Noticias Academia', path: '/noticias', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-            { icon: academyShopIcon, isCustom: true, label: 'Academy Shop', path: '/shop', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        ] : []),
+        { icon: mundoVirtualIcon, isCustom: true, label: 'Virtual World', path: '/mundo', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
     ];
 
     if (!user) return null;
@@ -159,12 +182,24 @@ export default function Sidebar() {
 
             <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
 
+                {/* 1. DASHBOARD — ALWAYS TOP */}
+                <NavLink
+                    to={dashboardItem.path}
+                    className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
+                        ? 'bg-white/8 text-white border border-white/10'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        }`}
+                >
+                    <img src={dashboardItem.icon} className={`${dashboardItem.customSize} flex-shrink-0 object-contain`} alt="" />
+                    {dashboardItem.label}
+                </NavLink>
+
                 {/* SUSCRIPCIÓN ALERT — solo alumnos sin plan */}
                 {user.role === 'alumno' && (user.subscription_type === 'free' || !user.subscription_type) && (
                     <NavLink
                         to="/suscripcion"
                         className={({ isActive }) =>
-                            `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] mb-3 border ${isActive
+                            `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] my-3 border ${isActive
                                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/60'
                                 : 'bg-amber-500/8 text-amber-400 border-amber-500/25 hover:bg-amber-500/15 hover:border-amber-500/50 animate-pulse'
                             }`}
@@ -175,121 +210,202 @@ export default function Sidebar() {
                     </NavLink>
                 )}
 
-                {/* MENÚ PRINCIPAL */}
-                <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pt-2 pb-1.5">Menú Principal</p>
-                {menuItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
-                            ? 'bg-white/8 text-white border border-white/10'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
-                            }`}
-                    >
-                        {item.isCustom ? (
-                            <img src={item.icon} className={`${item.customSize || 'w-8 h-8'} flex-shrink-0 object-contain`} alt="" />
-                        ) : (
-                            <item.icon className={`w-5 h-5 flex-shrink-0 ${item.iconClass}`} />
-                        )}
-                        {item.label}
-                    </NavLink>
-                ))}
-
-                {/* SECCIÓN EXTRA */}
-                <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pt-5 pb-1.5">Contenido Extra</p>
-                {extraItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
-                            ? 'bg-white/8 text-white border border-white/10'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
-                            }`}
-                    >
-                        {item.isCustom ? (
-                            <img src={item.icon} className={`${item.customSize || 'w-8 h-8'} flex-shrink-0 object-contain`} alt="" />
-                        ) : (
-                            <item.icon className={`w-5 h-5 flex-shrink-0 ${item.iconClass}`} />
-                        )}
-                        {item.label}
-                    </NavLink>
-                ))}
-
-                {/* GESTIÓN — admin/developer/docente */}
+                {/* 2. GESTIÓN — admin/developer/docente (BELOW DASHBOARD) */}
                 {(user.role === 'admin' || user.role === 'developer' || user.role === 'docente') && (
-                    <div className="pt-5 space-y-0.5">
-                        <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-1.5 flex items-center gap-1.5">
-                            <Shield className={`w-4 h-4 ${IC.shield}`} /> Gestión
-                        </p>
+                    <div className="space-y-0.5">
+                        <div className="my-4 border-t border-white/5 pt-4">
+                            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-2 flex items-center gap-1.5 font-black">
+                                <Shield className={`w-3.5 h-3.5 ${IC.shield}`} /> Gestión de la Academia
+                            </p>
+                        </div>
+
+                        {/* Banco de Preguntas (General management) */}
+                        <NavLink to="/gestion-contenido" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                            <img src={customIcon} className="w-8 h-8 flex-shrink-0 object-contain" alt="" />
+                            Banco de Preguntas
+                        </NavLink>
+
+                        {(user.role === 'admin' || user.role === 'developer') && (
+                            <NavLink to="/gestion-usuarios" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                                <img src={userRolesIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                Usuarios y Roles
+                            </NavLink>
+                        )}
+
+                        {(user.role === 'admin' || user.role === 'developer') && (
+                            <NavLink to="/admin/tickets" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                                <div className="flex items-center gap-4">
+                                    <img src={incidenciasAcademiaIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                    <span>Incidencias Academia</span>
+                                </div>
+                                {ticketCount > 0 && (
+                                    <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1 bg-red-600 text-white text-[10px] font-black rounded-full shadow-[0_0_8px_rgba(220,38,38,0.6)] border border-red-400/50">
+                                        {ticketCount}
+                                    </span>
+                                )}
+                            </NavLink>
+                        )}
+
+                        {(user.role === 'admin' || user.role === 'developer') && (
+                            <NavLink to="/admin/referidos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                                <div className="w-8 h-8 flex items-center justify-center -ml-1">
+                                    <TrendingUp className="w-5 h-5 text-indigo-400" />
+                                </div>
+                                Ecosistema Referidos
+                            </NavLink>
+                        )}
+
+                        {(user.role === 'admin' || user.role === 'developer') && (
+                            <NavLink to="/admin/sugerencias" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                                <div className="flex items-center gap-4">
+                                    <img src={propuestasAlumnosIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                    <span>Propuestas Alumnos</span>
+                                </div>
+                                {suggestionCount > 0 && (
+                                    <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1 bg-blue-600 text-white text-[10px] font-black rounded-full shadow-[0_0_10px_rgba(37,99,235,0.7)] border border-blue-400/50">
+                                        {suggestionCount}
+                                    </span>
+                                )}
+                            </NavLink>
+                        )}
 
                         <NavLink to="/admin/noticias" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <img src={enviarNoticiaIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
                             Enviar Noticia
                         </NavLink>
 
-                        <NavLink to="/gestion-contenido" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            {/* Restablecido a w-8 h-8 para que visualmente esté a la par con el de Flashcards */}
-                            <img src={customIcon} className="w-8 h-8 flex-shrink-0 object-contain" alt="" />
-                            Banco de Preguntas
-                        </NavLink>
-
-                        <NavLink to="/admin/cursos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <img src={ytHelpIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
-                            YT Help
-                        </NavLink>
+                        {(user.role === 'admin' || user.role === 'developer') && (
+                            <NavLink to="/admin/cupones" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                                <img src={cuponesDescuentoIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                Cupones Descuento
+                            </NavLink>
+                        )}
 
                         <NavLink to="/admin/shop" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <img src={academyShopIcon} className="w-8 h-8 scale-[1.8] origin-center -ml-1.5 flex-shrink-0 object-contain" alt="" />
                             Academy Shop
                         </NavLink>
 
-                        {(user.role === 'admin' || user.role === 'developer') && (
-                            <>
-                                {/* Propuestas con contador azul */}
-                                <NavLink to="/admin/sugerencias" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                    <div className="flex items-center gap-4">
-                                        <img src={propuestasAlumnosIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
-                                        <span>Propuestas Alumnos</span>
-                                    </div>
-                                    {suggestionCount > 0 && (
-                                        <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1 bg-blue-600 text-white text-[10px] font-black rounded-full shadow-[0_0_10px_rgba(37,99,235,0.7)] border border-blue-400/50">
-                                            {suggestionCount}
-                                        </span>
-                                    )}
-                                </NavLink>
+                        <NavLink to="/admin/labs" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                            <div className="w-8 h-8 flex items-center justify-center -ml-1">
+                                <Terminal className={`w-5 h-5 ${IC.db}`} />
+                            </div>
+                            Laboratorios
+                        </NavLink>
 
-                                {/* Incidencias Academia con contador rojo */}
-                                <NavLink to="/admin/tickets" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                    <div className="flex items-center gap-4">
-                                        <img src={incidenciasAcademiaIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
-                                        <span>Incidencias Academia</span>
-                                    </div>
-                                    {ticketCount > 0 && (
-                                        <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1 bg-red-600 text-white text-[10px] font-black rounded-full shadow-[0_0_8px_rgba(220,38,38,0.6)] border border-red-400/50">
-                                            {ticketCount}
-                                        </span>
-                                    )}
-                                </NavLink>
-
-                                <NavLink to="/gestion-usuarios" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                    <img src={userRolesIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
-                                    Usuarios & Roles
-                                </NavLink>
-
-                                <NavLink to="/admin/cupones" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                    <img src={cuponesDescuentoIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
-                                    Cupones de Descuento
-                                </NavLink>
-
-                                <NavLink to="/admin/referidos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                    <div className="w-8 h-8 flex items-center justify-center -ml-1">
-                                        <TrendingUp className="w-5 h-5 text-indigo-400" />
-                                    </div>
-                                    Ecosistema Referidos
-                                </NavLink>
-                            </>
-                        )}
+                        <NavLink to="/admin/cursos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                            <img src={ytHelpIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                            YT Help
+                        </NavLink>
                     </div>
+                )}
+
+                {/* 3. PRÓXIMAMENTE (ONLY ADMIN) */}
+                {(user.role === 'admin' || user.role === 'developer' || user.role === 'docente') && (
+                    <div className="space-y-0.5">
+                        <div className="my-4 border-t border-white/5 pt-4">
+                            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-2 flex items-center gap-1.5 font-black">
+                                <Hammer className="w-3.5 h-3.5 text-orange-500" /> Próximamente / En Desarrollo
+                            </p>
+                        </div>
+                        {upcomingItems.map((item) => (
+                            <NavLink
+                                key={item.path}
+                                to={item.path}
+                                className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
+                                    ? 'bg-white/8 text-white border border-white/10'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                    }`}
+                            >
+                                <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                {item.label}
+                            </NavLink>
+                        ))}
+                    </div>
+                )}
+
+                {/* 4. EL RESTO (TODOS) */}
+                {(user.role !== 'alumno') ? (
+                    <div className="mt-6 border-t border-white/5 pt-4">
+                        <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-1.5">Academia</p>
+                        {menuItemsRest.map((item) => (
+                            <NavLink
+                                key={item.path}
+                                to={item.path}
+                                className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
+                                    ? 'bg-white/8 text-white border border-white/10'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                    }`}
+                            >
+                                <img src={item.icon} className={`${item.customSize || 'w-8 h-8'} flex-shrink-0 object-contain`} alt="" />
+                                {item.label}
+                            </NavLink>
+                        ))}
+                    </div>
+                ) : (
+                    /* ALUMNO SPECIFIC RENDERING */
+                    <>
+                        <div className="space-y-0.5">
+                            {studentStatsGroup.map((item) => (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
+                                        ? 'bg-white/8 text-white border border-white/10'
+                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                    {item.label}
+                                </NavLink>
+                            ))}
+                        </div>
+
+                        <div className="mt-6 border-t border-white/5 pt-4">
+                            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-1.5">Academia</p>
+                            {studentAcademiaGroup.map((item) => (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
+                                        ? 'bg-white/8 text-white border border-white/10'
+                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                    {item.label}
+                                </NavLink>
+                            ))}
+                        </div>
+
+                        <div className="mt-6 border-t border-white/5 pt-4">
+                            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-1.5">Formación y Tienda</p>
+                            {studentResourcesGroup.map((item) => (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive
+                                        ? 'bg-white/8 text-white border border-white/10'
+                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                    {item.label}
+                                </NavLink>
+                            ))}
+                        </div>
+
+                        <div className="mt-6 border-t border-white/5 pt-4">
+                            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-1.5">Comunidad</p>
+                            <NavLink
+                                to="/noticias"
+                                className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                            >
+                                <img src={noticiasAcademiaIcon} className="w-8 h-8 scale-[2.0] origin-center -ml-1.5 flex-shrink-0 object-contain" alt="" />
+                                Noticias Comunidad
+                            </NavLink>
+                        </div>
+                    </>
                 )}
             </nav>
 

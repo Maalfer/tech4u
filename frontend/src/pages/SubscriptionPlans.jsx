@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import {
     Shield, Check, Zap, BookOpen, FlaskConical,
     Star, Crown, ArrowRight, Lock, ChevronLeft,
-    Sparkles, Trophy, BarChart3, Rocket
+    Sparkles, Trophy, BarChart3, Rocket, MessageCircle
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 
@@ -206,7 +206,7 @@ export default function SubscriptionPlans() {
                 </div>
 
                 {/* Trust Section */}
-                <div className="mt-16 border-t border-white/5 pt-12">
+                <div className="mt-16 border-t border-white/5 pt-12 pb-20">
                     <div className="flex flex-wrap items-center justify-center gap-8 max-w-4xl mx-auto">
                         {[
                             { icon: Lock, title: 'Pago 100% Seguro', desc: 'Procesado mediante Stripe con encriptación bancaria' },
@@ -223,6 +223,19 @@ export default function SubscriptionPlans() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+
+                    <div className="mt-20 text-center flex flex-col items-center gap-6">
+                        <p className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/[0.02] border border-white/5 text-slate-500 font-mono text-sm">
+                            <Star className="w-4 h-4 text-neon" />
+                            ¿Sois un grupo? Consulta nuestros <strong className="text-neon">descuentos para clases y grupos grandes</strong>.
+                        </p>
+                        <a
+                            href="mailto:info@tech4u.academy?subject=Consulta%20Grupo%20Academia"
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-neon text-black font-black uppercase tracking-widest text-xs rounded-xl hover:shadow-[0_0_30px_rgba(0,255,100,0.4)] transition-all"
+                        >
+                            <MessageCircle className="w-4 h-4" /> Contactar con Soporte
+                        </a>
                     </div>
                 </div>
 

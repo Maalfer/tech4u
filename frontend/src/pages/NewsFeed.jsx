@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Megaphone, Bell, Clock } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 
 function timeAgo(dateStr) {
@@ -37,21 +38,16 @@ export default function NewsFeed() {
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-neon/5 blur-[150px] rounded-full -z-10 animate-pulse" />
 
                 {/* Header */}
-                <header className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-                    <div className="flex items-center gap-5 mb-3">
-                        <div className="p-4 bg-gradient-to-br from-neon/20 to-transparent rounded-2xl border border-neon/30 shadow-[0_0_40px_rgba(0,255,65,0.1)]">
-                            <Bell className="w-10 h-10 text-neon" />
-                        </div>
-                        <div>
-                            <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-green-100 to-neon">
-                                Noticias<span className="text-white"> Academia</span>
-                            </h1>
-                            <p className="text-[11px] font-mono text-neon/60 uppercase tracking-[0.4em] mt-2">
-                                // Boletín Oficial de la Academia Tech4U
-                            </p>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Noticias<span className="text-white"> Academia</span></>}
+                    subtitle="// Boletín Oficial de la Academia Tech4U"
+                    Icon={Bell}
+                    gradient="from-white via-green-100 to-neon"
+                    iconColor="text-neon"
+                    iconBg="bg-neon/20"
+                    iconBorder="border-neon/30"
+                    glowColor="bg-neon/20"
+                />
 
                 {/* Bulletin Board */}
                 {announcements.length === 0 ? (

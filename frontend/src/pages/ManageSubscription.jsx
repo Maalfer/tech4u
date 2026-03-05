@@ -47,6 +47,8 @@ export default function ManageSubscription() {
     const [loading, setLoading] = useState(true)
     const [toggling, setToggling] = useState(false)
     const [error, setError] = useState(null)
+    const [cancelling, setCancelling] = useState(false)
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
     const fetchData = useCallback(async () => {
         try {
@@ -70,6 +72,20 @@ export default function ManageSubscription() {
             setError('No se pudo cambiar la renovación automática.')
         } finally {
             setToggling(false)
+        }
+    }
+
+    const handleCancelSubscription = async () => {
+        setCancelling(true)
+        setError(null)
+        try {
+            await api.post('/subscriptions/cancel')
+            await fetchData()
+            setShowCancelConfirm(false)
+        } catch (err) {
+            setError(err.response?.data?.detail || 'Error al cancelar la suscripción.')
+        } finally {
+            setCancelling(false)
         }
     }
 
@@ -252,34 +268,69 @@ export default function ManageSubscription() {
 
                                 {/* Auto-renew toggle */}
                                 {data.is_active && (
-                                    <div className="glass rounded-3xl p-6 lg:p-8 border border-white/5 flex-1 flex items-center justify-between gap-6 border-l-4 border-l-neon/50">
-                                        <div>
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <RefreshCw className={`w-5 h-5 ${data.auto_renew ? 'text-neon animate-spin-slow' : 'text-slate-600'}`} />
-                                                <h3 className="font-black uppercase text-lg text-white tracking-wide">Renovación Automática</h3>
+                                    <div className="flex flex-col gap-4">
+                                        <div className="glass rounded-3xl p-6 lg:p-8 border border-white/5 flex items-center justify-between gap-6 border-l-4 border-l-neon/50">
+                                            <div>
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <RefreshCw className={`w-5 h-5 ${data.auto_renew ? 'text-neon animate-spin-slow' : 'text-slate-600'}`} />
+                                                    <h3 className="font-black uppercase text-lg text-white tracking-wide">Renovación Automática</h3>
+                                                </div>
+                                                <p className="text-xs font-mono text-slate-400 leading-relaxed max-w-md">
+                                                    {data.auto_renew
+                                                        ? 'Mantenimiento ininterrumpido. El acceso se extenderá automáticamente al final del ciclo actual para que no pierdas privilegios.'
+                                                        : 'Desactivada. Los sistemas cortarán el acceso a recursos vitales exactamente el ' + formatDate(data.subscription_end) + '.'}
+                                                </p>
                                             </div>
-                                            <p className="text-xs font-mono text-slate-400 leading-relaxed max-w-md">
-                                                {data.auto_renew
-                                                    ? 'Mantenimiento ininterrumpido. El acceso se extenderá automáticamente al final del ciclo actual para que no pierdas privilegios.'
-                                                    : 'Desactivada. Los sistemas cortarán el acceso a recursos vitales exactamente el ' + formatDate(data.subscription_end) + '.'}
-                                            </p>
+                                            <button
+                                                onClick={handleToggleAutoRenew}
+                                                disabled={toggling}
+                                                className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-xs font-black uppercase border transition-all shrink-0 ${data.auto_renew
+                                                    ? 'bg-gradient-to-r from-neon/10 to-neon/5 border-neon/40 text-neon hover:border-neon hover:shadow-[0_0_20px_rgba(198,255,51,0.2)]'
+                                                    : 'bg-black/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
+                                                    }`}
+                                            >
+                                                {toggling ? (
+                                                    <RefreshCw className="w-5 h-5 animate-spin" />
+                                                ) : data.auto_renew ? (
+                                                    <><ToggleRight className="w-6 h-6 drop-shadow-[0_0_8px_var(--neon-alpha-80)]" /> Activada</>
+                                                ) : (
+                                                    <><ToggleLeft className="w-6 h-6" /> Desactivada</>
+                                                )}
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={handleToggleAutoRenew}
-                                            disabled={toggling}
-                                            className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-xs font-black uppercase border transition-all shrink-0 ${data.auto_renew
-                                                ? 'bg-gradient-to-r from-neon/10 to-neon/5 border-neon/40 text-neon hover:border-neon hover:shadow-[0_0_20px_rgba(198,255,51,0.2)]'
-                                                : 'bg-black/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
-                                                }`}
-                                        >
-                                            {toggling ? (
-                                                <RefreshCw className="w-5 h-5 animate-spin" />
-                                            ) : data.auto_renew ? (
-                                                <><ToggleRight className="w-6 h-6 drop-shadow-[0_0_8px_var(--neon-alpha-80)]" /> Activada</>
-                                            ) : (
-                                                <><ToggleLeft className="w-6 h-6" /> Desactivada</>
-                                            )}
-                                        </button>
+
+                                        {data.auto_renew && (
+                                            <div className="p-6 bg-red-500/5 border border-red-500/10 rounded-3xl flex items-center justify-between gap-6">
+                                                <div>
+                                                    <h4 className="text-sm font-black text-red-400 uppercase tracking-wide">Zona Crítica</h4>
+                                                    <p className="text-[10px] font-mono text-slate-500 mt-1">Si cancelas la suscripción, dejarás de recibir cargos automáticos.</p>
+                                                </div>
+                                                {!showCancelConfirm ? (
+                                                    <button
+                                                        onClick={() => setShowCancelConfirm(true)}
+                                                        className="px-6 py-3 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white text-[10px] font-black uppercase transition-all"
+                                                    >
+                                                        Cancelar suscripción
+                                                    </button>
+                                                ) : (
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={handleCancelSubscription}
+                                                            disabled={cancelling}
+                                                            className="px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase hover:bg-red-700 transition-all"
+                                                        >
+                                                            {cancelling ? 'Sincronizando...' : 'Confirmar'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setShowCancelConfirm(false)}
+                                                            className="px-4 py-2 bg-slate-800 text-white rounded-lg text-[10px] font-black uppercase hover:bg-slate-700 transition-all"
+                                                        >
+                                                            No
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

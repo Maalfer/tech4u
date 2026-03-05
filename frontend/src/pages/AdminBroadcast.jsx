@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Megaphone, Send, Trash2, CheckCircle, AlertCircle, Eye, EyeOff, Plus } from 'lucide-react'
 import { useEffect } from 'react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import api from '../services/api'
 
 const TEMPLATES = [
@@ -71,21 +72,16 @@ export default function AdminBroadcast() {
             <main className="flex-1 ml-64 p-8">
 
                 {/* Header */}
-                <header className="mb-10">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-neon/10 rounded-xl border border-neon/20">
-                            <Megaphone className="w-6 h-6 text-neon" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-black uppercase tracking-tighter">
-                                Enviar <span className="text-neon">Noticia</span>
-                            </h1>
-                            <p className="text-slate-500 font-mono text-[10px] uppercase tracking-widest">
-                                El mensaje se muestra a todos los alumnos al iniciar sesión
-                            </p>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Enviar <span className="text-neon">Noticia</span></>}
+                    subtitle="El mensaje se muestra a todos los alumnos al iniciar sesión"
+                    Icon={Megaphone}
+                    gradient="from-white via-green-100 to-[var(--color-neon)]"
+                    iconColor="text-neon"
+                    iconBg="bg-[var(--color-neon)]/20"
+                    iconBorder="border-[var(--color-neon)]/30"
+                    glowColor="bg-[var(--color-neon)]/20"
+                />
 
                 <div className="grid lg:grid-cols-2 gap-8">
 
@@ -129,10 +125,10 @@ export default function AdminBroadcast() {
                                 onClick={handleSend}
                                 disabled={!content.trim() || sending}
                                 className={`mt-4 w-full py-4 rounded-xl font-black uppercase text-sm flex items-center justify-center gap-2 transition-all ${sent
-                                        ? 'bg-emerald-500 text-black'
-                                        : content.trim()
-                                            ? 'bg-neon text-black hover:shadow-[0_0_30px_var(--neon-alpha-40)] hover:scale-[1.01]'
-                                            : 'bg-white/5 text-slate-700 cursor-not-allowed'
+                                    ? 'bg-emerald-500 text-black'
+                                    : content.trim()
+                                        ? 'bg-neon text-black hover:shadow-[0_0_30px_var(--neon-alpha-40)] hover:scale-[1.01]'
+                                        : 'bg-white/5 text-slate-700 cursor-not-allowed'
                                     }`}
                             >
                                 {sent ? (
@@ -172,8 +168,8 @@ export default function AdminBroadcast() {
                                         <div
                                             key={ann.id}
                                             className={`p-4 rounded-xl border transition-all ${ann.is_active
-                                                    ? 'bg-neon/5 border-neon/20'
-                                                    : 'bg-white/[0.02] border-white/5 opacity-60'
+                                                ? 'bg-neon/5 border-neon/20'
+                                                : 'bg-white/[0.02] border-white/5 opacity-60'
                                                 }`}
                                         >
                                             <div className="flex items-start justify-between gap-3">
@@ -181,8 +177,8 @@ export default function AdminBroadcast() {
                                                     <p className="text-sm text-white font-mono leading-relaxed mb-2 line-clamp-3">{ann.content}</p>
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${ann.is_active
-                                                                ? 'bg-neon/10 text-neon border-neon/30'
-                                                                : 'bg-white/5 text-slate-500 border-white/10'
+                                                            ? 'bg-neon/10 text-neon border-neon/30'
+                                                            : 'bg-white/5 text-slate-500 border-white/10'
                                                             }`}>
                                                             {ann.is_active ? '● Activo' : '○ Inactivo'}
                                                         </span>

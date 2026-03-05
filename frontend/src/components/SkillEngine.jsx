@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { CheckCircle2, XCircle, RefreshCw, Hammer } from 'lucide-react';
+import { CheckCircle2, XCircle, RefreshCw, Hammer, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SkillEngine({ exercises, onFinish }) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -35,10 +36,7 @@ export default function SkillEngine({ exercises, onFinish }) {
     useEffect(() => {
         if (!currentEx) return;
 
-        // "La [BLANK] es rapida y [BLANK] lenta."
         const parts = currentEx.sentence.split('[BLANK]');
-
-        // We know that number of blanks = parts.length - 1
         const numBlanks = parts.length - 1;
         setDroppedWords(Array(numBlanks).fill(null));
         setWordPool([...currentEx.pool]);
@@ -53,9 +51,7 @@ export default function SkillEngine({ exercises, onFinish }) {
     const handleDropToBlank = (blankIndex) => {
         if (!draggingWord) return;
 
-        // If there's already a word there, we put it back to the pool
         const existingWord = droppedWords[blankIndex];
-
         const newDropped = [...droppedWords];
         newDropped[blankIndex] = draggingWord;
         setDroppedWords(newDropped);
@@ -70,7 +66,6 @@ export default function SkillEngine({ exercises, onFinish }) {
     const handleDropToPool = () => {
         if (!draggingWord) return;
 
-        // Return word from blank to pool
         const blankIndex = droppedWords.indexOf(draggingWord);
         if (blankIndex !== -1) {
             const newDropped = [...droppedWords];
@@ -87,21 +82,20 @@ export default function SkillEngine({ exercises, onFinish }) {
         if (isPerfect) {
             setFeedback('success');
             setStats(s => ({ ...s, correct: s.correct + 1 }));
-            setTimeout(() => advance(), 2000);
+            setTimeout(() => advance(), 3000);
         } else {
             const newAttempts = attemptsLeft - 1;
             setAttemptsLeft(newAttempts);
             setStats(s => ({ ...s, mistakes: s.mistakes + 1 }));
 
             if (newAttempts <= 0) {
-                // Failed completely. Force answers.
                 setFeedback('failed');
-                setDroppedWords([...currentEx.answers]); // Show correct answers
-                setWordPool([]); // Empty the pool
-                setTimeout(() => advance(), 12000); // 12 seconds to read why
+                setDroppedWords([...currentEx.answers]);
+                setWordPool([]);
+                setTimeout(() => advance(), 10000);
             } else {
                 setFeedback('error');
-                setTimeout(() => setFeedback(null), 1000); // Shake effect
+                setTimeout(() => setFeedback(null), 1000);
             }
         }
     };
@@ -116,19 +110,25 @@ export default function SkillEngine({ exercises, onFinish }) {
 
     if (!currentEx) return null;
 
-    // Is the user done filling all blanks?
     const allFilled = droppedWords.every(w => w !== null);
 
     return (
-        <div className="flex flex-col h-full w-full">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col h-full w-full"
+        >
             {/* Header */}
             <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/10 relative">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center border border-white/10">
+                    <motion.div
+                        whileHover={{ rotate: 15 }}
+                        className="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center border border-white/10"
+                    >
                         <Hammer className="w-6 h-6 text-fuchsia-500" />
-                    </div>
+                    </motion.div>
                     <div>
-                        <h2 className="text-xl font-black italic uppercase text-white">Prueba de Ensamblaje</h2>
+                        <h2 className="text-xl font-black italic uppercase text-white tracking-tighter">Prueba de <span className="text-fuchsia-500">Ensamblaje</span></h2>
                         <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-none mt-1">
                             Vector {currentIndex + 1} de {exercises.length}
                         </p>
@@ -137,145 +137,191 @@ export default function SkillEngine({ exercises, onFinish }) {
 
                 <div className="flex items-center gap-6">
                     <div className="text-right">
-                        <span className="text-xs font-mono uppercase text-slate-400 mr-2">Integridad</span>
-                        <div className="flex gap-1 mt-1 justify-end">
+                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] mr-2">Integridad del Buffer</span>
+                        <div className="flex gap-1.5 mt-2 justify-end">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className={`h-2.5 w-6 rounded-xs transform -skew-x-12 transition-all ${i <= attemptsLeft ? 'bg-neon shadow-[0_0_8px_var(--color-neon)]' : 'bg-red-500/20 border border-red-500/30'
-                                    }`} />
+                                <motion.div
+                                    key={i}
+                                    animate={{
+                                        opacity: i <= attemptsLeft ? 1 : 0.2,
+                                        scale: i <= attemptsLeft ? 1 : 0.8
+                                    }}
+                                    className={`h-2.5 w-8 rounded-sm transform -skew-x-12 transition-all ${i <= attemptsLeft ? 'bg-neon shadow-[0_0_15px_rgba(198,255,51,0.5)]' : 'bg-red-500/20 border border-red-500/30'}`}
+                                />
                             ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Progress bar line */}
-                <div className="absolute bottom-0 left-0 h-[1px] bg-white/20 w-full">
-                    <div
-                        className="h-full bg-fuchsia-500 transition-all duration-500 shadow-[0_0_10px_var(--color-fuchsia-500)]"
-                        style={{ width: `${((currentIndex) / exercises.length) * 100}%` }}
+                <div className="absolute bottom-0 left-0 h-[2px] bg-white/5 w-full">
+                    <motion.div
+                        className="h-full bg-gradient-to-r from-fuchsia-600 to-fuchsia-400 shadow-[0_0_15px_rgba(217,70,239,0.5)]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${((currentIndex) / exercises.length) * 100}%` }}
+                        transition={{ duration: 1 }}
                     />
                 </div>
             </div>
 
             {/* The Sentence with Blanks */}
-            <div className="glass p-10 rounded-3xl border border-white/5 mb-10 text-center relative overflow-hidden">
-                {feedback === 'error' && <div className="absolute inset-0 bg-red-500/10 animate-pulse pointer-events-none" />}
-                {feedback === 'failed' && <div className="absolute inset-0 bg-red-900/20 pointer-events-none" />}
-                {feedback === 'success' && <div className="absolute inset-0 bg-neon/10 animate-pulse pointer-events-none" />}
+            <motion.div
+                layout
+                className={`glass p-12 rounded-[2.5rem] border border-white/5 mb-10 text-center relative overflow-hidden shadow-2xl transition-all duration-500 ${feedback === 'error' ? 'border-red-500/50 bg-red-500/5' : ''}`}
+            >
+                <AnimatePresence>
+                    {feedback === 'error' && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-red-500/10 pointer-events-none"
+                        />
+                    )}
+                    {feedback === 'failed' && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute inset-0 bg-red-900/20 pointer-events-none"
+                        />
+                    )}
+                    {feedback === 'success' && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute inset-0 bg-neon/10 pointer-events-none"
+                        />
+                    )}
+                </AnimatePresence>
 
-                <h3 className="text-2xl font-medium leading-[2.5] text-slate-200"
+                <h3 className="text-2xl font-bold leading-[2.8] text-slate-200 font-mono tracking-tight"
                     onDragOver={(e) => e.preventDefault()}
-                    onDrop={handleDropToPool} // Dropping anywhere outside a blank returns it to the pool
+                    onDrop={handleDropToPool}
                 >
                     {sentenceFragments.map((frag, idx) => (
                         <span key={idx}>
                             {frag}
-                            {/* Insert a blank IF it's not the last fragment */}
                             {idx < sentenceFragments.length - 1 && (
-                                <span
-                                    className={`inline-flex items-center justify-center min-w-[140px] h-12 mx-2 border-b-2 px-4 transition-all pb-1 translate-y-2
-                                        ${feedback === 'error' ? 'border-red-500 bg-red-500/10 text-red-500 animate-[shake_0.5s_ease-in-out]' :
-                                            feedback === 'failed' ? 'border-orange-500 bg-orange-500/10 text-orange-400' :
-                                                feedback === 'success' ? 'border-neon bg-neon/10 text-neon' :
-                                                    droppedWords[idx] ? 'border-fuchsia-400 bg-fuchsia-500/20 text-fuchsia-300 font-bold shadow-[0_-10px_20px_-10px_rgba(217,70,239,0.3)_inset]' :
-                                                        'border-white/20 bg-black/40 border-dashed text-slate-600'
+                                <motion.span
+                                    animate={feedback === 'error' ? { x: [-5, 5, -5, 5, 0] } : {}}
+                                    className={`inline-flex items-center justify-center min-w-[160px] h-14 mx-3 border-2 rounded-2xl transition-all translate-y-2
+                                        ${feedback === 'error' ? 'border-red-500 bg-red-500/20 text-red-500' :
+                                            feedback === 'failed' ? 'border-orange-500 bg-orange-500/20 text-orange-400' :
+                                                feedback === 'success' ? 'border-neon bg-neon/20 text-neon' :
+                                                    droppedWords[idx] ? 'border-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-300 font-black shadow-[0_0_20px_rgba(217,70,239,0.1)]' :
+                                                        'border-white/10 bg-black/40 border-dashed text-slate-700'
                                         }`}
                                     onDragOver={(e) => e.preventDefault()}
                                     onDrop={() => handleDropToBlank(idx)}
                                 >
                                     {droppedWords[idx] ? (
-                                        <div
+                                        <motion.div
+                                            initial={{ scale: 0.8, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
                                             draggable={feedback === null}
                                             onDragStart={() => handleDragStart(droppedWords[idx])}
-                                            className="cursor-grab active:cursor-grabbing hover:scale-105 transition-transform"
+                                            className="cursor-grab active:cursor-grabbing px-4 py-1"
                                         >
                                             {droppedWords[idx]}
-                                        </div>
+                                        </motion.div>
                                     ) : (
-                                        <span className="opacity-20 uppercase text-xs font-mono tracking-widest">(Hueco)</span>
+                                        <span className="opacity-30 uppercase text-[9px] font-black tracking-[0.2em] font-sans">Hueco</span>
                                     )}
-                                </span>
+                                </motion.span>
                             )}
                         </span>
                     ))}
                 </h3>
-            </div>
+            </motion.div>
 
             {/* Word Pool */}
-            {(feedback === null || feedback === 'error') && (
-                <div className="bg-black/30 border border-white/5 rounded-3xl p-8 min-h-[140px]"
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={handleDropToPool}
-                >
-                    <div className="flex flex-wrap justify-center gap-4">
-                        {wordPool.map((word, i) => (
-                            <div
-                                key={`${word}-${i}`}
-                                draggable={feedback === null}
-                                onDragStart={() => handleDragStart(word)}
-                                className="bg-[#1a1120] border-2 border-fuchsia-900/80 px-6 py-3 rounded-xl shadow-xl cursor-grab active:cursor-grabbing hover:border-fuchsia-500 hover:bg-[#251230] hover:text-white transition-all hover:-translate-y-1 font-mono text-sm uppercase text-fuchsia-200"
-                            >
-                                {word}
-                            </div>
-                        ))}
-                        {wordPool.length === 0 && <span className="text-slate-600 font-mono text-xs uppercase italic mt-4">Banco de palabras vacío</span>}
-                    </div>
-                </div>
-            )}
+            <AnimatePresence>
+                {(feedback === null || feedback === 'error') && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="bg-black/40 border border-white/5 rounded-[2rem] p-10 min-h-[160px] shadow-inner"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={handleDropToPool}
+                    >
+                        <div className="flex flex-wrap justify-center gap-5">
+                            {wordPool.map((word, i) => (
+                                <motion.div
+                                    key={`${word}-${i}`}
+                                    whileHover={{ scale: 1.05, y: -5, borderColor: '#d946ef' }}
+                                    whileTap={{ scale: 0.95 }}
+                                    draggable={feedback === null}
+                                    onDragStart={() => handleDragStart(word)}
+                                    className="bg-[#150a1d] border-2 border-fuchsia-900/40 px-8 py-4 rounded-2xl shadow-xl cursor-grab active:cursor-grabbing transition-colors font-mono text-sm font-bold uppercase text-fuchsia-200/80 hover:text-white"
+                                >
+                                    {word}
+                                </motion.div>
+                            ))}
+                            {wordPool.length === 0 && (
+                                <div className="flex flex-col items-center gap-2 opacity-20">
+                                    <Sparkles className="w-8 h-8" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Buffer de palabras purgado</span>
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-            {/* Explanation Area (Only shows on success or complete failure) */}
-            {feedback && feedback !== 'error' && (
-                <div ref={explanationRef} className={`mt-8 p-6 rounded-2xl border flex items-start gap-4 animate-in slide-in-from-bottom-5 ${feedback === 'success' ? 'bg-neon/10 border-neon/30 text-neon' : 'bg-orange-500/10 border-orange-500/30 text-orange-400'}`}>
-                    {feedback === 'success' ? <CheckCircle2 className="w-6 h-6 flex-shrink-0" /> : <XCircle className="w-6 h-6 flex-shrink-0" />}
-                    <div className="flex-1">
-                        <p className="text-xs font-black uppercase tracking-widest mb-2">{feedback === 'success' ? 'Ensamblaje Perfecto' : 'Fallo Crítico — Sistema Sobreescrito'}</p>
+            {/* Explanation Area */}
+            <AnimatePresence>
+                {feedback && feedback !== 'error' && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        ref={explanationRef}
+                        className={`mt-10 p-8 rounded-[2rem] border-2 flex items-start gap-6 shadow-2xl ${feedback === 'success' ? 'bg-neon/5 border-neon/30 text-neon' : 'bg-orange-500/5 border-orange-500/30 text-orange-400'}`}
+                    >
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${feedback === 'success' ? 'bg-neon text-black' : 'bg-orange-500 text-black'}`}>
+                            {feedback === 'success' ? <CheckCircle2 className="w-8 h-8" /> : <XCircle className="w-8 h-8" />}
+                        </div>
+                        <div className="flex-1">
+                            <h4 className="text-[11px] font-black uppercase tracking-[0.25em] mb-3 opacity-80">{feedback === 'success' ? 'Ensamblaje Perfecto' : 'Fallo de Integridad'}</h4>
 
-                        {feedback === 'failed' && (
-                            <div className="mb-3 p-4 bg-orange-950/40 border border-orange-500/20 rounded-xl">
-                                <p className="text-[10px] font-mono uppercase tracking-widest text-orange-500/70 mb-1">Vector Corregido:</p>
-                                <p className="text-sm text-slate-200 leading-relaxed font-mono">
-                                    {sentenceFragments.map((frag, idx) => (
-                                        <span key={idx}>
-                                            {frag}
-                                            {idx < currentEx.answers.length && (
-                                                <strong className="text-orange-400">[{currentEx.answers[idx]}]</strong>
-                                            )}
-                                        </span>
-                                    ))}
-                                </p>
-                            </div>
-                        )}
+                            {feedback === 'failed' && (
+                                <div className="mb-6 p-6 bg-black/40 border border-orange-500/20 rounded-2xl">
+                                    <p className="text-[9px] font-mono uppercase tracking-widest text-orange-500/50 mb-2">Fragmento Restaurado:</p>
+                                    <p className="text-base text-slate-100 leading-relaxed font-mono italic">
+                                        {sentenceFragments.map((frag, idx) => (
+                                            <span key={idx}>
+                                                {frag}
+                                                {idx < currentEx.answers.length && (
+                                                    <span className="text-orange-400 font-black">[{currentEx.answers[idx]}]</span>
+                                                )}
+                                            </span>
+                                        ))}
+                                    </p>
+                                </div>
+                            )}
 
-                        <p className="text-sm opacity-90 leading-relaxed italic">{currentEx.explanation}</p>
-                    </div>
-                </div>
-            )}
+                            <p className="text-sm font-mono leading-relaxed text-slate-300 italic">“{currentEx.explanation}”</p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Action Bar */}
-            <div className="mt-8 flex justify-end">
+            <div className="mt-10 flex justify-end">
                 {feedback === null && (
-                    <button
+                    <motion.button
+                        whileHover={allFilled ? { scale: 1.02, boxShadow: '0 0 30px rgba(217,70,239,0.4)' } : {}}
+                        whileTap={allFilled ? { scale: 0.98 } : {}}
                         onClick={checkAnswers}
                         disabled={!allFilled}
-                        className={`px-12 py-5 rounded-2xl font-black uppercase italic tracking-widest transition-all ${allFilled
-                            ? 'bg-fuchsia-600 text-white hover:bg-fuchsia-500 shadow-[0_0_20px_var(--color-fuchsia-500)] hover:scale-105'
-                            : 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/5'
+                        className={`px-16 py-6 rounded-[1.8rem] font-black uppercase italic tracking-[0.2em] transition-all text-sm ${allFilled
+                            ? 'bg-fuchsia-600 text-white shadow-lg'
+                            : 'bg-white/5 text-slate-700 cursor-not-allowed border border-white/5 opacity-50'
                             }`}
                     >
-                        Comprobar Ensamblaje
-                    </button>
+                        Validar Ensamblaje
+                    </motion.button>
                 )}
             </div>
-
-            {/* Global Shake Animation Keyframes */}
-            <style jsx>{`
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0) translateY(8px); }
-                    25% { transform: translateX(-5px) translateY(8px); }
-                    50% { transform: translateX(5px) translateY(8px); }
-                    75% { transform: translateX(-5px) translateY(8px); }
-                }
-            `}</style>
-        </div>
+        </motion.div>
     );
 }
-

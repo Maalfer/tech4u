@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lightbulb, CheckCircle, XCircle, ChevronRight, Database, Edit3 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 
 export default function AdminSuggestions() {
     const [suggestions, setSuggestions] = useState([]);
@@ -69,15 +70,16 @@ export default function AdminSuggestions() {
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
             <main className="flex-1 ml-64 p-8">
-                <header className="mb-10">
-                    <div className="flex items-center gap-3 mb-2">
-                        <Lightbulb className="w-8 h-8 text-blue-400" />
-                        <h1 className="text-3xl font-black uppercase tracking-tighter">
-                            Buzón de <span className="text-blue-400">Propuestas</span>
-                        </h1>
-                    </div>
-                    <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Inyectar sugerencias de alumnos al mainframe</p>
-                </header>
+                <PageHeader
+                    title={<>Buzón de <span className="text-blue-400">Propuestas</span></>}
+                    subtitle="Inyectar sugerencias de alumnos al mainframe"
+                    Icon={Lightbulb}
+                    gradient="from-white via-blue-100 to-blue-400"
+                    iconColor="text-blue-400"
+                    iconBg="bg-blue-600/20"
+                    iconBorder="border-blue-500/30"
+                    glowColor="bg-blue-600/20"
+                />
 
                 {loading ? (
                     <div className="animate-pulse space-y-4">

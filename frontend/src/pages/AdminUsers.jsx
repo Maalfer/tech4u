@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Users, Trash2, Shield, Key, Crown, Clock, AlertCircle, Plus } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
@@ -73,21 +74,23 @@ export default function AdminUsers() {
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
             <main className="flex-1 ml-64 p-8 relative">
-                <div className="mb-8">
-                    <div className="flex justify-between items-center mb-1">
-                        <div className="flex items-center gap-2">
-                            <Users className="w-5 h-5 text-neon" />
-                            <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Control de Academia</h1>
-                        </div>
-                        <button
-                            onClick={() => setShowCreateModal(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-neon text-black rounded-xl text-xs font-black uppercase shadow-[0_0_20px_rgba(57,255,20,0.3)] hover:scale-105 transition-all"
-                        >
-                            <Plus className="w-4 h-4" /> Nuevo Usuario
-                        </button>
-                    </div>
-                    <p className="text-slate-500 font-mono text-xs italic">Panel de gestión de accesos y membresías Tech4U</p>
-                </div>
+                <PageHeader
+                    title={<>Control <span className="text-white">de Academia</span></>}
+                    subtitle="Panel de gestión de accesos y membresías Tech4U"
+                    Icon={Users}
+                    gradient="from-white via-green-100 to-[var(--color-neon)]"
+                    iconColor="text-neon"
+                    iconBg="bg-[var(--color-neon)]/20"
+                    iconBorder="border-[var(--color-neon)]/30"
+                    glowColor="bg-[var(--color-neon)]/20"
+                >
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-neon text-black rounded-xl text-xs font-black uppercase shadow-[0_0_20px_rgba(57,255,20,0.3)] hover:scale-105 transition-all"
+                    >
+                        <Plus className="w-4 h-4" /> Nuevo Usuario
+                    </button>
+                </PageHeader>
 
                 <div className="glass rounded-xl overflow-hidden neon-border">
                     <table className="w-full text-left border-collapse">

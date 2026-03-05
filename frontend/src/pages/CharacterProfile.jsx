@@ -10,9 +10,34 @@ import Sidebar from '../components/Sidebar';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-// Import character assets (placeholder until 20 custom images are ready)
-import guerreroImg from '../assets/guerrero-hacker.png';
-import magaImg from '../assets/maga-hacker.png';
+import marcoImg from '../assets/marco_pj.png';
+import pj1 from '../assets/pj_lvl_1.png';
+import pj2 from '../assets/pj_lvl_2.png';
+import pj3 from '../assets/pj_lvl_3.png';
+import pj4 from '../assets/pj_lvl_4.png';
+import pj5 from '../assets/pj_lvl_5.png';
+import pj6 from '../assets/pj_lvl_6.png';
+import pj7 from '../assets/pj_lvl_7.png';
+import pj8 from '../assets/pj_lvl_8.png';
+import pj9 from '../assets/pj_lvl_9.png';
+import pj10 from '../assets/pj_lvl_10.png';
+import pj11 from '../assets/pj_lvl_11.png';
+import pj12 from '../assets/pj_lvl_12.png';
+import pj13 from '../assets/pj_lvl_13.png';
+import pj14 from '../assets/pj_lvl_14.png';
+import pj15 from '../assets/pj_lvl_15.png';
+import pj16 from '../assets/pj_lvl_16.png';
+import pj17 from '../assets/pj_lvl_17.png';
+import pj18 from '../assets/pj_lvl_18.png';
+import pj19 from '../assets/pj_lvl_19.png';
+import pj20 from '../assets/pj_lvl_20.png';
+
+const PJ_ASSETS = {
+    1: pj1, 2: pj2, 3: pj3, 4: pj4, 5: pj5,
+    6: pj6, 7: pj7, 8: pj8, 9: pj9, 10: pj10,
+    11: pj11, 12: pj12, 13: pj13, 14: pj14, 15: pj15,
+    16: pj16, 17: pj17, 18: pj18, 19: pj19, 20: pj20
+};
 
 // ── Item Catalog List ────────────────────────────────────────────────────────
 const ITEM_CATALOG_LIST = [
@@ -71,8 +96,8 @@ export default function CharacterProfile() {
     const progressXP = Math.min((currentXP / nextLevelXP) * 100, 100);
     const level = stats?.level || 1;
 
-    // Choose avatar based on level (Placeholder logic)
-    const avatarImg = level % 2 === 0 ? magaImg : guerreroImg;
+    // Choose avatar based on level
+    const avatarImg = PJ_ASSETS[level] || pj1;
     const rankName = stats?.rank_name || 'Novato Digital';
 
     // Helper functions for ASIR Stats
@@ -158,14 +183,25 @@ export default function CharacterProfile() {
                             {/* LEFT COLUMN: Avatar & Identity */}
                             <div className="lg:col-span-5 flex flex-col items-center relative">
 
-                                {/* Avatar Portrait Box (Freestanding) - flex-1 so it fills remaining space */}
-                                <div className="w-full flex-1 min-h-[300px] relative flex items-end justify-center group mb-[-8px]">
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-blue-500/20 blur-[60px] rounded-full -z-10 group-hover:bg-blue-400/30 transition-colors duration-700" />
+                                {/* Avatar Portrait Box with Frame */}
+                                <div className="w-full flex-1 min-h-[400px] relative flex items-center justify-center group mb-4">
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-500/10 blur-[80px] rounded-full -z-10 group-hover:bg-blue-400/20 transition-colors duration-700" />
+
+                                    {/* Frame Asset */}
                                     <img
-                                        src={avatarImg}
-                                        alt="Character Avatar"
-                                        className="w-auto max-w-full h-full max-h-[550px] object-contain object-bottom hover:scale-105 transition-transform duration-700 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)] z-10"
+                                        src={marcoImg}
+                                        alt="Frame"
+                                        className="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                                     />
+
+                                    {/* Character Image */}
+                                    <div className="relative w-[70%] h-[70%] flex items-center justify-center overflow-hidden">
+                                        <img
+                                            src={avatarImg}
+                                            alt="Character Avatar"
+                                            className="w-full h-full object-contain hover:scale-110 transition-transform duration-700 drop-shadow-[0_0_20px_rgba(59,130,246,0.2)] z-10"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Identity Plate */}
@@ -558,6 +594,70 @@ export default function CharacterProfile() {
                         <p className="text-blue-300 font-mono text-xs leading-relaxed">
                             <span className="font-black">⚡ Cómo subir de nivel:</span> Cada test superado otorga XP según la dificultad. Mantener rachas de aciertos da bonus. Los niveles del 15 al 20 requieren superar retos especiales de cada módulo ASIR.
                         </p>
+                    </div>
+                </div>
+
+                {/* ══════════════════════════════════════════════
+                    GALERÍA DE PERSONAJES: Evolution Path
+                    ══════════════════════════════════════════════ */}
+                <div className="max-w-5xl mx-auto mt-16 animate-in fade-in slide-in-from-bottom duration-1000 mb-20">
+                    {/* Section Header */}
+                    <div className="flex items-center gap-4 mb-10">
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-blue-500/30" />
+                        <div className="flex items-center gap-3 px-8 py-3 border border-blue-500/30 rounded-full bg-blue-900/20 backdrop-blur-md shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                            <Cpu className="w-5 h-5 text-blue-400" />
+                            <h2 className="text-blue-400 font-black font-mono uppercase tracking-[0.4em] text-sm">Galería de Evolución</h2>
+                        </div>
+                        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-blue-500/30" />
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        {Object.entries(PJ_ASSETS).map(([lvl, img]) => {
+                            const isCurrent = level === parseInt(lvl);
+                            const isUnlocked = level >= parseInt(lvl);
+
+                            return (
+                                <div
+                                    key={lvl}
+                                    className={`relative group rounded-2xl border aspect-[4/5] p-3 transition-all duration-500 overflow-hidden flex flex-col items-center justify-center
+                                        ${isCurrent
+                                            ? 'border-neon bg-neon/5 shadow-[0_0_25px_rgba(0,255,100,0.15)] ring-1 ring-neon/30'
+                                            : isUnlocked
+                                                ? 'border-white/20 bg-white/5 hover:border-white/40'
+                                                : 'border-white/5 bg-black/40 grayscale opacity-30 hover:opacity-50'}`}
+                                >
+                                    {/* Level Badge */}
+                                    <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-black font-mono border z-10
+                                        ${isCurrent ? 'bg-neon text-black border-neon' : 'bg-black/60 text-slate-400 border-white/10'}`}>
+                                        LVL {lvl}
+                                    </div>
+
+                                    {/* Avatar in Gallery */}
+                                    <div className="relative w-full h-full flex items-center justify-center p-2">
+                                        <img
+                                            src={img}
+                                            alt={`PJ Nivel ${lvl}`}
+                                            className={`w-full h-full object-contain transition-all duration-700
+                                                ${isCurrent ? 'scale-110 drop-shadow-[0_0_15px_rgba(0,255,100,0.4)] animate-pulse' : 'group-hover:scale-105'}`}
+                                        />
+
+                                        {!isUnlocked && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                                <Lock className="w-6 h-6 text-white/20" />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Label */}
+                                    <div className={`absolute bottom-0 inset-x-0 p-2 text-center bg-gradient-to-t from-black to-transparent
+                                        ${isCurrent ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                                        <p className="text-[8px] font-black font-mono text-white uppercase tracking-tighter">
+                                            {isCurrent ? 'Estado Actual' : isUnlocked ? 'Desbloqueado' : 'Bloqueado'}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 

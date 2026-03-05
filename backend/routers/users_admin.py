@@ -7,7 +7,9 @@ from auth import require_admin, require_developer, hash_password
 from schemas import (
     UserOut, UserRoleUpdate, UserPasswordUpdate, 
     UserSubscriptionUpdate, TicketOut, AdminDashboardStats,
-    AdminUserCreate, TicketMessageCreate, TicketMessageOut, TicketUserInfoOut
+    AdminUserCreate, TicketMessageCreate, TicketMessageOut, TicketUserInfoOut,
+    TicketUpdate, AdminPasswordReset, AdminProfileUpdate, AdminSetShields,
+    AdminModifyXP, AdminSetStreak, AnnouncementCreate
 )
 from datetime import datetime, timedelta
 from datetime import datetime, timedelta
@@ -149,7 +151,7 @@ def get_tickets_count(
 @router.patch("/tickets/{ticket_id}/status")
 def update_ticket_status(
     ticket_id: int,
-    data: dict,
+    data: TicketUpdate,
     _: User = Depends(require_developer),
     db: Session = Depends(get_db),
 ):
@@ -157,9 +159,10 @@ def update_ticket_status(
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
     
-    ticket.status = data.get("status", ticket.status)
-    if "admin_reply" in data:
-        ticket.admin_reply = data["admin_reply"]
+    if data.status:
+        ticket.status = data.status
+    if data.admin_reply is not None:
+        ticket.admin_reply = data.admin_reply
         ticket.replied_at = datetime.utcnow()
         
     db.commit()
@@ -287,20 +290,16 @@ def delete_user(
 @router.put("/{user_id}/password", response_model=UserOut)
 def reset_password_admin(
     user_id: int,
-    data: dict,
+    data: AdminPasswordReset,
     _: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """(Admin) Restablece la contraseña de un usuario manualmente."""
-    new_pass = data.get("password")
-    if not new_pass:
-        raise HTTPException(status_code=400, detail="Falta la nueva contraseña")
-    
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
         
-    user.password_hash = hash_password(new_pass)
+    user.password_hash = hash_password(data.password)
     db.commit()
     db.refresh(user)
     return user
@@ -308,7 +307,7 @@ def reset_password_admin(
 @router.put("/{user_id}/profile", response_model=UserOut)
 def update_profile_admin(
     user_id: int,
-    data: dict,
+    data: AdminProfileUpdate,
     _: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -317,13 +316,14 @@ def update_profile_admin(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
         
-    if "nombre" in data: user.nombre = data["nombre"]
-    if "email" in data:
+    if data.nombre: 
+        user.nombre = data.nombre
+    if data.email:
         # Verificar si el email ya existe en otro usuario
-        existing = db.query(User).filter(User.email == data["email"], User.id != user_id).first()
+        existing = db.query(User).filter(User.email == data.email, User.id != user_id).first()
         if existing:
             raise HTTPException(status_code=400, detail="El email ya está en uso")
-        user.email = data["email"]
+        user.email = data.email
         
     db.commit()
     db.refresh(user)
@@ -386,7 +386,7 @@ def get_user_full_detail(
 @router.patch("/{user_id}/shields")
 def set_user_shields(
     user_id: int,
-    data: dict,
+    data: AdminSetShields,
     _: User = Depends(require_developer),
     db: Session = Depends(get_db)
 ):
@@ -395,19 +395,15 @@ def set_user_shields(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    shields = data.get("shields", 0)
-    if shields < 0 or shields > 10:
-        raise HTTPException(status_code=400, detail="Los escudos deben estar entre 0 y 10")
-
-    user.streak_protections = shields
+    user.streak_protections = data.shields
     db.commit()
     db.refresh(user)
-    return {"message": f"Escudos actualizados a {shields}", "streak_protections": user.streak_protections}
+    return {"message": f"Escudos actualizados a {data.shields}", "streak_protections": user.streak_protections}
 
 @router.patch("/{user_id}/xp")
 def modify_user_xp(
     user_id: int,
-    data: dict,
+    data: AdminModifyXP,
     _: User = Depends(require_developer),
     db: Session = Depends(get_db)
 ):
@@ -416,29 +412,25 @@ def modify_user_xp(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    new_xp = data.get("xp", 0)
-    if new_xp < 0:
-        raise HTTPException(status_code=400, detail="XP no puede ser negativo")
-
-    user.xp = new_xp
+    user.xp = data.xp
 
     # Recalculate level from XP
     xp_thresholds = [0, 500, 1000, 1500, 2000, 3000, 4000, 5000, 7000, 9000,
                      12000, 15000, 18000, 21000, 25000, 30000, 35000, 40000, 45000, 50000]
     level = 1
     for i, threshold in enumerate(xp_thresholds):
-        if new_xp >= threshold:
+        if data.xp >= threshold:
             level = i + 1
     user.level = min(level, 20)
 
     db.commit()
     db.refresh(user)
-    return {"message": f"XP actualizado a {new_xp}", "xp": user.xp, "level": user.level}
+    return {"message": f"XP actualizado a {data.xp}", "xp": user.xp, "level": user.level}
 
 @router.patch("/{user_id}/streak")
 def reset_user_streak(
     user_id: int,
-    data: dict,
+    data: AdminSetStreak,
     _: User = Depends(require_developer),
     db: Session = Depends(get_db)
 ):
@@ -447,7 +439,7 @@ def reset_user_streak(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    user.streak_count = max(0, data.get("streak", 0))
+    user.streak_count = data.streak
     db.commit()
     db.refresh(user)
     return {"message": f"Racha actualizada a {user.streak_count}", "streak_count": user.streak_count}
@@ -455,8 +447,8 @@ def reset_user_streak(
 # --- Añadir a routers/users_admin.py ---
 
 @router.post("/announcements")
-def create_announcement(data: dict, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    new_ann = Announcement(content=data.get("content"))
+def create_announcement(data: AnnouncementCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    new_ann = Announcement(content=data.content)
     db.add(new_ann)
     db.commit()
     return {"message": "Anuncio global publicado"}

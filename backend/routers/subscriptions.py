@@ -343,7 +343,20 @@ def verify_session(
                 1 if plan == "monthly" else (3 if plan == "quarterly" else 12)
             )
             
-            # (El webhook procesa el uso del cupón, no lo hacemos aquí en el fallback para no duplicar si el webhook llega después)
+            # 🔥 PROCESAR CUPÓN (Fallback)
+            coupon_code = session_obj.metadata.get("coupon_code", "")
+            if coupon_code:
+                coupon = db.query(Coupon).filter(Coupon.code == coupon_code).first()
+                # Evitar doble conteo si el webhook ya pasó pero el tipo sigue siendo free (raro pero posible)
+                if coupon:
+                    coupon.current_uses += 1
+                    if coupon.current_uses >= coupon.max_uses:
+                        coupon.is_active = False
+            
+            # PROCESAR RECOMPENSA REFERIDO (Fallback)
+            reward_used = session_obj.metadata.get("reward_used")
+            if reward_used == "referral_10p":
+                current_user.pending_10p_discounts = max(0, (current_user.pending_10p_discounts or 0) - 1)
             
             db.commit()
             db.refresh(current_user)
@@ -356,3 +369,18 @@ def verify_session(
         }
 
     return {"success": False}
+@router.post("/cancel")
+def cancel_subscription(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Cancela la renovación automática de la suscripción. 
+    El usuario mantiene el acceso hasta la fecha de finalización actual.
+    """
+    if current_user.subscription_type == "free":
+        raise HTTPException(status_code=400, detail="No tienes una suscripción activa para cancelar.")
+    
+    current_user.auto_renew = False
+    db.commit()
+    return {"message": "Suscripción cancelada. Mantendrás el acceso hasta el fin del periodo actual.", "subscription_end": current_user.subscription_end}

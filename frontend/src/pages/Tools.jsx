@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Hammer, Calculator, Network, Zap, ChevronRight } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 
 export default function Tools() {
     const navigate = useNavigate();
@@ -24,21 +25,16 @@ export default function Tools() {
                 {/* Ambient logic */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[150px] rounded-full -z-10" />
 
-                <header className="mb-12">
-                    <div className="flex items-center gap-5 mb-3">
-                        <div className="p-4 bg-gradient-to-br from-blue-600/20 to-indigo-600/10 rounded-2xl border border-blue-500/30 shadow-[0_0_40px_rgba(37,99,235,0.15)]">
-                            <Hammer className="w-10 h-10 text-blue-400" />
-                        </div>
-                        <div>
-                            <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-blue-400">
-                                Herramientas <span className="text-white">Academia</span>
-                            </h1>
-                            <p className="text-[11px] font-mono text-blue-400/70 uppercase tracking-[0.4em] mt-2">
-                                // Tech Essentials for Students
-                            </p>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Herramientas <span className="text-white">Academia</span></>}
+                    subtitle="// Tech Essentials for Students"
+                    Icon={Hammer}
+                    gradient="from-white via-blue-100 to-blue-400"
+                    iconColor="text-blue-400"
+                    iconBg="bg-blue-600/20"
+                    iconBorder="border-blue-500/30"
+                    glowColor="bg-blue-600/20"
+                />
 
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {tools.map(tool => (

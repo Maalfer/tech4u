@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
     Shield, Check, Zap, BookOpen, FlaskConical,
     Star, Crown, ArrowRight, Lock, ChevronLeft,
-    Sparkles, Trophy, BarChart3, Tag, CheckCircle, XCircle, Gift
+    Sparkles, Trophy, BarChart3, Tag, CheckCircle, XCircle, Gift, CreditCard
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
@@ -17,6 +17,49 @@ const FEATURES = [
     { icon: Sparkles, text: 'Explicaciones detalladas por pregunta' },
     { icon: Shield, text: 'Nuevas preguntas añadidas cada semana' },
 ];
+
+// Componente para el botón de PayPal
+const PayPalButton = ({ planId, onPaypalClick, useReferralDiscount, useFreeMonth, couponCode }) => {
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (!window.paypal) return;
+
+        // Limpiar contenedor previo
+        if (containerRef.current) containerRef.current.innerHTML = "";
+
+        window.paypal.Buttons({
+            style: {
+                layout: 'horizontal',
+                color: 'blue',
+                shape: 'pill',
+                label: 'pay',
+                height: 48
+            },
+            createOrder: async () => {
+                try {
+                    const res = await api.post(`/paypal/create-order?plan=${planId}${useReferralDiscount ? '&use_referral_discount=true' : ''}${useFreeMonth ? '&use_free_month=true' : ''}${couponCode ? `&coupon_code=${couponCode}` : ''}`);
+                    return res.data.order_id;
+                } catch (err) {
+                    console.error("PayPal Order Error:", err);
+                    alert("Error al iniciar el pago con PayPal.");
+                    throw err;
+                }
+            },
+            onApprove: async (data) => {
+                try {
+                    await api.post(`/paypal/capture-order/${data.orderID}`);
+                    window.location.href = "/suscripcion/exito";
+                } catch (err) {
+                    console.error("PayPal Capture Error:", err);
+                    alert("Error al procesar el pago de PayPal.");
+                }
+            }
+        }).render(containerRef.current);
+    }, [planId, useReferralDiscount, useFreeMonth, couponCode]);
+
+    return <div ref={containerRef} className="w-full mt-3" />;
+};
 
 export default function SubscriptionPage() {
     const { user, refreshUser } = useAuth();
@@ -75,6 +118,8 @@ export default function SubscriptionPage() {
             setLoadingPlan(null);
         }
     };
+
+    const validCouponCode = couponStatus === 'valid' && !useReferralDiscount && !useFreeMonth ? couponInput.trim().toUpperCase() : null;
 
     return (
         <div className="flex min-h-screen bg-[#0D0D0D]">
@@ -238,30 +283,35 @@ export default function SubscriptionPage() {
                             <p className="text-slate-500 font-mono text-xs mt-2 h-4">Pago mes a mes</p>
                         </div>
 
-                        <div className="space-y-4 mb-8 flex-1">
+                        <div className="space-y-4 mb-4 flex-1">
                             {FEATURES.slice(0, 4).map((f) => (
                                 <div key={f.text} className="flex items-start gap-3">
                                     <Check className="w-4 h-4 text-neon flex-shrink-0 mt-0.5" />
                                     <span className="text-slate-300 font-mono text-xs leading-relaxed">{f.text}</span>
                                 </div>
                             ))}
-                            <div className="flex items-start gap-3 opacity-40">
-                                <Check className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-slate-400 font-mono text-xs line-through">Nuevas preguntas semanales</span>
-                            </div>
                         </div>
 
                         <button
                             onClick={() => handleSubscribe('monthly')}
                             disabled={loadingPlan !== null}
-                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black font-mono text-sm uppercase tracking-wide hover:bg-neon hover:border-neon hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group-hover:border-neon/40 group-hover:bg-white/10"
+                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black font-mono text-sm uppercase tracking-wide hover:bg-white/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group-hover:border-neon/40 mb-2"
                         >
                             {loadingPlan === 'monthly' ? (
                                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                             ) : (
-                                useFreeMonth ? 'Canjear Mes Gratis' : 'Empezar Mensual'
+                                <><CreditCard className="w-4 h-4" />{useFreeMonth ? 'Canjear Mes Gratis' : 'Pagar con Tarjeta'}</>
                             )}
                         </button>
+
+                        {!useFreeMonth && (
+                            <PayPalButton
+                                planId="monthly"
+                                useReferralDiscount={useReferralDiscount}
+                                useFreeMonth={useFreeMonth}
+                                couponCode={validCouponCode}
+                            />
+                        )}
                     </div>
 
                     {/* 2. Plan Trimestral — DESTACADO CENTRO */}
@@ -299,7 +349,7 @@ export default function SubscriptionPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-4 mb-8 flex-1">
+                        <div className="space-y-4 mb-4 flex-1">
                             {FEATURES.slice(0, 5).map((f) => (
                                 <div key={f.text} className="flex items-start gap-3">
                                     <Check className="w-5 h-5 text-neon flex-shrink-0 drop-shadow-[0_0_8px_var(--neon-alpha-80)]" />
@@ -317,14 +367,23 @@ export default function SubscriptionPage() {
                                 handleSubscribe('quarterly');
                             }}
                             disabled={loadingPlan !== null || useFreeMonth}
-                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-neon text-[#0D0D0D] font-black font-mono text-base uppercase tracking-wider shadow-[0_0_20px_var(--neon-alpha-40)] hover:shadow-[0_0_40px_var(--neon-alpha-60)] hover:scale-[1.03] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-neon text-[#0D0D0D] font-black font-mono text-base uppercase tracking-wider shadow-[0_0_20px_var(--neon-alpha-40)] hover:shadow-[0_0_40px_var(--neon-alpha-60)] hover:scale-[1.03] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
                         >
                             {loadingPlan === 'quarterly' ? (
                                 <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
                             ) : (
-                                <>Empezar Trimestral <ArrowRight className="w-5 h-5" /></>
+                                <><CreditCard className="w-5 h-5" />Pagar con Tarjeta</>
                             )}
                         </button>
+
+                        {!useFreeMonth && (
+                            <PayPalButton
+                                planId="quarterly"
+                                useReferralDiscount={useReferralDiscount}
+                                useFreeMonth={useFreeMonth}
+                                couponCode={validCouponCode}
+                            />
+                        )}
                     </div>
 
                     {/* 3. Plan Anual */}
@@ -350,7 +409,7 @@ export default function SubscriptionPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-4 mb-8 flex-1">
+                        <div className="space-y-4 mb-4 flex-1">
                             {FEATURES.map((f) => (
                                 <div key={f.text} className="flex items-start gap-3">
                                     <Check className="w-4 h-4 text-neon flex-shrink-0 mt-0.5" />
@@ -365,22 +424,26 @@ export default function SubscriptionPage() {
                                     alert("El mes gratis solo se puede aplicar al plan mensual.");
                                     return;
                                 }
-                                // Si hay un cupón ya validado como 'valid', re-validarlo para el plan anual si es > 15
-                                if (couponStatus === 'valid' && couponDiscount > 15) {
-                                    handleValidateCoupon('annual');
-                                    return;
-                                }
                                 handleSubscribe('annual');
                             }}
                             disabled={loadingPlan !== null || useFreeMonth}
-                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black font-mono text-sm uppercase tracking-wide hover:bg-neon hover:border-neon hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group-hover:border-neon/40 group-hover:bg-white/10"
+                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black font-mono text-sm uppercase tracking-wide hover:bg-white/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group-hover:border-neon/40 mb-2"
                         >
                             {loadingPlan === 'annual' ? (
                                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                             ) : (
-                                'Empezar Anual'
+                                <><CreditCard className="w-4 h-4" />Pagar con Tarjeta</>
                             )}
                         </button>
+
+                        {!useFreeMonth && (
+                            <PayPalButton
+                                planId="annual"
+                                useReferralDiscount={useReferralDiscount}
+                                useFreeMonth={useFreeMonth}
+                                couponCode={validCouponCode}
+                            />
+                        )}
                     </div>
 
                 </div>
@@ -388,7 +451,7 @@ export default function SubscriptionPage() {
                 {/* Trust badges */}
                 <div className="flex flex-wrap items-center justify-center gap-6 max-w-2xl mx-auto mb-8">
                     {[
-                        { icon: Lock, text: 'Pago 100% seguro con Stripe' },
+                        { icon: Lock, text: 'Pagos seguros con Stripe y PayPal' },
                         { icon: Shield, text: 'Sin permanencia. Cancela cuando quieras' },
                         { icon: Zap, text: 'Acceso inmediato tras el pago' },
                     ].map(({ icon: Icon, text }) => (
@@ -397,13 +460,6 @@ export default function SubscriptionPage() {
                             {text}
                         </div>
                     ))}
-                </div>
-
-                {/* Test mode notice */}
-                <div className="max-w-xl mx-auto text-center p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20">
-                    <p className="text-blue-400 font-mono text-[11px]">
-                        🧪 <strong>Modo de prueba activo</strong> — Usa la tarjeta <strong className="font-mono">4242 4242 4242 4242</strong>, fecha futura, CVC cualquiera.
-                    </p>
                 </div>
 
             </main>
