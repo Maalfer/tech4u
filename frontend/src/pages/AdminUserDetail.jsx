@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Shield, Zap, Flame, Crown, Key, User as UserIcon,
     Mail, Calendar, CreditCard, Star, BarChart2, ShieldCheck,
-    Save, AlertTriangle, Trash2, RefreshCw, ChevronRight, Clock
+    Save, AlertTriangle, Trash2, RefreshCw, ChevronRight, Clock,
+    TrendingUp
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import api from '../services/api';
@@ -231,9 +232,9 @@ export default function AdminUserDetail() {
                             <p className="text-xs font-mono text-slate-500">{userData?.email}</p>
                             <div className="flex items-center gap-3 mt-2 flex-wrap">
                                 <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded border ${userData?.role === 'admin' ? 'border-red-500/50 text-red-400 bg-red-500/10' :
-                                        userData?.role === 'developer' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
-                                            userData?.role === 'docente' ? 'border-blue-500/50 text-blue-400 bg-blue-500/10' :
-                                                'border-slate-700 text-slate-400 bg-slate-800/50'
+                                    userData?.role === 'developer' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
+                                        userData?.role === 'docente' ? 'border-blue-500/50 text-blue-400 bg-blue-500/10' :
+                                            'border-slate-700 text-slate-400 bg-slate-800/50'
                                     } uppercase`}>{userData?.role}</span>
                                 <span className={`text-[10px] font-mono ${lc.text}`}>{rank}</span>
                                 <span className="text-[10px] font-mono text-slate-600">Lv. {userData?.level}</span>
@@ -430,6 +431,41 @@ export default function AdminUserDetail() {
                                 </div>
                             </Card>
                         )}
+
+                        {/* Referidos */}
+                        <Card title="Referidos y Premios" icon={<TrendingUp className="w-4 h-4 text-indigo-400" />} color="indigo">
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                                        <p className="text-[9px] font-mono text-slate-600 uppercase">Código</p>
+                                        <p className="text-xs font-mono text-indigo-400 mt-0.5">{userData?.referral_code || '—'}</p>
+                                    </div>
+                                    <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                                        <p className="text-[9px] font-mono text-slate-600 uppercase">Total Invitados</p>
+                                        <p className="text-xs font-mono text-white mt-0.5">{userData?.referral_reward_count || 0}</p>
+                                    </div>
+                                    <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                                        <p className="text-[9px] font-mono text-slate-600 uppercase">Descuentos 10%</p>
+                                        <p className="text-xs font-mono text-neon mt-0.5">{userData?.pending_10p_discounts || 0}</p>
+                                    </div>
+                                    <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                                        <p className="text-[9px] font-mono text-slate-600 uppercase">Meses Gratis</p>
+                                        <p className="text-xs font-mono text-orange-400 mt-0.5">{userData?.free_months_accumulated || 0}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={async () => {
+                                        if (confirm("¿Resetear todos los premios acumulados?")) {
+                                            await api.patch(`/admin/users/${id}/reset-referrals`);
+                                            fetchUser();
+                                        }
+                                    }}
+                                    className="w-full py-2 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest hover:text-red-400 transition-all"
+                                >
+                                    Limpiar Recompensas
+                                </button>
+                            </div>
+                        </Card>
 
                         {/* Zona peligrosa */}
                         {currentUser?.role === 'admin' && (

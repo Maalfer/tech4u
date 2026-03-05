@@ -5,7 +5,7 @@ import {
     Megaphone, Lightbulb, Send, MessageSquare,
     Shield, CheckCircle, Star, Zap, ChevronRight,
     Crosshair, Timer, BarChart2, Flame, LifeBuoy, ShieldAlert,
-    History, Sparkles, Share2, Copy, Check
+    History, Sparkles, Share2, Copy, Check, Gift
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import AnnouncementPopup from '../components/AnnouncementPopup'
@@ -193,7 +193,7 @@ export default function Dashboard() {
 
                 {/* ANUNCIO GLOBAL - solo el más reciente */}
                 {announcements.length > 0 && (
-                    <div className="mb-8">
+                    <div className="mb-4">
                         <div className="group flex items-center gap-4 p-4 bg-neon/5 border border-neon/30 rounded-2xl animate-in slide-in-from-top-4 duration-700">
                             <div className="p-2 rounded-lg bg-neon/10 animate-pulse flex-shrink-0">
                                 <Megaphone className="w-4 h-4 text-neon" />
@@ -201,6 +201,31 @@ export default function Dashboard() {
                             <p className="text-sm font-mono text-neon font-bold uppercase tracking-tight flex-1">
                                 <span className="opacity-50">[SISTEMA]:</span> {announcements[0].content}
                             </p>
+                        </div>
+                    </div>
+                )}
+
+                {/* REWARD ALERT */}
+                {(stats?.pending_10p_discounts > 0 || stats?.free_months_accumulated > 0) && (
+                    <div className="mb-8">
+                        <div
+                            onClick={() => navigate('/subscription')}
+                            className="group flex items-center gap-4 p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl cursor-pointer hover:bg-indigo-500/20 transition-all animate-pulse"
+                        >
+                            <div className="p-2 rounded-lg bg-indigo-500/20 flex-shrink-0">
+                                <Gift className="w-5 h-5 text-indigo-400" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs font-black text-white uppercase tracking-widest">
+                                    ¡Tienes recompensas disponibles!
+                                </p>
+                                <p className="text-[10px] font-mono text-indigo-300 uppercase opacity-70">
+                                    {stats.free_months_accumulated > 0 && `${stats.free_months_accumulated} Mes(es) Gratis `}
+                                    {stats.pending_10p_discounts > 0 && `${stats.pending_10p_discounts} Cupón(es) del 10% `}
+                                    — Haz clic para canjear en tu suscripción.
+                                </p>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
                         </div>
                     </div>
                 )}

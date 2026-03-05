@@ -51,6 +51,7 @@ import Tools from './pages/Tools';
 import SubnetCalculator from './pages/SubnetCalculator';
 import ExploraAcademia from './pages/ExploraAcademia';
 import AdminUserDetail from './pages/AdminUserDetail';
+import AdminReferrals from './pages/AdminReferrals';
 
 import { useAuth } from './context/AuthContext';
 
@@ -207,6 +208,10 @@ export default function App() {
           <Route
             path="/admin/cupones"
             element={<RoleRoute allowedRoles={['admin']}><AdminCoupons /></RoleRoute>}
+          />
+          <Route
+            path="/admin/referidos"
+            element={<RoleRoute allowedRoles={['admin']}><AdminReferrals /></RoleRoute>}
           />
           <Route
             path="/gestion-contenido"

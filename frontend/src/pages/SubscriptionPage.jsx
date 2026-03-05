@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
     Shield, Check, Zap, BookOpen, FlaskConical,
     Star, Crown, ArrowRight, Lock, ChevronLeft,
-    Sparkles, Trophy, BarChart3, Tag, CheckCircle, XCircle
+    Sparkles, Trophy, BarChart3, Tag, CheckCircle, XCircle, Gift
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
@@ -28,20 +28,26 @@ export default function SubscriptionPage() {
     const [couponStatus, setCouponStatus] = useState(null); // null | 'valid' | 'invalid'
     const [couponDiscount, setCouponDiscount] = useState(0);
     const [validatingCoupon, setValidatingCoupon] = useState(false);
+    const [useReferralDiscount, setUseReferralDiscount] = useState(false);
+    const [useFreeMonth, setUseFreeMonth] = useState(false);
 
     const cancelled = new URLSearchParams(location.search).get('cancelled');
 
-    const handleValidateCoupon = async () => {
+    const handleValidateCoupon = async (selectedPlan = "monthly") => {
         if (!couponInput.trim()) return;
         setValidatingCoupon(true);
         setCouponStatus(null);
+        setUseReferralDiscount(false);
+        setUseFreeMonth(false);
+        setError('');
         try {
-            const res = await api.get(`/subscriptions/validate-coupon?code=${couponInput.trim().toUpperCase()}`);
+            const res = await api.get(`/subscriptions/validate-coupon?code=${couponInput.trim().toUpperCase()}&plan=${selectedPlan}`);
             setCouponDiscount(res.data.discount_percent);
             setCouponStatus('valid');
         } catch (err) {
             setCouponStatus('invalid');
             setCouponDiscount(0);
+            setError(err.response?.data?.detail || 'Cupón inválido para este plan.');
         } finally {
             setValidatingCoupon(false);
         }
@@ -51,8 +57,11 @@ export default function SubscriptionPage() {
         setLoadingPlan(plan);
         setError('');
         try {
-            const validCode = couponStatus === 'valid' ? couponInput.trim().toUpperCase() : null;
-            const url = `/subscriptions/create-checkout-session?plan=${plan}${validCode ? `&coupon_code=${validCode}` : ''}`;
+            const validCode = couponStatus === 'valid' && !useReferralDiscount && !useFreeMonth ? couponInput.trim().toUpperCase() : null;
+            let url = `/subscriptions/create-checkout-session?plan=${plan}`;
+            if (validCode) url += `&coupon_code=${validCode}`;
+            if (useReferralDiscount) url += `&use_referral_discount=true`;
+            if (useFreeMonth) url += `&use_free_month=true`;
             const res = await api.post(url);
             window.location.href = res.data.url;
         } catch (err) {
@@ -127,10 +136,11 @@ export default function SubscriptionPage() {
                                 value={couponInput}
                                 onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponStatus(null); }}
                                 onKeyDown={e => e.key === 'Enter' && handleValidateCoupon()}
-                                className="flex-1 bg-black border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-mono text-neon outline-none focus:border-neon uppercase placeholder:normal-case placeholder:text-slate-600 transition-colors"
+                                disabled={useReferralDiscount || useFreeMonth}
+                                className="flex-1 bg-black border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-mono text-neon outline-none focus:border-neon uppercase placeholder:normal-case placeholder:text-slate-600 transition-colors disabled:opacity-50"
                             />
                             <button
-                                onClick={handleValidateCoupon}
+                                onClick={() => handleValidateCoupon('monthly')}
                                 disabled={!couponInput.trim() || validatingCoupon}
                                 className="px-4 py-2.5 rounded-xl bg-neon/10 border border-neon/30 text-neon text-xs font-black uppercase hover:bg-neon hover:text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                             >
@@ -153,6 +163,57 @@ export default function SubscriptionPage() {
                         )}
                     </div>
                 </div>
+
+                {/* REFERRAL REWARDS WIDGET */}
+                {(user?.pending_10p_discounts > 0 || user?.free_months_accumulated > 0) && (
+                    <div className="max-w-md mx-auto mb-10 flex flex-col gap-3">
+                        {user?.free_months_accumulated > 0 && (
+                            <label className={`glass rounded-2xl border p-4 flex flex-col gap-1 cursor-pointer transition-all ${useFreeMonth ? 'border-neon bg-neon/10' : 'border-slate-800'}`}>
+                                <div className="flex items-center gap-3">
+                                    <input type="checkbox" className="accent-neon w-4 h-4 rounded"
+                                        checked={useFreeMonth}
+                                        onChange={(e) => {
+                                            setUseFreeMonth(e.target.checked);
+                                            if (e.target.checked) {
+                                                setUseReferralDiscount(false);
+                                                setCouponInput('');
+                                                setCouponStatus(null);
+                                                setCouponDiscount(0);
+                                            }
+                                        }}
+                                    />
+                                    <span className="text-sm font-bold text-white uppercase flex items-center gap-2">
+                                        <Gift className="w-4 h-4 text-neon" /> Usar Mes Gratis (Tienes {user.free_months_accumulated})
+                                    </span>
+                                </div>
+                                <p className="text-[10px] text-slate-400 font-mono pl-7">Obtén la suscripción directamente sin coste usando uno de tus meses gratis acumulados.</p>
+                            </label>
+                        )}
+
+                        {user?.pending_10p_discounts > 0 && (
+                            <label className={`glass rounded-2xl border p-4 flex flex-col gap-1 cursor-pointer transition-all ${useReferralDiscount ? 'border-neon bg-neon/10' : 'border-slate-800'}`}>
+                                <div className="flex items-center gap-3">
+                                    <input type="checkbox" className="accent-neon w-4 h-4 rounded"
+                                        checked={useReferralDiscount}
+                                        onChange={(e) => {
+                                            setUseReferralDiscount(e.target.checked);
+                                            if (e.target.checked) {
+                                                setUseFreeMonth(false);
+                                                setCouponInput('');
+                                                setCouponStatus(null);
+                                                setCouponDiscount(0);
+                                            }
+                                        }}
+                                    />
+                                    <span className="text-sm font-bold text-white uppercase flex items-center gap-2">
+                                        <Zap className="w-4 h-4 text-neon" /> 10% Descuento por Referido (Tienes {user.pending_10p_discounts})
+                                    </span>
+                                </div>
+                                <p className="text-[10px] text-slate-400 font-mono pl-7">Aplica un 10% de descuento en tu pago. No acumulable con otros cupones.</p>
+                            </label>
+                        )}
+                    </div>
+                )}
 
                 {/* Pricing cards */}
                 <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8 mb-16 px-4">
@@ -198,7 +259,7 @@ export default function SubscriptionPage() {
                             {loadingPlan === 'monthly' ? (
                                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                             ) : (
-                                'Empezar Mensual'
+                                useFreeMonth ? 'Canjear Mes Gratis' : 'Empezar Mensual'
                             )}
                         </button>
                     </div>
@@ -248,8 +309,14 @@ export default function SubscriptionPage() {
                         </div>
 
                         <button
-                            onClick={() => handleSubscribe('quarterly')}
-                            disabled={loadingPlan !== null}
+                            onClick={() => {
+                                if (useFreeMonth) {
+                                    alert("El mes gratis solo se puede aplicar al plan mensual.");
+                                    return;
+                                }
+                                handleSubscribe('quarterly');
+                            }}
+                            disabled={loadingPlan !== null || useFreeMonth}
                             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-neon text-[#0D0D0D] font-black font-mono text-base uppercase tracking-wider shadow-[0_0_20px_var(--neon-alpha-40)] hover:shadow-[0_0_40px_var(--neon-alpha-60)] hover:scale-[1.03] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loadingPlan === 'quarterly' ? (
@@ -293,8 +360,19 @@ export default function SubscriptionPage() {
                         </div>
 
                         <button
-                            onClick={() => handleSubscribe('annual')}
-                            disabled={loadingPlan !== null}
+                            onClick={() => {
+                                if (useFreeMonth) {
+                                    alert("El mes gratis solo se puede aplicar al plan mensual.");
+                                    return;
+                                }
+                                // Si hay un cupón ya validado como 'valid', re-validarlo para el plan anual si es > 15
+                                if (couponStatus === 'valid' && couponDiscount > 15) {
+                                    handleValidateCoupon('annual');
+                                    return;
+                                }
+                                handleSubscribe('annual');
+                            }}
+                            disabled={loadingPlan !== null || useFreeMonth}
                             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black font-mono text-sm uppercase tracking-wide hover:bg-neon hover:border-neon hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group-hover:border-neon/40 group-hover:bg-white/10"
                         >
                             {loadingPlan === 'annual' ? (

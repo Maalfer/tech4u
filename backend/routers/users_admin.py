@@ -377,6 +377,10 @@ def get_user_full_detail(
         "last_login": str(user.last_login) if user.last_login else None,
         "created_at": str(user.created_at) if hasattr(user, 'created_at') and user.created_at else None,
         "is_active": user.is_active if hasattr(user, 'is_active') else True,
+        "referral_code": user.referral_code,
+        "referral_reward_count": user.referral_reward_count or 0,
+        "pending_10p_discounts": user.pending_10p_discounts or 0,
+        "free_months_accumulated": user.free_months_accumulated or 0,
     }
 
 @router.patch("/{user_id}/shields")
@@ -492,4 +496,57 @@ def delete_suggestion(suggestion_id: int, _: User = Depends(require_admin), db: 
     if not sug: raise HTTPException(status_code=404, detail="Sugerencia no encontrada")
     db.delete(sug)
     db.commit()
-    return {"message": "Sugerencia eliminada"}
+@router.get("/referral-ecosystem")
+def get_referral_ecosystem(
+    _: User = Depends(require_developer),
+    db: Session = Depends(get_db)
+):
+    """(Admin) Monitorización y detección de fraude en el sistema de referidos."""
+    # Usuarios que han invitado a alguien
+    referrers = db.query(User).filter(User.referral_reward_count > 0).all()
+    
+    results = []
+    for u in referrers:
+        # Detectar sospechas
+        warnings = []
+        if u.pending_10p_discounts > 10:
+            warnings.append("Más de 10 cupones del 10% acumulados")
+        
+        # Lógica de fraude: Muchas invitaciones pero ninguna suscripción activa en los invitados (opcional, para después)
+        # Por ahora, alertar si tiene muchos referidos totales
+        if u.referral_reward_count > 20:
+            warnings.append("Volumen de referidos inusualmente alto (>20)")
+
+        results.append({
+            "user_id": u.id,
+            "nombre": u.nombre,
+            "email": u.email,
+            "referral_code": u.referral_code,
+            "referral_reward_count": u.referral_reward_count,
+            "pending_10p_discounts": u.pending_10p_discounts,
+            "free_months_accumulated": u.free_months_accumulated,
+            "warnings": warnings,
+            "risk_level": "alto" if len(warnings) > 1 else ("medio" if len(warnings) == 1 else "bajo")
+        })
+    
+    # Ordenar por nivel de riesgo y luego por cantidad de referidos
+    results.sort(key=lambda x: (x["risk_level"] == "bajo", x["risk_level"] == "medio", -x["referral_reward_count"]))
+    
+    return results
+
+@router.patch("/{user_id}/reset-referrals")
+def reset_user_referrals(
+    user_id: int,
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """(Admin) Resetea los contadores de referidos de un usuario sospechoso."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    user.pending_10p_discounts = 0
+    user.free_months_accumulated = 0
+    # No reseteamos referral_reward_count para mantener el historial, pero limpiamos premios
+    db.commit()
+    return {"message": "Premios de referido reseteados correctamente"}

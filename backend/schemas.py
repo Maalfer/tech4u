@@ -187,6 +187,7 @@ class CouponCreate(BaseModel):
     discount_percent: float
     max_uses: int = 1
     is_active: bool = True
+    assigned_to_id: Optional[int] = None
 
 class CouponOut(BaseModel):
     id: int
@@ -195,6 +196,7 @@ class CouponOut(BaseModel):
     max_uses: int
     current_uses: int
     is_active: bool
+    assigned_to_id: Optional[int] = None
     created_at: datetime
     
     class Config:

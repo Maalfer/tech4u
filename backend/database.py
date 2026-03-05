@@ -152,6 +152,7 @@ class Coupon(Base):
     max_uses = Column(Integer, default=1)
     current_uses = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
+    assigned_to_id = Column(Integer, ForeignKey("users.id"), nullable=True) # Lock to one user
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class AnnouncementRead(Base):

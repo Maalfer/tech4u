@@ -31,7 +31,8 @@ def create_coupon(
         code=data.code.upper(),
         discount_percent=data.discount_percent,
         max_uses=data.max_uses,
-        is_active=data.is_active
+        is_active=data.is_active,
+        assigned_to_id=data.assigned_to_id
     )
     db.add(c)
     db.commit()

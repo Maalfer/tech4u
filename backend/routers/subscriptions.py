@@ -86,13 +86,25 @@ def toggle_auto_renew(
 
 
 @router.get("/validate-coupon")
-def validate_coupon(code: str, db: Session = Depends(get_db)):
+def validate_coupon(code: str, plan: str = "monthly", current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Valida un cupón y devuelve el porcentaje si es válido."""
     c = db.query(Coupon).filter(Coupon.code == code.upper(), Coupon.is_active == True).first()
     if not c:
         raise HTTPException(status_code=404, detail="Cupón inválido o inactivo.")
+    
     if c.current_uses >= c.max_uses:
+        c.is_active = False # Safe deactivation fallback
+        db.commit()
         raise HTTPException(status_code=400, detail="El cupón ha superado el límite de usos.")
+    
+    # Restricción de usuario único
+    if c.assigned_to_id and c.assigned_to_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Este cupón no te pertenece.")
+
+    # Restricción de plan: >15% solo mensual y trimestral
+    if c.discount_percent > 15 and plan == "annual":
+        raise HTTPException(status_code=400, detail="Cupones superiores al 15% solo válidos para planes mensuales y trimestrales.")
+
     return {"valid": True, "discount_percent": c.discount_percent}
 
 @router.post("/create-checkout-session")
@@ -118,12 +130,15 @@ def create_checkout_session(
 
     # 1. Prioridad: Mes Gratis (si el usuario lo activa y tiene acumulados)
     if use_free_month:
+        if plan != "monthly":
+            raise HTTPException(status_code=400, detail="Los meses gratis de regalo solo se pueden aplicar al plan mensual.")
+        
         if (current_user.free_months_accumulated or 0) > 0:
             current_user.free_months_accumulated -= 1
             current_user.subscription_type = selected["subscription_type"]
             current_user.subscription_start = datetime.utcnow()
             current_user.subscription_end = datetime.utcnow() + timedelta(days=selected["days"])
-            current_user.months_subscribed = (current_user.months_subscribed or 0) + (1 if plan == "monthly" else (3 if plan == "quarterly" else 12))
+            current_user.months_subscribed = (current_user.months_subscribed or 0) + 1
             db.commit()
             url_success = f"{FRONTEND_URL}/suscripcion/exito?session_id=free_reward_applied"
             return {"url": url_success}
@@ -148,6 +163,14 @@ def create_checkout_session(
         if not c or c.current_uses >= c.max_uses:
             raise HTTPException(status_code=400, detail="Cupón inválido o agotado.")
         
+        # Restricción de usuario único
+        if c.assigned_to_id and c.assigned_to_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Este cupón no te pertenece.")
+
+        # Restricción de plan: >15% solo mensual y trimestral
+        if c.discount_percent > 15 and plan == "annual":
+            raise HTTPException(status_code=400, detail="Cupones superiores al 15% solo válidos para planes mensuales y trimestrales.")
+        
         applied_coupon = c
         discount = int((c.discount_percent / 100.0) * final_amount)
         final_amount = max(0, final_amount - discount)
@@ -157,8 +180,10 @@ def create_checkout_session(
         current_user.subscription_type = selected["subscription_type"]
         current_user.subscription_start = datetime.utcnow()
         current_user.subscription_end = datetime.utcnow() + timedelta(days=selected["days"])
-        current_user.months_subscribed = (current_user.months_subscribed or 0) + (1 if plan == "monthly" else 12)
+        current_user.months_subscribed = (current_user.months_subscribed or 0) + 1
         applied_coupon.current_uses += 1
+        if applied_coupon.current_uses >= applied_coupon.max_uses:
+            applied_coupon.is_active = False
         db.commit()
         url_success = f"{FRONTEND_URL}/suscripcion/exito?session_id=free_bypass_{applied_coupon.code}"
         return {"url": url_success}
@@ -265,6 +290,8 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 coupon = db.query(Coupon).filter(Coupon.code == coupon_code).first()
                 if coupon:
                     coupon.current_uses += 1
+                    if coupon.current_uses >= coupon.max_uses:
+                        coupon.is_active = False
             
             reward_used = metadata.get("reward_used")
             if reward_used == "referral_10p":
