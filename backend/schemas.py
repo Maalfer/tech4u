@@ -526,6 +526,23 @@ class LabBase(BaseModel):
 class LabCreate(LabBase):
     pass
 
+class ChallengeGeneratorPayload(BaseModel):
+    title: str
+    description: str
+    xp_reward: int
+
+class LabGeneratorPayload(BaseModel):
+    title: str
+    module_id: int
+    difficulty: str
+    base_xp: int
+    num_challenges: int
+    description: Optional[str] = "Draft lab created by generator."
+    goal_description: Optional[str] = "Objectives pending"
+    step_by_step_guide: Optional[str] = "Guide pending"
+    order_index: Optional[int] = 0
+    challenges: List[ChallengeGeneratorPayload] = []
+
 class LabOut(LabBase):
     id: int
     is_completed: bool = False

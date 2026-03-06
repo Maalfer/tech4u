@@ -7,7 +7,8 @@ from auth import get_current_user, require_admin
 from schemas import (
     LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest, 
     ChallengeCompletionOut, ChallengeOut, SkillPathOut, ModuleOut,
-    SkillPathCreate, ModuleCreate, TerminalStartResponse
+    SkillPathCreate, ModuleCreate, TerminalStartResponse,
+    LabGeneratorPayload
 )
 from limiter import limiter
 from fastapi import Request
@@ -90,7 +91,7 @@ def list_paths(
 ):
     """List all available skill paths."""
     query = db.query(SkillPath).order_by(SkillPath.order_index)
-    if not current_user.is_admin:
+    if current_user.role != "admin":
         query = query.filter(SkillPath.is_active == True)
     return query.all()
 
@@ -102,7 +103,7 @@ def list_modules_by_path(
 ):
     """List all modules within a specific skill path."""
     query = db.query(Module).filter(Module.skill_path_id == path_id).order_by(Module.order_index)
-    if not current_user.is_admin:
+    if current_user.role != "admin":
         query = query.filter(Module.is_active == True)
     return query.all()
 
@@ -148,6 +149,56 @@ def list_labs_student(
         prev_lab_completed = lab.is_completed
         
     return labs
+
+@router.post("/generate", response_model=LabOut)
+def generate_lab(data: LabGeneratorPayload, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """(Admin) Generates a complete lab with challenges safely."""
+    try:
+        lab = Lab(
+            title=data.title,
+            module_id=data.module_id,
+            difficulty=data.difficulty,
+            xp_reward=data.base_xp,
+            description=data.description or "Draft lab created by generator.",
+            goal_description=data.goal_description or "Objectives will be added later.",
+            step_by_step_guide=data.step_by_step_guide or "Guide will be added later.",
+            order_index=data.order_index or 0,
+            is_active=False,
+            time_limit=30,
+            category="Linux",
+            docker_image="ubuntu:22.04"
+        )
+        db.add(lab)
+        db.flush() # flush to get lab.id for challenges
+
+        for i in range(data.num_challenges):
+            c_data = data.challenges[i] if i < len(data.challenges) else None
+            title = c_data.title if c_data else f"Reto {i+1}"
+            desc = c_data.description if c_data else "Completa la tarea asignada para superar este reto."
+            xp = c_data.xp_reward if c_data else 50
+            
+            # Generate ID consistent with current logic
+            challenge_id = f"L{lab.id}_C{i+1}"
+            challenge = Challenge(
+                id=challenge_id,
+                lab_id=lab.id,
+                title=title,
+                description=desc,
+                xp=xp,
+                order_index=i,
+                validation_type="custom",
+                validation_value="",
+                validation_extra="echo 'Validación pendiente'"
+            )
+            db.add(challenge)
+
+        db.commit()
+        db.refresh(lab)
+        return lab
+    except Exception as e:
+        db.rollback()
+        print("LAB GENERATOR ERROR:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{lab_id}", response_model=LabOut)
 def get_lab_student(
@@ -384,7 +435,7 @@ def toggle_lab_visibility(lab_id: int, _: User = Depends(require_admin), db: Ses
 @limiter.limit("5/minute")
 async def start_lab_endpoint(
     lab_id: int, 
-    request: Optional[Request] = None,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

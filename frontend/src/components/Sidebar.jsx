@@ -60,6 +60,7 @@ import noticiasAcademiaIcon from '../assets/noticiasacademia_icon.png';
 import skillLabsIcon from '../assets/skilllabs_icon.png';
 import exploraIcon from '../assets/explora_icon.png';
 import terminalSkillsIcon from '../assets/terminal_skills.png';
+import terminalBuilderIcon from '../assets/skilllabs_icon.png'; // Using a placeholder icon or finding a better one
 
 // ── Palette: every icon has a fixed semantic color ──────────────────────────
 const IC = {
@@ -286,10 +287,13 @@ export default function Sidebar() {
                             Academy Shop
                         </NavLink>
 
-                        <NavLink to="/admin/labs" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <img src={terminalSkillsIcon} className="w-8 h-8 scale-[2.0] origin-center -ml-1.5 flex-shrink-0 object-contain" alt="" />
-                            Laboratorios
+                        <NavLink to="/admin/terminal-builder" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                            <div className="w-8 h-8 flex items-center justify-center -ml-1.5 bg-neon/10 rounded-xl border border-neon/20 shadow-[0_0_15px_rgba(198,255,51,0.15)] group">
+                                <Terminal className={`w-4 h-4 transition-colors ${location.pathname.startsWith('/admin/terminal-builder') ? 'text-neon' : 'text-slate-500 group-hover:text-neon'}`} />
+                            </div>
+                            Terminal Builder
                         </NavLink>
+
 
                         <NavLink to="/admin/cursos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <img src={ytHelpIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />

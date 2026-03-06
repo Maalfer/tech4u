@@ -56,6 +56,7 @@ import ExploraAcademia from './pages/ExploraAcademia';
 import AdminUserDetail from './pages/AdminUserDetail';
 import AdminReferrals from './pages/AdminReferrals';
 import AdminLabs from './pages/AdminLabs';
+import AdminTerminalBuilder from './pages/AdminTerminalBuilder';
 
 import { useAuth } from './context/AuthContext';
 
@@ -249,6 +250,10 @@ export default function App() {
             <Route
               path="/admin/labs"
               element={<RoleRoute allowedRoles={['admin']}><AdminLabs /></RoleRoute>}
+            />
+            <Route
+              path="/admin/terminal-builder/*"
+              element={<RoleRoute allowedRoles={['admin']}><AdminTerminalBuilder /></RoleRoute>}
             />
 
             {/* 4. FALLBACK ESTRATÉGICO */}
