@@ -14,7 +14,7 @@ def create_users():
             {
                 "email": "admin@tech4u.es",
                 "nombre": "Administrador Principal",
-                "password": "tech4u_admin",
+                "password": "tech4u2026",
                 "role": "admin",
                 "subscription_type": "annual"
             },
@@ -28,7 +28,7 @@ def create_users():
             {
                 "email": "alumno1@tech4u.es",
                 "nombre": "Alumno Prueba FP",
-                "password": "tech4u_alumno",
+                "password": "tech4u2026",
                 "role": "alumno",
                 "subscription_type": "free"
             }
@@ -38,8 +38,12 @@ def create_users():
         for u_data in users_to_create:
             existing = db.query(User).filter(User.email == u_data["email"]).first()
             if existing:
-                print(f"✅ Usuario {u_data['email']} ({u_data['role']}) ya existe.")
+                print(f"🔄 Actualizando password para {u_data['email']}...")
+                existing.password_hash = hash_password(u_data["password"])
+                db.commit()
                 continue
+
+
 
             new_user = User(
                 email=u_data["email"],

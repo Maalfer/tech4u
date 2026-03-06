@@ -1,10 +1,15 @@
 import json
 import os
 import sys
-from datetime import datetime
+from pathlib import Path
+from dotenv import load_dotenv
 
 # Adjust path to import from parent directory
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Load .env explicitly from backend root
+env_path = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(env_path)
 
 from database import SessionLocal, Lab, Challenge, UserLabCompletion, UserChallengeCompletion, SkillPath, Module, create_tables
 
@@ -13,47 +18,70 @@ def seed_linux_fundamentals():
     # Create tables if not exists
     create_tables()
 
-    # Clear existing hierarchy to avoid duplication
-    db.query(UserChallengeCompletion).delete()
-    db.query(UserLabCompletion).delete()
-    db.query(Challenge).delete()
-    db.query(Lab).delete()
-    db.query(Module).delete()
-    db.query(SkillPath).delete()
-    db.commit()
+    # 1. Create Skill Path (UPSERT)
+    linux_path = db.query(SkillPath).filter(SkillPath.title == "Linux Fundamentals").first()
+    if not linux_path:
+        linux_path = SkillPath(
+            title="Linux Fundamentals",
+            description="Domina la terminal de Linux desde cero. Navegación, gestión de archivos, permisos y más.",
+            difficulty="easy",
+            order_index=1
+        )
+        db.add(linux_path)
+        db.commit()
+        db.refresh(linux_path)
+    else:
+        print(f"✅ Skill Path '{linux_path.title}' ya existe.")
 
-    # 1. Create Skill Path
-    linux_path = SkillPath(
-        title="Linux Fundamentals",
-        description="Domina la terminal de Linux desde cero. Navegación, gestión de archivos, permisos y más.",
-        difficulty="easy",
-        order_index=1
-    )
-    db.add(linux_path)
-    db.commit()
-    db.refresh(linux_path)
+    # 2. Create Module L1 (UPSERT)
+    l1_module = db.query(Module).filter(Module.title == "Linux Labs L1 — Terminal Basics").first()
+    if not l1_module:
+        l1_module = Module(
+            skill_path_id=linux_path.id,
+            title="Linux Labs L1 — Terminal Basics",
+            description="Aprende los conceptos fundamentales de la línea de comandos de Linux.",
+            order_index=1
+        )
+        db.add(l1_module)
+    
+    # 3. Create Module L2 (UPSERT)
+    l2_module = db.query(Module).filter(Module.title == "Linux Labs L2 — Users and Permissions").first()
+    if not l2_module:
+        l2_module = Module(
+            skill_path_id=linux_path.id,
+            title="Linux Labs L2 — Users and Permissions",
+            description="Gestión de usuarios, grupos y permisos de archivos en sistemas Linux.",
+            order_index=2
+        )
+        db.add(l2_module)
 
-    # 2. Create Module L1
-    l1_module = Module(
-        skill_path_id=linux_path.id,
-        title="Linux Labs L1 — Terminal Basics",
-        description="Aprende los conceptos fundamentales de la línea de comandos de Linux.",
-        order_index=1
-    )
-    db.add(l1_module)
-    db.commit()
-    db.refresh(l1_module)
+    # 4. Create Module L3 (UPSERT)
+    l3_module = db.query(Module).filter(Module.title == "Linux Labs L3 — Processes and System Monitoring").first()
+    if not l3_module:
+        l3_module = Module(
+            skill_path_id=linux_path.id,
+            title="Linux Labs L3 — Processes and System Monitoring",
+            description="Procesos, señales y monitorización del sistema en tiempo real.",
+            order_index=3
+        )
+        db.add(l3_module)
+    
+    # 5. Create Module L4 (UPSERT)
+    l4_module = db.query(Module).filter(Module.title == "Linux Labs L4 — File Management Commands").first()
+    if not l4_module:
+        l4_module = Module(
+            skill_path_id=linux_path.id,
+            title="Linux Labs L4 — File Management Commands",
+            description="Introducción a los comandos básicos de gestión de archivos en Linux.",
+            order_index=4
+        )
+        db.add(l4_module)
 
-    # 3. Create Module L2
-    l2_module = Module(
-        skill_path_id=linux_path.id,
-        title="Linux Labs L2 — Users and Permissions",
-        description="Gestión de usuarios, grupos y permisos de archivos en sistemas Linux.",
-        order_index=2
-    )
-    db.add(l2_module)
     db.commit()
-    db.refresh(l2_module)
+    if l1_module: db.refresh(l1_module)
+    if l2_module: db.refresh(l2_module)
+    if l3_module: db.refresh(l3_module)
+    if l4_module: db.refresh(l4_module)
 
     # L1 Labs Data
     l1_labs = [
@@ -470,23 +498,268 @@ def seed_linux_fundamentals():
                     "title": "Crear usuario analyst",
                     "v_type": "file_content_flag",
                     "v_value": "analyst"
-                },
-                {
-                    "id": "L2_C12_2",
-                    "title": "Crear grupo security",
-                    "v_type": "file_content_flag",
-                    "v_value": "security"
-                },
-                {
-                    "id": "L2_C12_3",
-                    "title": "Permisos correctos en report.txt",
-                    "v_type": "permission_set",
-                    "v_value": "640",
-                    "v_extra": "/home/student/report.txt"
                 }
             ]
         }
     ]
+
+
+    # L3 Labs Data
+    l3_labs = [
+        {
+            "id": 23,
+            "title": "Procesos en Linux",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nEn Linux todo lo que se ejecuta es un proceso.\n\nPuedes ver los procesos activos con el comando:\n\n`ps` \n\nEste comando muestra información sobre los procesos que se están ejecutando.",
+            "goal_description": "### Objetivos\nAprender a visualizar procesos activos.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta el comando: `ps` \n2. Observa los procesos activos.\n3. Identifica el proceso bash.",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C1",
+                    "title": "Identificar proceso bash",
+                    "v_type": "file_content_flag",
+                    "v_value": "bash"
+                }
+            ]
+        },
+        {
+            "id": 24,
+            "title": "Lista completa de procesos",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nEl comando ps también puede mostrar todos los procesos del sistema.\n\nSe utiliza:\n\n`ps aux` ",
+            "goal_description": "### Objetivos\nAprender a listar todos los procesos activos del sistema.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta: `ps aux` \n2. Observa la lista completa de procesos.\n3. Encuentra el proceso que ejecuta bash.",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C2",
+                    "title": "Encontrar proceso bash en ps aux",
+                    "v_type": "file_content_flag",
+                    "v_value": "bash"
+                }
+            ]
+        },
+        {
+            "id": 25,
+            "title": "Monitorización en tiempo real",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nLinux permite ver los procesos en tiempo real usando:\n\n`top` \n\nEste comando muestra el uso de CPU y memoria.",
+            "goal_description": "### Objetivos\nAprender a monitorizar procesos del sistema.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta: `top` \n2. Observa los procesos activos.\n3. Sal del programa usando la tecla q.",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C3",
+                    "title": "Abrir monitor de procesos",
+                    "v_type": "file_content_flag",
+                    "v_value": "top"
+                }
+            ]
+        },
+        {
+            "id": 26,
+            "title": "Crear procesos en segundo plano",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nPuedes ejecutar procesos en segundo plano usando el símbolo:\n\n`&` \n\nEjemplo:\n\n`sleep 60 &` ",
+            "goal_description": "### Objetivos\nAprender a ejecutar procesos en background.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta: `sleep 60 &` \n2. Comprueba el proceso con:\n\n`ps` ",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C4",
+                    "title": "Crear proceso sleep",
+                    "v_type": "file_content_flag",
+                    "v_value": "sleep"
+                }
+            ]
+        },
+        {
+            "id": 27,
+            "title": "Identificar procesos",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nCada proceso tiene un identificador llamado PID.\n\nPuedes verlo usando:\n\n`ps` ",
+            "goal_description": "### Objetivos\nAprender a identificar el PID de un proceso.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta: `sleep 100 &` \n2. Ejecuta:\n\n`ps` \n3. Busca el proceso sleep.",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C5",
+                    "title": "Identificar proceso sleep",
+                    "v_type": "file_content_flag",
+                    "v_value": "sleep"
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "title": "Finalizar procesos",
+            "difficulty": "medium",
+            "description": "### Guía de Lab\nPuedes finalizar procesos usando:\n\n`kill PID` \n\nEsto envía una señal al proceso.",
+            "goal_description": "### Objetivos\nAprender a terminar procesos manualmente.",
+            "step_by_step_guide": "### Guía Misión\n1. Crea un proceso:\n\n`sleep 200 &` \n2. Encuentra su PID usando ps.\n3. Finaliza el proceso usando kill.",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C6",
+                    "title": "Finalizar proceso sleep",
+                    "v_type": "file_content_flag",
+                    "v_value": "killed"
+                }
+            ]
+        },
+        {
+            "id": 29,
+            "title": "Procesos en segundo plano",
+            "difficulty": "medium",
+            "description": "### Guía de Lab\nLos procesos pueden ejecutarse en background.\n\nPuedes verlos usando:\n\n`jobs` ",
+            "goal_description": "### Objetivos\nAprender a gestionar procesos en background.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta:\n\n`sleep 120 &` \n2. Ejecuta:\n\n`jobs` ",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C7",
+                    "title": "Ver procesos en background",
+                    "v_type": "file_content_flag",
+                    "v_value": "sleep"
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "title": "Reanudar procesos",
+            "difficulty": "medium",
+            "description": "### Guía de Lab\nPuedes suspender procesos usando:\n\nCTRL+Z\n\nY reanudarlos usando:\n\n`fg` ",
+            "goal_description": "### Objetivos\nAprender a suspender y reanudar procesos.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta:\n\n`sleep 200` \n2. Suspende con CTRL+Z.\n3. Reanuda con:\n\n`fg` ",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C8",
+                    "title": "Reanudar proceso suspendido",
+                    "v_type": "file_content_flag",
+                    "v_value": "sleep"
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "title": "Prioridad de procesos",
+            "difficulty": "medium",
+            "description": "### Guía de Lab\nLinux permite cambiar la prioridad de los procesos usando:\n\n`nice` ",
+            "goal_description": "### Objetivos\nAprender a ejecutar procesos con prioridad distinta.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta:\n\n`nice -n 10 sleep 100` \n2. Comprueba el proceso con ps.",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C9",
+                    "title": "Ejecutar proceso con nice",
+                    "v_type": "file_content_flag",
+                    "v_value": "sleep"
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "title": "Gestión completa de procesos",
+            "difficulty": "medium",
+            "description": "### Guía de Lab\nEn este laboratorio usarás varios comandos aprendidos.\n\nps\ntop\nkill\njobs",
+            "goal_description": "### Objetivos\nPracticar gestión completa de procesos.",
+            "step_by_step_guide": "### Guía Misión\n1. Crea proceso:\n\n`sleep 300 &` \n2. Encuentra el PID.\n3. Finaliza el proceso.",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L3_C10_1",
+                    "title": "Crear proceso sleep",
+                    "v_type": "file_content_flag",
+                    "v_value": "sleep"
+                },
+                {
+                    "id": "L3_C10_2",
+                    "title": "Finalizar proceso",
+                    "v_type": "file_content_flag",
+                    "v_value": "killed"
+                }
+            ]
+        }
+    ]
+
+
+    # L4 Labs Data
+    l4_labs = [
+        {
+            "id": 33,
+            "title": "Crear archivos con touch",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nEl comando touch se utiliza para crear archivos vacíos en Linux.\n\n`touch archivo.txt` \n\nEsto crea un archivo llamado archivo.txt si no existe.",
+            "goal_description": "### Objetivos\nAprender a crear archivos vacíos y usar touch correctamente.",
+            "step_by_step_guide": "### Guía Misión\n1. Ejecuta: `touch notes.txt` \n2. Comprueba con `ls` \n3. Crea varios: `touch tareas.txt ideas.txt` ",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L4_C1",
+                    "title": "Crear archivo notes.txt",
+                    "v_type": "file_content_flag",
+                    "v_value": "notes.txt"
+                }
+            ]
+        },
+        {
+            "id": 34,
+            "title": "Copiar archivos con cp",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nEl comando cp se utiliza para copiar archivos o directorios.\n\n`cp archivo.txt copia.txt` ",
+            "goal_description": "### Objetivos\nAprender a copiar archivos y crear copias de seguridad.",
+            "step_by_step_guide": "### Guía Misión\n1. Crea: `touch original.txt` \n2. Copia: `cp original.txt copia.txt` \n3. Verifica con `ls` ",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L4_C2",
+                    "title": "Crear copia del archivo",
+                    "v_type": "file_content_flag",
+                    "v_value": "copia.txt"
+                }
+            ]
+        },
+        {
+            "id": 35,
+            "title": "Mover y renombrar archivos con mv",
+            "difficulty": "easy",
+            "description": "### Guía de Lab\nEl comando mv permite mover archivos entre directorios o cambiar su nombre.\n\n`mv archivo.txt nuevo_nombre.txt` ",
+            "goal_description": "### Objetivos\nAprender a renombrar y mover archivos.",
+            "step_by_step_guide": "### Guía Misión\n1. Crea: `touch temporal.txt` \n2. Renombra: `mv temporal.txt final.txt` \n3. Comprueba con `ls` ",
+            "category": "Linux",
+            "challenges": [
+                {
+                    "id": "L4_C3",
+                    "title": "Renombrar archivo correctamente",
+                    "v_type": "file_content_flag",
+                    "v_value": "final.txt"
+                }
+            ]
+        },
+        {
+            "id": 36,
+            "title": "Eliminar archivos con rm",
+            "difficulty": "medium",
+            "description": "### Guía de Lab\nEl comando rm permite eliminar archivos del sistema definitivamente.\n\n`rm archivo.txt` ",
+            "goal_description": "### Objetivos\nAprender a eliminar archivos con seguridad.",
+            "step_by_step_guide": "### Guía Misión\n1. Crea: `touch eliminar.txt` \n2. Elimina: `rm eliminar.txt` \n3. Comprueba que no existe.",
+            "category": "Linux",
+            "challenges": []
+        },
+        {
+            "id": 37,
+            "title": "Eliminar directorios con rm -rf",
+            "difficulty": "medium",
+            "description": "### Guía de Lab\nEl comando rm -rf permite eliminar directorios completos de forma recursiva y forzada.",
+            "goal_description": "### Objetivos\nAprender a eliminar directorios completos con cuidado.",
+            "step_by_step_guide": "### Guía Misión\n1. Crea carpeta: `mkdir pruebas` \n2. Crea archivo dentro: `touch pruebas/test.txt` \n3. Elimina: `rm -rf pruebas` \n4. Comprueba con `ls` ",
+            "category": "Linux",
+            "challenges": []
+        }
+    ]
+
 
     def insert_labs(labs_data, module_id):
         for l_data in labs_data:
@@ -523,12 +796,16 @@ def seed_linux_fundamentals():
 
     insert_labs(l1_labs, l1_module.id)
     insert_labs(l2_labs, l2_module.id)
+    insert_labs(l3_labs, l3_module.id)
+    insert_labs(l4_labs, l4_module.id)
 
     db.commit()
     print(f"✅ Skill Path: {linux_path.title}")
     print(f"✅ Module: {l1_module.title}")
     print(f"✅ Module: {l2_module.title}")
-    print(f"✅ {len(l1_labs) + len(l2_labs)} labs seeded successfully!")
+    print(f"✅ Module: {l3_module.title}")
+    print(f"✅ Module: {l4_module.title}")
+    print(f"✅ {len(l1_labs) + len(l2_labs) + len(l3_labs) + len(l4_labs)} labs seeded successfully!")
     db.close()
 
 if __name__ == "__main__":

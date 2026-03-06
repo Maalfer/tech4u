@@ -4,7 +4,13 @@ from typing import List, Tuple, Optional
 import json
 from database import get_db, User, Lab, UserLabCompletion, UserChallengeCompletion, Challenge, SkillPath, Module
 from auth import get_current_user, require_admin
-from schemas import LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest, ChallengeCompletionOut, ChallengeOut, SkillPathOut, ModuleOut
+from schemas import (
+    LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest, 
+    ChallengeCompletionOut, ChallengeOut, SkillPathOut, ModuleOut,
+    SkillPathCreate, ModuleCreate, TerminalStartResponse
+)
+from limiter import limiter
+from fastapi import Request
 from docker_client import docker_launcher
 from datetime import datetime
 
@@ -71,7 +77,11 @@ class ValidationEngine:
 
         return False, "Tipo de validación no soportado o datos insuficientes."
 
-router = APIRouter(prefix="/labs", tags=["Science Labs"])
+router = APIRouter(prefix="/labs", tags=["Gestión de Laboratorios"])
+
+@router.get("/ping")
+def ping():
+    return {"status": "labs router alive"}
 
 @router.get("/paths", response_model=List[SkillPathOut])
 def list_paths(
@@ -79,7 +89,10 @@ def list_paths(
     current_user: User = Depends(get_current_user)
 ):
     """List all available skill paths."""
-    return db.query(SkillPath).order_by(SkillPath.order_index).all()
+    query = db.query(SkillPath).order_by(SkillPath.order_index)
+    if not current_user.is_admin:
+        query = query.filter(SkillPath.is_active == True)
+    return query.all()
 
 @router.get("/paths/{path_id}/modules", response_model=List[ModuleOut])
 def list_modules_by_path(
@@ -88,7 +101,10 @@ def list_modules_by_path(
     current_user: User = Depends(get_current_user)
 ):
     """List all modules within a specific skill path."""
-    return db.query(Module).filter(Module.skill_path_id == path_id).order_by(Module.order_index).all()
+    query = db.query(Module).filter(Module.skill_path_id == path_id).order_by(Module.order_index)
+    if not current_user.is_admin:
+        query = query.filter(Module.is_active == True)
+    return query.all()
 
 @router.get("/modules/{module_id}/labs", response_model=List[LabOut])
 def list_labs_by_module(
@@ -98,9 +114,8 @@ def list_labs_by_module(
 ):
     """List all labs within a specific module, with sequential status."""
     labs = db.query(Lab).filter(
-        Lab.module_id == module_id,
-        Lab.is_active == True
-    ).order_by(Lab.id).all()
+        Lab.module_id == module_id
+    ).order_by(Lab.order_index, Lab.id).all()
     
     prev_lab_completed = True
     for lab in labs:
@@ -216,72 +231,8 @@ def validate_challenge(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Valida un reto específico dentro de un laboratorio."""
-    # 1. Check if already done
-    exists = db.query(UserChallengeCompletion).filter(
-        UserChallengeCompletion.user_id == current_user.id,
-        UserChallengeCompletion.lab_id == lab_id,
-        UserChallengeCompletion.challenge_id == req.challenge_id
-    ).first()
-    
-    if exists:
-        return {"success": True, "message": "Reto ya completado."}
-
-    # 2. Get Challenge record
-    challenge = db.query(Challenge).filter(
-        Challenge.lab_id == lab_id,
-        Challenge.id == req.challenge_id
-    ).first()
-    
-    if not challenge:
-        # Check if it exists in legacy JSON (transitional)
-        lab = db.query(Lab).filter(Lab.id == lab_id).first()
-        if lab and lab.validation_rules:
-            rules_data = json.loads(lab.validation_rules)
-            challenges_json = rules_data.get("challenges", [])
-            challenge_json = next((c for c in challenges_json if str(c.get("id")) == req.challenge_id), None)
-            if challenge_json:
-                # Mock a challenge object for the engine
-                from collections import namedtuple
-                MockChallenge = namedtuple('MockChallenge', ['validation_type', 'validation_value', 'validation_extra', 'xp'])
-                challenge = MockChallenge(
-                    validation_type="directory_listing_exact", # Default for legacy
-                    validation_value=challenge_json.get("expected_value"),
-                    validation_extra=None,
-                    xp=10
-                )
-    
-    if not challenge:
-        raise HTTPException(status_code=404, detail="Reto no encontrado")
-
-    # 3. Validation Logic
-    containers = docker_launcher.get_active_containers_for_user(current_user.id)
-    container = containers[0] if containers else None
-    
-    success, message = ValidationEngine.validate(
-        challenge.validation_type,
-        challenge.validation_value,
-        req.student_input,
-        challenge.validation_extra,
-        container
-    )
-    
-    if success:
-        new_comp = UserChallengeCompletion(
-            user_id=current_user.id,
-            lab_id=lab_id,
-            challenge_id=req.challenge_id
-        )
-        db.add(new_comp)
-        
-        # Award XP if it's a real challenge
-        if hasattr(challenge, 'xp'):
-            current_user.xp = (current_user.xp or 0) + challenge.xp
-            
-        db.commit()
-        return {"success": True, "message": message}
-    else:
-        return {"success": False, "message": message}
+    """Valida un reto específico dentro de un laboratorio (TEMPORALMENTE DESACTIVADO)."""
+    return {"success": True, "message": "Validation system temporarily disabled."}
 
 @router.post("/{lab_id}/complete", response_model=LabCompleteResponse)
 def complete_lab(
@@ -290,51 +241,15 @@ def complete_lab(
     db: Session = Depends(get_db)
 ):
     """
-    Finaliza el lab si TODOS los retos han sido completados.
+    Finaliza el lab (VALIDACIÓN BYPASSED).
     """
-    # 1. Check if already completed
-    already_done = db.query(UserLabCompletion).filter(
-        UserLabCompletion.user_id == current_user.id,
-        UserLabCompletion.lab_id == lab_id
-    ).first()
-    
-    if already_done:
-        return LabCompleteResponse(
-            success=True, 
-            message="Ya has completado este laboratorio.",
-            xp_gained=0
-        )
-
-    # 2. Get Lab info
+    # Get Lab info
     lab = db.query(Lab).filter(Lab.id == lab_id).first()
     if not lab:
         raise HTTPException(status_code=404, detail="Lab no encontrado")
 
-    # 3. Verify all challenges are done
-    try:
-        rules_data = json.loads(lab.validation_rules or '{"challenges":[]}')
-        total_challenges = rules_data.get("challenges", [])
-        
-        if total_challenges:
-            completed_count = db.query(UserChallengeCompletion).filter(
-                UserChallengeCompletion.user_id == current_user.id,
-                UserChallengeCompletion.lab_id == lab_id
-            ).count()
-            
-            if completed_count < len(total_challenges):
-                return LabCompleteResponse(
-                    success=False,
-                    message=f"Aún te faltan retos por completar ({completed_count}/{len(total_challenges)})."
-                )
-        else:
-            # Legacy or single-rule fallback (optional)
-            # For now, if no challenges, we might need a manual check or it's an old lab
-            pass
-    except Exception as e:
-        print(f"Error checking challenges: {e}")
-
     # 4. Award XP and Save
-    current_user.xp += lab.xp_reward
+    current_user.xp = (current_user.xp or 0) + lab.xp_reward
     leveled_up = False
     level_before = current_user.level
     current_user.level = (current_user.xp // 1000) + 1
@@ -366,16 +281,71 @@ def get_all_labs_admin(_: User = Depends(require_admin), db: Session = Depends(g
 
 @router.post("/", response_model=LabOut)
 def create_lab(lab_data: LabCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    """(Admin) Crea un nuevo laboratorio."""
+    """(Admin) Crea un nuevo laboratorio y sincroniza retos."""
     new_lab = Lab(**lab_data.model_dump())
     db.add(new_lab)
     db.commit()
     db.refresh(new_lab)
+    
+    # Sincronizar retos si vienen en validation_rules
+    if new_lab.validation_rules:
+        sync_lab_challenges(new_lab.id, new_lab.validation_rules, db)
+        
     return new_lab
+
+def sync_lab_challenges(lab_id: int, rules_json: str, db: Session):
+    """Sincroniza la tabla terminal_challenges con el JSON de validation_rules."""
+    try:
+        data = json.loads(rules_json)
+        challenges_data = data.get("challenges", [])
+        
+        # Eliminar retos actuales para este lab para evitar conflictos de ID si han cambiado
+        db.query(Challenge).filter(Challenge.lab_id == lab_id).delete()
+        
+        for idx, c_data in enumerate(challenges_data):
+            # Mapear campos del JSON visual a la tabla Challenge
+            # c_data suele tener { id: number, title: string, description: string, rules: [{command, expected}] }
+            # Pero el modelo Challenge espera validation_type, validation_value, etc.
+            
+            # Si el JSON viene con rules, usamos la primera regla para validation_type por simplicidad o concatenamos
+            # La arquitectura premium debería idealmente manejar esto mejor.
+            
+            v_type = "directory_listing_exact"
+            v_value = ""
+            v_extra = None
+            
+            if c_data.get("rules") and len(c_data["rules"]) > 0:
+                # Tomamos la primera regla como principal para retrocompatibilidad con el motor simple
+                first_rule = c_data["rules"][0]
+                v_value = first_rule.get("expected", "")
+                v_extra = first_rule.get("command", "")
+            
+            # Si el JSON ya trae v_type/v_value (de los seeds), usarlos
+            if c_data.get("v_type"):
+                v_type = c_data["v_type"]
+                v_value = c_data["v_value"]
+                v_extra = c_data.get("v_extra")
+
+            new_c = Challenge(
+                id=f"L{lab_id}_C{idx+1}", # Generar ID consistente
+                lab_id=lab_id,
+                title=c_data.get("title", f"Reto {idx+1}"),
+                description=c_data.get("description", ""),
+                validation_type=v_type,
+                validation_value=v_value,
+                validation_extra=v_extra,
+                order_index=idx,
+                xp=10
+            )
+            db.add(new_c)
+        db.commit()
+    except Exception as e:
+        print(f"Error syncing challenges: {e}")
+        db.rollback()
 
 @router.put("/{lab_id}", response_model=LabOut)
 def update_lab(lab_id: int, lab_data: LabCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    """(Admin) Actualiza un laboratorio existente."""
+    """(Admin) Actualiza un laboratorio existente y sincroniza retos."""
     db_lab = db.query(Lab).filter(Lab.id == lab_id).first()
     if not db_lab:
         raise HTTPException(status_code=404, detail="Lab no encontrado")
@@ -384,6 +354,11 @@ def update_lab(lab_id: int, lab_data: LabCreate, _: User = Depends(require_admin
         setattr(db_lab, key, value)
     
     db.commit()
+    
+    # Sincronizar retos si el JSON ha cambiado
+    if db_lab.validation_rules:
+        sync_lab_challenges(lab_id, db_lab.validation_rules, db)
+        
     db.refresh(db_lab)
     return db_lab
 
@@ -391,12 +366,142 @@ def update_lab(lab_id: int, lab_data: LabCreate, _: User = Depends(require_admin
 def delete_lab(lab_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
     """(Admin) Elimina un laboratorio."""
     db_lab = db.query(Lab).filter(Lab.id == lab_id).first()
-    if not db_lab:
-        raise HTTPException(status_code=404, detail="Lab no encontrado")
-    
+    if not db_lab: raise HTTPException(status_code=404)
     db.delete(db_lab)
     db.commit()
     return {"message": "Lab purged from mainframe"}
+
+@router.patch("/{lab_id}/toggle", response_model=LabOut)
+def toggle_lab_visibility(lab_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_lab = db.query(Lab).filter(Lab.id == lab_id).first()
+    if not db_lab: raise HTTPException(status_code=404)
+    db_lab.is_active = not db_lab.is_active
+    db.commit()
+    db.refresh(db_lab)
+    return db_lab
+
+@router.post("/{lab_id}/start", response_model=TerminalStartResponse)
+@limiter.limit("5/minute")
+async def start_lab_endpoint(
+    lab_id: int, 
+    request: Optional[Request] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Enforce limit: 1 lab per user
+    active_containers = docker_launcher.get_active_containers_for_user(current_user.id)
+    if len(active_containers) >= 1:
+        docker_launcher.kill_all_for_user(current_user.id)
+    
+    lab = db.query(Lab).filter(Lab.id == lab_id).first()
+    if not lab:
+        raise HTTPException(status_code=404, detail="Lab not found")
+        
+    container = docker_launcher.start_lab_container(
+        current_user.id, 
+        lab_id, 
+        lab.docker_image,
+        scenario_setup=lab.scenario_setup
+    )
+    
+    return {
+        "container_id": container.id,
+        "ws_url": f"/ws/terminal/{container.id}"
+    }
+
+@router.post("/{lab_id}/restart", response_model=TerminalStartResponse)
+async def restart_lab_endpoint(
+    lab_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Kills current user lab and starts a fresh one."""
+    docker_launcher.kill_all_for_user(current_user.id)
+    return await start_lab_endpoint(lab_id, None, db, current_user)
+
+
+# --- SKILL PATH ADMIN ---
+
+@router.post("/admin/paths", response_model=SkillPathOut)
+def create_skill_path(path_data: SkillPathCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    new_path = SkillPath(**path_data.model_dump())
+    db.add(new_path)
+    db.commit()
+    db.refresh(new_path)
+    return new_path
+
+@router.put("/admin/paths/{path_id}", response_model=SkillPathOut)
+def update_skill_path(path_id: int, path_data: SkillPathCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_path = db.query(SkillPath).filter(SkillPath.id == path_id).first()
+    if not db_path: raise HTTPException(status_code=404, detail="Ruta no encontrada")
+    for k, v in path_data.model_dump().items():
+        setattr(db_path, k, v)
+    db.commit()
+    db.refresh(db_path)
+    return db_path
+
+@router.patch("/admin/paths/{path_id}/toggle", response_model=SkillPathOut)
+def toggle_skill_path(path_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_path = db.query(SkillPath).filter(SkillPath.id == path_id).first()
+    if not db_path: raise HTTPException(status_code=404)
+    db_path.is_active = not db_path.is_active
+    db.commit()
+    db.refresh(db_path)
+    return db_path
+
+@router.delete("/admin/paths/{path_id}")
+def delete_skill_path(path_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_path = db.query(SkillPath).filter(SkillPath.id == path_id).first()
+    if not db_path: raise HTTPException(status_code=404)
+    db.delete(db_path)
+    db.commit()
+    return {"message": "Skill Path deleted"}
+
+# --- MODULE ADMIN ---
+
+@router.post("/admin/modules", response_model=ModuleOut)
+def create_module(module_data: ModuleCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    new_module = Module(**module_data.model_dump())
+    db.add(new_module)
+    db.commit()
+    db.refresh(new_module)
+    return new_module
+
+@router.put("/admin/modules/{module_id}", response_model=ModuleOut)
+def update_module(module_id: int, module_data: ModuleCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_module = db.query(Module).filter(Module.id == module_id).first()
+    if not db_module: raise HTTPException(status_code=404, detail="Módulo no encontrado")
+    for k, v in module_data.model_dump().items():
+        setattr(db_module, k, v)
+    db.commit()
+    db.refresh(db_module)
+    return db_module
+
+@router.patch("/admin/modules/{module_id}/toggle-validation", response_model=ModuleOut)
+def toggle_module_validation(module_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_module = db.query(Module).filter(Module.id == module_id).first()
+    if not db_module: raise HTTPException(status_code=404)
+    db_module.requires_validation = not db_module.requires_validation
+    db.commit()
+    db.refresh(db_module)
+    return db_module
+
+@router.patch("/admin/modules/{module_id}/toggle-visibility", response_model=ModuleOut)
+def toggle_module_visibility(module_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_module = db.query(Module).filter(Module.id == module_id).first()
+    if not db_module: raise HTTPException(status_code=404)
+    db_module.is_active = not db_module.is_active
+    db.commit()
+    db.refresh(db_module)
+    return db_module
+
+@router.delete("/admin/modules/{module_id}")
+def delete_module(module_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    db_module = db.query(Module).filter(Module.id == module_id).first()
+    if not db_module: raise HTTPException(status_code=404)
+    db.delete(db_module)
+    db.commit()
+    return {"message": "Module deleted"}
 
 # --- INITIAL SEEDING ---
 @router.post("/seed")

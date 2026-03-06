@@ -308,6 +308,7 @@ class SkillPath(Base):
     description = Column(Text, nullable=True)
     difficulty = Column(String, default="easy")
     order_index = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     modules = relationship("Module", back_populates="skill_path", cascade="all, delete-orphan")
@@ -320,6 +321,8 @@ class Module(Base):
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     order_index = Column(Integer, default=0)
+    requires_validation = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     skill_path = relationship("SkillPath", back_populates="modules")
@@ -346,6 +349,7 @@ class Lab(Base):
     step_by_step_guide = Column(Text, nullable=True) # Markdown guide for the student
     validation_rules = Column(Text, nullable=True) # JSON with multiple check rules
     expected_flag = Column(String, nullable=True) # For CTF-style labs (flag{...})
+    order_index = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

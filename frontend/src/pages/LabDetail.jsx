@@ -49,11 +49,7 @@ export default function LabDetail() {
                 setLab(labRes.data);
                 setCompletedChallenges(progressRes.data);
 
-                // Check if already fully completed
-                const challenges = labRes.data.challenges || [];
-                if (challenges.length > 0 && progressRes.data.length === challenges.length) {
-                    setCompleted(true);
-                }
+                // Complete status is now managed by the backend shortcut
             } catch (err) {
                 console.error("Error fetching lab context:", err);
                 navigate('/labs');
@@ -203,7 +199,7 @@ export default function LabDetail() {
                             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all ${completed ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-500' : 'bg-neon border border-neon text-black hover:shadow-[0_0_20px_var(--neon-alpha-40)] disabled:opacity-50 disabled:cursor-not-allowed'}`}
                         >
                             {completed ? <CheckCircle className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                            {completed ? 'COMPLETADO' : 'VALIDAR LAB'}
+                            {completed ? 'COMPLETADO' : 'COMPLETAR MISION'}
                         </button>
                     </div>
                 </header>
@@ -270,61 +266,18 @@ export default function LabDetail() {
                                         )}
 
                                         {!lab.challenges || lab.challenges.length === 0 ? (
-                                            <p className="text-[10px] text-slate-500 font-mono italic">No hay retos definidos.</p>
-                                        ) : lab.challenges.map((ch) => {
-                                            const isDone = completedChallenges.includes(String(ch.id));
-                                            const attempts = failedAttempts[ch.id] || 0;
-                                            return (
-                                                <div key={ch.id} className={`p-4 rounded-2xl border transition-all ${isDone ? 'bg-emerald-500/5 border-emerald-500/20 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'bg-white/2 border-white/5'}`}>
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isDone ? 'bg-emerald-500 border-emerald-500' : 'border-slate-700'}`}>
-                                                                {isDone && <CheckCircle className="w-3.5 h-3.5 text-black" />}
-                                                            </div>
-                                                            <span className={`text-[11px] font-black uppercase tracking-tight ${isDone ? 'text-emerald-500' : 'text-white'}`}>
-                                                                {ch.title}
-                                                            </span>
-                                                        </div>
-                                                        {isDone && <span className="text-[9px] font-black text-emerald-500 uppercase italic">Superado</span>}
-                                                    </div>
-
-                                                    {!isDone && (
-                                                        <div className="pl-8 space-y-3">
-                                                            <div className="relative group">
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Pega aquí el resultado..."
-                                                                    value={challengeInputs[ch.id] || ''}
-                                                                    onChange={(e) => handleInputChange(ch.id, e.target.value)}
-                                                                    className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-neon placeholder:text-slate-600 focus:border-neon/50 outline-none transition-all group-hover:border-white/20"
-                                                                />
-                                                            </div>
-
-                                                            {attempts >= 3 && ch.hints && (
-                                                                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px] font-mono text-amber-500 animate-in slide-in-from-top-1 duration-300">
-                                                                    <div className="flex items-center gap-2 mb-1 uppercase font-black tracking-widest text-[8px]">
-                                                                        <Info className="w-3 h-3" /> Pista táctica
-                                                                    </div>
-                                                                    {ch.hints}
-                                                                </div>
-                                                            )}
-
-                                                            <button
-                                                                onClick={() => handleValidateChallenge(String(ch.id))}
-                                                                disabled={validatingChallenge === String(ch.id) || !wsUrl}
-                                                                className="w-full py-2.5 rounded-xl bg-neon text-black text-[9px] font-black uppercase tracking-widest hover:shadow-[0_0_20px_rgba(198,255,51,0.4)] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-                                                            >
-                                                                {validatingChallenge === String(ch.id) ? (
-                                                                    <><Loader2 className="w-3 h-3 animate-spin" /> VERIFICANDO...</>
-                                                                ) : (
-                                                                    <><Zap className="w-3 h-3" /> VALIDAR RESPUESTA</>
-                                                                )}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
+                                            <p className="text-[10px] text-slate-500 font-mono italic">No hay retos técnicos definidos para este lab.</p>
+                                        ) : lab.challenges.map((ch) => (
+                                            <div key={ch.id} className="p-5 rounded-2xl border border-white/5 bg-white/2 space-y-2">
+                                                <h5 className="text-[11px] font-black uppercase tracking-tight text-white flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-neon shadow-[0_0_5px_var(--neon)]" />
+                                                    {ch.title}
+                                                </h5>
+                                                <p className="text-[10px] text-slate-400 font-mono leading-relaxed">
+                                                    {ch.description}
+                                                </p>
+                                            </div>
+                                        ))}
                                     </div>
                                 ) : (
                                     <div className="animate-in fade-in slide-in-from-left-2 duration-300 space-y-6">

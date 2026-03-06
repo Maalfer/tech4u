@@ -20,7 +20,11 @@ import Sidebar from '../components/Sidebar';
 import api from '../services/api';
 
 // Assets
-import linuxCover from '../assets/linux_lab_1.png';
+import linuxCover1 from '../assets/linux_lab_1.png';
+const defaultCover = linuxCover1;
+import linuxCover3 from '../assets/linux_lab_3.png';
+import linuxCover4 from '../assets/linux_lab_4.png';
+import linuxCover2 from '../assets/linux_lab_2.png';
 
 const CATEGORY_ICONS = {
     'Sistemas': HardDrive,
@@ -31,8 +35,10 @@ const CATEGORY_ICONS = {
 };
 
 const MODULE_COVERS = {
-    'Linux Labs L1 — Terminal Basics': linuxCover,
-    'Linux Labs L2 — Users and Permissions': linuxCover,
+    'Linux Labs L1 — Terminal Basics': linuxCover1,
+    'Linux Labs L2 — Users and Permissions': linuxCover2,
+    'Linux Labs L3 — Processes and System Monitoring': linuxCover3,
+    'Linux Labs L4 — File Management Commands': linuxCover4,
 };
 
 export default function LabsPage() {
@@ -196,7 +202,7 @@ export default function LabsPage() {
                                     >
                                         <div className="absolute inset-0">
                                             <img
-                                                src={MODULE_COVERS[module.title] || linuxCover}
+                                                src={MODULE_COVERS[module.title] || defaultCover}
                                                 alt={module.title}
                                                 className="w-full h-full object-cover opacity-60 group-hover:scale-110 group-hover:opacity-40 transition-all duration-700"
                                             />

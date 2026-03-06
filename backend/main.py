@@ -50,12 +50,17 @@ async def cleanup_stale_containers():
     """Periodically kills containers that have been running for too long (1 hour) or are orphaned."""
     while True:
         try:
-            if docker_launcher.client:
-                containers = docker_launcher.client.containers.list(filters={"label": "academy=tech4u"})
+            client = docker_launcher.client
+            if client:
+                containers = await asyncio.to_thread(
+                    client.containers.list, 
+                    filters={"label": "academy=tech4u"}
+                )
                 now = datetime.datetime.now(datetime.timezone.utc)
                 for c in containers:
                     try:
                         created_str = c.attrs.get("Created")
+
                         if created_str:
                             # Parse ISO format (handle Z or offset)
                             created_dt = datetime.datetime.fromisoformat(created_str.replace("Z", "+00:00"))
@@ -88,48 +93,7 @@ app.include_router(paypal.router)
 app.include_router(achievements.router)
 app.include_router(labs.router)
 
-# --- TERMINAL SANDBOX ENDPOINTS ---
-
-@app.post("/labs/{lab_id}/start", response_model=TerminalStartResponse)
-@limiter.limit("5/minute")
-async def start_lab_endpoint(
-    request: Request,
-    lab_id: int, 
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    # Enforce limit: 1 lab per user
-    active_containers = docker_launcher.get_active_containers_for_user(current_user.id)
-    if len(active_containers) >= 1:
-        # Kill previous to allow new one (or return error)
-        # For better UX, we'll kill existing ones
-        docker_launcher.kill_all_for_user(current_user.id)
-    
-    lab = db.query(Lab).filter(Lab.id == lab_id).first()
-    if not lab:
-        raise HTTPException(status_code=404, detail="Lab not found")
-        
-    container = docker_launcher.start_lab_container(
-        current_user.id, 
-        lab_id, 
-        lab.docker_image,
-        scenario_setup=lab.scenario_setup
-    )
-    
-    return {
-        "container_id": container.id,
-        "ws_url": f"/ws/terminal/{container.id}"
-    }
-
-@app.post("/labs/{lab_id}/restart", response_model=TerminalStartResponse)
-async def restart_lab_endpoint(
-    lab_id: int, 
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Kills current user lab and starts a fresh one."""
-    docker_launcher.kill_all_for_user(current_user.id)
-    return await start_lab_endpoint(lab_id, db, current_user)
+# --- TERMINAL SANDBOX ENDPOINTS MOVED TO labs.py ---
 
 @app.websocket("/ws/terminal/{container_id}")
 async def terminal_websocket(websocket: WebSocket, container_id: str):

@@ -511,8 +511,17 @@ class LabBase(BaseModel):
     difficulty: str = "medium"
     category: str = "Linux"
     xp_reward: int = 150
+    time_limit: int = 30
+    docker_image: str = "ubuntu:22.04"
+    scenario_setup: Optional[str] = None
+    validation_rules: Optional[str] = None
+    validation_command: Optional[str] = None
+    expected_result: Optional[str] = None
+    expected_flag: Optional[str] = None
     step_by_step_guide: Optional[str] = None
     module_id: Optional[int] = None
+    is_active: bool = True
+    order_index: int = 0
 
 class LabCreate(LabBase):
     pass
@@ -526,16 +535,33 @@ class LabOut(LabBase):
     class Config:
         from_attributes = True
 
+class ModuleCreate(BaseModel):
+    skill_path_id: int
+    title: str
+    description: Optional[str] = None
+    order_index: int = 0
+    requires_validation: bool = True
+    is_active: bool = True
+
 class ModuleOut(BaseModel):
     id: int
     skill_path_id: int
     title: str
     description: Optional[str] = None
     order_index: int
+    requires_validation: bool = True
+    is_active: bool = True
     labs: List[LabOut] = []
 
     class Config:
         from_attributes = True
+
+class SkillPathCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    difficulty: str = "easy"
+    order_index: int = 0
+    is_active: bool = True
 
 class SkillPathOut(BaseModel):
     id: int
@@ -543,6 +569,7 @@ class SkillPathOut(BaseModel):
     description: Optional[str] = None
     difficulty: str = "easy"
     order_index: int
+    is_active: bool = True
     modules: List[ModuleOut] = []
 
     class Config:

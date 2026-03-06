@@ -10,11 +10,20 @@ DOCKER_URL = os.getenv("DOCKER_URL", "unix:///var/run/docker.sock")
 
 class HardenedDockerClient:
     def __init__(self):
-        try:
-            self.client = docker.DockerClient(base_url=DOCKER_URL)
-        except Exception as e:
-            print(f"Error connecting to Docker: {e}")
-            self.client = None
+        self._client = None
+        self.base_url = DOCKER_URL
+
+    @property
+    def client(self):
+        if self._client is None:
+            try:
+                # Use a short timeout for initialization to avoid hanging the app
+                self._client = docker.DockerClient(base_url=self.base_url, timeout=5)
+            except Exception as e:
+                print(f"Error connecting to Docker: {e}")
+                return None
+        return self._client
+
 
     def start_lab_container(self, user_id: int, lab_id: int, image: str, scenario_setup: Optional[str] = None):
         if not self.client:
