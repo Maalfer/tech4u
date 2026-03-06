@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from database import get_db, User
@@ -7,6 +7,7 @@ from auth import hash_password, verify_password, create_access_token, get_curren
 import random
 import string
 import emails as mailer
+from limiter import limiter
 
 def generate_referral_code(length=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -14,7 +15,8 @@ def generate_referral_code(length=6):
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
-def register(data: UserRegister, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, data: UserRegister, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
@@ -65,7 +67,8 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(data: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, data: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")

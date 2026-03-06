@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -8,6 +8,9 @@ from routers import auth, dashboard, tests, resources, users_admin, content_admi
 from docker_client import docker_launcher
 from auth import decode_token, get_current_user
 from schemas import TerminalStartResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from limiter import limiter
 import asyncio
 import os
 import datetime
@@ -17,6 +20,8 @@ app = FastAPI(
     description="Plataforma para Estudiantes de FP Informática (ASIR, DAW, DAM, SMR) - Backend API",
     version="1.0.0",
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 origins = [
@@ -85,7 +90,9 @@ app.include_router(labs.router)
 # --- TERMINAL SANDBOX ENDPOINTS ---
 
 @app.post("/labs/{lab_id}/start", response_model=TerminalStartResponse)
+@limiter.limit("5/minute")
 async def start_lab_endpoint(
+    request: Request,
     lab_id: int, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
