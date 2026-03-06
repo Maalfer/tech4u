@@ -314,6 +314,7 @@ class Lab(Base):
     xp_reward = Column(Integer, default=150)
     is_active = Column(Boolean, default=True)
     step_by_step_guide = Column(Text, nullable=True) # Markdown guide for the student
+    validation_rules = Column(Text, nullable=True) # JSON with multiple check rules
     expected_flag = Column(String, nullable=True) # For CTF-style labs (flag{...})
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -325,6 +326,18 @@ class UserLabCompletion(Base):
     lab_id = Column(Integer, ForeignKey("terminal_labs.id"), nullable=False)
     completed_at = Column(DateTime, default=datetime.utcnow)
     xp_gained = Column(Integer, default=0)
+
+    user = relationship("User")
+    lab = relationship("Lab")
+
+class UserChallengeCompletion(Base):
+    """Tracks which users have completed specific challenges within a lab."""
+    __tablename__ = "user_challenge_completions"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lab_id = Column(Integer, ForeignKey("terminal_labs.id"), nullable=False)
+    challenge_id = Column(String, nullable=False) # ID of the challenge inside the JSON
+    completed_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User")
     lab = relationship("Lab")

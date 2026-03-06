@@ -29,23 +29,36 @@ export default function LabDetail() {
     const [startingLab, setStartingLab] = useState(false);
     const [activeTab, setActiveTab] = useState('instructions');
     const [wsUrl, setWsUrl] = useState(null);
+    const [completedChallenges, setCompletedChallenges] = useState([]);
+    const [validatingChallenge, setValidatingChallenge] = useState(null);
     const [completed, setCompleted] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [showSolution, setShowSolution] = useState(false);
 
     useEffect(() => {
-        const fetchLab = async () => {
+        const fetchLabAndProgress = async () => {
             try {
-                const res = await api.get(`/labs/${id}`);
-                setLab(res.data);
+                const [labRes, progressRes] = await Promise.all([
+                    api.get(`/labs/${id}`),
+                    api.get(`/labs/${id}/challenges/completed`)
+                ]);
+                setLab(labRes.data);
+                setCompletedChallenges(progressRes.data);
+
+                // Check if already fully completed
+                const rules = JSON.parse(labRes.data.validation_rules || '{}');
+                const challenges = rules.challenges || [];
+                if (challenges.length > 0 && progressRes.data.length === challenges.length) {
+                    setCompleted(true);
+                }
             } catch (err) {
-                console.error("Error fetching lab:", err);
+                console.error("Error fetching lab context:", err);
                 navigate('/labs');
             } finally {
                 setLoading(false);
             }
         };
-        fetchLab();
+        fetchLabAndProgress();
     }, [id, navigate]);
 
     const handleStartLab = async () => {
@@ -66,6 +79,33 @@ export default function LabDetail() {
         }
     };
 
+    const handleValidateChallenge = async (challengeId) => {
+        setValidatingChallenge(challengeId);
+        try {
+            const res = await api.post(`/labs/${id}/challenges/validate`, { challenge_id: challengeId });
+            if (res.data.success) {
+                if (!completedChallenges.includes(challengeId)) {
+                    const nextCompleted = [...completedChallenges, challengeId];
+                    setCompletedChallenges(nextCompleted);
+
+                    // Check if this was the last one
+                    const rules = JSON.parse(lab.validation_rules || '{}');
+                    const total = (rules.challenges || []).length;
+                    if (nextCompleted.length === total) {
+                        handleComplete(); // Finalize lab
+                    }
+                }
+            } else {
+                alert(res.data.message);
+            }
+        } catch (err) {
+            console.error("Error validating challenge:", err);
+            alert("Error de validación.");
+        } finally {
+            setValidatingChallenge(null);
+        }
+    };
+
     const handleComplete = async () => {
         try {
             const res = await api.post(`/labs/${id}/complete`);
@@ -76,12 +116,10 @@ export default function LabDetail() {
                 setShowSuccess(true);
                 refreshUser();
             } else {
-                alert(data.message || "Validación fallida. Revisa los requisitos de la misión.");
+                alert(data.message || "Aún no has completado todos los retos.");
             }
         } catch (err) {
             console.error("Error completing lab:", err);
-            const errorMsg = err.response?.data?.detail || "Hubo un error al validar el laboratorio.";
-            alert(errorMsg);
         }
     };
 
@@ -104,7 +142,7 @@ export default function LabDetail() {
         }
     };
 
-    if (loading) return null;
+    if (loading || !lab) return null;
 
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
@@ -190,13 +228,46 @@ export default function LabDetail() {
                                     </div>
                                 ) : activeTab === 'objectives' ? (
                                     <div className="space-y-4">
-                                        <h4 className="text-xs font-black uppercase tracking-widest text-white mb-4">Checklist de Validación</h4>
-                                        <div className={`flex items-start gap-3 p-4 rounded-2xl border bg-white/5 border-white/10 opacity-60`}>
-                                            <div className="mt-0.5 w-4 h-4 rounded border-2 border-slate-700" />
-                                            <span className="text-[11px] font-mono leading-relaxed text-slate-400">
-                                                Objetivo registrado en el sistema.
-                                            </span>
-                                        </div>
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-white mb-4">Checklist de Retos</h4>
+                                        {(() => {
+                                            const rules = JSON.parse(lab.validation_rules || '{"challenges":[]}');
+                                            const challenges = rules.challenges || [];
+
+                                            if (challenges.length === 0) {
+                                                return <p className="text-[10px] text-slate-500 font-mono italic">No hay retos definidos para este lab.</p>;
+                                            }
+
+                                            return challenges.map((ch) => {
+                                                const isDone = completedChallenges.includes(String(ch.id));
+                                                return (
+                                                    <div key={ch.id} className={`p-4 rounded-2xl border transition-all ${isDone ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white/5 border-white/10'}`}>
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isDone ? 'bg-emerald-500 border-emerald-500' : 'border-slate-700'}`}>
+                                                                    {isDone && <CheckCircle className="w-2.5 h-2.5 text-black" />}
+                                                                </div>
+                                                                <span className={`text-[11px] font-black uppercase tracking-tight ${isDone ? 'text-emerald-500' : 'text-white'}`}>
+                                                                    Reto {ch.id}: {ch.title}
+                                                                </span>
+                                                            </div>
+                                                            {!isDone && (
+                                                                <button
+                                                                    onClick={() => handleValidateChallenge(String(ch.id))}
+                                                                    disabled={validatingChallenge || !wsUrl}
+                                                                    className="px-3 py-1.5 rounded-lg bg-neon text-black text-[9px] font-black uppercase tracking-widest hover:shadow-[0_0_15px_rgba(198,255,51,0.3)] disabled:opacity-50 transition-all flex items-center gap-1.5"
+                                                                >
+                                                                    {validatingChallenge === String(ch.id) ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}
+                                                                    VALIDAR
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[10px] font-mono text-slate-400 leading-relaxed ml-6">
+                                                            {ch.description}
+                                                        </p>
+                                                    </div>
+                                                );
+                                            });
+                                        })()}
                                     </div>
                                 ) : (
                                     <div className="space-y-4">

@@ -63,7 +63,7 @@ export default function LabsPage() {
                         </div>
                         <div>
                             <h1 className="text-4xl font-black uppercase italic tracking-tighter">
-                                Terminal <span className="text-neon">Simulator</span>
+                                Terminal <span className="text-neon">Skills</span>
                             </h1>
                             <p className="text-slate-500 font-mono text-[10px] uppercase tracking-[0.2em]">
                                 Entornos interactivos de práctica real
@@ -134,7 +134,7 @@ export default function LabsPage() {
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-1.5 text-slate-500 font-mono text-[9px] uppercase">
-                                                <Clock className="w-3 h-3" /> {lab.difficulty === 'Fácil' ? '15 min' : lab.difficulty === 'Medio' ? '30 min' : '1h+'}
+                                                <Clock className="w-3 h-3" /> {lab.difficulty === 'easy' ? '15 min' : lab.difficulty === 'medium' ? '30 min' : '1h+'}
                                             </div>
                                         </div>
 
@@ -149,7 +149,7 @@ export default function LabsPage() {
 
                                         <div className="flex items-center gap-4 mt-auto">
                                             <div className="flex items-center gap-1.5">
-                                                <div className={`w-2 h-2 rounded-full ${lab.difficulty === 'Fácil' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : lab.difficulty === 'Medio' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`} />
+                                                <div className={`w-2 h-2 rounded-full ${lab.difficulty === 'easy' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : lab.difficulty === 'medium' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`} />
                                                 <span className="text-[10px] font-mono text-slate-500 uppercase">{lab.difficulty}</span>
                                             </div>
                                             <div className="flex items-center gap-1.5">

@@ -5,14 +5,13 @@ import {
     ChevronRight, Monitor, Wifi, Server,
     Shield, Database, Code2, Cpu, FileCode, ArrowLeft, Zap, Star, Sparkles,
     BookOpen, ClipboardList, Bug,
-    CheckCircle2, XCircle, Info
+    CheckCircle2, XCircle, Info, Target
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import PageHeader from '../components/PageHeader'
 import TestEngine from '../components/TestEngine'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
-import testcenterUpIcon from '../assets/testcenter_up_icon.png'
 
 const SUBJECTS = [
     { key: 'general', label: 'Examen General', icon: Zap, color: 'from-yellow-600/20 to-yellow-900/10 border-yellow-500/30 hover:border-yellow-400/60', iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },

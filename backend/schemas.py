@@ -499,6 +499,7 @@ class LabOut(BaseModel):
     xp_reward: int
     is_active: bool
     step_by_step_guide: Optional[str] = None
+    validation_rules: Optional[str] = None
     expected_flag: Optional[str] = None
     is_unlocked: bool = True  # Set dynamically in router
     is_completed: bool = False # Set dynamically in router
@@ -514,7 +515,7 @@ class LabCreate(BaseModel):
     scenario_setup: Optional[str] = None
     goal_description: str = Field(..., min_length=10)
     step_by_step_guide: Optional[str] = None
-    validation_command: Optional[str] = None
+    validation_rules: Optional[str] = None
     expected_result: Optional[str] = None
     difficulty: str = "medium"
     category: str = "Linux"
@@ -535,6 +536,19 @@ class LabCompleteResponse(BaseModel):
     leveled_up: bool = False
     new_level: int = 1
     flag_found: bool = False
+
+class ChallengeValidationRequest(BaseModel):
+    challenge_id: str
+
+class ChallengeCompletionOut(BaseModel):
+    id: int
+    user_id: int
+    lab_id: int
+    challenge_id: str
+    completed_at: datetime
+
+    class Config:
+        from_attributes = True
 
 # Rebuild models (Pydantic v2)
 TokenResponse.model_rebuild()

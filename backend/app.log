@@ -1,0 +1,124 @@
+INFO:     Will watch for changes in these directories: ['/Users/henkosec/tech4u-academy/tech4u/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [68734] using WatchFiles
+INFO:     Started server process [69002]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     ('127.0.0.1', 56383) - "WebSocket /ws/3" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:56384 - "OPTIONS /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56385 - "OPTIONS /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56386 - "OPTIONS /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56387 - "OPTIONS /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56384 - "OPTIONS /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56388 - "OPTIONS /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56385 - "OPTIONS /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56389 - "OPTIONS /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56385 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56386 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56388 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56389 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56384 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56387 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56385 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56386 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56387 - "OPTIONS /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56386 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56387 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     ('127.0.0.1', 56414) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 56416) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:56422 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56422 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 56425) - "WebSocket /ws/3" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:56426 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56422 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56428 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56429 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56427 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56430 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56426 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56422 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56428 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56429 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56432 - "OPTIONS /auth/register HTTP/1.1" 200 OK
+[EMAIL SKIP] RESEND_API_KEY not set. Would send '¡Bienvenido a Tech4U Academy! 🚀' to test@test.com
+INFO:     127.0.0.1:56432 - "POST /auth/register HTTP/1.1" 201 Created
+INFO:     connection closed
+INFO:     127.0.0.1:56432 - "OPTIONS /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56434 - "OPTIONS /announcements/active HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 56436) - "WebSocket /ws/29" [accepted]
+INFO:     127.0.0.1:56432 - "OPTIONS /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56434 - "OPTIONS /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56438 - "OPTIONS /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:56440 - "OPTIONS /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56443 - "OPTIONS /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56444 - "OPTIONS /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56438 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56434 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56440 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56432 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56438 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56434 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56440 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56432 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56432 - "OPTIONS /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56440 - "OPTIONS /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56434 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56434 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     ('127.0.0.1', 56468) - "WebSocket /ws/3" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     connection closed
+WARNING:  WatchFiles detected changes in 'routers/dashboard.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [69002]
+INFO:     Started server process [71991]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'routers/labs.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [71991]
+Cleaning up stale container: lab_1_user_3_1772746733
+INFO:     Started server process [72035]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")
+Cleanup Task Error: 503 Server Error for http+docker://localhost/v1.51/containers/json?limit=-1&all=0&size=0&trunc_cmd=0&filters=%7B%22label%22%3A+%5B%22academy%3Dtech4u%22%5D%7D: Service Unavailable ("Docker Desktop is manually paused. Unpause it through the Whale menu or Dashboard.")

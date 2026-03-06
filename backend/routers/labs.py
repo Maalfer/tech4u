@@ -2,65 +2,107 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 import json
-from database import get_db, User, Lab, UserLabCompletion
+from database import get_db, User, Lab, UserLabCompletion, UserChallengeCompletion
 from auth import get_current_user, require_admin
-from schemas import LabOut, LabCreate, LabCompleteResponse
+from schemas import LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest, ChallengeCompletionOut
 from docker_client import docker_launcher
+from datetime import datetime
 
-router = APIRouter(prefix="/labs", tags=["Labs"])
+router = APIRouter(prefix="/labs", tags=["Science Labs"])
 
 @router.get("/", response_model=List[LabOut])
-def list_labs(
+def list_labs_student(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Lista todos los laboratorios con su estado de desbloqueo 
-    y completado estilo RPG.
-    """
-    all_labs = db.query(Lab).filter(Lab.is_active == True).order_by(Lab.id).all()
+    """List all active labs for the current student."""
+    labs = db.query(Lab).filter(Lab.is_active == True).all()
     
-    # Get user completions
-    completions = db.query(UserLabCompletion).filter(
-        UserLabCompletion.user_id == current_user.id
-    ).all()
-    completed_ids = {c.lab_id for c in completions}
-    
-    result = []
-    unlocked_next = True # First lab is always unlocked
-    
-    for lab in all_labs:
-        is_completed = lab.id in completed_ids
+    # Mark if completed and if unlocked
+    for lab in labs:
+        lab.is_unlocked = True # Default for now
+        completion = db.query(UserLabCompletion).filter(
+            UserLabCompletion.user_id == current_user.id,
+            UserLabCompletion.lab_id == lab.id
+        ).first()
+        lab.is_completed = True if completion else False
         
-        # A lab is unlocked if it's the first one OR if the previous one was completed
-        lab.is_unlocked = unlocked_next
-        lab.is_completed = is_completed
-        
-        result.append(lab)
-        
-        # For the next lab to be unlocked, the current one must be completed
-        unlocked_next = is_completed
-        
-    return result
+    return labs
 
-@router.get("/{lab_id}")
-def get_lab_detail(
+@router.get("/{lab_id}/challenges/completed", response_model=List[str])
+def get_completed_challenges(
     lab_id: int,
-    _: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Obtiene el detalle y escenario de configuración de un lab."""
-    lab = db.query(Lab).filter(Lab.id == lab_id).first()
-    if not lab:
-        raise HTTPException(status_code=404, detail="Laboratorio no encontrado")
+    """Obtiene los IDs de los retos ya completados por el usuario en este lab."""
+    completions = db.query(UserChallengeCompletion).filter(
+        UserChallengeCompletion.user_id == current_user.id,
+        UserChallengeCompletion.lab_id == lab_id
+    ).all()
+    return [c.challenge_id for c in completions]
+
+@router.post("/{lab_id}/challenges/validate", response_model=dict)
+def validate_challenge(
+    lab_id: int,
+    req: ChallengeValidationRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Valida un reto específico dentro de un laboratorio."""
+    # 1. Check if already done
+    exists = db.query(UserChallengeCompletion).filter(
+        UserChallengeCompletion.user_id == current_user.id,
+        UserChallengeCompletion.lab_id == lab_id,
+        UserChallengeCompletion.challenge_id == req.challenge_id
+    ).first()
     
-    return {
-        "id": lab.id,
-        "title": lab.title,
-        "description": lab.description,
-        "goal_description": lab.goal_description,
-        "scenario_setup": lab.scenario_setup # JSON string
-    }
+    if exists:
+        return {"success": True, "message": "Reto ya completado."}
+
+    # 2. Get Lab and Challenge rules
+    lab = db.query(Lab).filter(Lab.id == lab_id).first()
+    if not lab or not lab.validation_rules:
+        raise HTTPException(status_code=404, detail="Lab o reglas no encontradas")
+    
+    rules_data = json.loads(lab.validation_rules)
+    challenges = rules_data.get("challenges", [])
+    challenge = next((c for c in challenges if str(c.get("id")) == req.challenge_id), None)
+    
+    if not challenge:
+        # Fallback for old rules format if necessary, or error
+        raise HTTPException(status_code=400, detail="Reto no encontrado en la configuración")
+
+    # 3. Find active container
+    containers = docker_launcher.get_active_containers_for_user(current_user.id)
+    if not containers:
+        raise HTTPException(status_code=400, detail="No tienes un sandbox activo.")
+    
+    container = containers[0]
+    
+    # 4. Run rules for this challenge
+    challenge_success = True
+    for rule in challenge.get("rules", []):
+        cmd = rule.get("command")
+        expected = rule.get("expected", "")
+        if cmd:
+            res = container.exec_run(cmd, user="root", workdir="/home/student")
+            output = res.output.decode().strip()
+            if expected.strip() not in output:
+                challenge_success = False
+                break
+    
+    if challenge_success:
+        new_comp = UserChallengeCompletion(
+            user_id=current_user.id,
+            lab_id=lab_id,
+            challenge_id=req.challenge_id
+        )
+        db.add(new_comp)
+        db.commit()
+        return {"success": True, "message": "¡Reto completado con éxito!"}
+    else:
+        return {"success": False, "message": "La validación del reto ha fallado. Revisa tus archivos o comandos."}
 
 @router.post("/{lab_id}/complete", response_model=LabCompleteResponse)
 def complete_lab(
@@ -69,8 +111,7 @@ def complete_lab(
     db: Session = Depends(get_db)
 ):
     """
-    Valida si el alumno ha completado el lab ejecutando 
-    la validación dentro de su contenedor activo.
+    Finaliza el lab si TODOS los retos han sido completados.
     """
     # 1. Check if already completed
     already_done = db.query(UserLabCompletion).filter(
@@ -81,7 +122,7 @@ def complete_lab(
     if already_done:
         return LabCompleteResponse(
             success=True, 
-            message="Ya has completado este laboratorio anteriormente.",
+            message="Ya has completado este laboratorio.",
             xp_gained=0
         )
 
@@ -90,50 +131,31 @@ def complete_lab(
     if not lab:
         raise HTTPException(status_code=404, detail="Lab no encontrado")
 
-    # 3. Find active container for user
-    containers = docker_launcher.get_active_containers_for_user(current_user.id)
-    # Filter by lab_id if possible (launcher encodes user_id but maybe not lab_id in name easily)
-    # But usually user has only 1 container
-    if not containers:
-        raise HTTPException(status_code=400, detail="No tienes un sandbox activo para validar.")
-    
-    container = containers[0] # Take the only active one
-
-    # 4. Perform Validation
-    validation_success = False
-    flag_found = False
-    
-    # Check 1: Command Validation
-    if lab.validation_command:
-        res = container.exec_run(lab.validation_command, user="root")
-        output = res.output.decode().strip()
-        expected = lab.expected_result.strip() if lab.expected_result else ""
+    # 3. Verify all challenges are done
+    try:
+        rules_data = json.loads(lab.validation_rules or '{"challenges":[]}')
+        total_challenges = rules_data.get("challenges", [])
         
-        # We check if expected is in output (flexible)
-        if expected in output:
-            validation_success = True
+        if total_challenges:
+            completed_count = db.query(UserChallengeCompletion).filter(
+                UserChallengeCompletion.user_id == current_user.id,
+                UserChallengeCompletion.lab_id == lab_id
+            ).count()
             
-    # Check 2: Flag Validation (CTF Style)
-    # If student needs to find a flag and the lab has one
-    if lab.expected_flag:
-        # We could implement a system where the student sends the flag, 
-        # but for now, we'll check if the flag is "found" in some standard way 
-        # or if Check 1 passed. Alternatively, many platforms have a flag field in the UI.
-        # For this version, we'll assume if they solved the mission, they "got" the flag.
-        # (Simplified for now)
-        flag_found = True
-        validation_success = True # Overriding or combining
+            if completed_count < len(total_challenges):
+                return LabCompleteResponse(
+                    success=False,
+                    message=f"Aún te faltan retos por completar ({completed_count}/{len(total_challenges)})."
+                )
+        else:
+            # Legacy or single-rule fallback (optional)
+            # For now, if no challenges, we might need a manual check or it's an old lab
+            pass
+    except Exception as e:
+        print(f"Error checking challenges: {e}")
 
-    if not validation_success:
-        return LabCompleteResponse(
-            success=False,
-            message="Validación fallida. Revisa los requisitos de la misión."
-        )
-
-    # 5. Award XP and Save
+    # 4. Award XP and Save
     current_user.xp += lab.xp_reward
-    
-    # Level logic (simplified)
     leveled_up = False
     level_before = current_user.level
     current_user.level = (current_user.xp // 1000) + 1
@@ -150,32 +172,36 @@ def complete_lab(
 
     return LabCompleteResponse(
         success=True,
-        message=f"¡Misión cumplida! Has ganado {lab.xp_reward} XP.",
+        message=f"¡Enhorabuena! Has completado todos los retos de '{lab.title}'.",
         xp_gained=lab.xp_reward,
         leveled_up=leveled_up,
-        new_level=current_user.level,
-        flag_found=flag_found
+        new_level=current_user.level
     )
 
 # --- ADMIN CRUD ---
 
+@router.get("/admin/all", response_model=List[LabOut])
+def get_all_labs_admin(_: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """(Admin) Lista todos los laboratorios incluyendo los inactivos."""
+    return db.query(Lab).order_by(Lab.id).all()
+
 @router.post("/", response_model=LabOut)
-def create_lab(lab: LabCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+def create_lab(lab_data: LabCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
     """(Admin) Crea un nuevo laboratorio."""
-    new_lab = Lab(**lab.dict())
+    new_lab = Lab(**lab_data.model_dump())
     db.add(new_lab)
     db.commit()
     db.refresh(new_lab)
     return new_lab
 
 @router.put("/{lab_id}", response_model=LabOut)
-def update_lab(lab_id: int, lab: LabCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+def update_lab(lab_id: int, lab_data: LabCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
     """(Admin) Actualiza un laboratorio existente."""
     db_lab = db.query(Lab).filter(Lab.id == lab_id).first()
     if not db_lab:
         raise HTTPException(status_code=404, detail="Lab no encontrado")
     
-    for key, value in lab.dict().items():
+    for key, value in lab_data.model_dump().items():
         setattr(db_lab, key, value)
     
     db.commit()

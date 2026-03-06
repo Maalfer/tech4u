@@ -60,7 +60,7 @@ def get_stats(
 
     return DashboardStats(
         streak_count=current_user.streak_count,
-        months_subscribed=current_user.months_subscribed, # <-- Añadido
+        months_subscribed=current_user.months_subscribed,
         last_login=current_user.last_login,
         subscription_type=current_user.subscription_type,
         subjects=subjects,
@@ -70,7 +70,7 @@ def get_stats(
         next_level_xp=get_next_level_xp(user_level),
         rank_name=get_rank_name(user_level),
         level=user_level,
-        pending_10p_discounts=current_user.pending_10p_discounts or 0,
-        free_months_accumulated=current_user.free_months_accumulated or 0,
-        referral_reward_count=current_user.referral_reward_count or 0
+        pending_10p_discounts=getattr(current_user, 'pending_10p_discounts', 0) or 0,
+        free_months_accumulated=getattr(current_user, 'free_months_accumulated', 0) or 0,
+        referral_reward_count=getattr(current_user, 'referral_reward_count', 0) or 0
     )

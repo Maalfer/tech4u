@@ -59,7 +59,7 @@ import miSuscripcionIcon from '../assets/misuscripcion_icon.png';
 import noticiasAcademiaIcon from '../assets/noticiasacademia_icon.png';
 import skillLabsIcon from '../assets/skilllabs_icon.png';
 import exploraIcon from '../assets/explora_icon.png';
-import terminalIcon from '../assets/testcenter_up_icon.png';
+import terminalSkillsIcon from '../assets/terminal_skills.png';
 
 // ── Palette: every icon has a fixed semantic color ──────────────────────────
 const IC = {
@@ -104,7 +104,7 @@ export default function Sidebar() {
         fetchNotificationCounts();
         const interval = setInterval(fetchNotificationCounts, 60000);
         return () => clearInterval(interval);
-    }, [location.pathname, user]);
+    }, [user]);
 
     const handleLogout = () => {
         logout();
@@ -131,7 +131,7 @@ export default function Sidebar() {
     const studentAcademiaGroup = [
         { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: terminalIcon, isCustom: true, label: 'Terminal Simulator', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
         { icon: herramientasIcon, isCustom: true, label: 'Herramientas', path: '/tools', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
     ];
@@ -148,7 +148,7 @@ export default function Sidebar() {
         { icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/admin/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' },
         { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: terminalIcon, isCustom: true, label: 'Terminal Simulator', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: recursosIcon, isCustom: true, label: 'Recursos', path: '/resources', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: cursosVideosIcon, isCustom: true, label: 'YT Videos', path: '/video-cursos', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
@@ -248,8 +248,8 @@ export default function Sidebar() {
 
                         {(user.role === 'admin' || user.role === 'developer') && (
                             <NavLink to="/admin/referidos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                <div className="w-8 h-8 flex items-center justify-center -ml-1">
-                                    <TrendingUp className="w-5 h-5 text-indigo-400" />
+                                <div className="w-8 h-8 flex items-center justify-center -ml-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+                                    <TrendingUp className="w-4 h-4 text-indigo-400" />
                                 </div>
                                 Ecosistema Referidos
                             </NavLink>
@@ -287,9 +287,7 @@ export default function Sidebar() {
                         </NavLink>
 
                         <NavLink to="/admin/labs" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <div className="w-8 h-8 flex items-center justify-center -ml-1">
-                                <Terminal className={`w-5 h-5 ${IC.db}`} />
-                            </div>
+                            <img src={terminalSkillsIcon} className="w-8 h-8 scale-[2.0] origin-center -ml-1.5 flex-shrink-0 object-contain" alt="" />
                             Laboratorios
                         </NavLink>
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 
 const NotificationContext = createContext();
@@ -7,43 +7,56 @@ export const NotificationProvider = ({ children }) => {
     const { user } = useAuth();
     const [notifications, setNotifications] = useState([]);
 
-    useEffect(() => {
-        if (!user) return;
+    const addNotification = useCallback((notif) => {
+        const id = Date.now();
+        setNotifications((prev) => [...prev, { ...notif, id }]);
 
-        // Conectar WebSocket
+        const duration = notif.type === 'achievement_unlocked' ? 8000 : 5000;
+        setTimeout(() => {
+            removeNotification(id);
+        }, duration);
+    }, []);
+
+    const removeNotification = useCallback((id) => {
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+    }, []);
+
+    useEffect(() => {
+        if (!user?.id) return;
+
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host.includes('localhost') ? 'localhost:8000' : window.location.host}/ws/${user.id}`;
+        const host = window.location.host.includes('localhost') ? 'localhost:8000' : window.location.host;
+        const wsUrl = `${protocol}//${host}/ws/${user.id}`;
 
         const ws = new WebSocket(wsUrl);
 
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            addNotification(data);
+            try {
+                const data = JSON.parse(event.data);
+                addNotification(data);
+            } catch (e) {
+                console.error("Error parsing WS message:", e);
+            }
         };
 
         ws.onerror = (err) => console.error("WS Error:", err);
         ws.onclose = () => console.log("WS Closed");
 
-        return () => ws.close();
-    }, [user]);
+        return () => {
+            if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+                ws.close();
+            }
+        };
+    }, [user?.id, addNotification]);
 
-    const addNotification = (notif) => {
-        const id = Date.now();
-        setNotifications((prev) => [...prev, { ...notif, id }]);
-
-        // Auto-remover después de 5-10 segundos dependiendo del tipo
-        const duration = notif.type === 'achievement_unlocked' ? 8000 : 5000;
-        setTimeout(() => {
-            removeNotification(id);
-        }, duration);
-    };
-
-    const removeNotification = (id) => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
-    };
+    const contextValue = useMemo(() => ({
+        notifications,
+        addNotification,
+        removeNotification
+    }), [notifications, addNotification, removeNotification]);
 
     return (
-        <NotificationContext.Provider value={{ notifications, removeNotification }}>
+        <NotificationContext.Provider value={contextValue}>
             {children}
             {/* Toast Container */}
             <div className="toast-container">
@@ -63,4 +76,4 @@ export const NotificationProvider = ({ children }) => {
     );
 };
 
-export const useNotifications = () => useContext(NotificationContext);
+export const useNotification = () => useContext(NotificationContext);
