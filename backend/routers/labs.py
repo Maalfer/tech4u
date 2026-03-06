@@ -1,33 +1,183 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Tuple, Optional
 import json
-from database import get_db, User, Lab, UserLabCompletion, UserChallengeCompletion
+from database import get_db, User, Lab, UserLabCompletion, UserChallengeCompletion, Challenge, SkillPath, Module
 from auth import get_current_user, require_admin
-from schemas import LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest, ChallengeCompletionOut
+from schemas import LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest, ChallengeCompletionOut, ChallengeOut, SkillPathOut, ModuleOut
 from docker_client import docker_launcher
 from datetime import datetime
 
+class ValidationEngine:
+    @staticmethod
+    def validate(v_type: str, v_value: str, student_input: str, v_extra: str = None, container = None) -> Tuple[bool, str]:
+        student_input = student_input.strip() if student_input else ""
+        v_value = v_value.strip() if v_value else ""
+        
+        if v_type == "directory_listing_exact":
+            if not student_input:
+                return False, "Debes proporcionar los elementos del directorio."
+            expected = set(x.strip() for x in v_value.split(","))
+            student = set(x.strip() for x in student_input.split(","))
+            if expected == student:
+                return True, "¡Correcto!"
+            return False, "La respuesta debe contener todos los archivos del directorio separados por comas. Ejemplo: archivo1,archivo2,archivo3"
+            
+        elif v_type == "path_exact":
+            if student_input == v_value:
+                return True, "¡Correcto!"
+            return False, f"Ruta incorrecta. Se esperaba: {v_value}"
+
+        elif v_type == "file_content_flag":
+            if student_input == v_value:
+                return True, "¡Correcto!"
+            return False, "Flag incorrecta. Verifica el contenido del archivo."
+
+        # Types that require container execution
+        if not container:
+            # For types that MIGHT be solved via input but need state check
+            if v_type in ["path_contains", "directory_created", "file_created", "file_exists_in_directory", "permission_set"]:
+                return False, "Este reto requiere un sandbox activo para validar."
+
+        if v_type == "path_contains":
+            res = container.exec_run("pwd", user="root")
+            pwd_out = res.output.decode().strip()
+            if v_value in pwd_out:
+                return True, "¡Correcto!"
+            return False, f"No parece que estés en el directorio correcto. Se esperaba que la ruta contuviera: {v_value}"
+
+        elif v_type == "directory_created" or v_type == "file_created":
+            target_dir = v_extra if v_extra else "/home/student"
+            res = container.exec_run(f"ls -a {target_dir}", user="root")
+            ls_out = res.output.decode().strip().split()
+            if v_value in ls_out:
+                return True, "¡Correcto!"
+            return False, f"No se encontró '{v_value}' en {target_dir}."
+
+        elif v_type == "file_exists_in_directory":
+            # v_value is the path to check
+            res = container.exec_run(f"ls {v_value}", user="root")
+            if res.exit_code == 0:
+                return True, "¡Correcto!"
+            return False, f"El archivo o directorio '{v_value}' no existe."
+
+        elif v_type == "permission_set":
+            # v_value: "600", v_extra: "secret.txt" (path)
+            res = container.exec_run(f"stat -c %a {v_extra}", user="root")
+            perms = res.output.decode().strip()
+            if perms == v_value:
+                return True, "¡Correcto!"
+            return False, f"Permisos incorrectos para {v_extra}. Se esperaba: {v_value}"
+
+        return False, "Tipo de validación no soportado o datos insuficientes."
+
 router = APIRouter(prefix="/labs", tags=["Science Labs"])
+
+@router.get("/paths", response_model=List[SkillPathOut])
+def list_paths(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List all available skill paths."""
+    return db.query(SkillPath).order_by(SkillPath.order_index).all()
+
+@router.get("/paths/{path_id}/modules", response_model=List[ModuleOut])
+def list_modules_by_path(
+    path_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List all modules within a specific skill path."""
+    return db.query(Module).filter(Module.skill_path_id == path_id).order_by(Module.order_index).all()
+
+@router.get("/modules/{module_id}/labs", response_model=List[LabOut])
+def list_labs_by_module(
+    module_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List all labs within a specific module, with sequential status."""
+    labs = db.query(Lab).filter(
+        Lab.module_id == module_id,
+        Lab.is_active == True
+    ).order_by(Lab.id).all()
+    
+    prev_lab_completed = True
+    for lab in labs:
+        completion = db.query(UserLabCompletion).filter(
+            UserLabCompletion.user_id == current_user.id,
+            UserLabCompletion.lab_id == lab.id
+        ).first()
+        lab.is_completed = True if completion else False
+        lab.is_unlocked = prev_lab_completed
+        prev_lab_completed = lab.is_completed
+        
+    return labs
 
 @router.get("/", response_model=List[LabOut])
 def list_labs_student(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """List all active labs for the current student."""
-    labs = db.query(Lab).filter(Lab.is_active == True).all()
+    """List all active labs (Legacy / Global View)."""
+    labs = db.query(Lab).filter(Lab.is_active == True).order_by(Lab.id).all()
     
-    # Mark if completed and if unlocked
+    prev_lab_completed = True
     for lab in labs:
-        lab.is_unlocked = True # Default for now
         completion = db.query(UserLabCompletion).filter(
             UserLabCompletion.user_id == current_user.id,
             UserLabCompletion.lab_id == lab.id
         ).first()
         lab.is_completed = True if completion else False
+        lab.is_unlocked = prev_lab_completed
+        prev_lab_completed = lab.is_completed
         
     return labs
+
+@router.get("/{lab_id}", response_model=LabOut)
+def get_lab_student(
+    lab_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get details for a single lab."""
+    lab = db.query(Lab).filter(Lab.id == lab_id, Lab.is_active == True).first()
+    if not lab:
+        raise HTTPException(status_code=404, detail="Lab not found")
+    
+    # Set completion status for the frontend
+    completion = db.query(UserLabCompletion).filter(
+        UserLabCompletion.user_id == current_user.id,
+        UserLabCompletion.lab_id == lab.id
+    ).first()
+    lab.is_completed = True if completion else False
+    
+    # Check if it's unlocked (re-using sequential logic briefly)
+    # For a detail view, we assume the user got here from the list where it was unlocked,
+    # but we should still set the flag for the UI.
+    prev_lab = db.query(Lab).filter(Lab.id < lab.id, Lab.is_active == True).order_by(Lab.id.desc()).first()
+    if not prev_lab:
+        lab.is_unlocked = True
+    else:
+        prev_completion = db.query(UserLabCompletion).filter(
+            UserLabCompletion.user_id == current_user.id,
+            UserLabCompletion.lab_id == prev_lab.id
+        ).first()
+        lab.is_unlocked = True if prev_completion else False
+
+    # 3. Load challenges and check completion
+    challenges = db.query(Challenge).filter(Challenge.lab_id == lab_id).order_by(Challenge.order_index).all()
+    completions = db.query(UserChallengeCompletion).filter(
+        UserChallengeCompletion.user_id == current_user.id,
+        UserChallengeCompletion.lab_id == lab_id
+    ).all()
+    completed_ids = {c.challenge_id for c in completions}
+    
+    for c in challenges:
+        c.is_completed = c.id in completed_ids
+    
+    lab.challenges = challenges
+    return lab
 
 @router.get("/{lab_id}/challenges/completed", response_model=List[str])
 def get_completed_challenges(
@@ -41,6 +191,23 @@ def get_completed_challenges(
         UserChallengeCompletion.lab_id == lab_id
     ).all()
     return [c.challenge_id for c in completions]
+
+@router.get("/{lab_id}/utils/ls", response_model=dict)
+def ls_utility(
+    lab_id: int,
+    path: Optional[str] = "/home/student",
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Utility to help students see directory content without having to validate."""
+    containers = docker_launcher.get_active_containers_for_user(current_user.id)
+    if not containers:
+        raise HTTPException(status_code=400, detail="Sandbox no activo.")
+    
+    container = containers[0]
+    res = container.exec_run(f"ls -a {path}", user="root")
+    content = res.output.decode().strip()
+    return {"path": path, "content": content}
 
 @router.post("/{lab_id}/challenges/validate", response_model=dict)
 def validate_challenge(
@@ -60,49 +227,61 @@ def validate_challenge(
     if exists:
         return {"success": True, "message": "Reto ya completado."}
 
-    # 2. Get Lab and Challenge rules
-    lab = db.query(Lab).filter(Lab.id == lab_id).first()
-    if not lab or not lab.validation_rules:
-        raise HTTPException(status_code=404, detail="Lab o reglas no encontradas")
-    
-    rules_data = json.loads(lab.validation_rules)
-    challenges = rules_data.get("challenges", [])
-    challenge = next((c for c in challenges if str(c.get("id")) == req.challenge_id), None)
+    # 2. Get Challenge record
+    challenge = db.query(Challenge).filter(
+        Challenge.lab_id == lab_id,
+        Challenge.id == req.challenge_id
+    ).first()
     
     if not challenge:
-        # Fallback for old rules format if necessary, or error
-        raise HTTPException(status_code=400, detail="Reto no encontrado en la configuración")
+        # Check if it exists in legacy JSON (transitional)
+        lab = db.query(Lab).filter(Lab.id == lab_id).first()
+        if lab and lab.validation_rules:
+            rules_data = json.loads(lab.validation_rules)
+            challenges_json = rules_data.get("challenges", [])
+            challenge_json = next((c for c in challenges_json if str(c.get("id")) == req.challenge_id), None)
+            if challenge_json:
+                # Mock a challenge object for the engine
+                from collections import namedtuple
+                MockChallenge = namedtuple('MockChallenge', ['validation_type', 'validation_value', 'validation_extra', 'xp'])
+                challenge = MockChallenge(
+                    validation_type="directory_listing_exact", # Default for legacy
+                    validation_value=challenge_json.get("expected_value"),
+                    validation_extra=None,
+                    xp=10
+                )
+    
+    if not challenge:
+        raise HTTPException(status_code=404, detail="Reto no encontrado")
 
-    # 3. Find active container
+    # 3. Validation Logic
     containers = docker_launcher.get_active_containers_for_user(current_user.id)
-    if not containers:
-        raise HTTPException(status_code=400, detail="No tienes un sandbox activo.")
+    container = containers[0] if containers else None
     
-    container = containers[0]
+    success, message = ValidationEngine.validate(
+        challenge.validation_type,
+        challenge.validation_value,
+        req.student_input,
+        challenge.validation_extra,
+        container
+    )
     
-    # 4. Run rules for this challenge
-    challenge_success = True
-    for rule in challenge.get("rules", []):
-        cmd = rule.get("command")
-        expected = rule.get("expected", "")
-        if cmd:
-            res = container.exec_run(cmd, user="root", workdir="/home/student")
-            output = res.output.decode().strip()
-            if expected.strip() not in output:
-                challenge_success = False
-                break
-    
-    if challenge_success:
+    if success:
         new_comp = UserChallengeCompletion(
             user_id=current_user.id,
             lab_id=lab_id,
             challenge_id=req.challenge_id
         )
         db.add(new_comp)
+        
+        # Award XP if it's a real challenge
+        if hasattr(challenge, 'xp'):
+            current_user.xp = (current_user.xp or 0) + challenge.xp
+            
         db.commit()
-        return {"success": True, "message": "¡Reto completado con éxito!"}
+        return {"success": True, "message": message}
     else:
-        return {"success": False, "message": "La validación del reto ha fallado. Revisa tus archivos o comandos."}
+        return {"success": False, "message": message}
 
 @router.post("/{lab_id}/complete", response_model=LabCompleteResponse)
 def complete_lab(

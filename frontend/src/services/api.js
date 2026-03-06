@@ -18,10 +18,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (res) => res,
     (err) => {
-        if (err.response?.status === 401) {
+        const isAuthRequest = err.config?.url?.includes('/auth/login') || err.config?.url?.includes('/auth/register')
+        if (err.response?.status === 401 && !isAuthRequest) {
             localStorage.removeItem('tech4u_token')
             localStorage.removeItem('tech4u_user')
             window.location.href = '/login'
+        }
+        if (err.response?.status === 429) {
+            alert('⚠️ Demasiadas peticiones. Por favor, espera un momento para evitar saturar el sistema.')
         }
         return Promise.reject(err)
     }

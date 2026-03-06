@@ -33,9 +33,9 @@ class HardenedDockerClient:
             tty=True,
             stdin_open=True,
             network_mode="none",          # No internet access
-            mem_limit="128m",             # 128MB RAM
+            mem_limit="128m",             # Resource limit: 128MB
             cpu_quota=50000,              # 0.5 CPU
-            pids_limit=64,                # Anti fork-bomb
+            pids_limit=64,                # Lowered pids limit as requested
             # ulimits for process and file descriptors
             ulimits=[
                 docker.types.Ulimit(name='nproc', soft=64, hard=64),

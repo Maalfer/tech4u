@@ -488,40 +488,65 @@ class UserAchievementOut(BaseModel):
 # TERMINAL LABS
 # ==============================
 
-class LabOut(BaseModel):
-    id: int
+class ChallengeOut(BaseModel):
+    id: str
+    lab_id: int
     title: str
     description: Optional[str] = None
-    goal_description: str
-    difficulty: str
-    category: str
-    time_limit: int
-    xp_reward: int
-    is_active: bool
-    step_by_step_guide: Optional[str] = None
-    validation_rules: Optional[str] = None
-    expected_flag: Optional[str] = None
-    is_unlocked: bool = True  # Set dynamically in router
-    is_completed: bool = False # Set dynamically in router
+    validation_type: str
+    validation_value: Optional[str] = None
+    validation_extra: Optional[str] = None
+    order_index: int
+    xp: int
+    hints: Optional[str] = None
+    is_completed: bool = False # Added dynamically in router
 
     class Config:
         from_attributes = True
 
-
-class LabCreate(BaseModel):
-    title: str = Field(..., min_length=5, max_length=100)
-    description: Optional[str] = Field(None, max_length=1000)
-    docker_image: str = "ubuntu:22.04"
-    scenario_setup: Optional[str] = None
-    goal_description: str = Field(..., min_length=10)
-    step_by_step_guide: Optional[str] = None
-    validation_rules: Optional[str] = None
-    expected_result: Optional[str] = None
+class LabBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    goal_description: str
     difficulty: str = "medium"
     category: str = "Linux"
-    time_limit: int = 30
-    xp_reward: int = Field(150, ge=0)
-    expected_flag: Optional[str] = None
+    xp_reward: int = 150
+    step_by_step_guide: Optional[str] = None
+    module_id: Optional[int] = None
+
+class LabCreate(LabBase):
+    pass
+
+class LabOut(LabBase):
+    id: int
+    is_completed: bool = False
+    is_unlocked: bool = True
+    challenges: List[ChallengeOut] = []
+
+    class Config:
+        from_attributes = True
+
+class ModuleOut(BaseModel):
+    id: int
+    skill_path_id: int
+    title: str
+    description: Optional[str] = None
+    order_index: int
+    labs: List[LabOut] = []
+
+    class Config:
+        from_attributes = True
+
+class SkillPathOut(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    difficulty: str = "easy"
+    order_index: int
+    modules: List[ModuleOut] = []
+
+    class Config:
+        from_attributes = True
 
 
 class TerminalStartResponse(BaseModel):
@@ -539,6 +564,7 @@ class LabCompleteResponse(BaseModel):
 
 class ChallengeValidationRequest(BaseModel):
     challenge_id: str
+    student_input: Optional[str] = None
 
 class ChallengeCompletionOut(BaseModel):
     id: int

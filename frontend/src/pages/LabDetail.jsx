@@ -34,6 +34,10 @@ export default function LabDetail() {
     const [completed, setCompleted] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [showSolution, setShowSolution] = useState(false);
+    const [challengeInputs, setChallengeInputs] = useState({});
+    const [failedAttempts, setFailedAttempts] = useState({});
+    const [checkingDir, setCheckingDir] = useState(false);
+    const [dirContent, setDirContent] = useState(null);
 
     useEffect(() => {
         const fetchLabAndProgress = async () => {
@@ -46,8 +50,7 @@ export default function LabDetail() {
                 setCompletedChallenges(progressRes.data);
 
                 // Check if already fully completed
-                const rules = JSON.parse(labRes.data.validation_rules || '{}');
-                const challenges = rules.challenges || [];
+                const challenges = labRes.data.challenges || [];
                 if (challenges.length > 0 && progressRes.data.length === challenges.length) {
                     setCompleted(true);
                 }
@@ -80,23 +83,30 @@ export default function LabDetail() {
     };
 
     const handleValidateChallenge = async (challengeId) => {
+        const studentInput = challengeInputs[challengeId];
+        // Note: Some challenges might accept empty input (like navigations), but usually students paste something
+
         setValidatingChallenge(challengeId);
         try {
-            const res = await api.post(`/labs/${id}/challenges/validate`, { challenge_id: challengeId });
+            const res = await api.post(`/labs/${id}/challenges/validate`, {
+                challenge_id: challengeId,
+                student_input: studentInput || ""
+            });
             if (res.data.success) {
                 if (!completedChallenges.includes(challengeId)) {
                     const nextCompleted = [...completedChallenges, challengeId];
                     setCompletedChallenges(nextCompleted);
+                    setFailedAttempts(prev => ({ ...prev, [challengeId]: 0 }));
 
                     // Check if this was the last one
-                    const rules = JSON.parse(lab.validation_rules || '{}');
-                    const total = (rules.challenges || []).length;
+                    const total = (lab.challenges || []).length;
                     if (nextCompleted.length === total) {
                         handleComplete(); // Finalize lab
                     }
                 }
             } else {
-                alert(res.data.message);
+                setFailedAttempts(prev => ({ ...prev, [challengeId]: (prev[challengeId] || 0) + 1 }));
+                alert(res.data.message || "Valor incorrecto. Revisa tu terminal.");
             }
         } catch (err) {
             console.error("Error validating challenge:", err);
@@ -104,6 +114,23 @@ export default function LabDetail() {
         } finally {
             setValidatingChallenge(null);
         }
+    };
+
+    const handleCheckDirectory = async (path = "/home/student") => {
+        setCheckingDir(true);
+        try {
+            const res = await api.get(`/labs/${id}/utils/ls`, { params: { path } });
+            setDirContent(res.data.content);
+        } catch (err) {
+            console.error("Error checking directory:", err);
+            alert("No se pudo obtener el contenido. Asegúrate de que el sandbox esté activo.");
+        } finally {
+            setCheckingDir(false);
+        }
+    };
+
+    const handleInputChange = (challengeId, value) => {
+        setChallengeInputs(prev => ({ ...prev, [challengeId]: value }));
     };
 
     const handleComplete = async () => {
@@ -151,7 +178,7 @@ export default function LabDetail() {
                 {/* Header */}
                 <header className="mb-6 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => navigate('/labs')} className="p-3 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-all">
+                        <button onClick={() => navigate(-1)} className="p-3 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-all">
                             <ChevronLeft className="w-5 h-5" />
                         </button>
                         <div>
@@ -187,20 +214,20 @@ export default function LabDetail() {
                         <div className="glass rounded-3xl border border-white/5 flex flex-col h-full overflow-hidden">
                             <div className="flex border-b border-white/5 p-1 shrink-0">
                                 <button
-                                    onClick={() => setActiveTab('instructions')}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'instructions' ? 'bg-white/5 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                    onClick={() => { setActiveTab('instructions'); setDirContent(null); }}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'instructions' ? 'bg-white/5 text-neon shadow-[0_0_10px_rgba(198,255,51,0.1)]' : 'text-slate-500 hover:text-slate-300'}`}
                                 >
                                     <BookOpen className="w-4 h-4" /> Guía de Lab
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('objectives')}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'objectives' ? 'bg-white/5 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                    onClick={() => { setActiveTab('objectives'); setDirContent(null); }}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'objectives' ? 'bg-white/5 text-neon shadow-[0_0_10px_rgba(198,255,51,0.1)]' : 'text-slate-500 hover:text-slate-300'}`}
                                 >
                                     <CheckCircle className="w-4 h-4" /> Objetivos
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('guide')}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'guide' ? 'bg-white/5 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                    onClick={() => { setActiveTab('guide'); setDirContent(null); }}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'guide' ? 'bg-white/5 text-neon shadow-[0_0_10px_rgba(198,255,51,0.1)]' : 'text-slate-500 hover:text-slate-300'}`}
                                 >
                                     <Zap className="w-4 h-4" /> Guía Misión
                                 </button>
@@ -208,76 +235,104 @@ export default function LabDetail() {
 
                             <div className="flex-1 overflow-y-auto p-6 scrollbar-premium">
                                 {activeTab === 'instructions' ? (
-                                    <div className="space-y-6">
+                                    <div className="animate-in fade-in slide-in-from-left-2 duration-300 space-y-6">
                                         <section>
-                                            <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white mb-3">
-                                                <Info className="w-4 h-4 text-neon" /> Contexto
+                                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white mb-4">
+                                                <Info className="w-4 h-4 text-neon" /> Teoría / Conceptos
                                             </h4>
-                                            <p className="text-slate-400 font-mono text-xs leading-relaxed">
-                                                {lab.description}
-                                            </p>
-                                        </section>
-                                        <section>
-                                            <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white mb-3">
-                                                <TerminalIcon className="w-4 h-4 text-neon" /> Meta del Laboratorio
-                                            </h4>
-                                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-slate-300 font-mono leading-relaxed">
-                                                {lab.goal_description}
+                                            <div className="prose prose-invert prose-xs max-w-none text-slate-400 font-mono leading-relaxed bg-white/2 p-5 rounded-2xl border border-white/5">
+                                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((lab.description || "Sin descripción.").replace(/\n/g, '<br/>')) }} />
                                             </div>
                                         </section>
                                     </div>
                                 ) : activeTab === 'objectives' ? (
-                                    <div className="space-y-4">
-                                        <h4 className="text-xs font-black uppercase tracking-widest text-white mb-4">Checklist de Retos</h4>
-                                        {(() => {
-                                            const rules = JSON.parse(lab.validation_rules || '{"challenges":[]}');
-                                            const challenges = rules.challenges || [];
+                                    <div className="animate-in fade-in slide-in-from-left-2 duration-300 space-y-4">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-white">Retos del Sistema</h4>
+                                            <button
+                                                onClick={() => handleCheckDirectory()}
+                                                disabled={checkingDir || !wsUrl}
+                                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[9px] font-black text-slate-400 hover:text-neon hover:border-neon/30 transition-all"
+                                            >
+                                                {checkingDir ? <Loader2 className="w-3 h-3 animate-spin" /> : <Eye className="w-3 h-3" />}
+                                                VER CONTENIDO
+                                            </button>
+                                        </div>
 
-                                            if (challenges.length === 0) {
-                                                return <p className="text-[10px] text-slate-500 font-mono italic">No hay retos definidos para este lab.</p>;
-                                            }
+                                        {dirContent && (
+                                            <div className="p-4 rounded-xl bg-neon/5 border border-neon/20 mb-4 animate-in zoom-in-95 duration-200">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[9px] font-black text-neon uppercase tracking-tighter">Explorador Táctico</span>
+                                                    <button onClick={() => setDirContent(null)} className="text-slate-500 hover:text-white font-bold">×</button>
+                                                </div>
+                                                <pre className="text-[10px] font-mono text-neon/80 whitespace-pre-wrap">{dirContent}</pre>
+                                            </div>
+                                        )}
 
-                                            return challenges.map((ch) => {
-                                                const isDone = completedChallenges.includes(String(ch.id));
-                                                return (
-                                                    <div key={ch.id} className={`p-4 rounded-2xl border transition-all ${isDone ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white/5 border-white/10'}`}>
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isDone ? 'bg-emerald-500 border-emerald-500' : 'border-slate-700'}`}>
-                                                                    {isDone && <CheckCircle className="w-2.5 h-2.5 text-black" />}
-                                                                </div>
-                                                                <span className={`text-[11px] font-black uppercase tracking-tight ${isDone ? 'text-emerald-500' : 'text-white'}`}>
-                                                                    Reto {ch.id}: {ch.title}
-                                                                </span>
+                                        {!lab.challenges || lab.challenges.length === 0 ? (
+                                            <p className="text-[10px] text-slate-500 font-mono italic">No hay retos definidos.</p>
+                                        ) : lab.challenges.map((ch) => {
+                                            const isDone = completedChallenges.includes(String(ch.id));
+                                            const attempts = failedAttempts[ch.id] || 0;
+                                            return (
+                                                <div key={ch.id} className={`p-4 rounded-2xl border transition-all ${isDone ? 'bg-emerald-500/5 border-emerald-500/20 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'bg-white/2 border-white/5'}`}>
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isDone ? 'bg-emerald-500 border-emerald-500' : 'border-slate-700'}`}>
+                                                                {isDone && <CheckCircle className="w-3.5 h-3.5 text-black" />}
                                                             </div>
-                                                            {!isDone && (
-                                                                <button
-                                                                    onClick={() => handleValidateChallenge(String(ch.id))}
-                                                                    disabled={validatingChallenge || !wsUrl}
-                                                                    className="px-3 py-1.5 rounded-lg bg-neon text-black text-[9px] font-black uppercase tracking-widest hover:shadow-[0_0_15px_rgba(198,255,51,0.3)] disabled:opacity-50 transition-all flex items-center gap-1.5"
-                                                                >
-                                                                    {validatingChallenge === String(ch.id) ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}
-                                                                    VALIDAR
-                                                                </button>
-                                                            )}
+                                                            <span className={`text-[11px] font-black uppercase tracking-tight ${isDone ? 'text-emerald-500' : 'text-white'}`}>
+                                                                {ch.title}
+                                                            </span>
                                                         </div>
-                                                        <p className="text-[10px] font-mono text-slate-400 leading-relaxed ml-6">
-                                                            {ch.description}
-                                                        </p>
+                                                        {isDone && <span className="text-[9px] font-black text-emerald-500 uppercase italic">Superado</span>}
                                                     </div>
-                                                );
-                                            });
-                                        })()}
+
+                                                    {!isDone && (
+                                                        <div className="pl-8 space-y-3">
+                                                            <div className="relative group">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Pega aquí el resultado..."
+                                                                    value={challengeInputs[ch.id] || ''}
+                                                                    onChange={(e) => handleInputChange(ch.id, e.target.value)}
+                                                                    className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-neon placeholder:text-slate-600 focus:border-neon/50 outline-none transition-all group-hover:border-white/20"
+                                                                />
+                                                            </div>
+
+                                                            {attempts >= 3 && ch.hints && (
+                                                                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px] font-mono text-amber-500 animate-in slide-in-from-top-1 duration-300">
+                                                                    <div className="flex items-center gap-2 mb-1 uppercase font-black tracking-widest text-[8px]">
+                                                                        <Info className="w-3 h-3" /> Pista táctica
+                                                                    </div>
+                                                                    {ch.hints}
+                                                                </div>
+                                                            )}
+
+                                                            <button
+                                                                onClick={() => handleValidateChallenge(String(ch.id))}
+                                                                disabled={validatingChallenge === String(ch.id) || !wsUrl}
+                                                                className="w-full py-2.5 rounded-xl bg-neon text-black text-[9px] font-black uppercase tracking-widest hover:shadow-[0_0_20px_rgba(198,255,51,0.4)] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                                                            >
+                                                                {validatingChallenge === String(ch.id) ? (
+                                                                    <><Loader2 className="w-3 h-3 animate-spin" /> VERIFICANDO...</>
+                                                                ) : (
+                                                                    <><Zap className="w-3 h-3" /> VALIDAR RESPUESTA</>
+                                                                )}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 ) : (
-                                    <div className="space-y-4">
-                                        <h4 className="text-xs font-black uppercase tracking-widest text-white mb-4">Misión Táctica</h4>
-                                        <div className="prose prose-invert prose-xs font-mono text-slate-400">
-                                            {lab.step_by_step_guide ? (
-                                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lab.step_by_step_guide.replace(/\n/g, '<br/>')) }} />
-                                            ) : (
-                                                "No hay guía disponible para este laboratorio. ¡Usa tu ingenio!"
-                                            )}
+                                    <div className="animate-in fade-in slide-in-from-left-2 duration-300 space-y-6">
+                                        <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white">
+                                            <Zap className="w-4 h-4 text-neon" /> Guía Misión / Walkthrough
+                                        </h4>
+                                        <div className="prose prose-invert prose-xs max-w-none text-slate-400 font-mono leading-relaxed bg-white/2 p-5 rounded-2xl border border-white/5">
+                                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((lab.step_by_step_guide || "Sin guía disponible.").replace(/\n/g, '<br/>')) }} />
                                         </div>
                                     </div>
                                 )}
@@ -390,8 +445,8 @@ export default function LabDetail() {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => navigate('/labs')}
-                                    className="w-full py-4 rounded-2xl bg-neon text-black font-black uppercase tracking-widest text-sm hover:shadow-[0_0_30px_rgba(198,255,51,0.5)] transition-all"
+                                    onClick={() => navigate(-1)}
+                                    className="w-full py-4 rounded-2xl bg-neon text-black font-black uppercase tracking-widest text-sm hover:shadow-[0_0_30_rgba(198,255,51,0.5)] transition-all"
                                 >
                                     Continuar Formación
                                 </button>

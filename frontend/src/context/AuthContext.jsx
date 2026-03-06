@@ -12,30 +12,36 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         setLoading(true)
-        const res = await api.post('/auth/login', { email, password })
-        const { access_token, user: userData } = res.data
-        localStorage.setItem('tech4u_token', access_token)
-        localStorage.setItem('tech4u_user', JSON.stringify(userData))
-        setUser(userData)
-        setLoading(false)
-        return userData
+        try {
+            const res = await api.post('/auth/login', { email, password })
+            const { access_token, user: userData } = res.data
+            localStorage.setItem('tech4u_token', access_token)
+            localStorage.setItem('tech4u_user', JSON.stringify(userData))
+            setUser(userData)
+            return userData
+        } finally {
+            setLoading(false)
+        }
     }
 
     const register = async (nombre, email, password, referralCode = null, subscriptionType = 'free') => {
         setLoading(true)
-        const res = await api.post('/auth/register', {
-            nombre,
-            email,
-            password,
-            subscription_type: subscriptionType,
-            referral_code: referralCode
-        })
-        const { access_token, user: userData } = res.data
-        localStorage.setItem('tech4u_token', access_token)
-        localStorage.setItem('tech4u_user', JSON.stringify(userData))
-        setUser(userData)
-        setLoading(false)
-        return userData
+        try {
+            const res = await api.post('/auth/register', {
+                nombre,
+                email,
+                password,
+                subscription_type: subscriptionType,
+                referral_code: referralCode
+            })
+            const { access_token, user: userData } = res.data
+            localStorage.setItem('tech4u_token', access_token)
+            localStorage.setItem('tech4u_user', JSON.stringify(userData))
+            setUser(userData)
+            return userData
+        } finally {
+            setLoading(false)
+        }
     }
 
     const logout = () => {

@@ -300,11 +300,38 @@ class SkillLabExercise(Base):
     difficulty = Column(String, default="medium")
     approved = Column(Boolean, default=True)
 
+class SkillPath(Base):
+    """Hierarchical top-level paths (e.g. Linux Fundamentals, Networking)."""
+    __tablename__ = "skill_paths"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    difficulty = Column(String, default="easy")
+    order_index = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    modules = relationship("Module", back_populates="skill_path", cascade="all, delete-orphan")
+
+class Module(Base):
+    """Modules within a Skill Path (e.g. L1 Navigation, L2 Users)."""
+    __tablename__ = "terminal_modules"
+    id = Column(Integer, primary_key=True, index=True)
+    skill_path_id = Column(Integer, ForeignKey("skill_paths.id"), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    order_index = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    skill_path = relationship("SkillPath", back_populates="modules")
+    labs = relationship("Lab", back_populates="module", cascade="all, delete-orphan")
+
 class Lab(Base):
     """Terminal Simulator Labs for ASIR/Sistemas."""
     __tablename__ = "terminal_labs"
     id = Column(Integer, primary_key=True, index=True)
+    module_id = Column(Integer, ForeignKey("terminal_modules.id"), nullable=True)
     title = Column(String, nullable=False)
+    module_name = Column(String, nullable=True) # Legacy support (deprecated)
     description = Column(Text, nullable=True)
     docker_image = Column(String, default="ubuntu:22.04") # Base image for the lab
     scenario_setup = Column(Text, nullable=True) # JSON describing the initial VM/State
@@ -320,6 +347,10 @@ class Lab(Base):
     validation_rules = Column(Text, nullable=True) # JSON with multiple check rules
     expected_flag = Column(String, nullable=True) # For CTF-style labs (flag{...})
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    module = relationship("Module", back_populates="labs")
+    challenges = relationship("Challenge", back_populates="lab", cascade="all, delete-orphan")
 
 class UserLabCompletion(Base):
     """Tracks which users have successfully completed which labs."""
@@ -344,6 +375,22 @@ class UserChallengeCompletion(Base):
 
     user = relationship("User")
     lab = relationship("Lab")
+
+class Challenge(Base):
+    """Specific challenges within a Terminal Lab."""
+    __tablename__ = "terminal_challenges"
+    id = Column(String, primary_key=True, index=True) # e.g. "L1_C1"
+    lab_id = Column(Integer, ForeignKey("terminal_labs.id"), primary_key=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    validation_type = Column(String, nullable=False) # directory_listing_exact, path_exact, etc.
+    validation_value = Column(Text, nullable=True)
+    validation_extra = Column(Text, nullable=True) # For additional context like "which directory to ls"
+    order_index = Column(Integer, default=0)
+    xp = Column(Integer, default=10)
+    hints = Column(Text, nullable=True) # pipe-separated hints
+    
+    lab = relationship("Lab", back_populates="challenges")
 
 # --- UTILIDADES ---
 
