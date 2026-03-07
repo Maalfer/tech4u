@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from typing import List
 from database import get_db, Coupon, User
 from auth import require_management
@@ -26,18 +27,22 @@ def create_coupon(
     existing = db.query(Coupon).filter(Coupon.code == data.code.upper()).first()
     if existing:
         raise HTTPException(status_code=400, detail="Este código de cupón ya existe.")
-        
-    c = Coupon(
-        code=data.code.upper(),
-        discount_percent=data.discount_percent,
-        max_uses=data.max_uses,
-        is_active=data.is_active,
-        assigned_to_id=data.assigned_to_id
-    )
-    db.add(c)
-    db.commit()
-    db.refresh(c)
-    return c
+
+    try:
+        c = Coupon(
+            code=data.code.upper(),
+            discount_percent=data.discount_percent,
+            max_uses=data.max_uses,
+            is_active=data.is_active,
+            assigned_to_id=data.assigned_to_id
+        )
+        db.add(c)
+        db.commit()
+        db.refresh(c)
+        return c
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error al guardar el cupón en la base de datos")
 
 @router.delete("/{coupon_id}")
 def delete_coupon(
@@ -63,8 +68,12 @@ def toggle_coupon_status(
     c = db.query(Coupon).filter(Coupon.id == coupon_id).first()
     if not c:
         raise HTTPException(status_code=404, detail="Cupón no encontrado")
-    
-    c.is_active = not c.is_active
-    db.commit()
-    db.refresh(c)
-    return c
+
+    try:
+        c.is_active = not c.is_active
+        db.commit()
+        db.refresh(c)
+        return c
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error al actualizar el cupón en la base de datos")

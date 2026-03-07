@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PlayCircle, Award, Clock, ArrowRight, Video } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import ProgressBar from '../components/ProgressBar';
 
 export default function VideoCoursesList() {
@@ -40,14 +41,18 @@ export default function VideoCoursesList() {
             <Sidebar />
             <main className="flex-1 ml-64 p-8 overflow-y-auto">
 
-                <div className="mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/30 mb-4">
-                        <Video className="w-4 h-4 text-neon" />
-                        <span className="text-neon font-mono text-xs uppercase tracking-widest font-bold">Aprende paso a paso</span>
-                    </div>
-                    <h1 className="text-4xl font-black text-white uppercase italic mb-2">
-                        Cursos en <span className="text-neon">Vídeo</span>
-                    </h1>
+                <PageHeader
+                    Icon={Video}
+                    gradient="from-white via-green-100 to-[var(--color-neon)]"
+                    iconColor="text-neon"
+                    iconBg="bg-neon/20"
+                    iconBorder="border-neon/30"
+                    glowColor="bg-neon/20"
+                    title={<>Cursos en <span className="text-neon">Vídeo</span></>}
+                    subtitle="Aprende paso a paso"
+                />
+
+                <div className="mb-8 mt-6">
                     <p className="text-slate-400 font-mono text-sm max-w-2xl leading-relaxed">
                         Explora nuestro catálogo de cursos en vídeo interactivos. Rastrea tu progreso y domina los módulos con explicaciones paso a paso.
                     </p>

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, func, and_, or_
 from database import get_db, User
 from auth import get_current_user
 
@@ -66,27 +66,28 @@ def get_global_leaderboard(
             "is_me": u.id == current_user.id,
         })
 
-    # My own position if not in top
+    # My own position if not in top (use COUNT query to avoid N+1)
     my_pos = next((r for r in result if r["is_me"]), None)
     if not my_pos:
-        all_users = (
-            db.query(User)
-            .filter(User.role == "alumno")
-            .order_by(desc(User.level), desc(User.xp))
-            .all()
-        )
-        my_index = next((i for i, u in enumerate(all_users, 1) if u.id == current_user.id), None)
-        if my_index:
-            my_pos = {
-                "position": my_index,
-                "position_emoji": "",
-                "user_id": current_user.id,
-                "nombre": current_user.nombre,
-                "level": current_user.level or 1,
-                "xp": current_user.xp or 0,
-                "rank_name": get_rank_name(current_user.level or 1),
-                "subscription_type": current_user.subscription_type,
-                "is_me": True,
-            }
+        # Count how many users rank higher than current user
+        my_index = db.query(func.count(User.id)).filter(
+            User.role == "alumno",
+            or_(
+                User.level > current_user.level,
+                and_(User.level == current_user.level, User.xp > current_user.xp)
+            )
+        ).scalar()
+        my_position = (my_index or 0) + 1
+        my_pos = {
+            "position": my_position,
+            "position_emoji": "",
+            "user_id": current_user.id,
+            "nombre": current_user.nombre,
+            "level": current_user.level or 1,
+            "xp": current_user.xp or 0,
+            "rank_name": get_rank_name(current_user.level or 1),
+            "subscription_type": current_user.subscription_type,
+            "is_me": True,
+        }
 
     return {"leaderboard": result, "my_position": my_pos}

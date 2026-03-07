@@ -5,6 +5,7 @@ import {
     Star, Crown, ArrowRight, Lock, ChevronLeft,
     Sparkles, Trophy, BarChart3, Rocket, MessageCircle
 } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import logoImg from '../assets/logo.png';
 
 const FEATURES = [

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Request
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import datetime
 from typing import List, Optional
 import os, uuid, shutil
@@ -48,23 +49,30 @@ def get_all_courses(current_user: User = Depends(get_current_user), db: Session 
     Obtiene todos los cursos (no-shop) con el progreso del usuario calculado.
     """
     courses = db.query(VideoCourse).filter(VideoCourse.is_shop_course == False).all()
+
+    # Single bulk query for all course progress instead of N+1
+    progress_counts = db.query(
+        VideoLesson.course_id,
+        func.count(LessonProgress.id).label('completed')
+    ).join(LessonProgress, LessonProgress.lesson_id == VideoLesson.id).filter(
+        LessonProgress.user_id == current_user.id
+    ).group_by(VideoLesson.course_id).all()
+
+    progress_map = {course_id: completed for course_id, completed in progress_counts}
+
     result = []
-    
     for course in courses:
         total_lessons = len(course.lessons)
         progress = 0
-        
+
         if total_lessons > 0:
-            completed_count = db.query(LessonProgress).join(VideoLesson).filter(
-                LessonProgress.user_id == current_user.id,
-                VideoLesson.course_id == course.id
-            ).count()
+            completed_count = progress_map.get(course.id, 0)
             progress = int((completed_count / total_lessons) * 100)
-            
+
         course_out = VideoCourseOut.model_validate(course)
         course_out.progress_percentage = progress
         result.append(course_out)
-        
+
     return result
 
 @public_router.get("/{course_id}", response_model=VideoCourseOut)
@@ -162,22 +170,29 @@ def get_shop_courses(current_user: User = Depends(get_current_user), db: Session
         VideoCourse.is_shop_course.is_(True),
         VideoCourse.is_active.is_(True)
     ).all()
-    
+
     # IDs de cursos que este usuario ya ha comprado
     purchased_ids = {
         p.course_id for p in db.query(UserCoursePurchase)
             .filter(UserCoursePurchase.user_id == current_user.id).all()
     }
-    
+
+    # Single bulk query for all course progress instead of N+1
+    progress_counts = db.query(
+        VideoLesson.course_id,
+        func.count(LessonProgress.id).label('completed')
+    ).join(LessonProgress, LessonProgress.lesson_id == VideoLesson.id).filter(
+        LessonProgress.user_id == current_user.id
+    ).group_by(VideoLesson.course_id).all()
+
+    progress_map = {course_id: completed for course_id, completed in progress_counts}
+
     result = []
     for course in courses:
         total_lessons = len(course.lessons)
         progress = 0
         if total_lessons > 0:
-            completed_count = db.query(LessonProgress).join(VideoLesson).filter(
-                LessonProgress.user_id == current_user.id,
-                VideoLesson.course_id == course.id
-            ).count()
+            completed_count = progress_map.get(course.id, 0)
             progress = int((completed_count / total_lessons) * 100)
 
         course_out = VideoCourseOut.model_validate(course)

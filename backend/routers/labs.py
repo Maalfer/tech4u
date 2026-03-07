@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Tuple, Optional
 import json
+import logging
 from database import get_db, User, Lab, UserLabCompletion, UserChallengeCompletion, Challenge, SkillPath, Module
 from auth import get_current_user, require_admin
 from schemas import (
-    LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest, 
+    LabOut, LabCreate, LabCompleteResponse, ChallengeValidationRequest,
     ChallengeCompletionOut, ChallengeOut, SkillPathOut, ModuleOut,
     SkillPathCreate, ModuleCreate, TerminalStartResponse,
     LabGeneratorPayload
@@ -14,6 +15,8 @@ from limiter import limiter
 from fastapi import Request
 from docker_client import docker_launcher
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 class ValidationEngine:
     @staticmethod
@@ -197,7 +200,7 @@ def generate_lab(data: LabGeneratorPayload, _: User = Depends(require_admin), db
         return lab
     except Exception as e:
         db.rollback()
-        print("LAB GENERATOR ERROR:", e)
+        logger.error(f"LAB GENERATOR ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{lab_id}", response_model=LabOut)
@@ -386,7 +389,7 @@ def sync_lab_challenges(lab_id: int, rules_json: str, db: Session):
             db.add(new_c)
         db.commit()
     except Exception as e:
-        print(f"Error syncing challenges: {e}")
+        logger.error(f"Error syncing challenges: {e}")
         db.rollback()
 
 @router.put("/{lab_id}", response_model=LabOut)

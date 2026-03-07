@@ -26,7 +26,7 @@ def list_all_achievements(
 
 # --- INTERNO / ADMIN ---
 
-async def award_achievement(user_id: int, achievement_name: str, db: Session):
+async def award_achievement(user_id: int, achievement_name: str, db: Session, auto_commit: bool = True):
     """Función interna para otorgar un logro a un usuario."""
     achievement = db.query(Achievement).filter(Achievement.name == achievement_name).first()
     if not achievement:
@@ -49,16 +49,16 @@ async def award_achievement(user_id: int, achievement_name: str, db: Session):
     if user and achievement.xp_bonus:
         user.xp = (user.xp or 0) + achievement.xp_bonus
         
-    db.commit()
-
-    # REAL-TIME NOTIFICATION
-    await manager.send_personal_message({
-        "type": "achievement_unlocked",
-        "title": achievement.name,
-        "description": achievement.description,
-        "icon": achievement.icon,
-        "xp_bonus": achievement.xp_bonus
-    }, user_id)
+    if auto_commit:
+        db.commit()
+        # REAL-TIME NOTIFICATION (Solo si hacemos commit ahora)
+        await manager.send_personal_message({
+            "type": "achievement_unlocked",
+            "title": achievement.name,
+            "description": achievement.description,
+            "icon": achievement.icon,
+            "xp_bonus": achievement.xp_bonus
+        }, user_id)
 
     return True
 

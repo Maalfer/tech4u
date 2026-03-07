@@ -415,6 +415,25 @@ export default function Sidebar() {
                                 Noticias Comunidad
                             </NavLink>
                         </div>
+
+                        {/* PRÓXIMAMENTE — visible para alumnos */}
+                        <div className="mt-6 border-t border-white/5 pt-4">
+                            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-2 flex items-center gap-1.5 font-black">
+                                <Hammer className="w-3.5 h-3.5 text-orange-500/70" /> Próximamente
+                            </p>
+                            {upcomingItems.map((item) => (
+                                <div
+                                    key={item.path}
+                                    className="flex items-center gap-4 px-4 py-3 rounded-xl font-mono text-[13px] text-slate-600 cursor-default select-none opacity-60"
+                                >
+                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain grayscale`} alt="" />
+                                    <span className="flex-1">{item.label}</span>
+                                    <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border border-orange-500/30 text-orange-500/70 bg-orange-500/5 whitespace-nowrap">
+                                        Soon
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </>
                 )}
             </nav>

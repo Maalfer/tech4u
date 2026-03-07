@@ -71,6 +71,7 @@ const VirtualWorldGuard = () => {
   if (user.role === 'admin') {
     return <AcademiaWorld />;
   }
+  // Alumnos ven "Próximamente" hasta que se abra al público
   return <VirtualWorldComingSoon />;
 };
 

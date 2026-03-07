@@ -3,11 +3,14 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import Optional
 import random
+import logging
 
 from database import get_db, Question, User, UserError, UserProgress, TestSession, UserItem
 from schemas import TestSubmit, TestResult
 from auth import get_current_user
 from .achievements import award_achievement
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tests", tags=["Tests"])
 
@@ -217,45 +220,50 @@ async def submit_test(
         )
         db.add(new_session)
 
-        # Award Achievements
-        await award_achievement(current_user.id, "Primer Paso", db)
+        # Award Achievements (Atomic, without internal commits)
+        await award_achievement(current_user.id, "Primer Paso", db, auto_commit=False)
         
         if accuracy == 100:
-            await award_achievement(current_user.id, "Maestro de Redes", db)
+            await award_achievement(current_user.id, "Maestro de Redes", db, auto_commit=False)
             
         if payload.test_mode == "errors":
-            await award_achievement(current_user.id, "Cazador de Errores", db)
+            await award_achievement(current_user.id, "Cazador de Errores", db, auto_commit=False)
 
-        # Final commit for progress and session
+        # Final commit for the core test result (Progress, Session, Achievements)
         db.commit()
         db.refresh(current_user)
 
-        # ── Item Drop (15% si el alumno aprueba >= 50%) ──────────────────
+        # ── Item Drop (Isolated transition) ──────────────────
         item_drop = None
-        if accuracy >= 50:
-            dropped = _roll_item_drop()
-            if dropped:
-                new_item = UserItem(
-                    user_id=current_user.id,
-                    item_key=dropped["key"],
-                    item_name=dropped["name"],
-                    item_emoji=dropped["emoji"],
-                    item_rarity=dropped["rarity"],
-                    item_description=dropped["desc"],
-                )
-                db.add(new_item)
-                db.commit()
-                item_drop = {
-                    "id": new_item.id,
-                    "name": dropped["name"],
-                    "emoji": dropped["emoji"],
-                    "rarity": dropped["rarity"],
-                    "description": dropped["desc"],
-                }
+        try:
+            if accuracy >= 50:
+                dropped = _roll_item_drop()
+                if dropped:
+                    new_item = UserItem(
+                        user_id=current_user.id,
+                        item_key=dropped["key"],
+                        item_name=dropped["name"],
+                        item_emoji=dropped["emoji"],
+                        item_rarity=dropped["rarity"],
+                        item_description=dropped["desc"],
+                    )
+                    db.add(new_item)
+                    db.commit()
+                    item_drop = {
+                        "id": new_item.id,
+                        "name": dropped["name"],
+                        "emoji": dropped["emoji"],
+                        "rarity": dropped["rarity"],
+                        "description": dropped["desc"],
+                    }
+        except Exception as e:
+            db.rollback()
+            logger.warning(f"Falló el item drop pero el test se mantiene: {str(e)}")
+            item_drop = None
 
         return {
-            "total": total_questions,
-            "correct": correct_count,
+            "total": int(total_questions),
+            "correct": int(correct_count),
             "accuracy": float(accuracy),
             "xp_gained": int(gained_xp),
             "leveled_up": bool(leveled_up),
@@ -268,7 +276,7 @@ async def submit_test(
         import traceback
         db.rollback()
         error_msg = traceback.format_exc()
-        print(f"CRITICAL ERROR EN SUBMIT:\n{error_msg}")
+        logger.error(f"CRITICAL ERROR EN SUBMIT:\n{error_msg}")
         raise HTTPException(status_code=500, detail=f"Error en el servidor: {str(e)}")
 
 

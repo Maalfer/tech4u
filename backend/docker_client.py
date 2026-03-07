@@ -3,7 +3,10 @@ import os
 import time
 import json
 import base64
+import logging
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 # Configuration for Docker Proxy or direct socket
 DOCKER_URL = os.getenv("DOCKER_URL", "unix:///var/run/docker.sock")
@@ -20,7 +23,7 @@ class HardenedDockerClient:
                 # Use a short timeout for initialization to avoid hanging the app
                 self._client = docker.DockerClient(base_url=self.base_url, timeout=5)
             except Exception as e:
-                print(f"Error connecting to Docker: {e}")
+                logger.error(f"Error connecting to Docker: {e}")
                 return None
         return self._client
 
@@ -89,7 +92,7 @@ class HardenedDockerClient:
                     cmd = f"bash -c 'mkdir -p $(dirname {path}) && echo \"{b64_content}\" | base64 -d > {path} && chmod 644 {path}'"
                     res = container.exec_run(cmd, user="root")
                     if res.exit_code != 0:
-                        print(f"Error injecting file {path}: {res.output.decode()}")
+                        logger.error(f"Error injecting file {path}: {res.output.decode()}")
                     
                 # 3. Running Setup Commands
                 for cmd in scenario.get("commands", []):
@@ -99,7 +102,7 @@ class HardenedDockerClient:
                 container.exec_run("chown -R student:student /home/student", user="root")
                 
             except Exception as e:
-                print(f"Error applying scenario setup: {e}")
+                logger.error(f"Error applying scenario setup: {e}")
 
         return container
 

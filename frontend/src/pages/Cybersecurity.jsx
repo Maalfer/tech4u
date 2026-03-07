@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, Swords, ArrowLeft, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 
 // Reemplaza esto con las rutas reales de tus imágenes en assets
 import monsterImg from '../assets/guerrero-hacker.png';
@@ -26,7 +27,7 @@ export default function Cybersecurity() {
                 {/* ── CONTENT CONTAINER ── */}
                 <div className="relative z-10 max-w-full w-full text-center flex flex-col items-center animate-in fade-in slide-in-from-bottom-12 duration-1000 px-4">
 
-                    {/* BACK BUTTON */}
+                    {/* BACK BUTTON — kept outside PageHeader as a standalone button */}
                     <button
                         onClick={() => navigate('/dashboard')}
                         className="group flex items-center gap-3 mb-8 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500/30 rounded-2xl transition-all duration-500 font-mono text-xs uppercase tracking-[0.3em] text-slate-400 hover:text-orange-400 shadow-2xl backdrop-blur-md active:scale-95"

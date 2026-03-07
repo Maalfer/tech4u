@@ -6,6 +6,7 @@ import {
     ArrowLeft, Flame, ExternalLink
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import api from '../services/api'
 
 const PLAN_COLORS = {
@@ -96,23 +97,22 @@ export default function ManageSubscription() {
         <div className="flex min-h-screen bg-[#0D0D0D] text-white font-sans">
             <Sidebar />
             <main className="flex-1 ml-64 p-8">
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-8">
-                    <button onClick={() => navigate('/dashboard')} className="p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 transition-all">
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <CreditCard className="w-6 h-6 text-amber-400" />
-                            <h1 className="text-2xl font-black uppercase italic tracking-tight text-white">
-                                Gestionar <span className="text-amber-400">Suscripción</span>
-                            </h1>
-                        </div>
-                        <p className="text-slate-500 font-mono text-[10px] uppercase tracking-widest">
-                            Información y configuración de tu plan
-                        </p>
-                    </div>
-                </div>
+                {/* Back button */}
+                <button onClick={() => navigate('/dashboard')} className="p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 transition-all mb-6">
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
+
+                {/* Header with PageHeader */}
+                <PageHeader
+                    Icon={CreditCard}
+                    gradient="from-white via-amber-100 to-amber-400"
+                    iconColor="text-amber-400"
+                    iconBg="bg-amber-400/20"
+                    iconBorder="border-amber-400/30"
+                    glowColor="bg-amber-400/20"
+                    title={<>Gestionar <span className="text-amber-400">Suscripción</span></>}
+                    subtitle="Información y configuración de tu plan"
+                />
 
                 {error && (
                     <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 font-mono text-xs mb-6">

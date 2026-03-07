@@ -17,6 +17,7 @@ import {
     ArrowLeft
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 
 // Assets
@@ -121,34 +122,28 @@ export default function LabsPage() {
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
             <main className="flex-1 ml-64 p-8 overflow-y-auto">
-                <header className="mb-12">
-                    <div className="flex items-center justify-between gap-4 mb-2">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-neon/10 border border-neon/30">
-                                <TerminalIcon className="w-8 h-8 text-neon" />
-                            </div>
-                            <div>
-                                <h1 className="text-4xl font-black uppercase italic tracking-tighter">
-                                    Terminal <span className="text-neon">Skills</span>
-                                </h1>
-                                <p className="text-slate-500 font-mono text-[10px] uppercase tracking-[0.2em]">
-                                    {selectedModule ? `Módulo: ${selectedModule.title}` :
-                                        selectedPath ? `Ruta: ${selectedPath.title}` :
-                                            "Entornos interactivos de práctica real"}
-                                </p>
-                            </div>
-                        </div>
+                {/* Back button outside PageHeader if needed */}
+                {(selectedPath || selectedModule) && (
+                    <button
+                        onClick={handleBack}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all font-mono text-xs uppercase mb-4"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Volver
+                    </button>
+                )}
 
-                        {(selectedPath || selectedModule) && (
-                            <button
-                                onClick={handleBack}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all font-mono text-xs uppercase"
-                            >
-                                <ArrowLeft className="w-4 h-4" /> Volver
-                            </button>
-                        )}
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Terminal <span className="text-neon">Skills</span></>}
+                    subtitle={selectedModule ? `Módulo: ${selectedModule.title}` :
+                        selectedPath ? `Ruta: ${selectedPath.title}` :
+                            "Entornos interactivos de práctica real"}
+                    Icon={TerminalIcon}
+                    gradient="from-white via-green-100 to-neon"
+                    iconColor="text-neon"
+                    iconBg="bg-neon/20"
+                    iconBorder="border-neon/30"
+                    glowColor="bg-neon/20"
+                />
 
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">

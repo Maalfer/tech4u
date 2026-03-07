@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlayCircle, BookOpen, Video, ChevronRight, CheckCircle } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 
 export default function MyCourses() {
@@ -39,21 +40,16 @@ export default function MyCourses() {
                 {/* Ambient BG */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-600/5 blur-[150px] rounded-full -z-10 animate-pulse" />
 
-                <header className="mb-12">
-                    <div className="flex items-center gap-5 mb-3">
-                        <div className="p-4 bg-gradient-to-br from-emerald-600/20 to-teal-600/10 rounded-2xl border border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.15)]">
-                            <BookOpen className="w-10 h-10 text-emerald-400" />
-                        </div>
-                        <div>
-                            <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-emerald-400">
-                                Mis <span className="text-white">Cursos</span>
-                            </h1>
-                            <p className="text-[11px] font-mono text-emerald-400/70 uppercase tracking-[0.4em] mt-2">
-                                // Tu Biblioteca Personal Vitalicia
-                            </p>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    Icon={BookOpen}
+                    gradient="from-white via-emerald-100 to-emerald-400"
+                    iconColor="text-emerald-400"
+                    iconBg="bg-emerald-400/20"
+                    iconBorder="border-emerald-400/30"
+                    glowColor="bg-emerald-400/20"
+                    title={<>Mis <span className="text-white">Cursos</span></>}
+                    subtitle="Tu Biblioteca Personal Vitalicia"
+                />
 
                 {courses.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-32 opacity-40 text-center">

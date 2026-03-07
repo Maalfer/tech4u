@@ -18,6 +18,9 @@ import pty
 import subprocess
 import select
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Tech4U API",
@@ -69,13 +72,13 @@ async def cleanup_stale_containers():
                             # Parse ISO format (handle Z or offset)
                             created_dt = datetime.datetime.fromisoformat(created_str.replace("Z", "+00:00"))
                             if (now - created_dt).total_seconds() > 3600: # 1 hour limit
-                                print(f"Cleaning up stale container: {c.name}")
+                                logger.info(f"Cleaning up stale container: {c.name}")
                                 c.stop(timeout=2)
                     except Exception as e:
-                        print(f"Error checking container {c.name}: {e}")
+                        logger.error(f"Error checking container {c.name}: {e}")
             await asyncio.sleep(300) # Every 5 minutes
         except Exception as e:
-            print(f"Cleanup Task Error: {e}")
+            logger.error(f"Cleanup Task Error: {e}")
             await asyncio.sleep(60)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -141,7 +144,7 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
             except (WebSocketDisconnect, RuntimeError):
                 pass
             except Exception as e:
-                print(f"[Terminal WS→PTY] {e}")
+                logger.error(f"[Terminal WS→PTY] {e}")
 
         # 4. PTY output → WebSocket (non-blocking via asyncio.to_thread)
         async def pty_to_websocket():
@@ -163,7 +166,7 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
             except (WebSocketDisconnect, RuntimeError, OSError):
                 pass
             except Exception as e:
-                print(f"[Terminal PTY→WS] {e}")
+                logger.error(f"[Terminal PTY→WS] {e}")
 
         # Run both tasks, stop as soon as one finishes
         done, pending = await asyncio.wait(
@@ -177,7 +180,7 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
             task.cancel()
 
     except Exception as e:
-        print(f"[Terminal Critical] {e}")
+        logger.error(f"[Terminal Critical] {e}")
     finally:
         # Clean up subprocess and file descriptors
         if process and process.poll() is None:

@@ -6,6 +6,7 @@ import {
     Monitor, Shield, Cpu, Code
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 
 // ── Subject styling map ─────────────────────────────────────────────────────
@@ -147,32 +148,16 @@ export default function Resources() {
             <main className="flex-1 ml-64 p-8">
 
                 {/* ── Header ── */}
-                <header className="mb-14 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
-                    <div className="animate-in fade-in slide-in-from-left duration-700">
-                        <div className="flex items-center gap-5">
-                            <div className="relative group">
-                                <div className="absolute -inset-2 bg-[var(--color-neon)]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <div className="p-4 bg-gradient-to-br from-[var(--color-neon)]/20 to-transparent rounded-2xl border-2 border-[var(--color-neon)]/30 shadow-[0_0_40px_var(--neon-alpha-10)] relative overflow-hidden backdrop-blur-xl">
-                                    <BookOpen className="w-10 h-10 text-[var(--color-neon)] group-hover:rotate-[15deg] transition-transform duration-500" />
-                                    <div className="absolute top-0 right-0 p-1">
-                                        <Sparkles className="w-3 h-3 text-neon animate-pulse" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-green-100 to-[var(--color-neon)] drop-shadow-sm">
-                                    Arse<span className="text-white">nal</span>
-                                </h1>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="h-px w-8 bg-neon/50" />
-                                    <p className="text-[10px] font-mono text-neon/70 uppercase tracking-[0.4em] font-black">
-                                        Apuntes & Esquemas
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <PageHeader
+                    title={<>Arse<span className="text-white">nal</span></>}
+                    subtitle="Apuntes & Esquemas"
+                    Icon={BookOpen}
+                    gradient="from-white via-green-100 to-neon"
+                    iconColor="text-neon"
+                    iconBg="bg-neon/20"
+                    iconBorder="border-neon/30"
+                    glowColor="bg-neon/20"
+                >
                     {/* Search — only if there are real resources */}
                     {resources.length > 0 && (
                         <div className="relative group w-full md:w-72">
@@ -186,7 +171,7 @@ export default function Resources() {
                             />
                         </div>
                     )}
-                </header>
+                </PageHeader>
 
                 {/* ── Loading ── */}
                 {loading ? (

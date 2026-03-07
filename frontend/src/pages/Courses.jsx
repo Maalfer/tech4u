@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Database, Globe, Terminal, Lock, Search, BookOpen, Cpu, FileCode, Sparkles } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import PageHeader from '../components/PageHeader'
 import api from '../services/api'
 
 const SUBJECTS = [
@@ -86,32 +87,16 @@ export default function Courses() {
             <Sidebar />
             <main className="flex-1 ml-64 p-8">
                 {/* ── Header ── */}
-                <header className="mb-14 flex justify-between items-end relative z-10">
-                    <div className="animate-in fade-in slide-in-from-left duration-700">
-                        <div className="flex items-center gap-5 mb-4">
-                            <div className="relative group">
-                                <div className="absolute -inset-2 bg-blue-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-transparent rounded-2xl border-2 border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.1)] relative overflow-hidden backdrop-blur-xl">
-                                    <BookOpen className="w-10 h-10 text-blue-500 group-hover:rotate-[15deg] transition-transform duration-500" />
-                                    <div className="absolute top-0 right-0 p-1">
-                                        <Sparkles className="w-3 h-3 text-blue-300 animate-pulse" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-blue-500 drop-shadow-sm">
-                                    Aca<span className="text-white">demia</span>
-                                </h1>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="h-px w-8 bg-blue-500/50" />
-                                    <p className="text-[10px] font-mono text-blue-500/70 uppercase tracking-[0.4em] font-black">
-                                        Rutas de Aprendizaje
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title={<>Aca<span className="text-white">demia</span></>}
+                    subtitle="Rutas de Aprendizaje"
+                    Icon={BookOpen}
+                    gradient="from-white via-blue-100 to-blue-500"
+                    iconColor="text-blue-500"
+                    iconBg="bg-blue-500/20"
+                    iconBorder="border-blue-500/30"
+                    glowColor="bg-blue-500/20"
+                />
 
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
                     {SUBJECTS.map(({ key, icon: Icon, label, description, questions, difficulty, color, border, accent }) => (

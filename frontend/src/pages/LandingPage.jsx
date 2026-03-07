@@ -260,10 +260,10 @@ export default function LandingPage() {
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                         {RECENT_ACTIVITY.map((act, i) => (
                             <div key={i} className="flex items-center gap-4 bg-black/40 border border-white/5 p-4 rounded-2xl group hover:border-white/10 transition-all">
-                                <div className={`w - 10 h - 10 rounded - xl flex items - center justify - center border font - black text - xs ${act.type === 'xp' ? 'border-neon/30 bg-neon/10 text-neon' :
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border font-black text-xs ${act.type === 'xp' ? 'border-neon/30 bg-neon/10 text-neon' :
                                     act.type === 'reward' ? 'border-orange-500/30 bg-orange-500/10 text-orange-500' :
                                         'border-indigo-500/30 bg-indigo-500/10 text-indigo-500'
-                                    } `}>
+                                    }`}>
                                     {act.type === 'xp' ? 'XP' : act.type === 'reward' ? '🎁' : '🛒'}
                                 </div>
                                 <div>
@@ -295,8 +295,8 @@ export default function LandingPage() {
                             key={label}
                             className="group relative bg-white/[0.03] border border-white/5 rounded-2xl p-6 flex flex-col items-center gap-4 text-center hover:bg-white/[0.07] hover:border-white/20 transition-all duration-500"
                         >
-                            <div className={`w - 12 h - 12 rounded - 2xl border flex items - center justify - center flex - shrink - 0 transition - transform duration - 500 group - hover: scale - 110 ${bg} `}>
-                                <Icon className={`w - 6 h - 6 ${color} `} />
+                            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-110 ${bg}`}>
+                                <Icon className={`w-6 h-6 ${color}`} />
                             </div>
                             <span className="text-[10px] font-black text-slate-400 leading-tight uppercase tracking-widest group-hover:text-white transition-colors">{label}</span>
                             {SUBJECTS.find(s => s.label === label)?.status && (
@@ -328,7 +328,7 @@ export default function LandingPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {FEATURES.map(({ icon: Icon, title, desc, highlight }) => (
                                     <div key={title} className="group p-8 rounded-3xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition-all relative overflow-hidden">
-                                        <div className={`w - 12 h - 12 rounded - 2xl flex items - center justify - center mb - 6 transition - transform group - hover: rotate - 12 ${highlight} `}>
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:rotate-12 ${highlight}`}>
                                             <Icon className="w-6 h-6" />
                                         </div>
                                         <h3 className="font-black text-white uppercase text-base mb-3 tracking-tighter italic">{title}</h3>

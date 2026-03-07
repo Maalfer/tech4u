@@ -59,35 +59,35 @@ class SkillSubmitRequest(BaseModel):
     correct_exercises: int
     failed_attempts: int
 
+def get_rank_name(level: int) -> str:
+    """Helper function to get rank name from level without modifying user object."""
+    if level >= 50: return "Master"
+    elif level >= 40: return "Expert"
+    elif level >= 30: return "Pro"
+    elif level >= 20: return "Advanced"
+    elif level >= 10: return "Intermediate"
+    return "Beginner"
+
 @router.post("/submit")
 async def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
-    Submits a final payload after finishing a Skill Lab run. 
+    Submits a final payload after finishing a Skill Lab run.
     Grants XP and checks leveling up.
     """
     # Base XP for completing the lab. Subtract XP for failed attempts (max subtraction of 80% of XP to still give *some* reward if they stuck it out)
     gross_xp = data.correct_exercises * XP_PER_EXERCISE
     penalty = data.failed_attempts * 15 # Lose 15 XP per mistake made
-    
+
     net_xp = max((data.correct_exercises * MIN_XP_PER_EXERCISE), gross_xp - penalty)
 
     old_level = current_user.level
-    current_user.xp += net_xp
-
     current_user.add_xp(net_xp)
     leveled_up = False
     if current_user.level > old_level:
         leveled_up = True
 
-    # Check rank updates
-    if current_user.level >= 50: current_user.rank_name = "Master"
-    elif current_user.level >= 40: current_user.rank_name = "Expert"
-    elif current_user.level >= 30: current_user.rank_name = "Pro"
-    elif current_user.level >= 20: current_user.rank_name = "Advanced"
-    elif current_user.level >= 10: current_user.rank_name = "Intermediate"
-    
     new_level = current_user.level
-    rank_name = current_user.rank_name
+    rank_name = get_rank_name(new_level)
 
     if leveled_up:
         # Send Level Up Notification

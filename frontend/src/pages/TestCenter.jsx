@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-    FlaskConical, AlertCircle, Trophy, RefreshCw,
-    ChevronRight, Monitor, Wifi, Server,
-    Shield, Database, Code2, Cpu, FileCode, ArrowLeft, Zap, Star, Sparkles,
-    BookOpen, ClipboardList, Bug,
-    CheckCircle, XCircle, Info, Target, Gift
+    AlertCircle, Zap, ChevronRight, ChevronLeft,
+    BookOpen, ClipboardList, Bug, Target, Clock, Shield, Flame, Trophy
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import PageHeader from '../components/PageHeader'
 import TestEngine from '../components/TestEngine'
+import TestResults from '../components/TestResults'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
@@ -42,7 +40,7 @@ export default function TestCenter() {
 
     // phases: 'subjects' → 'detail' → 'running' → 'results'
     const [phase, setPhase] = useState('subjects')
-    const [selectedSubject, setSelectedSubject] = useState(null)   // full subject object
+    const [selectedSubject, setSelectedSubject] = useState(null)
     const [mode, setMode] = useState('')
     const [questionCount, setQuestionCount] = useState(20)
     const [questions, setQuestions] = useState([])
@@ -55,12 +53,11 @@ export default function TestCenter() {
         api.get('/dashboard/stats').then(r => setStats(r.data)).catch(() => { })
     }, [])
 
-    // Current XP info from real dashboard stats
     const currentXP = stats?.current_xp || 0
     const nextLevelXP = stats?.next_level_xp || 1000
     const xpPercent = Math.min(Math.round((currentXP / nextLevelXP) * 100), 100)
     const rankName = stats?.rank_name || (user?.rank_name) || 'Recruit'
-    const userLevel = stats?.level || user?.level || 1;
+    const userLevel = stats?.level || user?.level || 1
 
     const handleSelectSubject = (sub) => {
         setSelectedSubject(sub)
@@ -75,11 +72,9 @@ export default function TestCenter() {
         setError(null)
         try {
             const endpoint = mode === 'errors' ? '/tests/failed' : '/tests/questions'
-
-            // Override limits based on mode
             let finalLimit = questionCount
             if (mode === 'exam') finalLimit = 60
-            if (mode === 'errors') finalLimit = 1000 // Effectively "all"
+            if (mode === 'errors') finalLimit = 1000
 
             const res = await api.get(endpoint, { params: { subject: selectedSubject?.key, limit: finalLimit } })
             if (res.data.length === 0) {
@@ -105,7 +100,6 @@ export default function TestCenter() {
                 test_mode: mode,
             })
             setResults(res.data)
-            // refresh stats after the test
             api.get('/dashboard/stats').then(r => setStats(r.data)).catch(() => { })
         } catch {
             setResults(null)
@@ -148,7 +142,7 @@ export default function TestCenter() {
                 {/* ── PHASE: SUBJECTS GRID ── */}
                 {phase === 'subjects' && (
                     <div className="animate-in fade-in duration-500">
-                        {/* XP bar — same as Dashboard */}
+                        {/* XP bar */}
                         <div className="glass rounded-2xl px-6 py-4 border border-slate-800 mb-8 flex items-center gap-6 max-w-2xl">
                             <div className="flex-shrink-0 text-center">
                                 <p className="text-[9px] font-mono text-slate-500 uppercase tracking-[0.2em]">Rango</p>
@@ -238,110 +232,195 @@ export default function TestCenter() {
 
                 {/* ── PHASE: SUBJECT DETAIL (choose mode) ── */}
                 {phase === 'detail' && selectedSubject && (
-                    <div className="max-w-2xl animate-in fade-in duration-400">
-                        {/* Subject hero */}
-                        <div className={`glass rounded-3xl p-8 border-2 bg-gradient-to-br ${selectedSubject.color} mb-8 flex items-center gap-5`}>
-                            <div className="w-16 h-16 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center flex-shrink-0">
-                                {selectedSubject.isCustom ? (
-                                    <img src={selectedSubject.icon} className="w-8 h-8 object-contain" alt="" />
-                                ) : (
-                                    <selectedSubject.icon className={`w-8 h-8 ${selectedSubject.iconColor}`} />
-                                )}
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">Asignatura seleccionada</p>
-                                <h2 className="text-2xl font-black italic uppercase text-white">{selectedSubject.label}</h2>
-                            </div>
-                        </div>
+                    <div className="animate-in fade-in duration-400">
 
-                        {/* Mode selection */}
-                        <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em] mb-5">
-                            Elige el tipo de test
-                        </p>
-                        <div className="space-y-4 mb-8">
-                            {MODES.map(m => {
-                                const MIcon = m.icon
-                                return (
-                                    <button
-                                        key={m.key}
-                                        onClick={() => setMode(m.key)}
-                                        className={`w-full glass rounded-2xl p-5 border-2 text-left transition-all flex items-center gap-5 ${m.color} ${mode === m.key ? 'bg-white/5' : ''}`}
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-black/40 border border-white/10 flex items-center justify-center flex-shrink-0">
-                                            <MIcon className={`w-5 h-5 ${m.iconColor}`} />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="font-black uppercase italic text-sm text-white">{m.label}</p>
-                                            <p className="text-[11px] text-slate-500 font-mono mt-0.5">{m.desc}</p>
-                                        </div>
-                                        {mode === m.key && <div className={`w-2.5 h-2.5 rounded-full ${m.iconColor.replace('text-', 'bg-')} shadow-[0_0_10px_currentColor]`} />}
-                                    </button>
-                                )
-                            })}
-                        </div>
-
-                        {/* Question count selector - Only for Normal mode */}
-                        {mode === 'normal' && (
-                            <>
-                                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em] mb-4 mt-2">
-                                    Número de preguntas
-                                </p>
-                                <div className="flex gap-3 mb-8">
-                                    {[10, 20, 40].map(n => (
-                                        <button
-                                            key={n}
-                                            onClick={() => setQuestionCount(n)}
-                                            className={`flex-1 py-3 rounded-xl font-black font-mono text-sm border-2 transition-all ${questionCount === n
-                                                ? 'bg-neon text-black border-neon shadow-[0_0_20px_var(--neon-alpha-30)]'
-                                                : 'bg-white/5 text-slate-400 border-white/10 hover:border-neon/40 hover:text-white'
-                                                }`}
-                                        >
-                                            {n}
-                                        </button>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {mode === 'exam' && (
-                            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 mb-8 flex items-center gap-4">
-                                <AlertCircle className="text-red-500 w-6 h-6" />
-                                <div>
-                                    <p className="text-xs font-black uppercase text-red-500 italic">Configuración de Examen</p>
-                                    <p className="text-[10px] font-mono text-slate-400 uppercase">60 preguntas bloqueadas &middot; 35 minutos</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {mode === 'errors' && (
-                            <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-5 mb-8 flex items-center gap-4">
-                                <Bug className="text-orange-500 w-6 h-6" />
-                                <div>
-                                    <p className="text-xs font-black uppercase text-orange-500 italic">Modo Entrenamiento de Errores</p>
-                                    <p className="text-[10px] font-mono text-slate-400 uppercase">Se cargarán todas tus preguntas falladas</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {error && (
-                            <div className="flex items-center gap-3 text-[10px] font-mono text-orange-400 bg-orange-400/5 border border-orange-400/20 rounded-xl p-4 mb-6 uppercase tracking-wider">
-                                <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
-                            </div>
-                        )}
-
+                        {/* Botón Volver */}
                         <button
-                            onClick={startTest}
-                            disabled={!mode || loading}
-                            className={`w-full py-5 rounded-2xl font-black uppercase italic tracking-[0.15em] transition-all flex items-center justify-center gap-3 text-sm ${!mode ? 'bg-white/5 text-slate-700 cursor-not-allowed' : 'bg-neon text-black hover:scale-[1.01] hover:shadow-[0_0_40px_var(--neon-alpha-40)]'}`}
+                            onClick={() => { setPhase('subjects'); setMode(''); setError(null); }}
+                            className="flex items-center gap-2 mb-6 text-slate-500 hover:text-white transition-colors group text-[11px] font-mono uppercase tracking-widest"
                         >
-                            {loading
-                                ? <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                                : <><Zap className="w-5 h-5" /> Iniciar {MODES.find(m => m.key === mode)?.label || 'Test'} — {mode === 'exam' ? '60' : mode === 'errors' ? 'All' : questionCount} preguntas 🚀</>
-                            }
+                            <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all">
+                                <ChevronLeft className="w-4 h-4" />
+                            </div>
+                            Volver a asignaturas
                         </button>
-                        <p className="text-center text-[9px] font-mono text-slate-700 mt-3 uppercase tracking-widest">
-                            Atajo: 1–4 para elegir respuesta &middot; Enter para confirmar
-                        </p>
+
+                        <div className="flex flex-col xl:flex-row gap-8 items-start max-w-7xl">
+
+                            {/* ── Columna izquierda: selección ── */}
+                            <div className="flex-1 w-full">
+
+                                {/* Subject hero */}
+                                <div className={`glass rounded-3xl p-7 border-2 bg-gradient-to-br ${selectedSubject.color} mb-8 flex items-center gap-5`}>
+                                    <div className="w-16 h-16 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center flex-shrink-0">
+                                        {selectedSubject.isCustom ? (
+                                            <img src={selectedSubject.icon} className="w-9 h-9 object-contain" alt="" />
+                                        ) : (
+                                            <selectedSubject.icon className={`w-8 h-8 ${selectedSubject.iconColor}`} />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">Asignatura seleccionada</p>
+                                        <h2 className="text-2xl font-black italic uppercase text-white">{selectedSubject.label}</h2>
+                                    </div>
+                                </div>
+
+                                {/* Mode selection */}
+                                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em] mb-4">
+                                    Elige el tipo de test
+                                </p>
+                                <div className="space-y-3 mb-8">
+                                    {MODES.map(m => {
+                                        const MIcon = m.icon
+                                        const isSelected = mode === m.key
+                                        return (
+                                            <button
+                                                key={m.key}
+                                                onClick={() => setMode(m.key)}
+                                                className={`w-full glass rounded-2xl p-5 border-2 text-left transition-all duration-200 flex items-center gap-5 group ${m.color} ${isSelected ? 'bg-white/5 scale-[1.01]' : 'hover:bg-white/[0.03]'}`}
+                                            >
+                                                <div className={`w-11 h-11 rounded-xl border flex items-center justify-center flex-shrink-0 transition-all ${isSelected ? 'bg-white/10 border-white/20' : 'bg-black/40 border-white/10 group-hover:border-white/20'}`}>
+                                                    <MIcon className={`w-5 h-5 ${m.iconColor}`} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-black uppercase italic text-sm text-white">{m.label}</p>
+                                                    <p className="text-[11px] text-slate-500 font-mono mt-0.5">{m.desc}</p>
+                                                </div>
+                                                <div className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${isSelected ? `${m.iconColor.replace('text-', 'bg-')} border-transparent shadow-[0_0_8px_currentColor]` : 'bg-transparent border-white/10'}`} />
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+
+                                {/* Question count - solo modo normal */}
+                                {mode === 'normal' && (
+                                    <div className="mb-8">
+                                        <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em] mb-4">
+                                            Número de preguntas
+                                        </p>
+                                        <div className="flex gap-3">
+                                            {[10, 20, 40].map(n => (
+                                                <button
+                                                    key={n}
+                                                    onClick={() => setQuestionCount(n)}
+                                                    className={`flex-1 py-3 rounded-xl font-black font-mono text-sm border-2 transition-all ${questionCount === n
+                                                        ? 'bg-neon text-black border-neon shadow-[0_0_20px_rgba(198,255,51,0.3)]'
+                                                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-neon/40 hover:text-white'
+                                                        }`}
+                                                >
+                                                    {n}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {mode === 'exam' && (
+                                    <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 mb-8 flex items-center gap-4">
+                                        <AlertCircle className="text-red-500 w-5 h-5 flex-shrink-0" />
+                                        <div>
+                                            <p className="text-xs font-black uppercase text-red-500 italic">Configuración de Examen</p>
+                                            <p className="text-[10px] font-mono text-slate-400 uppercase">60 preguntas bloqueadas &middot; 35 minutos</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {mode === 'errors' && (
+                                    <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-5 mb-8 flex items-center gap-4">
+                                        <Bug className="text-orange-500 w-5 h-5 flex-shrink-0" />
+                                        <div>
+                                            <p className="text-xs font-black uppercase text-orange-500 italic">Modo Entrenamiento de Errores</p>
+                                            <p className="text-[10px] font-mono text-slate-400 uppercase">Se cargarán todas tus preguntas falladas</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <div className="flex items-center gap-3 text-[10px] font-mono text-orange-400 bg-orange-400/5 border border-orange-400/20 rounded-xl p-4 mb-6 uppercase tracking-wider">
+                                        <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={startTest}
+                                    disabled={!mode || loading}
+                                    className={`w-full py-5 rounded-2xl font-black uppercase italic tracking-[0.15em] transition-all flex items-center justify-center gap-3 text-sm ${!mode ? 'bg-white/5 text-slate-700 cursor-not-allowed' : 'bg-neon text-black hover:scale-[1.01] hover:shadow-[0_0_40px_rgba(198,255,51,0.4)]'}`}
+                                >
+                                    {loading
+                                        ? <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                        : <><Zap className="w-5 h-5" /> Iniciar {MODES.find(m => m.key === mode)?.label || 'Test'} — {mode === 'exam' ? '60' : mode === 'errors' ? 'Todas' : questionCount} preguntas 🚀</>
+                                    }
+                                </button>
+                                <p className="text-center text-[9px] font-mono text-slate-700 mt-3 uppercase tracking-widest">
+                                    Atajo: 1–4 para elegir respuesta &middot; Enter para confirmar
+                                </p>
+                            </div>
+
+                            {/* ── Columna derecha: panel explicativo ── */}
+                            <div className="w-full xl:w-[360px] shrink-0 xl:sticky xl:top-8 space-y-4">
+
+                                {/* Card modo normal */}
+                                <div className={`glass rounded-2xl p-6 border-2 transition-all duration-300 ${mode === 'normal' ? 'border-neon/40 bg-neon/[0.04] shadow-[0_0_30px_rgba(198,255,51,0.07)]' : 'border-white/5 bg-white/[0.01]'}`}>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-9 h-9 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center flex-shrink-0">
+                                            <BookOpen className="w-4 h-4 text-neon" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-mono text-neon/60 uppercase tracking-widest">Modo</p>
+                                            <p className="text-sm font-black uppercase italic text-white">Test Normal</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3 text-[11px] font-mono text-slate-400 leading-relaxed">
+                                        <p>Ideal para repasar un tema a tu ritmo, sin presión. Puedes elegir entre <span className="text-white font-bold">10, 20 o 40 preguntas</span> y tienes hasta <span className="text-neon font-bold">20 minutos</span> para completarlas.</p>
+                                        <div className="flex items-center gap-2 pt-1">
+                                            <Clock className="w-3 h-3 text-neon/60" />
+                                            <span className="text-neon/60 uppercase tracking-wider text-[10px]">20 min · Sin penalización</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Card modo examen */}
+                                <div className={`glass rounded-2xl p-6 border-2 transition-all duration-300 ${mode === 'exam' ? 'border-red-500/40 bg-red-500/[0.04] shadow-[0_0_30px_rgba(239,68,68,0.07)]' : 'border-white/5 bg-white/[0.01]'}`}>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Shield className="w-4 h-4 text-red-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-mono text-red-400/60 uppercase tracking-widest">Modo</p>
+                                            <p className="text-sm font-black uppercase italic text-white">Examen Oficial</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3 text-[11px] font-mono text-slate-400 leading-relaxed">
+                                        <p>Simula las condiciones reales del examen oficial. <span className="text-white font-bold">60 preguntas fijas</span> en <span className="text-red-400 font-bold">35 minutos</span>. Sin marcha atrás: prepárate como si fuera el día D.</p>
+                                        <div className="flex items-center gap-2 pt-1">
+                                            <Clock className="w-3 h-3 text-red-400/60" />
+                                            <span className="text-red-400/60 uppercase tracking-wider text-[10px]">35 min · 60 preguntas bloqueadas</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Card test de errores */}
+                                <div className={`glass rounded-2xl p-6 border-2 transition-all duration-300 ${mode === 'errors' ? 'border-orange-500/40 bg-orange-500/[0.04] shadow-[0_0_30px_rgba(249,115,22,0.07)]' : 'border-white/5 bg-white/[0.01]'}`}>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Flame className="w-4 h-4 text-orange-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-mono text-orange-400/60 uppercase tracking-widest">Modo</p>
+                                            <p className="text-sm font-black uppercase italic text-white">Test de Errores</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3 text-[11px] font-mono text-slate-400 leading-relaxed">
+                                        <p>Carga automáticamente <span className="text-white font-bold">todas las preguntas que has fallado</span> en tests anteriores. Sin límite de tiempo: céntrate en convertir tus debilidades en fortalezas.</p>
+                                        <div className="flex items-center gap-2 pt-1">
+                                            <Trophy className="w-3 h-3 text-orange-400/60" />
+                                            <span className="text-orange-400/60 uppercase tracking-wider text-[10px]">Sin límite · Solo tus fallos</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -349,9 +428,9 @@ export default function TestCenter() {
                 {phase === 'running' && (
                     <div className={`animate-in fade-in zoom-in duration-1000 min-h-[80vh] rounded-[3.5rem] p-12 relative overflow-hidden flex flex-col items-center justify-center border-2 transition-all duration-1000 ${mode === 'exam'
                         ? 'bg-stone-950 border-stone-800 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)]'
-                        : 'bg-gradient-to-br from-[#051a05] via-[#000500] to-[#001100] border-emerald-500/20 shadow-[0_40px_100px_-20px_rgba(0,255,0,0.1)]'}`}>
+                        : 'bg-gradient-to-br from-[#051a05] via-[#000500] to-[#001100] border-emerald-500/20 shadow-[0_40px_100px_-20px_rgba(0,255,0,0.1)]'
+                        }`}>
 
-                        {/* Ambient Atmosphere for the Test Chamber (ANCIENT MIST) */}
                         <div className={`absolute top-[-20%] right-[-10%] w-[70%] h-[70%] blur-[180px] rounded-full opacity-[0.03] ${mode === 'exam' ? 'bg-red-900' : 'bg-emerald-900'}`} />
                         <div className={`absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] blur-[150px] rounded-full opacity-[0.02] ${mode === 'exam' ? 'bg-stone-800' : 'bg-blue-950'}`} />
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-[0.2] pointer-events-none" />
@@ -369,154 +448,13 @@ export default function TestCenter() {
 
                 {/* ── PHASE: RESULTS ── */}
                 {phase === 'results' && (
-                    <div className="max-w-3xl mx-auto animate-in slide-in-from-bottom-10 duration-700">
-                        {!results ? (
-                            <div className="glass rounded-[2rem] p-12 border border-red-500/20 text-center">
-                                <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
-                                <h2 className="text-2xl font-black text-white uppercase italic mb-4">Error al procesar resultados</h2>
-                                <p className="text-slate-400 mb-8 font-mono text-sm">No hemos podido recuperar los datos de tu test. Esto puede deberse a un fallo de conexión o un error en el servidor.</p>
-                                <button onClick={handleReset} className="px-10 py-4 bg-neon text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
-                                    Volver al Inicio
-                                </button>
-                            </div>
-                        ) : (
-                            <>
-
-                                {/* ── ITEM DROP POPUP ── */}
-                                {results.item_drop && (
-                                    <div className="mb-8 p-1 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-600 rounded-[2rem] shadow-[0_0_50px_rgba(168,85,247,0.4)] animate-in zoom-in duration-500">
-                                        <div className="bg-[#0b0510] rounded-[1.9rem] p-8 text-center relative overflow-hidden">
-                                            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
-                                            <div className="relative z-10">
-                                                <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-500/20 rounded-full mb-4 border-2 border-purple-500/30 animate-bounce">
-                                                    <Gift className="w-10 h-10 text-purple-400" />
-                                                </div>
-                                                <h3 className="text-3xl font-black text-white uppercase italic mb-1 tracking-tighter">
-                                                    ¡Item Conseguido!
-                                                </h3>
-                                                <p className="text-[10px] font-mono text-purple-400 uppercase tracking-[0.3em] mb-6">Nuevo objeto añadido a tu inventario</p>
-
-                                                <div className="inline-flex items-center gap-6 bg-black/40 border-2 border-purple-500/20 p-6 rounded-2xl group transition-all hover:border-purple-500/50">
-                                                    <span className="text-6xl group-hover:scale-110 transition-transform">{results.item_drop.emoji}</span>
-                                                    <div className="text-left">
-                                                        <p className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded border inline-block mb-1 ${results.item_drop.rarity === 'legendario' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                                                            results.item_drop.rarity === 'epico' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                                                                results.item_drop.rarity === 'raro' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                                                                    'bg-slate-500/20 text-slate-400 border-slate-500/30'
-                                                            }`}>
-                                                            {results.item_drop.rarity}
-                                                        </p>
-                                                        <h4 className="text-xl font-black text-white uppercase">{results.item_drop.name}</h4>
-                                                        <p className="text-xs text-slate-400 italic max-w-xs">{results.item_drop.description}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="glass rounded-[2rem] p-12 border border-white/5 mb-10 text-center relative overflow-hidden">
-
-                                    <div className={`absolute top-0 left-0 w-full h-1 ${results.accuracy >= 50 ? 'bg-neon' : 'bg-red-500'}`} />
-                                    <Trophy className={`w-20 h-20 mx-auto mb-6 ${results.accuracy >= 50 ? 'text-neon' : 'text-red-500'}`} />
-                                    <h2 className="text-4xl font-black text-white uppercase italic mb-2">
-                                        {results.accuracy >= 50 ? 'Aprobado' : 'Suspendido'}
-                                    </h2>
-                                    <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.4em] mb-12">Reporte de rendimiento final</p>
-                                    <div className="grid grid-cols-4 gap-6 mb-12">
-                                        {[
-                                            ['Correctas', results.correct, 'text-neon'],
-                                            ['Falladas', (results.total || 0) - (results.correct || 0), 'text-red-500'],
-                                            ['Porcentaje', `${results.accuracy}%`, results.accuracy >= 50 ? 'text-neon' : 'text-red-500'],
-                                            ['XP Obtenida', `${results.xp_gained > 0 ? '+' : ''}${results.xp_gained} XP`, results.xp_gained > 0 ? 'text-blue-400' : 'text-slate-500'],
-                                        ].map(([label, value, color]) => (
-                                            <div key={label} className="bg-white/[0.02] border border-white/5 rounded-2xl py-8 flex flex-col items-center justify-center">
-                                                <p className={`text-3xl font-black font-mono mb-1 ${color}`}>{value}</p>
-                                                <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">{label}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {results.leveled_up && (
-                                        <div className="mb-12 p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 via-neon/10 to-blue-500/10 border border-neon/30 animate-pulse flex items-center justify-center gap-4">
-                                            <Star className="w-8 h-8 text-neon" />
-                                            <div className="text-left">
-                                                <p className="text-[10px] font-mono text-blue-400 uppercase tracking-widest font-bold">¡Subida de nivel!</p>
-                                                <h3 className="text-xl font-black italic text-white uppercase">Has alcanzado el Nivel {results.new_level}</h3>
-                                            </div>
-                                            <Star className="w-8 h-8 text-neon" />
-                                        </div>
-                                    )}
-
-                                    <div className="flex gap-4 justify-center">
-                                        <button onClick={handleReset} className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 text-white">
-                                            <RefreshCw className="w-4 h-4" /> Otra Asignatura
-                                        </button>
-                                        <button onClick={() => { setPhase('detail'); setQuestions([]); setResults(null); setError(null); setMode(''); }} className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 text-white">
-                                            Repetir {selectedSubject?.label}
-                                        </button>
-                                        <button onClick={() => navigate('/dashboard')} className="px-10 py-4 bg-neon text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
-                                            Ir al Dashboard
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* ── DETAILED REVIEW ── */}
-                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-300">
-                                    <h3 className="text-sm font-black uppercase italic text-slate-500 tracking-[0.3em] mb-4 flex items-center gap-2">
-                                        <Info className="w-4 h-4" /> Revisión del Examen
-                                    </h3>
-
-                                    {results.detailed_results.map((res, idx) => (
-                                        <div key={idx} className={`glass rounded-3xl p-8 border ${res.correct ? 'border-neon/20 bg-neon/5' : 'border-red-500/20 bg-red-500/5'}`}>
-                                            <div className="flex justify-between items-start mb-4">
-                                                <span className={`text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full ${res.correct ? 'bg-neon/10 text-neon' : 'bg-red-500/10 text-red-500'}`}>
-                                                    Pregunta {idx + 1} · {res.correct ? 'Correcta' : 'Fallada'}
-                                                </span>
-                                                {res.correct
-                                                    ? <CheckCircle className="w-5 h-5 text-neon" />
-                                                    : <XCircle className="w-5 h-5 text-red-500" />
-                                                }
-                                            </div>
-
-                                            <h4 className="text-lg font-bold text-white mb-6 leading-relaxed">
-                                                {res.question_text}
-                                            </h4>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                                                {['a', 'b', 'c', 'd'].map(opt => {
-                                                    const isCorrect = res.correct_answer.toLowerCase() === opt
-                                                    const isSelected = res.selected_answer.toLowerCase() === opt
-
-                                                    let style = "p-4 rounded-xl border text-xs font-mono transition-all "
-                                                    if (isCorrect) style += "border-neon bg-neon/10 text-neon font-black "
-                                                    else if (isSelected && !isCorrect) style += "border-red-500 bg-red-500/10 text-red-500 "
-                                                    else style += "border-white/5 text-slate-500 bg-white/[0.02] "
-
-                                                    return (
-                                                        <div key={opt} className={style}>
-                                                            <span className="uppercase mr-3 opacity-50">{opt})</span>
-                                                            {res[`option_${opt}`]}
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-
-                                            <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-6">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Info className="w-4 h-4 text-blue-400" />
-                                                    <p className="text-[10px] font-black uppercase text-blue-400 tracking-widest">Explicación Técnica</p>
-                                                </div>
-                                                <p className="text-sm text-slate-300 leading-relaxed italic">
-                                                    {res.explanation || "No hay una explicación detallada disponible para esta pregunta."}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </div>
+                    <TestResults
+                        results={results}
+                        selectedSubject={selectedSubject}
+                        mode={mode}
+                        onReset={handleReset}
+                        onRepeat={() => { setPhase('detail'); setQuestions([]); setResults(null); setError(null); setMode('') }}
+                    />
                 )}
 
             </main>

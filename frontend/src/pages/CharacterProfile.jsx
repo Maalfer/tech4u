@@ -7,6 +7,7 @@ import {
     Coffee, Star, Info, Gift, Lock
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -140,34 +141,22 @@ export default function CharacterProfile() {
                 {/* Background ambient effect */}
                 <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full -z-10 animate-pulse" />
 
-                {/* ── Header ── */}
-                <header className="mb-10 flex justify-between items-end relative z-10">
-                    <div className="animate-in fade-in slide-in-from-left duration-700">
-                        <div className="flex items-center gap-5 mb-4">
-                            <button onClick={() => navigate('/dashboard')} className="p-4 rounded-2xl text-slate-500 hover:text-white border border-transparent hover:border-white/30 hover:bg-white/10 transition-all bg-black/40 mb-1 active:scale-95 shadow-2xl backdrop-blur-xl group">
-                                <ArrowLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
-                            </button>
+                {/* Back button */}
+                <button onClick={() => navigate('/dashboard')} className="p-4 rounded-2xl text-slate-500 hover:text-white border border-transparent hover:border-white/30 hover:bg-white/10 transition-all bg-black/40 mb-4 active:scale-95 shadow-2xl backdrop-blur-xl group">
+                    <ArrowLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
+                </button>
 
-                            <div className="relative group">
-                                <div className="absolute -inset-2 bg-blue-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-transparent rounded-2xl border-2 border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.1)] relative overflow-hidden backdrop-blur-xl">
-                                    <User className="w-10 h-10 text-blue-500 group-hover:rotate-[15deg] transition-transform duration-500" />
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-blue-500 drop-shadow-sm">
-                                    Per<span className="text-white">sonaje</span>
-                                </h1>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="h-px w-8 bg-blue-500/50" />
-                                    <p className="text-[10px] font-mono text-blue-500/70 uppercase tracking-[0.4em] font-black">
-                                        Hoja de Atributos ASIR
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                {/* Header with PageHeader */}
+                <PageHeader
+                    Icon={User}
+                    gradient="from-white via-blue-100 to-blue-500"
+                    iconColor="text-blue-500"
+                    iconBg="bg-blue-500/20"
+                    iconBorder="border-blue-500/30"
+                    glowColor="bg-blue-500/20"
+                    title={<>Per<span className="text-white">sonaje</span></>}
+                    subtitle="Hoja de Atributos ASIR"
+                />
 
                 {/* ── JRPG Character Sheet Container ── */}
                 <div className="max-w-5xl mx-auto animate-in fade-in zoom-in-95 duration-500">

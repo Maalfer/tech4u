@@ -5,6 +5,7 @@ import {
     Video, CheckCircle, Zap, BookOpen
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 
 export default function AcademyShop() {
@@ -67,21 +68,16 @@ export default function AcademyShop() {
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-violet-500/5 blur-[120px] rounded-full -z-10" />
 
                 {/* Header */}
-                <header className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-                    <div className="flex items-center gap-5 mb-3">
-                        <div className="p-4 bg-gradient-to-br from-purple-600/20 to-violet-600/10 rounded-2xl border border-purple-500/30 shadow-[0_0_40px_rgba(168,85,247,0.15)]">
-                            <ShoppingBag className="w-10 h-10 text-purple-400" />
-                        </div>
-                        <div>
-                            <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-purple-400">
-                                Academy<span className="text-white">Shop</span>
-                            </h1>
-                            <p className="text-[11px] font-mono text-purple-400/70 uppercase tracking-[0.4em] mt-2">
-                                // Compra Vitalicia · Acceso Para Siempre
-                            </p>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    Icon={ShoppingBag}
+                    gradient="from-white via-purple-100 to-purple-400"
+                    iconColor="text-purple-400"
+                    iconBg="bg-purple-400/20"
+                    iconBorder="border-purple-400/30"
+                    glowColor="bg-purple-400/20"
+                    title={<>Academy<span className="text-white">Shop</span></>}
+                    subtitle="Compra Vitalicia · Acceso Para Siempre"
+                />
 
                 {/* Info Banner */}
                 <div className="mb-10 p-5 bg-purple-600/10 border border-purple-500/20 rounded-2xl flex items-center gap-4 animate-in fade-in duration-700">
