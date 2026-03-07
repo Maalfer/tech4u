@@ -3,7 +3,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 
-const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to Secure Sandbox...\r\n" }) => {
+const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to secure sandbox …\r\n" }) => {
     const terminalRef = useRef(null);
     const xtermRef = useRef(null);
     const wsRef = useRef(null);
@@ -35,11 +35,23 @@ const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to Secure Sandb
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const host = window.location.hostname === 'localhost' ? 'localhost:8000' : window.location.host;
         const socket = new WebSocket(`${protocol}//${host}${wsUrl}`);
+        socket.binaryType = "arraybuffer"; // Support binary data
 
         wsRef.current = socket;
 
+        socket.onopen = () => {
+            term.write("\x1b[32mConexión establecida con éxito.\x1b[0m\r\n");
+        };
+
         socket.onmessage = (event) => {
-            term.write(event.data);
+            if (typeof event.data === 'string') {
+                term.write(event.data);
+            } else {
+                // Handle binary data if needed
+                const decoder = new TextDecoder("utf-8");
+                const text = decoder.decode(event.data);
+                term.write(text);
+            }
         };
 
         socket.onclose = () => {
@@ -52,8 +64,20 @@ const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to Secure Sandb
         };
 
         term.onData(data => {
+            // Local echo for better usability (Section 6 of request)
+            if (data === '\r') {
+                term.write('\r\n');
+            } else if (data === '\x7f') {
+                // Handle backspace locally: move back, print space, move back
+                term.write('\b \b');
+            } else {
+                term.write(data);
+            }
+
             if (socket.readyState === WebSocket.OPEN) {
-                socket.send(data);
+                // Send as binary (Uint8Array) for better robustness with FastAPI receive_bytes
+                const encoder = new TextEncoder();
+                socket.send(encoder.encode(data));
             }
         });
 

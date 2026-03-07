@@ -1,0 +1,514 @@
+INFO:     Started server process [28576]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:57681 - "GET /labs/ping HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57693 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57693 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 57702) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 57705) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:57693 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57695 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57708 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57709 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     ('127.0.0.1', 57716) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:57695 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57709 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57711 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57709 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     127.0.0.1:57739 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57739 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 57745) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 57748) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:57739 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57741 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57751 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57753 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57755 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57756 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     127.0.0.1:57739 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57741 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 57759) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:57756 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57739 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57751 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57739 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     ('127.0.0.1', 57784) - "WebSocket /ws/3" [accepted]
+INFO:     127.0.0.1:57787 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     127.0.0.1:57788 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 57790) - "WebSocket /ws/3" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:57787 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "OPTIONS /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "OPTIONS /labs/modules/8/labs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57788 - "GET /labs/modules/8/labs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57797 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57798 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57797 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57798 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57797 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57807 - "OPTIONS /labs/74/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57807 - "POST /labs/74/start HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 57809) - "WebSocket /ws/terminal/9fd235a13789c5e0af00461c89e11f79f24b7add60f71292d810aab46643490d" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 57811) - "WebSocket /ws/terminal/9fd235a13789c5e0af00461c89e11f79f24b7add60f71292d810aab46643490d" [accepted]
+INFO:     connection open
+INFO:     ('127.0.0.1', 57856) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+Read Error: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+INFO:     127.0.0.1:57857 - "OPTIONS /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57858 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57859 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57859 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57858 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57859 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57861 - "OPTIONS /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57861 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57860 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57861 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57861 - "OPTIONS /labs/modules/8/labs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57861 - "GET /labs/modules/8/labs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57861 - "GET /labs/modules/8/labs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57860 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57857 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57860 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     ('127.0.0.1', 57995) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:58045 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58045 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 58049) - "WebSocket /ws/1" [accepted]
+INFO:     127.0.0.1:58045 - "OPTIONS /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58047 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     127.0.0.1:58052 - "OPTIONS /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58053 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 58056) - "WebSocket /ws/1" [accepted]
+INFO:     127.0.0.1:58053 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58052 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:58047 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58045 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58060) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:58058 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58053 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58045 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58058 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58058 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58053 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58045 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58047 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58058 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58045 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58045 - "OPTIONS /labs/74/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58058 - "POST /labs/74/start HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 58062) - "WebSocket /ws/terminal/016c5079bc9aef1d79c0ef54fab43b1cb7f9d6152f0e525dcc945c675cd17c9f" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58064) - "WebSocket /ws/terminal/016c5079bc9aef1d79c0ef54fab43b1cb7f9d6152f0e525dcc945c675cd17c9f" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58149) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58151) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:58170 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58170 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58193) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58195) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:58209 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58209 - "OPTIONS /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58211 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58214 - "OPTIONS /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58215 - "OPTIONS /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58211 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58211 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58209 - "GET /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58211 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58214 - "OPTIONS /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58218 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58215 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58209 - "GET /admin/users/dashboard-stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58218 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58215 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     127.0.0.1:58219 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 58245) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:58249 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58250 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58251 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58255) - "WebSocket /ws/1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:58253 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58253 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58219 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58251 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58253 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58251 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58253 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58219 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58272 - "OPTIONS /labs/74/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58272 - "POST /labs/74/start HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 1395, in getresponse
+    response.begin()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 325, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 286, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/socket.py", line 718, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/util/util.py", line 39, in reraise
+    raise value
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 536, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+urllib3.exceptions.ReadTimeoutError: UnixHTTPConnectionPool(host='localhost', port=None): Read timed out. (read timeout=5)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 419, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 146, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/fastapi/routing.py", line 278, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/slowapi/extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/routers/labs.py", line 443, in start_lab_endpoint
+    active_containers = docker_launcher.get_active_containers_for_user(current_user.id)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/docker_client.py", line 108, in get_active_containers_for_user
+    return self.client.containers.list(filters={"label": [f"academy=tech4u", f"user_id={user_id}"]})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/models/containers.py", line 1006, in list
+    resp = self.client.api.containers(all=all, before=before,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/api/container.py", line 211, in containers
+    res = self._result(self._get(u, params=params), True)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/utils/decorators.py", line 44, in inner
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/api/client.py", line 236, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/sessions.py", line 602, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/adapters.py", line 532, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: UnixHTTPConnectionPool(host='localhost', port=None): Read timed out. (read timeout=5)
+INFO:     connection closed
+INFO:     ('127.0.0.1', 58293) - "WebSocket /ws/1" [accepted]
+INFO:     connection closed
+INFO:     127.0.0.1:58298 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 58299) - "WebSocket /ws/1" [accepted]
+INFO:     127.0.0.1:58301 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:58295 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58274 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58295 - "GET /announcements/admin/suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58274 - "GET /admin/users/tickets/count HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58298 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58274 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     127.0.0.1:58398 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58400 - "OPTIONS /labs/paths HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 58402) - "WebSocket /ws/3" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:58398 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58400 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "OPTIONS /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "GET /labs/paths HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "GET /labs/paths/7/modules HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "OPTIONS /labs/modules/8/labs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "GET /labs/modules/8/labs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58425 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58427 - "OPTIONS /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58428 - "OPTIONS /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58425 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58398 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58428 - "GET /labs/74/challenges/completed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58425 - "GET /labs/74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58425 - "OPTIONS /labs/74/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58425 - "POST /labs/74/start HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 1395, in getresponse
+    response.begin()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 325, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 286, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.14_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/socket.py", line 718, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/util/util.py", line 39, in reraise
+    raise value
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 536, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+urllib3.exceptions.ReadTimeoutError: UnixHTTPConnectionPool(host='localhost', port=None): Read timed out. (read timeout=5)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 419, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 146, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/starlette/routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/fastapi/routing.py", line 278, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/slowapi/extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/routers/labs.py", line 451, in start_lab_endpoint
+    container = docker_launcher.start_lab_container(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/docker_client.py", line 38, in start_lab_container
+    container = self.client.containers.run(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/models/containers.py", line 880, in run
+    container.start()
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/models/containers.py", line 417, in start
+    return self.client.api.start(self.id, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/utils/decorators.py", line 19, in wrapped
+    return f(self, resource_id, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/api/container.py", line 1134, in start
+    res = self._post(url)
+          ^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/utils/decorators.py", line 44, in inner
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/docker/api/client.py", line 232, in _post
+    return self.post(url, **self._set_request_timeout(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/sessions.py", line 637, in post
+    return self.request("POST", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/henkosec/tech4u-academy/tech4u/backend/venv/lib/python3.11/site-packages/requests/adapters.py", line 532, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: UnixHTTPConnectionPool(host='localhost', port=None): Read timed out. (read timeout=5)
+INFO:     127.0.0.1:58467 - "OPTIONS /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58471 - "OPTIONS /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58472 - "OPTIONS /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58474 - "OPTIONS /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "OPTIONS /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58477 - "OPTIONS /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58467 - "OPTIONS /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58471 - "OPTIONS /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58474 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58471 - "GET /announcements/my-suggestions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58477 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58471 - "GET /announcements/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58472 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "GET /support/my-tickets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "OPTIONS /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58472 - "OPTIONS /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58472 - "GET /announcements/unread HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "OPTIONS /tests/inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "OPTIONS /tests/inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58471 - "GET /tests/inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58472 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "GET /tests/inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58471 - "GET /dashboard/stats HTTP/1.1" 200 OK

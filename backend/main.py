@@ -104,45 +104,94 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
         await websocket.close(code=4004)
         return
 
-    # Use attach_socket for a more robust bi-directional TTY
-    # This gives us a raw socket we can use directly
     try:
-        # Attach to the container's stdin/stdout/stderr
-        socket = container.attach_socket(params={'stdin': 1, 'stdout': 1, 'stderr': 1, 'stream': 1})
-        # We need to use the low-level socket for sending
-        raw_socket = socket._sock
-        
-        async def read_from_socket():
-            # Use asyncio.to_thread to read from the blocking socket incrementally
-            while True:
-                try:
-                    # Read up to 4KB at a time
-                    data = await asyncio.to_thread(raw_socket.recv, 4096)
-                    if not data:
+        # 1. Attach to container socket with specific streams (Section 2)
+        socket = container.attach_socket(params={
+            'stdin': 1, 
+            'stdout': 1, 
+            'stderr': 1, 
+            'stream': 1,
+            'logs': 0
+        })
+        # Use iterator for non-blocking next() calls (Section 3)
+        socket_iter = iter(socket)
+
+        # 2. Heartbeat Watchdog Task
+        async def websocket_heartbeat():
+            try:
+                while True:
+                    await asyncio.sleep(10)
+                    if websocket.client_state == status.WS_CONNECTED:
+                        await websocket.send_text("ping")
+                    else:
                         break
-                    await websocket.send_text(data.decode(errors='replace'))
-                except Exception:
-                    break
+            except (WebSocketDisconnect, RuntimeError):
+                return
+            except Exception:
+                pass
 
+        # 3. Stream Reader Task - Non-blocking
+        async def read_from_socket():
+            try:
+                while True:
+                    # Use the recommended non-blocking iterator approach
+                    chunk = await asyncio.to_thread(next, socket_iter, None)
+                    if chunk is None:
+                        # Container stream ended
+                        break
+                    
+                    if websocket.client_state == status.WS_CONNECTED:
+                         await websocket.send_bytes(chunk)
+                    else:
+                        break
+            except (WebSocketDisconnect, StopIteration, RuntimeError):
+                pass
+            except Exception as e:
+                print(f"Terminal Read Error: {e}")
+
+        # 4. Input Handling Task
         async def write_to_socket():
-            while True:
+            try:
+                while True:
+                    if websocket.client_state != status.WS_CONNECTED:
+                        break
+                    # Receive binary input
+                    data = await websocket.receive_bytes()
+                    if data:
+                        await asyncio.to_thread(socket._sock.sendall, data)
+            except (WebSocketDisconnect, RuntimeError):
+                pass
+            except Exception as e:
                 try:
-                    data = await websocket.receive_text()
-                    # Use sendall for atomic/complete data transmission
-                    await asyncio.to_thread(raw_socket.sendall, data.encode())
-                except WebSocketDisconnect:
-                    break
-                except Exception:
-                    break
+                    # Fallback for text data
+                    text_data = await websocket.receive_text()
+                    if text_data in ["pong", "ping"]:
+                        return # This is a recursive-like call, but simplified
+                    await asyncio.to_thread(socket._sock.sendall, text_data.encode())
+                except:
+                    pass
 
-        await asyncio.gather(read_from_socket(), write_to_socket())
+        # Run all tasks concurrently and wait for any to finish
+        done, pending = await asyncio.wait(
+            [
+                asyncio.create_task(read_from_socket()),
+                asyncio.create_task(write_to_socket()),
+                asyncio.create_task(websocket_heartbeat())
+            ],
+            return_when=asyncio.FIRST_COMPLETED
+        )
+        
+        # Cleanup pending tasks
+        for task in pending:
+            task.cancel()
 
     except Exception as e:
-        print(f"WebSocket Terminal Error: {e}")
+        print(f"WebSocket Terminal Critical Error: {e}")
     finally:
         docker_launcher.kill_container(container_id)
         try:
-            await websocket.close()
+            if websocket.client_state == status.WS_CONNECTED:
+                await websocket.close()
         except:
             pass
 
