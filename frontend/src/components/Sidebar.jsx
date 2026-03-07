@@ -60,6 +60,7 @@ import noticiasAcademiaIcon from '../assets/noticiasacademia_icon.png';
 import skillLabsIcon from '../assets/skilllabs_icon.png';
 import exploraIcon from '../assets/explora_icon.png';
 import terminalSkillsIcon from '../assets/terminal_skills.png';
+import teoriaIcon from '../assets/teoria_icon.png';
 import terminalBuilderIcon from '../assets/skilllabs_icon.png'; // Using a placeholder icon or finding a better one
 
 // ── Palette: every icon has a fixed semantic color ──────────────────────────
@@ -132,7 +133,8 @@ export default function Sidebar() {
     const studentAcademiaGroup = [
         { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
+        { icon: teoriaIcon, isCustom: true, label: 'Teoría', path: '/teoria', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
         { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
         { icon: herramientasIcon, isCustom: true, label: 'Herramientas', path: '/tools', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
     ];
@@ -149,7 +151,8 @@ export default function Sidebar() {
         { icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/admin/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' },
         { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
+        { icon: teoriaIcon, isCustom: true, label: 'Teoría', path: '/teoria', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
         { icon: recursosIcon, isCustom: true, label: 'Recursos', path: '/resources', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: cursosVideosIcon, isCustom: true, label: 'YT Videos', path: '/video-cursos', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
         { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
@@ -292,6 +295,11 @@ export default function Sidebar() {
                                 <Terminal className={`w-4 h-4 transition-colors ${location.pathname.startsWith('/admin/terminal-builder') ? 'text-neon' : 'text-slate-500 group-hover:text-neon'}`} />
                             </div>
                             Terminal Builder
+                        </NavLink>
+
+                        <NavLink to="/admin/teoria" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                            <img src={teoriaIcon} className="w-8 h-8 scale-[1.3] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                            Teoría Admin
                         </NavLink>
 
 

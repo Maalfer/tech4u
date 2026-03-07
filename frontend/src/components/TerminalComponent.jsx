@@ -64,16 +64,6 @@ const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to secure sandb
         };
 
         term.onData(data => {
-            // Local echo for better usability (Section 6 of request)
-            if (data === '\r') {
-                term.write('\r\n');
-            } else if (data === '\x7f') {
-                // Handle backspace locally: move back, print space, move back
-                term.write('\b \b');
-            } else {
-                term.write(data);
-            }
-
             if (socket.readyState === WebSocket.OPEN) {
                 // Send as binary (Uint8Array) for better robustness with FastAPI receive_bytes
                 const encoder = new TextEncoder();

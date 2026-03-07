@@ -1,10 +1,11 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status, Request
+from starlette.websockets import WebSocketState
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from websocket_manager import manager
 from database import create_tables, get_db, Lab, User
-from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements, subscriptions, video_courses, coupons_admin, leaderboard, support, skill_labs, paypal, achievements, labs
+from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements, subscriptions, video_courses, coupons_admin, leaderboard, support, skill_labs, paypal, achievements, labs, teoria
 from docker_client import docker_launcher
 from auth import decode_token, get_current_user
 from schemas import TerminalStartResponse
@@ -13,6 +14,9 @@ from slowapi.errors import RateLimitExceeded
 from limiter import limiter
 import asyncio
 import os
+import pty
+import subprocess
+import select
 import datetime
 
 app = FastAPI(
@@ -92,107 +96,110 @@ app.include_router(skill_labs.router)
 app.include_router(paypal.router)
 app.include_router(achievements.router)
 app.include_router(labs.router)
+app.include_router(teoria.router)
 
 # --- TERMINAL SANDBOX ENDPOINTS MOVED TO labs.py ---
 
 @app.websocket("/ws/terminal/{container_id}")
 async def terminal_websocket(websocket: WebSocket, container_id: str):
     await websocket.accept()
-    
+
     container = docker_launcher.get_container(container_id)
     if not container:
         await websocket.close(code=4004)
         return
 
+    master_fd = None
+    slave_fd = None
+    process = None
+
     try:
-        # 1. Attach to container socket with specific streams (Section 2)
-        socket = container.attach_socket(params={
-            'stdin': 1, 
-            'stdout': 1, 
-            'stderr': 1, 
-            'stream': 1,
-            'logs': 0
-        })
-        # Use iterator for non-blocking next() calls (Section 3)
-        socket_iter = iter(socket)
+        # 1. Open a PTY pair
+        master_fd, slave_fd = pty.openpty()
 
-        # 2. Heartbeat Watchdog Task
-        async def websocket_heartbeat():
+        # 2. Start interactive bash via docker exec -it on the container name
+        container_name = container.name
+        process = subprocess.Popen(
+            ["docker", "exec", "-it", container_name, "/bin/bash"],
+            stdin=slave_fd,
+            stdout=slave_fd,
+            stderr=slave_fd,
+            close_fds=True
+        )
+        # The slave end is owned by the child process — close in parent
+        os.close(slave_fd)
+        slave_fd = None
+
+        # 3. WebSocket → PTY input
+        async def websocket_to_pty():
             try:
                 while True:
-                    await asyncio.sleep(10)
-                    if websocket.client_state == status.WS_CONNECTED:
-                        await websocket.send_text("ping")
-                    else:
-                        break
-            except (WebSocketDisconnect, RuntimeError):
-                return
-            except Exception:
-                pass
-
-        # 3. Stream Reader Task - Non-blocking
-        async def read_from_socket():
-            try:
-                while True:
-                    # Use the recommended non-blocking iterator approach
-                    chunk = await asyncio.to_thread(next, socket_iter, None)
-                    if chunk is None:
-                        # Container stream ended
-                        break
-                    
-                    if websocket.client_state == status.WS_CONNECTED:
-                         await websocket.send_bytes(chunk)
-                    else:
-                        break
-            except (WebSocketDisconnect, StopIteration, RuntimeError):
-                pass
-            except Exception as e:
-                print(f"Terminal Read Error: {e}")
-
-        # 4. Input Handling Task
-        async def write_to_socket():
-            try:
-                while True:
-                    if websocket.client_state != status.WS_CONNECTED:
-                        break
-                    # Receive binary input
                     data = await websocket.receive_bytes()
-                    if data:
-                        await asyncio.to_thread(socket._sock.sendall, data)
+                    if process.poll() is not None:
+                        break
+                    os.write(master_fd, data)
             except (WebSocketDisconnect, RuntimeError):
                 pass
             except Exception as e:
-                try:
-                    # Fallback for text data
-                    text_data = await websocket.receive_text()
-                    if text_data in ["pong", "ping"]:
-                        return # This is a recursive-like call, but simplified
-                    await asyncio.to_thread(socket._sock.sendall, text_data.encode())
-                except:
-                    pass
+                print(f"[Terminal WS→PTY] {e}")
 
-        # Run all tasks concurrently and wait for any to finish
+        # 4. PTY output → WebSocket (non-blocking via asyncio.to_thread)
+        async def pty_to_websocket():
+            try:
+                while True:
+                    if process.poll() is not None:
+                        break
+                    readable, _, _ = await asyncio.to_thread(
+                        select.select, [master_fd], [], [], 0.1
+                    )
+                    if readable:
+                        data = os.read(master_fd, 1024)
+                        if not data:
+                            break
+                        if websocket.client_state == WebSocketState.CONNECTED:
+                            await websocket.send_bytes(data)
+                        else:
+                            break
+            except (WebSocketDisconnect, RuntimeError, OSError):
+                pass
+            except Exception as e:
+                print(f"[Terminal PTY→WS] {e}")
+
+        # Run both tasks, stop as soon as one finishes
         done, pending = await asyncio.wait(
             [
-                asyncio.create_task(read_from_socket()),
-                asyncio.create_task(write_to_socket()),
-                asyncio.create_task(websocket_heartbeat())
+                asyncio.create_task(websocket_to_pty()),
+                asyncio.create_task(pty_to_websocket()),
             ],
-            return_when=asyncio.FIRST_COMPLETED
+            return_when=asyncio.FIRST_COMPLETED,
         )
-        
-        # Cleanup pending tasks
         for task in pending:
             task.cancel()
 
     except Exception as e:
-        print(f"WebSocket Terminal Critical Error: {e}")
+        print(f"[Terminal Critical] {e}")
     finally:
+        # Clean up subprocess and file descriptors
+        if process and process.poll() is None:
+            try:
+                process.terminate()
+            except Exception:
+                pass
+        if master_fd is not None:
+            try:
+                os.close(master_fd)
+            except Exception:
+                pass
+        if slave_fd is not None:
+            try:
+                os.close(slave_fd)
+            except Exception:
+                pass
         docker_launcher.kill_container(container_id)
         try:
             if websocket.client_state == status.WS_CONNECTED:
                 await websocket.close()
-        except:
+        except Exception:
             pass
 
 @app.websocket("/ws/{user_id}")

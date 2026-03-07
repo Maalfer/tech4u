@@ -57,6 +57,10 @@ import AdminUserDetail from './pages/AdminUserDetail';
 import AdminReferrals from './pages/AdminReferrals';
 import AdminLabs from './pages/AdminLabs';
 import AdminTerminalBuilder from './pages/AdminTerminalBuilder';
+import Teoria from './pages/Teoria';
+import TeoriaSubject from './pages/TeoriaSubject';
+import TeoriaPost from './pages/TeoriaPost';
+import AdminTeoria from './pages/AdminTeoria';
 
 import { useAuth } from './context/AuthContext';
 
@@ -104,6 +108,18 @@ export default function App() {
             <Route
               path="/labs/:id"
               element={<PremiumRoute><LabDetail /></PremiumRoute>}
+            />
+            <Route
+              path="/teoria"
+              element={<ProtectedRoute><Teoria /></ProtectedRoute>}
+            />
+            <Route
+              path="/teoria/:subjectSlug"
+              element={<ProtectedRoute><TeoriaSubject /></ProtectedRoute>}
+            />
+            <Route
+              path="/teoria/:subjectSlug/:postSlug"
+              element={<ProtectedRoute><TeoriaPost /></ProtectedRoute>}
             />
             <Route
               path="/courses"
@@ -254,6 +270,10 @@ export default function App() {
             <Route
               path="/admin/terminal-builder/*"
               element={<RoleRoute allowedRoles={['admin']}><AdminTerminalBuilder /></RoleRoute>}
+            />
+            <Route
+              path="/admin/teoria"
+              element={<RoleRoute allowedRoles={['admin']}><AdminTeoria /></RoleRoute>}
             />
 
             {/* 4. FALLBACK ESTRATÉGICO */}

@@ -407,3 +407,25 @@ def get_db():
 
 def create_tables():
     Base.metadata.create_all(bind=engine)
+# --- TEORÍA / TEMARIO ---
+
+class TheorySubject(Base):
+    __tablename__ = "theory_subjects"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    slug = Column(String, unique=True, index=True, nullable=False)
+    description = Column(Text, nullable=True)
+    icon = Column(String, default="📚")
+    order_index = Column(Integer, default=0)
+    posts = relationship("TheoryPost", back_populates="subject", cascade="all, delete-orphan")
+
+class TheoryPost(Base):
+    __tablename__ = "theory_posts"
+    id = Column(Integer, primary_key=True, index=True)
+    subject_id = Column(Integer, ForeignKey("theory_subjects.id"), nullable=False)
+    title = Column(String, nullable=False)
+    slug = Column(String, unique=True, index=True, nullable=False)
+    markdown_content = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    subject = relationship("TheorySubject", back_populates="posts")
