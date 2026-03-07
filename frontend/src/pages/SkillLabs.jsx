@@ -10,13 +10,21 @@ import SkillEngine from '../components/SkillEngine'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
+// Custom PNG Icons
+import examIcon from '../assets/exam_icon.png';
+import bbddIcon from '../assets/basededatos_icon.png';
+import redesIcon from '../assets/redes_icon.png';
+import soIcon from '../assets/sistemasoperativos_icon.png';
+import hardwareIcon from '../assets/fundamentsohardware_icon.png';
+import marcasIcon from '../assets/lenguajemarcas.png';
+
 const SUBJECTS = [
-    { key: 'general', label: 'Todos', icon: Zap, color: 'from-fuchsia-600/20 to-fuchsia-900/10 border-fuchsia-500/30 hover:border-fuchsia-400/60', iconColor: 'text-fuchsia-400', badge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30' },
-    { key: 'Bases de Datos', label: 'Bases de Datos', icon: Database, color: 'from-violet-600/20 to-violet-900/10 border-violet-500/30 hover:border-violet-400/60', iconColor: 'text-violet-400', badge: 'bg-violet-500/10 text-violet-400 border-violet-500/30' },
-    { key: 'Redes', label: 'Redes', icon: Wifi, color: 'from-sky-600/20 to-sky-900/10 border-sky-500/30 hover:border-sky-400/60', iconColor: 'text-sky-400', badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30' },
-    { key: 'Sistemas Operativos', label: 'Sistemas Operativos', icon: Monitor, color: 'from-emerald-600/20 to-emerald-900/10 border-emerald-500/30 hover:border-emerald-400/60', iconColor: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    { key: 'Fundamentos de Hardware', label: 'Fundamentos de Hardware', icon: Cpu, color: 'from-orange-600/20 to-orange-900/10 border-orange-500/30 hover:border-orange-400/60', iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
-    { key: 'Lenguaje de Marcas', label: 'Lenguaje de Marcas', icon: FileCode, color: 'from-cyan-600/20 to-cyan-900/10 border-cyan-500/30 hover:border-cyan-400/60', iconColor: 'text-cyan-400', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
+    { key: 'general', label: 'Todos', icon: examIcon, isCustom: true, color: 'from-fuchsia-600/20 to-fuchsia-900/10 border-fuchsia-500/30 hover:border-fuchsia-400/60', iconColor: 'text-fuchsia-400', badge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30' },
+    { key: 'Bases de Datos', label: 'Bases de Datos', icon: bbddIcon, isCustom: true, color: 'from-violet-600/20 to-violet-900/10 border-violet-500/30 hover:border-violet-400/60', iconColor: 'text-violet-400', badge: 'bg-violet-500/10 text-violet-400 border-violet-500/30' },
+    { key: 'Redes', label: 'Redes', icon: redesIcon, isCustom: true, color: 'from-sky-600/20 to-sky-900/10 border-sky-500/30 hover:border-sky-400/60', iconColor: 'text-sky-400', badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30' },
+    { key: 'Sistemas Operativos', label: 'Sistemas Operativos', icon: soIcon, isCustom: true, color: 'from-emerald-600/20 to-emerald-900/10 border-emerald-500/30 hover:border-emerald-400/60', iconColor: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
+    { key: 'Fundamentos de Hardware', label: 'Fundamentos de Hardware', icon: hardwareIcon, isCustom: true, color: 'from-orange-600/20 to-orange-900/10 border-orange-500/30 hover:border-orange-400/60', iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
+    { key: 'Lenguaje de Marcas', label: 'Lenguaje de Marcas', icon: marcasIcon, isCustom: true, color: 'from-cyan-600/20 to-cyan-900/10 border-cyan-500/30 hover:border-cyan-400/60', iconColor: 'text-cyan-400', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
 ]
 
 export default function SkillLabs() {
@@ -106,9 +114,9 @@ export default function SkillLabs() {
                             Elige un entorno de pruebas
                         </p>
 
-                        <div className="flex flex-col xl:flex-row gap-8 items-start">
+                        <div className="max-w-7xl mx-auto flex flex-col xl:flex-row gap-8 items-start">
                             {/* Grid de Asignaturas */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 flex-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 flex-1 w-full">
                                 {SUBJECTS.map(sub => {
                                     const Icon = sub.icon
                                     return (
@@ -117,12 +125,18 @@ export default function SkillLabs() {
                                             onClick={() => handleSelectSubject(sub)}
                                             className={`group glass rounded-3xl p-7 border-2 bg-gradient-to-br ${sub.color} text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]`}
                                         >
-                                            <div className={`w-12 h-12 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
-                                                <Icon className={`w-6 h-6 ${sub.iconColor}`} />
+                                            <div className="flex items-center gap-5 mb-6">
+                                                <div className="flex-shrink-0">
+                                                    {sub.isCustom ? (
+                                                        <img src={sub.icon} className="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-300" alt="" />
+                                                    ) : (
+                                                        <Icon className={`w-12 h-12 ${sub.iconColor} group-hover:scale-110 transition-transform duration-300`} />
+                                                    )}
+                                                </div>
+                                                <h3 className="text-sm font-black uppercase italic text-white leading-tight">
+                                                    {sub.label}
+                                                </h3>
                                             </div>
-                                            <h3 className="text-sm font-black uppercase italic text-white leading-tight mb-1">
-                                                {sub.label}
-                                            </h3>
                                             <div className="flex items-center justify-between mt-4">
                                                 <span className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded border ${sub.badge}`}>
                                                     ASIR

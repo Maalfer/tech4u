@@ -2,12 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
     BookOpen,
-    Monitor,
-    Wifi,
-    Database,
-    Cpu,
-    FileCode,
-    Zap,
     ChevronRight,
     Sparkles
 } from 'lucide-react';
@@ -17,13 +11,21 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
 
+// Custom PNG Icons
+import examIcon from '../assets/exam_icon.png';
+import bbddIcon from '../assets/basededatos_icon.png';
+import redesIcon from '../assets/redes_icon.png';
+import soIcon from '../assets/sistemasoperativos_icon.png';
+import hardwareIcon from '../assets/fundamentsohardware_icon.png';
+import marcasIcon from '../assets/lenguajemarcas.png';
+
 const SUBJECT_STYLES = {
-    'general': { icon: Zap, color: 'from-yellow-600/20 to-yellow-900/10 border-yellow-500/30 hover:border-yellow-400/60', iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
-    'Bases de Datos': { icon: Database, color: 'from-violet-600/20 to-violet-900/10 border-violet-500/30 hover:border-violet-400/60', iconColor: 'text-violet-400', badge: 'bg-violet-500/10 text-violet-400 border-violet-500/30' },
-    'Redes': { icon: Wifi, color: 'from-sky-600/20 to-sky-900/10 border-sky-500/30 hover:border-sky-400/60', iconColor: 'text-sky-400', badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30' },
-    'Sistemas Operativos': { icon: Monitor, color: 'from-emerald-600/20 to-emerald-900/10 border-emerald-500/30 hover:border-emerald-400/60', iconColor: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    'Fundamentos de Hardware': { icon: Cpu, color: 'from-orange-600/20 to-orange-900/10 border-orange-500/30 hover:border-orange-400/60', iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
-    'Lenguaje de Marcas': { icon: FileCode, color: 'from-cyan-600/20 to-cyan-900/10 border-cyan-500/30 hover:border-cyan-400/60', iconColor: 'text-cyan-400', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
+    'Examen General': { icon: examIcon, isCustom: true, color: 'from-yellow-600/20 to-yellow-900/10 border-yellow-500/30 hover:border-yellow-400/60', iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
+    'Bases de Datos': { icon: bbddIcon, isCustom: true, color: 'from-violet-600/20 to-violet-900/10 border-violet-500/30 hover:border-violet-400/60', iconColor: 'text-violet-400', badge: 'bg-violet-500/10 text-violet-400 border-violet-500/30' },
+    'Redes': { icon: redesIcon, isCustom: true, color: 'from-sky-600/20 to-sky-900/10 border-sky-500/30 hover:border-sky-400/60', iconColor: 'text-sky-400', badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30' },
+    'Sistemas Operativos': { icon: soIcon, isCustom: true, color: 'from-emerald-600/20 to-emerald-900/10 border-emerald-500/30 hover:border-emerald-400/60', iconColor: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
+    'Fundamentos de Hardware': { icon: hardwareIcon, isCustom: true, color: 'from-orange-600/20 to-orange-900/10 border-orange-500/30 hover:border-orange-400/60', iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
+    'Lenguaje de Marcas': { icon: marcasIcon, isCustom: true, color: 'from-cyan-600/20 to-cyan-900/10 border-cyan-500/30 hover:border-cyan-400/60', iconColor: 'text-cyan-400', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
 };
 
 const DEFAULT_STYLE = { icon: BookOpen, color: 'from-slate-600/20 to-slate-900/10 border-slate-500/30 hover:border-slate-400/60', iconColor: 'text-slate-400', badge: 'bg-slate-500/10 text-slate-400 border-slate-500/30' };
@@ -116,12 +118,18 @@ export default function Teoria() {
                                         to={`/teoria/${s.slug}`}
                                         className={`group glass rounded-3xl p-7 border-2 bg-gradient-to-br ${style.color} text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] block no-underline`}
                                     >
-                                        <div className={`w-12 h-12 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
-                                            <Icon className={`w-6 h-6 ${style.iconColor}`} />
+                                        <div className="flex items-center gap-5 mb-6">
+                                            <div className="flex-shrink-0">
+                                                {style.isCustom ? (
+                                                    <img src={style.icon} className="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-300" alt="" />
+                                                ) : (
+                                                    <Icon className={`w-12 h-12 ${style.iconColor} group-hover:scale-110 transition-transform duration-300`} />
+                                                )}
+                                            </div>
+                                            <h3 className="text-lg font-black uppercase italic text-white leading-tight group-hover:text-white">
+                                                {s.name}
+                                            </h3>
                                         </div>
-                                        <h3 className="text-sm font-black uppercase italic text-white leading-tight mb-1 group-hover:text-white">
-                                            {s.name}
-                                        </h3>
                                         <div className="flex items-center justify-between mt-4">
                                             <span className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded border ${style.badge}`}>
                                                 ASIR

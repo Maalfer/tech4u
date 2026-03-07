@@ -7,12 +7,21 @@ import api from '../services/api';
 import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
 
+// Custom PNG Icons
+import bbddIcon from '../assets/basededatos_icon.png';
+import redesIcon from '../assets/redes_icon.png';
+import soIcon from '../assets/sistemasoperativos_icon.png';
+import hardwareIcon from '../assets/fundamentsohardware_icon.png';
+import marcasIcon from '../assets/lenguajemarcas.png';
+import ciberIcon from '../assets/ciberseguridad_icon.png';
+
 const SUBJECTS = [
-    { id: "Bases de Datos", icon: "🗄️", color: "text-blue-400" },
-    { id: "Redes", icon: "🌐", color: "text-purple-400" },
-    { id: "Sistemas Operativos", icon: "💻", color: "text-orange-400" },
-    { id: "Ciberseguridad", icon: "🛡️", color: "text-red-400" },
-    { id: "Programación", icon: "🚀", color: "text-yellow-400" }
+    { id: "Bases de Datos", icon: bbddIcon, color: "text-blue-400" },
+    { id: "Redes", icon: redesIcon, color: "text-purple-400" },
+    { id: "Sistemas Operativos", icon: soIcon, color: "text-orange-400" },
+    { id: "Ciberseguridad", icon: ciberIcon, color: "text-red-400" },
+    { id: "Fundamentos de Hardware", icon: hardwareIcon, color: "text-yellow-400" },
+    { id: "Lenguaje de Marcas", icon: marcasIcon, color: "text-cyan-400" }
 ];
 
 export default function AdminContent() {
@@ -226,11 +235,15 @@ export default function AdminContent() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in zoom-in-95 duration-500">
                         {SUBJECTS.map((sub) => (
                             <button key={sub.id} onClick={() => setSelectedSubject(sub.id)}
-                                className="glass p-10 rounded-3xl border border-slate-800 flex flex-col items-center gap-6 group hover:border-neon/40 hover:bg-neon/5 transition-all">
-                                <div className="text-4xl group-hover:scale-110 transition-transform">{sub.icon}</div>
-                                <span className={`font-black uppercase tracking-widest text-sm ${sub.color}`}>{sub.id}</span>
-                                <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 group-hover:text-white transition-colors">
-                                    EXPLORAR DIRECTORIO <ChevronRight className="w-3 h-3" />
+                                className="glass p-10 rounded-3xl border border-slate-800 flex items-center gap-8 group hover:border-neon/40 hover:bg-neon/5 transition-all text-left w-full">
+                                <div className="w-20 h-20 flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                    <img src={sub.icon} alt={sub.id} className="w-full h-full object-contain" />
+                                </div>
+                                <div className="flex-1">
+                                    <span className={`font-black uppercase tracking-[0.1em] text-lg block mb-2 ${sub.color}`}>{sub.id}</span>
+                                    <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 group-hover:text-white transition-colors">
+                                        EXPLORAR DIRECTORIO <ChevronRight className="w-3 h-3" />
+                                    </div>
                                 </div>
                             </button>
                         ))}

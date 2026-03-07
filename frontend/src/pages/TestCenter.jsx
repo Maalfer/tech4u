@@ -13,13 +13,21 @@ import TestEngine from '../components/TestEngine'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
+// Custom PNG Icons
+import examIcon from '../assets/exam_icon.png';
+import bbddIcon from '../assets/basededatos_icon.png';
+import redesIcon from '../assets/redes_icon.png';
+import soIcon from '../assets/sistemasoperativos_icon.png';
+import hardwareIcon from '../assets/fundamentsohardware_icon.png';
+import marcasIcon from '../assets/lenguajemarcas.png';
+
 const SUBJECTS = [
-    { key: 'general', label: 'Examen General', icon: Zap, color: 'from-yellow-600/20 to-yellow-900/10 border-yellow-500/30 hover:border-yellow-400/60', iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
-    { key: 'Bases de Datos', label: 'Bases de Datos', icon: Database, color: 'from-violet-600/20 to-violet-900/10 border-violet-500/30 hover:border-violet-400/60', iconColor: 'text-violet-400', badge: 'bg-violet-500/10 text-violet-400 border-violet-500/30' },
-    { key: 'Redes', label: 'Redes', icon: Wifi, color: 'from-sky-600/20 to-sky-900/10 border-sky-500/30 hover:border-sky-400/60', iconColor: 'text-sky-400', badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30' },
-    { key: 'Sistemas Operativos', label: 'Sistemas Operativos', icon: Monitor, color: 'from-emerald-600/20 to-emerald-900/10 border-emerald-500/30 hover:border-emerald-400/60', iconColor: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    { key: 'Fundamentos de Hardware', label: 'Fundamentos de Hardware', icon: Cpu, color: 'from-orange-600/20 to-orange-900/10 border-orange-500/30 hover:border-orange-400/60', iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
-    { key: 'Lenguaje de Marcas', label: 'Lenguaje de Marcas', icon: FileCode, color: 'from-cyan-600/20 to-cyan-900/10 border-cyan-500/30 hover:border-cyan-400/60', iconColor: 'text-cyan-400', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
+    { key: 'general', label: 'Examen General', icon: examIcon, isCustom: true, color: 'from-yellow-600/20 to-yellow-900/10 border-yellow-500/30 hover:border-yellow-400/60', iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
+    { key: 'Bases de Datos', label: 'Bases de Datos', icon: bbddIcon, isCustom: true, color: 'from-violet-600/20 to-violet-900/10 border-violet-500/30 hover:border-violet-400/60', iconColor: 'text-violet-400', badge: 'bg-violet-500/10 text-violet-400 border-violet-500/30' },
+    { key: 'Redes', label: 'Redes', icon: redesIcon, isCustom: true, color: 'from-sky-600/20 to-sky-900/10 border-sky-500/30 hover:border-sky-400/60', iconColor: 'text-sky-400', badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30' },
+    { key: 'Sistemas Operativos', label: 'Sistemas Operativos', icon: soIcon, isCustom: true, color: 'from-emerald-600/20 to-emerald-900/10 border-emerald-500/30 hover:border-emerald-400/60', iconColor: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
+    { key: 'Fundamentos de Hardware', label: 'Fundamentos de Hardware', icon: hardwareIcon, isCustom: true, color: 'from-orange-600/20 to-orange-900/10 border-orange-500/30 hover:border-orange-400/60', iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
+    { key: 'Lenguaje de Marcas', label: 'Lenguaje de Marcas', icon: marcasIcon, isCustom: true, color: 'from-cyan-600/20 to-cyan-900/10 border-cyan-500/30 hover:border-cyan-400/60', iconColor: 'text-cyan-400', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
 ]
 
 const MODES = [
@@ -164,30 +172,66 @@ export default function TestCenter() {
                         <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em] mb-6">
                             Elige tu asignatura
                         </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl">
-                            {SUBJECTS.map(sub => {
-                                const Icon = sub.icon
-                                return (
-                                    <button
-                                        key={sub.key}
-                                        onClick={() => handleSelectSubject(sub)}
-                                        className={`group glass rounded-3xl p-7 border-2 bg-gradient-to-br ${sub.color} text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]`}
-                                    >
-                                        <div className={`w-12 h-12 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
-                                            <Icon className={`w-6 h-6 ${sub.iconColor}`} />
-                                        </div>
-                                        <h3 className="text-sm font-black uppercase italic text-white leading-tight mb-1 group-hover:text-white">
-                                            {sub.label}
-                                        </h3>
-                                        <div className="flex items-center justify-between mt-4">
-                                            <span className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded border ${sub.badge}`}>
-                                                ASIR
-                                            </span>
-                                            <ChevronRight className={`w-4 h-4 ${sub.iconColor} opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all`} />
-                                        </div>
-                                    </button>
-                                )
-                            })}
+                        <div className="max-w-7xl mx-auto flex flex-col xl:flex-row gap-8 items-start">
+                            {/* Grid de Asignaturas */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 flex-1 w-full">
+                                {SUBJECTS.map(sub => {
+                                    const Icon = sub.icon
+                                    return (
+                                        <button
+                                            key={sub.key}
+                                            onClick={() => handleSelectSubject(sub)}
+                                            className={`group glass rounded-3xl p-7 border-2 bg-gradient-to-br ${sub.color} text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]`}
+                                        >
+                                            <div className="flex items-center gap-5 mb-6">
+                                                <div className="flex-shrink-0">
+                                                    {sub.isCustom ? (
+                                                        <img src={sub.icon} className="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-300" alt="" />
+                                                    ) : (
+                                                        <Icon className={`w-12 h-12 ${sub.iconColor} group-hover:scale-110 transition-transform duration-300`} />
+                                                    )}
+                                                </div>
+                                                <h3 className="text-lg font-black uppercase italic text-white leading-tight group-hover:text-white">
+                                                    {sub.label}
+                                                </h3>
+                                            </div>
+                                            <div className="flex items-center justify-between mt-4">
+                                                <span className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded border ${sub.badge}`}>
+                                                    ASIR
+                                                </span>
+                                                <ChevronRight className={`w-4 h-4 ${sub.iconColor} opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all`} />
+                                            </div>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            {/* Panel de Descripción lateral */}
+                            <div className="w-full xl:w-[350px] glass rounded-3xl p-8 border-2 bg-gradient-to-br from-emerald-900/10 to-black/40 border-emerald-500/20 shadow-2xl xl:sticky xl:top-8 shrink-0">
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-6">
+                                    <ClipboardList className="w-6 h-6 text-emerald-400" />
+                                </div>
+                                <h3 className="text-xl font-black uppercase italic text-white mb-4">
+                                    ¿Qué es Test Center?
+                                </h3>
+                                <div className="space-y-5 text-sm text-slate-400 leading-relaxed font-mono">
+                                    <p>
+                                        El Test Center es el núcleo de evaluación de Tech4U, donde validas tus conocimientos técnicos antes de enfrentarte al mundo real.
+                                    </p>
+                                    <div>
+                                        <p className="text-emerald-400 font-bold mb-1 uppercase tracking-widest text-[10px]">Simulacros de Examen</p>
+                                        <p>Entrena con preguntas reales de certificación y exámenes oficiales de ASIR para garantizar tu aprobado.</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-neon font-bold mb-1 uppercase tracking-widest text-[10px]">Modo Supervivencia</p>
+                                        <p>Pon a prueba tu resistencia técnica. Responde sin fallos mientras la dificultad escala. Un solo error y estás fuera.</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-white/50 font-bold mb-1 uppercase tracking-widest text-[10px]">Análisis de Fallos</p>
+                                        <p>Cada test fallido genera un reporte detallado para que sepas exactamente qué áreas de la teoría debes reforzar.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -198,7 +242,11 @@ export default function TestCenter() {
                         {/* Subject hero */}
                         <div className={`glass rounded-3xl p-8 border-2 bg-gradient-to-br ${selectedSubject.color} mb-8 flex items-center gap-5`}>
                             <div className="w-16 h-16 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center flex-shrink-0">
-                                <selectedSubject.icon className={`w-8 h-8 ${selectedSubject.iconColor}`} />
+                                {selectedSubject.isCustom ? (
+                                    <img src={selectedSubject.icon} className="w-8 h-8 object-contain" alt="" />
+                                ) : (
+                                    <selectedSubject.icon className={`w-8 h-8 ${selectedSubject.iconColor}`} />
+                                )}
                             </div>
                             <div>
                                 <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">Asignatura seleccionada</p>
