@@ -1,687 +1,849 @@
 import { Scene } from 'phaser';
 import { EventBus } from '../EventBus';
 
-// ─── Paleta de colores medievales ────────────────────────────────────────────
-const P = {
-    // Suelo
-    floorA:    0x2a1f0e,
-    floorB:    0x352618,
-    floorLine: 0x180e03,
-    // Paredes
-    wallBase:  0x1a1a2e,
-    wallBrick: 0x252542,
-    wallLine:  0x111124,
-    wallLight: 0x2e2e52,
-    // Madera
-    wood:      0x5c3317,
-    woodLight: 0x7a4520,
-    woodDark:  0x3a1f08,
-    // Cama
-    bedFrame:  0x6b3a1f,
-    bedMat:    0x7a5a3a,
-    bedSheet:  0xd4c4a8,
-    bedPillow: 0xece0c8,
-    // Ordenador
-    deskMat:   0x1e1e38,
-    screenOff: 0x080820,
-    screenOn:  0x00cc77,
-    neon:      0xc6ff33,
+// ─── Paleta cálida estilo cozy RPG ────────────────────────────────────────────
+const C = {
+    // Suelo madera cálido
+    floorA:    0xB07840,  // tablón base ámbar
+    floorB:    0xA06C38,  // tablón alternativo
+    floorC:    0xC08850,  // tablón claro (reflejo luz)
+    floorEdge: 0x704828,  // borde entre tablones
+    floorSh:   0x5A3820,  // sombra bajo objetos
+
+    // Pared trasera (zona superior)
+    wallBase:  0xC8A070,  // piedra arenosa cálida
+    wallBrick: 0xB89060,  // ladrillo
+    wallDark:  0x8A6040,  // junta de ladrillo
+    wallLight: 0xDCC090,  // ladrillo iluminado
+
+    // Marco de la habitación
+    frameWood:  0x6B3A1F,
+    frameLight: 0x8B5230,
+    frameDark:  0x3A1A08,
+
+    // Armario teal (como la imagen ref)
+    teal:      0x3A8070,
+    tealL:     0x58A090,
+    tealD:     0x1E5040,
+    tealTop:   0x4A9080,
+
+    // Madera muebles
+    wood:      0x8B5230,
+    woodL:     0xAA6A40,
+    woodD:     0x4A2810,
+    woodTop:   0x9A6040,
+
+    // Terminal/ordenador
+    deskDark:  0x1A1A2E,
+    screenGlow: 0x00DD88,
+    neon:      0xC6FF33,
+    screenFace: 0x080818,
+
     // Libros
-    book1:     0x8b1a1a,
-    book2:     0x1a5c1a,
-    book3:     0x1a1a8b,
-    book4:     0x8b6b1a,
-    bookPage:  0xf0e8d0,
+    bookR:     0xA82828,
+    bookB:     0x1858A0,
+    bookG:     0x208040,
+    bookY:     0xC09020,
+    bookPage:  0xF0E0C0,
+
+    // Cama
+    bedFrame:  0x7A4A28,
+    bedFrameD: 0x4A2810,
+    bedSheet:  0xE8D8A8,
+    bedSheetD: 0xC8B888,
+    pillow:    0xF4ECD8,
+    pillowD:   0xD8CCBC,
+
     // Armadura
-    armorMetal: 0x8a8a9a,
-    armorShine: 0xb4b4c8,
-    armorDark:  0x4a4a5a,
-    swordMetal: 0xd0d0e0,
-    swordHilt:  0xd4aa00,
+    armorG:    0x8090A0,
+    armorL:    0xA0B8CC,
+    armorD:    0x485870,
+    goldTrim:  0xD4A820,
+    goldL:     0xF0C840,
+
+    // Plantas
+    leaf1:     0x40A040,
+    leaf2:     0x308030,
+    leaf3:     0x50C050,
+    pot:       0xA05030,
+    potD:      0x703010,
+
     // Alfombra
-    rugBase:   0x5c1a2e,
-    rugBorder: 0xd4aa00,
-    rugPat:    0x7a2240,
-    // Antorcha
-    torchBase: 0x4a2d0e,
-    torchFire: 0xff8800,
-    torchGlow: 0xffcc44,
-    // Decoración
-    decorGold: 0xd4aa00,
-    decorSilv: 0xc0c0d0,
+    rugBase:   0x8B2252,
+    rugBorder: 0xD4A820,
+    rugPat:    0xA83060,
+
+    // Luz ambiente cálida
+    warmGlow:  0xFFCC44,
+    warmDim:   0xFF9920,
+
+    // Sombra drop-shadow objetos
+    dropSh:    0x000000,
 };
 
-// ─── Descripción de objetos interactivos ─────────────────────────────────────
-const OBJECTS = [
-    {
-        id: 'computer',
-        label: 'Terminal',
-        x: 310, y: 80,
-        w: 64, h: 48,
-        hint: '[E] Acceder al sistema',
-        route: '/tests',
-        dialog: '> SISTEMA ONLINE...\n> Bienvenido, alumno.\n> Acceso a Test Center activado.',
-    },
-    {
-        id: 'bookshelf',
-        label: 'Estantería',
-        x: 530, y: 76,
-        w: 72, h: 56,
-        hint: '[E] Consultar recursos',
-        route: '/recursos',
-        dialog: 'Una estantería repleta de manuales técnicos y guías de certificación.',
-    },
-    {
-        id: 'book',
-        label: 'Grimorio',
-        x: 110, y: 210,
-        w: 48, h: 36,
-        hint: '[E] Leer teoría',
-        route: '/teoria',
-        dialog: 'Un antiguo tomo con diagramas de redes y fórmulas de subnetting...',
-    },
-    {
-        id: 'bed',
-        label: 'Cama',
-        x: 500, y: 310,
-        w: 88, h: 56,
-        hint: '[E] Descansar',
-        route: null,
-        dialog: 'Una cama de aventurero. Descansando recuperas fuerza para los exámenes.\n\nZzz... +50 EXP de sueño.',
-    },
-    {
-        id: 'armor',
-        label: 'Armería',
-        x: 84, y: 76,
-        w: 56, h: 56,
-        hint: '[E] Ver personaje',
-        route: '/personaje',
-        dialog: 'Tu armadura de conocimiento. Cada certificación añade una pieza nueva.',
-    },
-];
+// ─── Room layout ──────────────────────────────────────────────────────────────
+const RW = 620, RH = 465;
+const WALL_H   = 36;   // altura pared trasera visible
+const FLOOR_Y  = WALL_H;
+const FLOOR_Y2 = RH - 32;
+const DOOR_W   = 80;
+const DOOR_X   = (RW - DOOR_W) / 2;
 
-// ─── Room config ─────────────────────────────────────────────────────────────
-const ROOM_W = 620;
-const ROOM_H = 465;
-const WALL_T  = 32; // grosor pared top/sides
-const WALL_B  = 32; // grosor pared bottom
-const DOOR_W  = 80; // ancho puerta
-const DOOR_X  = (ROOM_W - DOOR_W) / 2; // x puerta (centrada)
-const FLOOR_Y1 = WALL_T;
-const FLOOR_Y2 = ROOM_H - WALL_B;
+// ─── Objetos interactivos ─────────────────────────────────────────────────────
+const OBJS = [
+    { id: 'armor',    label: 'Armería',  x: 88,  y: 90,  w: 60, h: 55, hint: '[E] Ver personaje',  route: '/personaje', dialog: 'Tu armadura de conocimiento.\nCada certificación añade una pieza nueva.' },
+    { id: 'computer', label: 'Terminal', x: 310, y: 80,  w: 70, h: 60, hint: '[E] Acceder al sistema', route: '/tests',     dialog: '> SISTEMA ONLINE...\n> Acceso a Test Center activado.' },
+    { id: 'shelf',    label: 'Estantería', x: 528, y: 88, w: 72, h: 60, hint: '[E] Ver recursos', route: '/recursos',  dialog: 'Manuales técnicos, guías y certificaciones.' },
+    { id: 'book',     label: 'Grimorio', x: 136, y: 235, w: 54, h: 36, hint: '[E] Leer teoría',  route: '/teoria',    dialog: 'Un tomo antiguo con esquemas de redes y fórmulas...' },
+    { id: 'bed',      label: 'Cama',     x: 490, y: 316, w: 96, h: 60, hint: '[E] Descansar',    route: null,         dialog: 'Descansando recuperas fuerzas para los exámenes.\n\nZzz... +50 EXP de sueño.' },
+];
 
 // ─── Escena ───────────────────────────────────────────────────────────────────
 export class EscenaCasa extends Scene {
     constructor() {
         super('EscenaCasa');
         this.dialogOpen  = false;
-        this.currentHint = null;
+        this.lastDir     = 'down';
+        this.currentZone = null;
     }
 
     create() {
-        this.cameras.main.fadeIn(600);
-        this.physics.world.setBounds(0, 0, ROOM_W, ROOM_H);
-        this.cameras.main.setBounds(0, 0, ROOM_W, ROOM_H);
+        this.cameras.main.fadeIn(700);
+        this.physics.world.setBounds(0, 0, RW, RH);
+        this.cameras.main.setBounds(0, 0, RW, RH);
         this.cameras.main.setZoom(2);
 
-        // ── Dibujar el mundo ──────────────────────────────────────────────────
-        this._drawRoom();
+        // ── Capas de dibujo ───────────────────────────────────────────────────
+        this._drawFloor();
+        this._drawWallBack();
+        this._drawRoomFrame();
+        this._drawRug();
 
-        // ── Física ───────────────────────────────────────────────────────────
+        // ── Muebles con profundidad ───────────────────────────────────────────
+        this._drawArmorStand(88, 52);
+        this._drawComputerDesk(310, 52);
+        this._drawBookshelf(528, 48);
+        this._drawTableWithBook(136, 198);
+        this._drawBed(490, 270);
+
+        // ── Plantas decorativas ───────────────────────────────────────────────
+        this._drawPlant(38, 130, 'small');
+        this._drawPlant(582, 250, 'medium');
+        this._drawPlant(38, 320, 'medium');
+
+        // ── Luz ambiente cálida ───────────────────────────────────────────────
+        this._drawLighting();
+
+        // ── Física: paredes y colisiones ──────────────────────────────────────
         this._setupWalls();
 
         // ── Jugador ───────────────────────────────────────────────────────────
-        this.jugador = this.physics.add.sprite(ROOM_W / 2, ROOM_H - 70, 'hero', 0);
+        this.jugador = this.physics.add.sprite(RW / 2, RH - 90, 'hero', 0);
+        this.jugador.setScale(2.2);
+        this.jugador.body.setSize(10, 8);
+        this.jugador.body.setOffset(3, 16);
         this.jugador.setCollideWorldBounds(true);
-        this.jugador.setScale(2);
-        this.jugador.body.setSize(12, 10);
-        this.jugador.body.setOffset(2, 14);
+        this.jugador.setDepth(10);
         this.physics.add.collider(this.jugador, this.walls);
         this.cameras.main.startFollow(this.jugador, true, 0.08, 0.08);
-        this.lastDir = 'down';
 
-        // ── HUD: indicador de interacción ─────────────────────────────────────
-        this._setupHintText();
-
-        // ── Zonas de objetos ──────────────────────────────────────────────────
+        // ── Zonas de interacción ──────────────────────────────────────────────
         this._setupObjectZones();
 
+        // ── HUD ───────────────────────────────────────────────────────────────
+        this._setupHUD();
+
         // ── Controles ─────────────────────────────────────────────────────────
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.wasd = this.input.keyboard.addKeys({
-            up:    Phaser.Input.Keyboard.KeyCodes.W,
-            down:  Phaser.Input.Keyboard.KeyCodes.S,
-            left:  Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D,
-        });
-        this.keyE     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+        this.cursors  = this.input.keyboard.createCursorKeys();
+        this.wasd     = this.input.keyboard.addKeys({ up: 'W', down: 'S', left: 'A', right: 'D' });
+        this.keyE     = this.input.keyboard.addKey('E');
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
-        // ── Animación antorchas ───────────────────────────────────────────────
-        this._animateTorches();
-
-        // ── EventBus: cerrar diálogo ──────────────────────────────────────────
         EventBus.on('CLOSE_MODAL', () => { this.dialogOpen = false; });
     }
 
-    // ─── Dibuja la habitación ─────────────────────────────────────────────────
-    _drawRoom() {
+    // ─── SUELO ────────────────────────────────────────────────────────────────
+    _drawFloor() {
+        const g = this.add.graphics();
+        const plankH = 10;
+        const colors = [C.floorA, C.floorB, C.floorA, C.floorC, C.floorB];
+
+        for (let y = FLOOR_Y; y < FLOOR_Y2; y += plankH) {
+            const rowIdx = Math.floor((y - FLOOR_Y) / plankH);
+            const base = colors[rowIdx % colors.length];
+
+            // Tablón base
+            g.fillStyle(base);
+            g.fillRect(0, y, RW, plankH - 1);
+
+            // Veta del tablón (efecto madera)
+            g.fillStyle(C.floorEdge, 0.4);
+            g.fillRect(0, y + plankH - 1, RW, 1);
+
+            // Variaciones horizontales (juntas de tablón)
+            const offset = (rowIdx % 3) * 80 + 40;
+            for (let x = offset; x < RW; x += 120) {
+                g.fillStyle(C.floorEdge, 0.35);
+                g.fillRect(x, y, 1, plankH - 1);
+            }
+
+            // Brillo cálido en el centro del tablón
+            g.fillStyle(C.floorC, 0.15);
+            g.fillRect(0, y + 3, RW, 3);
+        }
+
+        // Suelo adicional bajo pared trasera
+        g.fillStyle(C.floorSh);
+        g.fillRect(0, FLOOR_Y, RW, 6);
+    }
+
+    // ─── PARED TRASERA ────────────────────────────────────────────────────────
+    _drawWallBack() {
         const g = this.add.graphics();
 
-        // Suelo con tablones de madera
-        this._drawFloor(g);
+        // Fondo pared
+        g.fillStyle(C.wallBase);
+        g.fillRect(0, 0, RW, WALL_H + 10);
 
-        // Paredes
-        this._drawWalls(g);
-
-        // Alfombra central
-        this._drawRug(g);
-
-        // Objetos
-        this._drawArmorStand(g, 84, 76);
-        this._drawComputer(g, 310, 80);
-        this._drawBookshelf(g, 530, 76);
-        this._drawTable(g, 110, 210);
-        this._drawBed(g, 500, 310);
-
-        // Antorchas (guardamos referencias para animar)
-        this.torches = [
-            this._drawTorch(g, 70, 20),
-            this._drawTorch(g, 175, 20),
-            this._drawTorch(g, 445, 20),
-            this._drawTorch(g, 550, 20),
-        ];
-    }
-
-    _drawFloor(g) {
-        // Base
-        g.fillStyle(P.floorA);
-        g.fillRect(WALL_T, FLOOR_Y1, ROOM_W - WALL_T * 2, FLOOR_Y2 - FLOOR_Y1);
-
-        // Tablones horizontales (cada 8 px)
-        for (let y = FLOOR_Y1; y < FLOOR_Y2; y += 8) {
-            const row = Math.floor((y - FLOOR_Y1) / 8);
-            for (let x = WALL_T; x < ROOM_W - WALL_T; x += 48) {
-                const shade = (row + Math.floor(x / 48)) % 2 === 0 ? P.floorA : P.floorB;
-                g.fillStyle(shade);
-                g.fillRect(x, y, 47, 7);
-            }
-            // Línea separadora de fila
-            g.fillStyle(P.floorLine);
-            g.fillRect(WALL_T, y + 7, ROOM_W - WALL_T * 2, 1);
-        }
-        // Líneas verticales de tablas (juntas de tablón)
-        g.lineStyle(1, P.floorLine, 0.5);
-        for (let x = WALL_T; x < ROOM_W - WALL_T; x += 48) {
-            g.lineBetween(x, FLOOR_Y1, x, FLOOR_Y2);
-        }
-    }
-
-    _drawWalls(g) {
-        // Paredes laterales y superior con patrón ladrillo
-        const drawBrickWall = (x, y, w, h) => {
-            g.fillStyle(P.wallBase);
-            g.fillRect(x, y, w, h);
-            let rowOdd = false;
-            for (let wy = y; wy < y + h; wy += 10) {
-                const offset = rowOdd ? 0 : 18;
-                for (let wx = x; wx < x + w; wx += 36) {
-                    const bx = wx + (offset % 36);
-                    const bw = Math.min(35, x + w - bx);
-                    if (bw > 2) {
-                        g.fillStyle(P.wallBrick);
-                        g.fillRect(bx, wy, bw, 9);
-                        g.fillStyle(P.wallLight);
-                        g.fillRect(bx, wy, bw, 1);
-                        g.fillRect(bx, wy, 1, 9);
-                    }
-                    // Junta entre ladrillos
-                    g.fillStyle(P.wallLine);
-                    g.fillRect(bx - 1, wy, 1, 10);
+        // Ladrillos en la pared
+        let rowOdd = false;
+        for (let wy = 0; wy < WALL_H; wy += 12) {
+            const off = rowOdd ? 0 : 30;
+            for (let wx = -off; wx < RW + 30; wx += 60) {
+                const bw = Math.min(58, RW - wx);
+                if (bw > 4) {
+                    g.fillStyle(C.wallBrick);
+                    g.fillRect(wx, wy, bw, 11);
+                    g.fillStyle(C.wallLight);
+                    g.fillRect(wx, wy, bw, 1);  // brillo top
+                    g.fillRect(wx, wy, 1, 11);  // brillo izq
                 }
-                g.fillStyle(P.wallLine);
-                g.fillRect(x, wy + 9, w, 1);
-                rowOdd = !rowOdd;
+            }
+            g.fillStyle(C.wallDark);
+            g.fillRect(0, wy + 11, RW, 1); // junta horizontal
+            rowOdd = !rowOdd;
+        }
+
+        // Transición pared→suelo (sombra gradiente)
+        for (let i = 0; i < 8; i++) {
+            g.fillStyle(0x000000, 0.08 * (8 - i));
+            g.fillRect(0, WALL_H + i, RW, 1);
+        }
+    }
+
+    // ─── MARCO DE LA HABITACIÓN ───────────────────────────────────────────────
+    _drawRoomFrame() {
+        const g = this.add.graphics();
+        const T = 16; // grosor del marco
+
+        // Franjas laterales (madera de marco)
+        const drawWoodPanel = (x, y, w, h) => {
+            g.fillStyle(C.frameWood);
+            g.fillRect(x, y, w, h);
+            g.fillStyle(C.frameLight);
+            g.fillRect(x, y, w, 2);
+            g.fillStyle(C.frameDark);
+            g.fillRect(x, y + h - 2, w, 2);
+            // Veta
+            for (let vy = y + 4; vy < y + h - 4; vy += 8) {
+                g.fillStyle(C.frameDark, 0.2);
+                g.fillRect(x, vy, w, 1);
             }
         };
 
-        // Pared superior
-        drawBrickWall(0, 0, ROOM_W, WALL_T);
-        // Pared izquierda
-        drawBrickWall(0, 0, WALL_T, ROOM_H);
-        // Pared derecha
-        drawBrickWall(ROOM_W - WALL_T, 0, WALL_T, ROOM_H);
-        // Pared inferior (con hueco para puerta)
-        drawBrickWall(0, FLOOR_Y2, DOOR_X, WALL_B);
-        drawBrickWall(DOOR_X + DOOR_W, FLOOR_Y2, ROOM_W - DOOR_X - DOOR_W, WALL_B);
+        drawWoodPanel(0,    0,    T, RH);        // izquierda
+        drawWoodPanel(RW-T, 0,    T, RH);        // derecha
+        drawWoodPanel(0,    0,    RW, T);         // arriba
+        drawWoodPanel(0,    RH-T, RW, T);         // abajo
 
-        // Marco de puerta
-        g.lineStyle(3, P.decorGold, 0.8);
-        g.strokeRect(DOOR_X - 2, FLOOR_Y2 - 2, DOOR_W + 4, WALL_B + 4);
-        g.fillStyle(0x000000);
-        g.fillRect(DOOR_X, FLOOR_Y2, DOOR_W, WALL_B);
+        // Puerta (apertura en la pared inferior)
+        g.fillStyle(C.floorA);
+        g.fillRect(DOOR_X, RH - T, DOOR_W, T);
 
-        // Texto en el arco de la puerta
-        g.fillStyle(P.wallLine);
-        g.fillRect(DOOR_X, FLOOR_Y2 - 4, DOOR_W, 4);
+        // Marco de la puerta dorado
+        g.lineStyle(2, C.goldTrim);
+        g.strokeRect(DOOR_X - 1, RH - T - 2, DOOR_W + 2, T + 4);
 
-        // Esquinas decorativas
+        // Arco de la puerta
+        g.fillStyle(0x1a0e04);
+        g.fillRect(DOOR_X, RH - T - 2, DOOR_W, T + 2);
+
+        // Esquinas decorativas doradas
         const corner = (cx, cy) => {
-            g.fillStyle(P.decorGold);
-            g.fillRect(cx - 4, cy - 4, 8, 8);
-            g.fillStyle(P.wallBase);
-            g.fillRect(cx - 2, cy - 2, 4, 4);
+            g.fillStyle(C.goldTrim);
+            g.fillRect(cx - 5, cy - 5, 10, 10);
+            g.fillStyle(C.frameWood);
+            g.fillRect(cx - 3, cy - 3, 6, 6);
+            g.fillStyle(C.goldL);
+            g.fillRect(cx - 1, cy - 1, 2, 2);
         };
-        corner(WALL_T, WALL_T);
-        corner(ROOM_W - WALL_T, WALL_T);
-        corner(WALL_T, FLOOR_Y2);
-        corner(ROOM_W - WALL_T, FLOOR_Y2);
+        corner(T, T); corner(RW - T, T);
+        corner(T, RH - T); corner(RW - T, RH - T);
     }
 
-    _drawRug(g) {
-        const rx = ROOM_W / 2 - 100, ry = 160, rw = 200, rh = 120;
-        g.fillStyle(P.rugBase);
+    // ─── ALFOMBRA CENTRAL ─────────────────────────────────────────────────────
+    _drawRug() {
+        const g = this.add.graphics();
+        const rx = RW/2 - 110, ry = 170, rw = 220, rh = 110;
+
+        g.fillStyle(C.rugBase);
         g.fillRect(rx, ry, rw, rh);
+
         // Borde dorado
-        g.lineStyle(3, P.rugBorder);
-        g.strokeRect(rx + 1, ry + 1, rw - 2, rh - 2);
-        g.lineStyle(1, P.rugBorder, 0.5);
-        g.strokeRect(rx + 6, ry + 6, rw - 12, rh - 12);
+        g.lineStyle(3, C.rugBorder);
+        g.strokeRect(rx + 2, ry + 2, rw - 4, rh - 4);
+        g.lineStyle(1, C.rugBorder, 0.5);
+        g.strokeRect(rx + 8, ry + 8, rw - 16, rh - 16);
+
         // Patrón interior
-        g.fillStyle(P.rugPat);
-        g.fillRect(rx + 10, ry + 10, rw - 20, rh - 20);
-        g.fillStyle(P.rugBase);
-        g.fillRect(rx + 14, ry + 14, rw - 28, rh - 28);
+        g.fillStyle(C.rugPat);
+        g.fillRect(rx + 12, ry + 12, rw - 24, rh - 24);
+
         // Cruz central
-        g.fillStyle(P.rugBorder);
-        g.fillRect(rx + rw / 2 - 1, ry + 10, 2, rh - 20);
-        g.fillRect(rx + 10, ry + rh / 2 - 1, rw - 20, 2);
-        // Rombos en esquinas
-        const diamond = (dx, dy) => {
-            g.fillStyle(P.rugBorder);
-            g.fillRect(dx - 3, dy - 1, 6, 2);
-            g.fillRect(dx - 1, dy - 3, 2, 6);
+        g.fillStyle(C.rugBorder);
+        g.fillRect(rx + rw/2 - 1, ry + 12, 2, rh - 24);
+        g.fillRect(rx + 12, ry + rh/2 - 1, rw - 24, 2);
+
+        // Rombos decorativos
+        const dmnd = (dx, dy) => {
+            g.fillStyle(C.rugBorder);
+            g.fillRect(dx - 4, dy, 8, 2); g.fillRect(dx, dy - 4, 2, 8);
         };
-        diamond(rx + 20, ry + 20);
-        diamond(rx + rw - 20, ry + 20);
-        diamond(rx + 20, ry + rh - 20);
-        diamond(rx + rw - 20, ry + rh - 20);
+        dmnd(rx + 22, ry + 22);
+        dmnd(rx + rw - 22, ry + 22);
+        dmnd(rx + 22, ry + rh - 22);
+        dmnd(rx + rw - 22, ry + rh - 22);
+        dmnd(rx + rw/2, ry + rh/2);
     }
 
-    _drawArmorStand(g, x, y) {
-        // Base del soporte (en T)
-        g.fillStyle(P.woodDark);
-        g.fillRect(x - 4, y + 44, 8, 8);   // base
-        g.fillRect(x - 12, y + 48, 24, 4); // patas
+    // ─── HELPER: dibuja objeto con profundidad ────────────────────────────────
+    // x,y = esquina sup-izq del objeto. topH = altura de la "cara superior"
+    _objDepth(g, x, y, w, frontH, topH, topCol, frontCol, sideCol) {
+        // Sombra en el suelo
+        g.fillStyle(C.dropSh, 0.2);
+        g.fillRect(x + 4, y + frontH + topH, w - 2, 5);
 
-        // Palo vertical
-        g.fillStyle(P.wood);
-        g.fillRect(x - 2, y + 8, 4, 40);
+        // Cara superior (vista desde arriba, más clara)
+        g.fillStyle(topCol);
+        g.fillRect(x, y, w, topH);
+        // Brillo top
+        const tc = Phaser.Display.Color.IntegerToColor(topCol);
+        g.fillStyle(Phaser.Display.Color.GetColor(
+            Math.min(255, tc.red   + 20),
+            Math.min(255, tc.green + 20),
+            Math.min(255, tc.blue  + 20)
+        ));
+        g.fillRect(x, y, w, 2);
 
-        // Hombros (barra horizontal)
-        g.fillStyle(P.wood);
-        g.fillRect(x - 20, y + 8, 40, 5);
+        // Cara frontal (la que realmente se ve)
+        g.fillStyle(frontCol);
+        g.fillRect(x, y + topH, w, frontH);
+        // Highlight izquierda
+        const fc = Phaser.Display.Color.IntegerToColor(frontCol);
+        g.fillStyle(Phaser.Display.Color.GetColor(
+            Math.min(255, fc.red   + 15),
+            Math.min(255, fc.green + 15),
+            Math.min(255, fc.blue  + 15)
+        ));
+        g.fillRect(x, y + topH, 3, frontH);
 
-        // Coraza (pecho de armadura)
-        g.fillStyle(P.armorMetal);
-        g.fillRect(x - 14, y + 13, 28, 22);
-        g.fillStyle(P.armorShine);
-        g.fillRect(x - 14, y + 13, 28, 2);
-        g.fillRect(x - 14, y + 13, 2, 22);
-        g.fillStyle(P.armorDark);
-        g.fillRect(x - 14, y + 33, 28, 2);
-        // Cruz en el pecho
-        g.fillStyle(P.decorGold);
-        g.fillRect(x - 1, y + 16, 2, 12);
-        g.fillRect(x - 5, y + 20, 10, 2);
-
-        // Hombros redondos
-        g.fillStyle(P.armorMetal);
-        g.fillCircle(x - 14, y + 16, 7);
-        g.fillCircle(x + 14, y + 16, 7);
-        g.fillStyle(P.armorShine);
-        g.fillCircle(x - 16, y + 14, 3);
-        g.fillCircle(x + 12, y + 14, 3);
-
-        // Espada al lado derecho
-        g.fillStyle(P.swordMetal);
-        g.fillRect(x + 22, y - 2, 3, 50);
-        g.fillStyle(P.swordHilt);
-        g.fillRect(x + 18, y + 14, 11, 4); // guarda
-        g.fillRect(x + 22, y - 2, 3, 10);  // empuñadura
-        // Brillo espada
-        g.fillStyle(0xffffff);
-        g.fillRect(x + 22, y + 5, 1, 30);
-
-        // Casco en la cabeza del soporte
-        g.fillStyle(P.armorMetal);
-        g.fillEllipse(x, y + 6, 20, 16);
-        g.fillStyle(P.armorShine);
-        g.fillEllipse(x - 3, y + 3, 10, 6);
-        g.fillStyle(0x000000);
-        g.fillRect(x - 6, y + 4, 12, 4); // visera
-        g.fillStyle(P.decorGold);
-        g.fillRect(x - 1, y - 4, 2, 8);  // penacho
+        // Sombra derecha
+        g.fillStyle(sideCol);
+        g.fillRect(x + w - 4, y + topH, 4, frontH);
+        // Línea inferior
+        g.fillStyle(sideCol);
+        g.fillRect(x, y + topH + frontH - 2, w, 2);
     }
 
-    _drawComputer(g, x, y) {
-        // Mesa/escritorio
-        g.fillStyle(P.woodDark);
-        g.fillRect(x - 32, y + 32, 64, 6);  // tablero
-        g.fillRect(x - 30, y + 38, 4, 14);  // pata izq
-        g.fillRect(x + 26, y + 38, 4, 14);  // pata der
-        g.fillStyle(P.woodLight);
-        g.fillRect(x - 32, y + 32, 64, 2);  // brillo tabla
+    // ─── ARMERÍA (soporte de armadura) ────────────────────────────────────────
+    _drawArmorStand(x, y) {
+        const g = this.add.graphics();
 
-        // Monitor
-        g.fillStyle(P.deskMat);
-        g.fillRect(x - 26, y - 4, 52, 34);
-        g.lineStyle(2, P.armorDark);
-        g.strokeRect(x - 26, y - 4, 52, 34);
+        // Soporte de madera con profundidad
+        this._objDepth(g, x - 30, y, 60, 72, 6, C.woodTop, C.wood, C.woodD);
 
-        // Pantalla (interior)
-        g.fillStyle(P.screenOff);
-        g.fillRect(x - 22, y, 44, 26);
+        // Superficie del mueble
+        g.fillStyle(C.woodL);
+        g.fillRect(x - 28, y + 6, 56, 2); // borde bajo cara top
 
-        // Líneas de terminal en pantalla
-        g.fillStyle(P.screenOn);
-        g.fillRect(x - 20, y + 4,  28, 1);
-        g.fillRect(x - 20, y + 8,  20, 1);
-        g.fillRect(x - 20, y + 12, 32, 1);
-        g.fillRect(x - 20, y + 16, 15, 1);
-        g.fillRect(x - 20, y + 20, 24, 1);
-        // Cursor parpadeante (se anima en update)
-        this._screenCursorX = x - 18;
-        this._screenCursorY = y + 20;
-        this.screenCursor = this.add.rectangle(x - 18, y + 20, 6, 4, P.screenOn);
+        // Tela de fondo (paño oscuro)
+        g.fillStyle(0x1a1428);
+        g.fillRect(x - 22, y + 10, 44, 62);
+        g.fillStyle(0x2a2038);
+        g.fillRect(x - 22, y + 10, 44, 1); // borde superior
+
+        // CORAZA con profundidad
+        g.fillStyle(C.armorD);
+        g.fillRect(x - 16, y + 12, 32, 3); // cara top de la coraza
+        g.fillStyle(C.armorG);
+        g.fillRect(x - 16, y + 15, 32, 28); // cara frontal
+        g.fillStyle(C.armorL);
+        g.fillRect(x - 16, y + 15, 3, 28); // brillo izq
+        g.fillStyle(C.armorD);
+        g.fillRect(x + 12, y + 15, 4, 28); // sombra der
+
+        // Cruz dorada
+        g.fillStyle(C.goldTrim);
+        g.fillRect(x - 2, y + 18, 4, 18);
+        g.fillRect(x - 10, y + 24, 20, 4);
+        g.fillStyle(C.goldL);
+        g.fillRect(x - 1, y + 18, 2, 2);
+
+        // Hombros (pauldrones redondeados)
+        g.fillStyle(C.armorD);
+        g.fillRect(x - 20, y + 14, 8, 2); // top hombro izq
+        g.fillStyle(C.armorG);
+        g.fillRect(x - 20, y + 16, 8, 14);
+        g.fillStyle(C.armorL);
+        g.fillRect(x - 20, y + 16, 2, 14);
+        g.fillStyle(C.armorD);
+        g.fillRect(x + 12, y + 14, 8, 2);
+        g.fillStyle(C.armorG);
+        g.fillRect(x + 12, y + 16, 8, 14);
+        g.fillStyle(C.armorD);
+        g.fillRect(x + 18, y + 16, 2, 14);
+
+        // Casco encima (con penacho)
+        g.fillStyle(C.armorD);
+        g.fillRect(x - 12, y + 2, 24, 3); // top casco
+        g.fillStyle(C.armorG);
+        g.fillRect(x - 12, y + 5, 24, 8);
+        g.fillStyle(C.armorL);
+        g.fillRect(x - 12, y + 5, 3, 8);
+        g.fillStyle(0x0a0a14);
+        g.fillRect(x - 6, y + 7, 12, 4); // visera
+        g.fillStyle(C.goldTrim);
+        g.fillRect(x - 12, y + 5, 24, 1); // rim dorado
+        // Penacho rojo
+        g.fillStyle(0xe83030);
+        g.fillRect(x - 4, y - 6, 8, 3);
+        g.fillStyle(0xcc2020);
+        g.fillRect(x - 2, y - 10, 4, 6);
+        g.fillStyle(0xee5050);
+        g.fillRect(x - 2, y - 10, 2, 3);
+
+        // Espada al lado (con profundidad)
+        g.fillStyle(C.armorD);
+        g.fillRect(x + 22, y + 2, 5, 2); // top espada
+        g.fillStyle(C.armorL);
+        g.fillRect(x + 22, y + 4, 5, 58); // hoja
+        g.fillStyle(0xe8f0f8);
+        g.fillRect(x + 23, y + 4, 2, 58); // brillo hoja
+        g.fillStyle(C.goldTrim);
+        g.fillRect(x + 18, y + 18, 14, 4); // guarda
+        g.fillStyle(C.goldL);
+        g.fillRect(x + 18, y + 18, 14, 1);
+        g.fillStyle(C.woodL);
+        g.fillRect(x + 22, y + 22, 5, 10); // empuñadura
+
+        // Marco/borde del mueble
+        g.lineStyle(1, C.frameDark, 0.6);
+        g.strokeRect(x - 30, y, 60, 78);
+    }
+
+    // ─── TERMINAL / ORDENADOR ─────────────────────────────────────────────────
+    _drawComputerDesk(x, y) {
+        const g = this.add.graphics();
+
+        // Mesa de escritorio con profundidad
+        this._objDepth(g, x - 36, y + 28, 72, 24, 5, C.woodTop, C.wood, C.woodD);
+        // Patas de la mesa
+        g.fillStyle(C.woodD);
+        g.fillRect(x - 32, y + 57, 5, 12);
+        g.fillRect(x + 27, y + 57, 5, 12);
+
+        // Monitor - base (cuña de profundidad)
+        g.fillStyle(C.deskDark);
+        g.fillRect(x - 26, y + 4, 52, 3); // cara top del monitor
+        // Monitor - cara frontal
+        g.fillStyle(C.deskDark);
+        g.fillRect(x - 26, y + 7, 52, 32);
+        g.fillStyle(0x2a2a4a);
+        g.fillRect(x - 26, y + 7, 3, 32); // borde izq highlight
+        g.fillStyle(0x0e0e1e);
+        g.fillRect(x + 23, y + 7, 3, 32); // borde der shadow
+
+        // Pantalla encendida
+        g.fillStyle(C.screenFace);
+        g.fillRect(x - 20, y + 11, 40, 24);
+
+        // Líneas de texto en la terminal
+        g.fillStyle(C.screenGlow);
+        g.fillRect(x - 18, y + 14, 30, 1);
+        g.fillRect(x - 18, y + 17, 22, 1);
+        g.fillRect(x - 18, y + 20, 35, 1);
+        g.fillRect(x - 18, y + 23, 18, 1);
+        g.fillRect(x - 18, y + 26, 28, 1);
+        g.fillRect(x - 18, y + 29, 12, 1);
+
+        // Prompt ">" parpadeante
+        g.fillStyle(C.neon);
+        g.fillRect(x - 18, y + 29, 4, 2);
+
+        // Borde neon en el monitor
+        g.lineStyle(1, C.neon, 0.7);
+        g.strokeRect(x - 26, y + 4, 52, 35);
 
         // Pie del monitor
-        g.fillStyle(P.deskMat);
-        g.fillRect(x - 6, y + 30, 12, 6);
+        g.fillStyle(C.deskDark);
+        g.fillRect(x - 8, y + 36, 16, 4);
 
-        // Teclado
+        // Teclado sobre la mesa (con perspectiva)
         g.fillStyle(0x1a1a2a);
-        g.fillRect(x - 18, y + 36, 36, 8);
-        g.lineStyle(1, 0x2a2a4a);
-        for (let kx = 0; kx < 6; kx++) {
-            for (let ky = 0; ky < 2; ky++) {
-                g.fillStyle(0x2a2a3a);
-                g.fillRect(x - 16 + kx * 6, y + 37 + ky * 3, 5, 2);
+        g.fillRect(x - 20, y + 34, 40, 8);
+        g.fillStyle(0x2a2a3e);
+        g.fillRect(x - 20, y + 34, 40, 2); // top teclado
+        // Teclas
+        for (let ky = 0; ky < 2; ky++) {
+            for (let kx = 0; kx < 7; kx++) {
+                g.fillStyle(0x2a2a40);
+                g.fillRect(x - 18 + kx * 6, y + 36 + ky * 3, 5, 2);
             }
         }
 
-        // Brillo NEON en la pantalla
-        g.fillStyle(P.neon);
-        g.fillRect(x - 22, y - 4, 52, 1);   // línea neon arriba del monitor
-        g.fillRect(x - 22, y - 4, 1, 34);   // lateral izq
-        g.fillRect(x + 24, y - 4, 2, 34);   // lateral der
+        // Texto en la tapa del monitor
+        g.fillStyle(C.neon);
+        g.fillRect(x - 4, y + 8, 8, 1); // línea decorativa neon
     }
 
-    _drawBookshelf(g, x, y) {
-        // Marco de la estantería
-        g.fillStyle(P.woodDark);
-        g.fillRect(x - 36, y - 4, 72, 56); // fondo
-        g.fillStyle(P.wood);
-        g.fillRect(x - 36, y - 4, 4, 56);  // lateral izq
-        g.fillRect(x + 32, y - 4, 4, 56);  // lateral der
-        // Estantes
-        for (let shelf = 0; shelf < 3; shelf++) {
-            g.fillStyle(P.woodLight);
-            g.fillRect(x - 32, y - 4 + shelf * 18, 64, 3);
+    // ─── ESTANTERÍA (estilo teal, como la imagen ref) ─────────────────────────
+    _drawBookshelf(x, y) {
+        const g = this.add.graphics();
+        const W = 76, frontH = 80;
+
+        // Cuerpo principal con profundidad
+        this._objDepth(g, x - W/2, y, W, frontH, 7, C.tealTop, C.teal, C.tealD);
+
+        // Interior (fondo oscuro de los estantes)
+        g.fillStyle(C.tealD);
+        g.fillRect(x - W/2 + 4, y + 9, W - 8, frontH - 4);
+
+        // Estantes horizontales (3 estantes)
+        for (let s = 0; s < 3; s++) {
+            const sy = y + 7 + s * 24;
+            g.fillStyle(C.tealTop);
+            g.fillRect(x - W/2 + 2, sy, W - 4, 4);
+            g.fillStyle(C.teal);
+            g.fillRect(x - W/2 + 2, sy + 3, W - 4, 1);
         }
-        // Libros en cada estante
-        const bookColors = [P.book1, P.book2, P.book3, P.book4, P.book1, P.book3];
-        const bookWidths = [8, 6, 10, 7, 9, 8, 6];
-        for (let shelf = 0; shelf < 2; shelf++) {
-            let bx = x - 30;
-            const by = y - 1 + shelf * 18;
-            bookColors.forEach((color, i) => {
-                const bw = bookWidths[i % bookWidths.length];
-                g.fillStyle(color);
+
+        // Libros en los estantes
+        const bookData = [
+            [C.bookR, 10], [C.bookB, 8], [C.bookG, 11], [C.bookY, 7],
+            [C.bookR, 9],  [C.bookB, 10], [C.bookG, 7],
+        ];
+        for (let s = 0; s < 2; s++) {
+            let bx = x - W/2 + 6;
+            const by = y + 11 + s * 24;
+            bookData.forEach(([col, bw]) => {
+                if (bx + bw > x + W/2 - 4) return;
+                // Cara top del libro
+                g.fillStyle(Phaser.Display.Color.IntegerToColor(col).darken(15).color);
+                g.fillRect(bx, by - 3, bw - 1, 3);
+                // Cara frontal del libro
+                g.fillStyle(col);
                 g.fillRect(bx, by, bw - 1, 14);
                 // Brillo lomo
-                g.fillStyle(Phaser.Display.Color.ValueToColor(color).lighten(30).color);
+                g.fillStyle(Phaser.Display.Color.IntegerToColor(col).lighten(25).color);
                 g.fillRect(bx, by, 1, 14);
-                bx += bw + 1;
+                g.fillRect(bx, by - 3, 1, 3);
+                // Página
+                g.fillStyle(C.bookPage);
+                g.fillRect(bx + bw - 1, by, 1, 14);
+                bx += bw + 2;
             });
         }
-        // Adorno: pequeño trofeo en el estante de arriba
-        g.fillStyle(P.decorGold);
-        g.fillRect(x + 14, y - 1, 12, 2);   // base trofeo
-        g.fillRect(x + 18, y - 7, 4, 7);    // copa
-        g.fillTriangle(x + 18, y - 7, x + 22, y - 7, x + 20, y - 13); // remate
 
-        // Marco superior decorativo
-        g.fillStyle(P.woodDark);
-        g.fillRect(x - 36, y - 8, 72, 4);
-        g.fillStyle(P.decorGold);
-        g.fillRect(x - 36, y - 9, 72, 1);
+        // Objeto decorativo (trofeo/planta) en el estante superior
+        g.fillStyle(C.goldTrim);
+        g.fillRect(x + 14, y + 8, 12, 2);
+        g.fillRect(x + 18, y + 2, 4, 8);
+        g.fillTriangle(x + 18, y + 2, x + 22, y + 2, x + 20, y - 4);
+        g.fillStyle(C.goldL);
+        g.fillRect(x + 18, y + 2, 2, 2);
+
+        // Marco decorativo de la estantería
+        g.lineStyle(2, C.tealL, 0.6);
+        g.strokeRect(x - W/2, y, W, 7);
     }
 
-    _drawTable(g, x, y) {
-        // Mesa pequeña
-        g.fillStyle(P.woodDark);
-        g.fillRect(x - 24, y + 16, 48, 4);
-        g.fillRect(x - 22, y + 20, 4, 16);
-        g.fillRect(x + 18, y + 20, 4, 16);
-        g.fillStyle(P.woodLight);
-        g.fillRect(x - 24, y + 16, 48, 2);
+    // ─── MESA CON LIBRO ───────────────────────────────────────────────────────
+    _drawTableWithBook(x, y) {
+        const g = this.add.graphics();
 
-        // Libro abierto sobre la mesa
-        // Cubierta derecha (página de texto)
-        g.fillStyle(P.bookPage);
-        g.fillRect(x + 2, y - 4, 20, 22);
-        // Cubierta izquierda
-        g.fillStyle(P.bookPage);
-        g.fillRect(x - 22, y - 4, 20, 22);
+        // Mesa redonda/ovalada con profundidad
+        // Cara top (ovalada)
+        g.fillStyle(C.woodTop);
+        g.fillEllipse(x, y + 2, 58, 18);
+        g.fillStyle(C.woodL);
+        g.fillEllipse(x - 2, y, 56, 14);
+        g.fillStyle(C.woodD);
+        g.fillEllipse(x, y + 3, 54, 8); // borde de la cara top
+
+        // Pata central
+        g.fillStyle(C.woodD);
+        g.fillRect(x - 4, y + 7, 8, 20);
+        g.fillStyle(C.wood);
+        g.fillRect(x - 3, y + 7, 3, 20);
+        // Base de la pata
+        g.fillStyle(C.woodD);
+        g.fillRect(x - 16, y + 25, 32, 5);
+        g.fillStyle(C.wood);
+        g.fillRect(x - 16, y + 25, 32, 2);
+
+        // LIBRO ABIERTO encima de la mesa (con perspectiva)
+        // Cara top (vista desde arriba - pequeña franja)
+        g.fillStyle(C.woodD);
+        g.fillRect(x - 20, y - 8, 40, 3);
+        // Página izquierda (cara frontal)
+        g.fillStyle(C.bookPage);
+        g.fillRect(x - 20, y - 5, 19, 16);
+        g.fillStyle(C.bookPage);
+        g.fillRect(x + 1, y - 5, 19, 16);
         // Lomo central
-        g.fillStyle(P.book1);
-        g.fillRect(x - 2, y - 6, 4, 26);
+        g.fillStyle(C.bookR);
+        g.fillRect(x - 2, y - 8, 4, 19);
+        // Brillo lomo
+        g.fillStyle(0xcc4040);
+        g.fillRect(x - 2, y - 8, 1, 19);
         // Líneas de texto en las páginas
-        g.fillStyle(0x8a8a8a);
-        for (let line = 0; line < 4; line++) {
-            g.fillRect(x + 4,  y + 1 + line * 4, 14, 1);
-            g.fillRect(x - 20, y + 1 + line * 4, 14, 1);
+        g.fillStyle(0x998880);
+        for (let li = 0; li < 4; li++) {
+            g.fillRect(x - 18, y - 3 + li * 4, 14, 1);
+            g.fillRect(x + 4,  y - 3 + li * 4, 14, 1);
         }
-        // Viñetas/símbolos
-        g.fillStyle(P.book2);
-        g.fillRect(x + 4,  y + 2,  3, 3);
-        g.fillRect(x + 4,  y + 10, 3, 3);
-        g.fillStyle(P.book3);
-        g.fillRect(x - 20, y + 6,  3, 3);
-        // Borde del libro
-        g.lineStyle(1, P.woodDark, 0.5);
-        g.strokeRect(x - 22, y - 4, 44, 22);
+        // Ilustración pequeña en página derecha
+        g.fillStyle(0x2858A0);
+        g.fillRect(x + 4, y - 2, 8, 6); // diagrama red
 
         // Vela al lado
-        g.fillStyle(0xf0f0f0);
-        g.fillRect(x + 26, y - 2, 5, 16);
-        g.fillStyle(P.torchFire);
-        g.fillRect(x + 27, y - 6, 3, 5);
-        g.fillStyle(P.torchGlow);
-        g.fillRect(x + 28, y - 8, 1, 3);
-        // Base de la vela
-        g.fillStyle(0xc8c8b0);
-        g.fillRect(x + 24, y + 14, 8, 4);
+        g.fillStyle(0xF0F0E0);
+        g.fillRect(x + 22, y - 8, 5, 14); // vela
+        g.fillStyle(0xE0E0C0);
+        g.fillRect(x + 22, y - 8, 5, 2); // top vela
+        g.fillStyle(0xFF8800);
+        g.fillRect(x + 23, y - 14, 3, 8); // llama
+        g.fillStyle(0xFFCC44);
+        g.fillRect(x + 24, y - 16, 1, 4); // punta llama
+        // Base de vela
+        g.fillStyle(C.woodD);
+        g.fillRect(x + 20, y + 7, 8, 3);
+
+        // Pequeño objeto (tarro/cactus) al otro lado
+        g.fillStyle(0x228844);
+        g.fillRect(x - 32, y - 6, 8, 10);
+        g.fillStyle(0x2AA050);
+        g.fillRect(x - 32, y - 6, 2, 10);
+        g.fillStyle(C.pot);
+        g.fillRect(x - 33, y + 3, 10, 8); // maceta
+        g.fillStyle(C.potD);
+        g.fillRect(x - 33, y + 10, 10, 1); // sombra maceta
     }
 
-    _drawBed(g, x, y) {
-        // Cabecero
-        g.fillStyle(P.bedFrame);
-        g.fillRect(x - 44, y - 8, 88, 20);
-        g.fillStyle(P.woodLight);
-        g.fillRect(x - 44, y - 8, 88, 2);
-        // Tablones del cabecero
+    // ─── CAMA ─────────────────────────────────────────────────────────────────
+    _drawBed(x, y) {
+        const g = this.add.graphics();
+        const W = 100, bedLen = 70;
+
+        // Estructura de la cama con profundidad
+        // Cabecero (parte trasera)
+        g.fillStyle(C.bedFrameD);
+        g.fillRect(x - W/2, y, W, 5);     // top cabecero
+        g.fillStyle(C.bedFrame);
+        g.fillRect(x - W/2, y + 5, W, 22); // cara frontal cabecero
+        g.fillStyle(C.woodL);
+        g.fillRect(x - W/2, y + 5, 4, 22); // brillo izq
+        g.fillStyle(C.bedFrameD);
+        g.fillRect(x + W/2 - 4, y + 5, 4, 22); // sombra der
+
+        // Tablones decorativos del cabecero
         for (let i = 0; i < 4; i++) {
-            g.fillStyle(i % 2 === 0 ? P.bedFrame : P.woodDark);
-            g.fillRect(x - 40 + i * 22, y - 6, 20, 16);
+            g.fillStyle(i % 2 === 0 ? C.bedFrame : C.bedFrameD);
+            g.fillRect(x - W/2 + 6 + i * 24, y + 7, 22, 18);
         }
-        // Marco de la cama
-        g.fillStyle(P.bedFrame);
-        g.fillRect(x - 44, y + 10, 88, 40);
-        g.fillRect(x - 44, y + 46, 88, 6);  // pie de cama
+        // Adorno central del cabecero
+        g.fillStyle(C.goldTrim);
+        g.fillRect(x - 8, y + 11, 16, 2);
+        g.fillRect(x - 1, y + 9, 2, 6);
 
-        // Colchón / sábanas
-        g.fillStyle(P.bedMat);
-        g.fillRect(x - 40, y + 12, 80, 34);
-        // Sábana encimera
-        g.fillStyle(P.bedSheet);
-        g.fillRect(x - 36, y + 16, 72, 26);
-        // Pliegues en la sábana
-        g.fillStyle(P.bedMat);
-        g.fillRect(x - 30, y + 18, 60, 1);
-        g.fillRect(x - 28, y + 22, 56, 1);
-        // Almohada
-        g.fillStyle(P.bedPillow);
-        g.fillRect(x - 34, y + 12, 68, 10);
-        g.lineStyle(1, P.bedMat, 0.5);
-        g.strokeRect(x - 34, y + 12, 68, 10);
+        // Colchón / cuerpo de la cama
+        g.fillStyle(C.bedFrameD);
+        g.fillRect(x - W/2, y + 27, W, 4);   // top lateral cama
+        g.fillStyle(C.bedFrame);
+        g.fillRect(x - W/2, y + 31, 6, bedLen);  // lateral izq
+        g.fillRect(x + W/2 - 6, y + 31, 6, bedLen); // lateral der
+
+        // Sábana (con perspectiva de profundidad)
+        g.fillStyle(C.bedSheetD);
+        g.fillRect(x - W/2 + 6, y + 27, W - 12, 6); // cara top sábana
+        g.fillStyle(C.bedSheet);
+        g.fillRect(x - W/2 + 6, y + 33, W - 12, bedLen - 6); // cara frontal sábana
+
+        // Pliegues de la sábana
+        g.fillStyle(C.bedSheetD);
+        for (let f = 0; f < 4; f++) {
+            g.fillRect(x - W/2 + 12 + f * 22, y + 33, 1, bedLen - 6);
+        }
+
         // Cruz decorativa en la manta
-        g.fillStyle(P.decorGold);
-        g.fillRect(x - 1, y + 20, 2, 18);
-        g.fillRect(x - 12, y + 28, 24, 2);
+        g.fillStyle(C.goldTrim);
+        g.fillRect(x - 2, y + 40, 4, 30);
+        g.fillRect(x - 18, y + 52, 36, 4);
 
-        // Patas de la cama
-        g.fillStyle(P.woodDark);
-        g.fillRect(x - 44, y + 52, 8, 8);
-        g.fillRect(x + 36, y + 52, 8, 8);
+        // Almohadas (2 almohadas, con profundidad)
+        g.fillStyle(C.pillowD);
+        g.fillRect(x - 38, y + 27, 36, 4);   // top almohada izq
+        g.fillRect(x + 2,  y + 27, 36, 4);   // top almohada der
+        g.fillStyle(C.pillow);
+        g.fillRect(x - 38, y + 31, 36, 12);  // cara frontal almohada izq
+        g.fillRect(x + 2,  y + 31, 36, 12);  // cara frontal almohada der
+        // Bordado en almohadas
+        g.lineStyle(1, C.pillowD, 0.7);
+        g.strokeRect(x - 36, y + 32, 32, 10);
+        g.strokeRect(x + 4,  y + 32, 32, 10);
+
+        // Pie de cama
+        g.fillStyle(C.bedFrameD);
+        g.fillRect(x - W/2, y + 31 + bedLen, W, 4);  // top
+        g.fillStyle(C.bedFrame);
+        g.fillRect(x - W/2, y + 35 + bedLen, W, 8);  // cara frontal pie
     }
 
-    _drawTorch(g, x, y) {
-        // Soporte metálico
-        g.fillStyle(P.torchBase);
-        g.fillRect(x - 3, y, 6, 14);
-        // Aro
-        g.fillStyle(P.decorGold);
-        g.fillRect(x - 4, y + 10, 8, 4);
-        // Llama base
-        g.fillStyle(P.torchFire);
-        g.fillRect(x - 3, y - 8, 6, 10);
-        g.fillStyle(P.torchGlow);
-        g.fillRect(x - 1, y - 12, 2, 6);
-        // Guardamos posición para el efecto de parpadeo
-        return { x, y, gfx: null };
-    }
+    // ─── PLANTAS DECORATIVAS ──────────────────────────────────────────────────
+    _drawPlant(x, y, size) {
+        const g = this.add.graphics();
+        const sc = size === 'small' ? 0.7 : 1.0;
 
-    // ─── Efectos de antorcha animados ─────────────────────────────────────────
-    _animateTorches() {
-        // Crear objetos de luz/parpadeo encima de las antorchas
-        this.torchFlames = this.torches.map(t => {
-            const fl = this.add.graphics();
-            fl.fillStyle(P.torchGlow);
-            fl.fillRect(t.x - 2, t.y - 14, 4, 6);
-            return fl;
-        });
+        // Maceta con profundidad
+        const pw = Math.floor(16 * sc), ph = Math.floor(14 * sc);
+        g.fillStyle(C.potD);
+        g.fillRect(x - pw/2, y + 2, pw, 2); // top maceta
+        g.fillStyle(C.pot);
+        g.fillRect(x - pw/2, y + 4, pw, ph);
+        g.fillStyle(Phaser.Display.Color.IntegerToColor(C.pot).lighten(15).color);
+        g.fillRect(x - pw/2, y + 4, 3, ph);
+        g.fillStyle(C.potD);
+        g.fillRect(x - pw/2, y + 4 + ph - 2, pw, 2);
 
-        this.time.addEvent({
-            delay: 80,
-            loop: true,
-            callback: () => {
-                this.torchFlames.forEach(fl => {
-                    const alpha = 0.6 + Math.random() * 0.4;
-                    const scaleX = 0.8 + Math.random() * 0.4;
-                    fl.setAlpha(alpha);
-                    fl.setScale(scaleX, 1);
-                });
-            }
-        });
-    }
+        // Tierra
+        g.fillStyle(0x5A3018);
+        g.fillRect(x - pw/2 + 2, y + 4, pw - 4, 4);
 
-    // ─── Parpadeo pantalla del ordenador ──────────────────────────────────────
-    _animateScreen() {
-        this.time.addEvent({
-            delay: 500,
-            loop: true,
-            callback: () => {
-                if (this.screenCursor) {
-                    this.screenCursor.setVisible(!this.screenCursor.visible);
-                }
-            }
+        // Hojas
+        const offsets = size === 'small'
+            ? [[-5,-12,8,8], [0,-16,8,8], [5,-10,8,8]]
+            : [[-8,-18,12,12], [-2,-22,12,12], [6,-16,12,12], [-4,-10,10,10]];
+        offsets.forEach(([ox, oy, lw, lh], i) => {
+            const col = i % 2 === 0 ? C.leaf1 : C.leaf2;
+            g.fillStyle(col);
+            g.fillEllipse(x + ox, y + oy, lw, lh);
+            g.fillStyle(C.leaf3);
+            g.fillRect(x + ox, y + oy, 1, lh * 0.6);
         });
     }
 
-    // ─── Paredes de colisión invisibles ──────────────────────────────────────
+    // ─── LUZ AMBIENTE CÁLIDA ──────────────────────────────────────────────────
+    _drawLighting() {
+        // Glow cálido en el centro del techo (ventana invisible)
+        const gl = this.add.graphics();
+        gl.setBlendMode(Phaser.BlendModes.ADD);
+
+        // Círculo de luz principal (centro superior)
+        gl.fillStyle(C.warmGlow, 0.06);
+        gl.fillCircle(RW/2, 80, 200);
+        gl.fillStyle(C.warmGlow, 0.04);
+        gl.fillCircle(RW/2, 80, 280);
+
+        // Reflejos cálidos en el suelo (debajo de donde estarían ventanas)
+        gl.fillStyle(C.warmDim, 0.05);
+        gl.fillCircle(450, 250, 120);
+
+        // Esquinas con sombra (vignette)
+        const vig = this.add.graphics();
+        vig.fillStyle(0x000000, 0.15);
+        vig.fillRect(0, 0, 60, RH);   // izq
+        vig.fillRect(RW-60, 0, 60, RH); // der
+        vig.fillStyle(0x000000, 0.1);
+        vig.fillRect(0, 0, RW, 30);   // arriba
+        vig.fillRect(0, RH-30, RW, 30); // abajo
+    }
+
+    // ─── PAREDES DE COLISIÓN ──────────────────────────────────────────────────
     _setupWalls() {
         this.walls = this.physics.add.staticGroup();
-
-        const addWall = (x, y, w, h) => {
-            const wall = this.add.rectangle(x + w / 2, y + h / 2, w, h, 0x000000, 0);
-            this.physics.add.existing(wall, true);
-            this.walls.add(wall);
+        const W = (x, y, w, h) => {
+            const o = this.add.rectangle(x + w/2, y + h/2, w, h, 0x000000, 0);
+            this.physics.add.existing(o, true);
+            this.walls.add(o);
         };
+        W(0,    0,    16, RH);               // pared izq
+        W(RW-16,0,    16, RH);               // pared der
+        W(0,    0,    RW, 16);               // pared top
+        W(0,    RH-16,DOOR_X, 16);           // pared bot izq
+        W(DOOR_X+DOOR_W, RH-16, RW-DOOR_X-DOOR_W, 16); // pared bot der
 
-        addWall(0,    0,    WALL_T,              ROOM_H);           // izquierda
-        addWall(ROOM_W - WALL_T, 0, WALL_T,    ROOM_H);           // derecha
-        addWall(0,    0,    ROOM_W,              WALL_T + 60);      // superior (pared + objetos)
-        addWall(0,    FLOOR_Y2, DOOR_X,          WALL_B);           // inferior-izq
-        addWall(DOOR_X + DOOR_W, FLOOR_Y2, ROOM_W - DOOR_X - DOOR_W, WALL_B); // inf-der
-
-        // Colisión con objetos
-        addWall(48,   60,  80, 80);   // soporte de armadura
-        addWall(270,  44,  80, 50);   // mesa del ordenador
-        addWall(490,  40,  80, 64);   // estantería
-        addWall(84,   188, 64, 44);   // mesa del libro
-        addWall(452,  290, 96, 60);   // cama
+        // Objetos
+        W(58,  40,  60, 80);   // soporte armadura
+        W(274, 32,  72, 72);   // escritorio ordenador
+        W(492, 32,  72, 76);   // estantería
+        W(109, 188, 60, 44);   // mesa con libro
+        W(440, 260, 100, 80);  // cama
     }
 
-    // ─── Zonas de interacción ─────────────────────────────────────────────────
+    // ─── ZONAS DE INTERACCIÓN ─────────────────────────────────────────────────
     _setupObjectZones() {
-        this.objectZones = OBJECTS.map(obj => {
-            const zone = this.add.zone(obj.x, obj.y, obj.w + 20, obj.h + 20);
-            this.physics.world.enable(zone);
-            zone.body.setAllowGravity(false);
-            zone.body.moves = false;
-            zone.objData = obj;
-            return zone;
+        this.objectZones = OBJS.map(obj => {
+            const z = this.add.zone(obj.x, obj.y, obj.w + 24, obj.h + 24);
+            this.physics.world.enable(z);
+            z.body.setAllowGravity(false);
+            z.body.moves = false;
+            z.objData = obj;
+            return z;
         });
-
-        // Zona de salida (puerta)
-        const exitZone = this.add.zone(ROOM_W / 2, ROOM_H - 10, DOOR_W - 10, 20);
-        this.physics.world.enable(exitZone);
-        exitZone.body.setAllowGravity(false);
-        exitZone.body.moves = false;
-        exitZone.objData = { id: 'exit', label: 'Salida', hint: '[E] Volver al campus', route: '/dashboard', dialog: null };
-        this.objectZones.push(exitZone);
+        // Zona de salida
+        const exit = this.add.zone(RW/2, RH - 8, DOOR_W - 10, 20);
+        this.physics.world.enable(exit);
+        exit.body.setAllowGravity(false);
+        exit.body.moves = false;
+        exit.objData = { id: 'exit', label: 'Salida', hint: '[E] Volver al campus', route: '/dashboard', dialog: null };
+        this.objectZones.push(exit);
     }
 
-    // ─── HUD: texto de pista ──────────────────────────────────────────────────
-    _setupHintText() {
-        this.hintText = this.add.text(ROOM_W / 2, ROOM_H - WALL_B - 10, '', {
-            fontFamily: 'monospace',
-            fontSize:   '7px',
-            color:      '#c6ff33',
-            backgroundColor: '#000000aa',
-            padding:    { x: 4, y: 2 },
-        })
-        .setOrigin(0.5, 1)
-        .setDepth(100)
-        .setVisible(false);
+    // ─── HUD ─────────────────────────────────────────────────────────────────
+    _setupHUD() {
+        this.hintBg = this.add.graphics().setDepth(50);
+        this.hintLabel = this.add.text(0, 0, '', {
+            fontFamily: 'monospace', fontSize: '7px',
+            color: '#c6ff33',
+            padding: { x: 5, y: 3 },
+        }).setDepth(51).setOrigin(0.5, 1).setVisible(false);
 
-        // Etiquetas de los objetos
-        OBJECTS.forEach(obj => {
-            this.add.text(obj.x, obj.y - obj.h / 2 - 6, obj.label, {
-                fontFamily: 'monospace',
-                fontSize:   '5px',
-                color:      '#ffffff88',
-            }).setOrigin(0.5, 1);
+        // Labels de los objetos
+        OBJS.forEach(obj => {
+            this.add.text(obj.x, obj.y - obj.h/2 - 8, obj.label, {
+                fontFamily: 'monospace', fontSize: '5px',
+                color: '#ffffff66',
+                stroke: '#00000088', strokeThickness: 2,
+            }).setOrigin(0.5, 1).setDepth(5);
         });
-    }
 
-    // ─── Inicio de la animación de pantalla ───────────────────────────────────
-    _startScreenAnim() {
-        this._animateScreen();
+        // Controles (esquina inf-izq)
+        this.add.text(20, RH - 22, 'WASD/↑↓←→  ·  [E] Interactuar', {
+            fontFamily: 'monospace', fontSize: '5px',
+            color: '#ffffff44',
+        }).setDepth(50);
     }
 
     // ─── UPDATE ───────────────────────────────────────────────────────────────
     update() {
         if (this.dialogOpen) {
             this.jugador.setVelocity(0, 0);
-            this.jugador.anims.stop();
+            this.jugador.anims.play(`idle-${this.lastDir}`, true);
             return;
         }
 
-        const speed = 120;
+        const speed = 110;
         let vx = 0, vy = 0;
 
         if (this.cursors.left.isDown  || this.wasd.left.isDown)  { vx = -speed; this.lastDir = 'left'; }
@@ -689,11 +851,9 @@ export class EscenaCasa extends Scene {
         if (this.cursors.up.isDown    || this.wasd.up.isDown)    { vy = -speed; this.lastDir = 'up'; }
         if (this.cursors.down.isDown  || this.wasd.down.isDown)  { vy =  speed; this.lastDir = 'down'; }
 
-        // Normalizar diagonal
         if (vx !== 0 && vy !== 0) { vx *= 0.707; vy *= 0.707; }
         this.jugador.setVelocity(vx, vy);
 
-        // Animaciones direccionales
         if (vx !== 0 || vy !== 0) {
             this.jugador.anims.play(`walk-${this.lastDir}`, true);
         } else {
@@ -702,37 +862,36 @@ export class EscenaCasa extends Scene {
 
         // Detectar zona cercana
         this.currentZone = null;
-        this.objectZones.forEach(zone => {
-            if (this.physics.overlap(this.jugador, zone)) {
-                this.currentZone = zone;
-            }
+        this.objectZones.forEach(z => {
+            if (this.physics.overlap(this.jugador, z)) this.currentZone = z;
         });
 
-        // Mostrar/ocultar pista
+        // Mostrar hint
         if (this.currentZone) {
-            this.hintText
-                .setText(this.currentZone.objData.hint)
-                .setPosition(this.jugador.x, this.jugador.y - 20)
-                .setVisible(true);
+            const jx = this.jugador.x;
+            const jy = this.jugador.y - 16;
+            this.hintLabel.setText(this.currentZone.objData.hint).setPosition(jx, jy).setVisible(true);
+            this.hintBg.clear()
+                .fillStyle(0x000000, 0.7)
+                .fillRoundedRect(jx - 55, jy - 14, 110, 14, 4);
         } else {
-            this.hintText.setVisible(false);
+            this.hintLabel.setVisible(false);
+            this.hintBg.clear();
         }
 
-        // Interacción (E, Espacio o Enter)
-        const interact = Phaser.Input.Keyboard.JustDown(this.keyE)
-                      || Phaser.Input.Keyboard.JustDown(this.keySpace)
-                      || Phaser.Input.Keyboard.JustDown(this.keyEnter);
+        // Interacción
+        const pressed = Phaser.Input.Keyboard.JustDown(this.keyE)
+                     || Phaser.Input.Keyboard.JustDown(this.keySpace)
+                     || Phaser.Input.Keyboard.JustDown(this.keyEnter);
 
-        if (interact && this.currentZone) {
-            const data = this.currentZone.objData;
+        if (pressed && this.currentZone) {
             this.dialogOpen = true;
             this.jugador.setVelocity(0, 0);
             this.jugador.anims.stop();
-
+            const data = this.currentZone.objData;
             if (data.route) {
                 EventBus.emit('NAVIGATE', data.route, data.dialog);
             } else {
-                // Solo diálogo (cama)
                 EventBus.emit('SHOW_DIALOG', { title: data.label, text: data.dialog });
             }
         }
