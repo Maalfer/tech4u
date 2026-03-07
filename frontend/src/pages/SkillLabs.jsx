@@ -191,7 +191,11 @@ export default function SkillLabs() {
                     <div className="max-w-xl animate-in fade-in duration-400">
                         <div className={`glass rounded-3xl p-8 border-2 bg-gradient-to-br ${selectedSubject.color} mb-8 flex items-center gap-5`}>
                             <div className="w-16 h-16 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center flex-shrink-0">
-                                <selectedSubject.icon className={`w-8 h-8 ${selectedSubject.iconColor}`} />
+                                {selectedSubject.isCustom ? (
+                                    <img src={selectedSubject.icon} className="w-8 h-8 object-contain" alt="" />
+                                ) : (
+                                    <selectedSubject.icon className={`w-8 h-8 ${selectedSubject.iconColor}`} />
+                                )}
                             </div>
                             <div>
                                 <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">Asignatura</p>

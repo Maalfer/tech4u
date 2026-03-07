@@ -319,6 +319,7 @@ class TestResult(BaseModel):
     leveled_up: bool
     new_level: int
     detailed_results: List[DetailedAnswerResult]
+    item_drop: Optional[Dict] = None
 
 
 # ==============================

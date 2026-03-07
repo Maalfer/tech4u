@@ -192,14 +192,30 @@ async def submit_test(
         # ACTUALIZACIÓN DE GAMIFICACIÓN (RPG)
         # ==============================================
         wrong_count = len(payload.answers) - correct_count
+        total_questions = len(payload.answers)
+        accuracy = (correct_count / total_questions * 100) if total_questions > 0 else 0
         
-        # Nueva logica: Solo gana xp si es EXAMEN y hay 40 preguntas
+        # Nueva logica: Solo gana xp si es EXAMEN y hay 60 preguntas (así está en el frontend)
         gained_xp = 0
-        if payload.test_mode and payload.test_mode.lower() == "examen" and len(payload.answers) == 40:
+        if payload.test_mode and payload.test_mode.lower() == "exam" and total_questions >= 60:
             gained_xp = (correct_count * 15) - (wrong_count * 5)
         
         leveled_up = current_user.add_xp(gained_xp)
         new_level = current_user.level
+
+        # Guardar sesión en el histórico
+        new_session = TestSession(
+            user_id=current_user.id,
+            subject=payload.subject,
+            mode=payload.test_mode or "normal",
+            total=total_questions,
+            correct=correct_count,
+            accuracy=accuracy,
+            xp_gained=gained_xp,
+            duration_seconds=total_time,
+            completed_at=datetime.utcnow()
+        )
+        db.add(new_session)
 
         # Award Achievements
         await award_achievement(current_user.id, "Primer Paso", db)
@@ -207,13 +223,12 @@ async def submit_test(
         if accuracy == 100:
             await award_achievement(current_user.id, "Maestro de Redes", db)
             
-        if payload.mode == "errors":
+        if payload.test_mode == "errors":
             await award_achievement(current_user.id, "Cazador de Errores", db)
 
+        # Final commit for progress and session
         db.commit()
-
-        total_questions = len(payload.answers)
-        accuracy = (correct_count / total_questions * 100) if total_questions > 0 else 0
+        db.refresh(current_user)
 
         # ── Item Drop (15% si el alumno aprueba >= 50%) ──────────────────
         item_drop = None
@@ -239,20 +254,22 @@ async def submit_test(
                 }
 
         return {
-            "total": len(payload.answers),
+            "total": total_questions,
             "correct": correct_count,
-            "accuracy": accuracy,
-            "xp_gained": gained_xp,
-            "leveled_up": leveled_up,
-            "new_level": new_level,
+            "accuracy": float(accuracy),
+            "xp_gained": int(gained_xp),
+            "leveled_up": bool(leveled_up),
+            "new_level": int(current_user.level),
             "detailed_results": detailed_results,
             "item_drop": item_drop,
         }
 
     except Exception as e:
+        import traceback
         db.rollback()
-        print(f"CRITICAL ERROR EN SUBMIT: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error interno procesando el test.")
+        error_msg = traceback.format_exc()
+        print(f"CRITICAL ERROR EN SUBMIT:\n{error_msg}")
+        raise HTTPException(status_code=500, detail=f"Error en el servidor: {str(e)}")
 
 
 # =====================================================

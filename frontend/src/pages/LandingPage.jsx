@@ -4,37 +4,58 @@ import {
     Shield, Zap, ChevronRight, Check, Terminal, Globe,
     Database, MessageCircle, Code2, Cpu, Lock, Star,
     Trophy, FlaskConical, BookOpen, Gift, ShoppingBag, Fingerprint,
-    Gamepad2, Sparkles, Layout, Rocket, ArrowRight, Hammer, AlertTriangle
+    Gamepad2, Sparkles, Layout, Rocket, ArrowRight, Hammer, AlertTriangle,
+    Crown, BarChart3
 } from 'lucide-react'
 import Typewriter from 'typewriter-effect'
 import brandCombinedImg from '../assets/brand-combined.png'
 
 // ── DATA ─────────────────────────────────────────────────────────────────────
+const PRICING_FEATURES = [
+    { icon: FlaskConical, text: 'Acceso ilimitado al Test Center' },
+    { icon: BookOpen, text: 'Todos los recursos y apuntes PDF' },
+    { icon: BarChart3, text: 'Estadísticas de rendimiento avanzadas' },
+    { icon: Trophy, text: 'Ranking competitivo y gamificación' },
+    { icon: Sparkles, text: 'Explicaciones detalladas por pregunta' },
+    { icon: Shield, text: 'Nuevas preguntas añadidas cada semana' },
+];
+
 const PLANS = [
     {
         name: 'Mensual',
         price: '9.99',
         period: 'mes',
         type: 'monthly',
-        features: ['Acceso a todos los tests', 'Cheat Sheets incluidos', 'Modo Error-Review', 'Estadísticas básicas'],
+        features: PRICING_FEATURES.slice(0, 4),
         highlight: false,
+        icon: BookOpen,
+        sub: 'Flexibilidad',
+        desc: 'Pago mes a mes'
     },
     {
         name: 'Trimestral',
         price: '24.99',
-        period: '3 meses',
+        period: 'trim.',
         type: 'quarterly',
-        features: ['Todo lo del plan Mensual', 'Ahorra un 17%', 'Progreso avanzado', 'Soporte prioritario'],
+        features: PRICING_FEATURES.slice(0, 5),
         highlight: true,
-        badge: 'MÁS POPULAR',
+        badge: 'Más Popular · Mejor Equilibrio',
+        icon: Zap,
+        sub: 'Recomendado',
+        oldPrice: '29,97 €',
+        monthlyAvg: '≈ 8,33 €/mes'
     },
     {
         name: 'Anual',
         price: '79.99',
         period: 'año',
         type: 'annual',
-        features: ['Todo lo Trimestral', 'Ahorra un 33%', 'Acceso anticipado', 'Certificados de completado'],
+        features: PRICING_FEATURES,
         highlight: false,
+        icon: Sparkles,
+        sub: 'Máximo Ahorro',
+        oldPrice: '119,88 €',
+        monthlyAvg: '≈ 6,67 €/mes'
     },
 ]
 
@@ -97,7 +118,49 @@ export default function LandingPage() {
             <div className="landing-bg-blob landing-bg-blob-a" />
             <div className="landing-bg-blob landing-bg-blob-b" />
             <div className="landing-bg-blob landing-bg-blob-c" />
-            <div className="landing-dot-grid" />
+            {/* ── DYNAMIC BACKGROUND ── */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 bg-[#0D0D0D]"></div>
+                <div
+                    className="absolute inset-0 opacity-20"
+                    style={{
+                        backgroundImage: `radial-gradient(circle at 50% 50%, #00ff64 0%, transparent 50%)`,
+                        filter: 'blur(120px)',
+                    }}
+                ></div>
+                <div
+                    className="absolute bottom-0 left-0 right-0 h-[500px]"
+                    style={{
+                        perspective: '1000px',
+                        transformStyle: 'preserve-3d',
+                    }}
+                >
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            backgroundImage: `
+                                linear-gradient(to right, rgba(0, 255, 100, 0.1) 1px, transparent 1px),
+                                linear-gradient(to bottom, rgba(0, 255, 100, 0.1) 1px, transparent 1px)
+                            `,
+                            backgroundSize: '60px 60px',
+                            transform: 'rotateX(60deg) translateY(-100px)',
+                            maskImage: 'linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0))',
+                            animation: 'grid-move 20s linear infinite',
+                        }}
+                    ></div>
+                </div>
+            </div>
+
+            <style>{`
+                @keyframes grid-move {
+                    0% { background-position: 0 0; }
+                    100% { background-position: 0 500px; }
+                }
+                .outline-text {
+                    -webkit-text-stroke: 1px rgba(255,255,255,0.1);
+                    color: transparent;
+                }
+            `}</style>
 
             {/* ── NAVBAR ── */}
             <header className="relative z-20 flex items-center justify-between px-8 py-6 border-b border-white/5 bg-[#0D0D0D]/40 backdrop-blur-xl sticky top-0">
@@ -140,12 +203,12 @@ export default function LandingPage() {
                 </div>
 
                 <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] mb-8 max-w-5xl tracking-tighter uppercase italic">
-                    Domina la <span className="text-neon selection:text-black">Infraestructura</span> <br />
-                    <span className="text-slate-800 outline-text">Digital</span> con Tech4U
+                    Conviértete en un <span className="text-neon selection:text-black">SysAdmin</span> <br />
+                    <span>Entrenando</span> como en un RPG
                 </h1>
 
                 <p className="text-lg text-slate-400 max-w-2xl mb-12 leading-relaxed font-mono font-medium">
-                    La primera plataforma RPG diseñada para transformar estudiantes de SMR y ASIR en arquitectos de sistemas de élite. XP, Rangos y Desafíos reales.
+                    La plataforma que transforma estudiantes de SMR y ASIR en profesionales reales mediante laboratorios, XP y desafíos técnicos.
                 </p>
 
                 {/* CTAs */}
@@ -243,6 +306,18 @@ export default function LandingPage() {
                         </div>
                     ))}
                 </div>
+
+                {/* DAM/DAW Update Notice */}
+                <div className="mt-16 text-center">
+                    <div className="inline-flex items-center gap-4 px-8 py-4 bg-white/[0.02] border border-white/5 rounded-3xl group hover:border-neon/20 transition-all duration-500">
+                        <div className="w-10 h-10 rounded-xl bg-neon/10 flex items-center justify-center">
+                            <Zap className="w-5 h-5 text-neon animate-pulse" />
+                        </div>
+                        <p className="text-[11px] font-mono text-slate-400 uppercase tracking-widest leading-relaxed">
+                            Próximamente se actualizará para dejar paso a estudiantes de <span className="text-white font-black">DAM</span> y <span className="text-white font-black">DAW</span>
+                        </p>
+                    </div>
+                </div>
             </section>
 
             {/* ── FEATURES ── */}
@@ -293,85 +368,128 @@ export default function LandingPage() {
             </section>
 
             {/* ── PRICING ── */}
-            <section className="relative z-10 px-8 py-32 max-w-6xl mx-auto" id="pricing">
+            <section className="relative z-10 px-8 py-32 max-w-7xl mx-auto" id="pricing">
                 <div className="text-center mb-20">
-                    <p className="text-[11px] font-mono text-neon uppercase tracking-[0.3em] mb-4">Investigación & Desarrollo</p>
-                    <h2 className="text-4xl md:text-5xl font-black text-white uppercase italic tracking-tighter leading-none">Planes de <span className="text-neon drop-shadow-[0_0_20px_rgba(0,255,100,0.3)]">Despliegue</span></h2>
-                    <p className="text-slate-500 font-mono text-sm mt-6">Escalabilidad total. Sin contratos de permanencia.</p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/30 mb-6">
+                        <Rocket className="w-4 h-4 text-neon" />
+                        <span className="text-neon font-mono text-xs uppercase tracking-widest font-bold">Tech Premium</span>
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter leading-none mb-6">
+                        Impulsa tu carrera <br />
+                        <span className="text-neon drop-shadow-[0_0_20px_rgba(0,255,100,0.3)]">Sin Límites</span>
+                    </h2>
+                    <p className="text-slate-500 font-mono text-sm max-w-2xl mx-auto leading-relaxed">
+                        Elige el plan que mejor se adapte a tu ritmo de estudio y desbloquea absolutamente todo el contenido.
+                    </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8 items-stretch pt-10">
+                <div className="grid lg:grid-cols-3 gap-8 mb-16 px-4">
                     {PLANS.map((plan) => (
                         <div
                             key={plan.type}
-                            className={`relative flex flex-col p-10 rounded-[2.5rem] transition-all duration-500 group ${plan.highlight
-                                ? 'bg-gradient-to-br from-neon/10 to-[#0D0D0D] border-2 border-neon shadow-[0_0_50px_rgba(0,255,100,0.15)] scale-[1.05] z-10'
-                                : 'bg-[#111] border border-white/10 hover:border-neon/30 hover:bg-[#151515]'
+                            className={`relative flex flex-col p-8 rounded-3xl transition-all duration-500 group ${plan.highlight
+                                ? 'bg-gradient-to-br from-neon/10 to-[#111] border-2 border-neon shadow-[0_0_40px_rgba(0,255,100,0.2)] hover:shadow-[0_0_60px_rgba(0,255,100,0.3)] hover:-translate-y-2 z-10'
+                                : 'bg-[#111]/80 backdrop-blur-md border border-white/10 hover:border-neon/30 hover:bg-[#151515] mt-4 lg:mt-8'
                                 }`}
                         >
-                            {plan.badge && (
-                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-full flex justify-center">
-                                    <span className="px-6 py-2 bg-neon text-[#0D0D0D] text-[10px] font-black uppercase rounded-full tracking-widest shadow-[0_0_25px_rgba(0,255,100,0.6)] flex items-center gap-2 border border-neon">
-                                        <Star className="w-3 h-3 fill-current" /> {plan.badge}
-                                    </span>
-                                </div>
+                            {plan.highlight && (
+                                <>
+                                    <div className="absolute -top-7 -right-5 w-14 h-14 bg-[#0D0D0D] border-2 border-neon rounded-2xl flex items-center justify-center rotate-12 shadow-[0_0_30px_rgba(0,255,100,0.6)] z-20 animate-pulse">
+                                        <Crown className="w-7 h-7 text-neon drop-shadow-[0_0_8px_rgba(0,255,100,0.8)]" />
+                                    </div>
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-full flex justify-center">
+                                        <span className="px-6 py-1.5 bg-neon text-[#0D0D0D] text-[11px] font-black uppercase rounded-full tracking-widest shadow-[0_0_20px_rgba(0,255,100,0.6)] flex items-center gap-2 border border-neon">
+                                            <Star className="w-3 h-3 fill-current" /> {plan.badge}
+                                        </span>
+                                    </div>
+                                </>
                             )}
-                            <div className="mb-8">
-                                <h3 className={`text-[11px] font-black font-mono uppercase tracking-[0.3em] mb-4 ${plan.highlight ? 'text-neon' : 'text-slate-500'}`}>
-                                    Lvl. {plan.name}
-                                </h3>
-                                <div className="flex items-end gap-2">
-                                    <span className={`text-6xl font-black tracking-tighter italic ${plan.highlight ? 'text-neon drop-shadow-[0_0_15px_rgba(0,255,100,0.3)]' : 'text-white'}`}>{plan.price}€</span>
-                                    <span className="text-xs text-slate-500 font-mono uppercase tracking-widest mb-2">/ {plan.period}</span>
+
+                            <div className="flex items-center gap-3 mb-6 mt-4">
+                                <div className={`p-2.5 rounded-xl border ${plan.highlight ? 'bg-neon/20 border-neon/40' : 'bg-white/5 border-white/10'}`}>
+                                    <plan.icon className={`w-5 h-5 ${plan.highlight ? 'text-neon' : 'text-slate-300'}`} />
+                                </div>
+                                <div>
+                                    <p className={`text-[10px] font-mono uppercase tracking-widest ${plan.highlight ? 'text-neon font-bold' : 'text-slate-500'}`}>{plan.sub}</p>
+                                    <h2 className="text-white font-black text-xl uppercase tracking-tight">{plan.name}</h2>
                                 </div>
                             </div>
-                            <ul className="space-y-4 mb-10 flex-1">
-                                {plan.features.map(f => (
-                                    <li key={f} className="flex items-start gap-3 text-xs font-medium text-slate-300">
-                                        <div className="p-0.5 rounded-full bg-neon/10 mt-0.5"><Check className={`w-3.5 h-3.5 ${plan.highlight ? 'text-neon drop-shadow-[0_0_8px_rgba(0,255,100,0.6)]' : 'text-neon'}`} /></div>
-                                        <span className={plan.highlight ? 'text-white' : 'text-slate-300'}>{f}</span>
-                                    </li>
+
+                            <div className="mb-8">
+                                <div className="flex items-end gap-2">
+                                    <span className={`text-5xl font-black font-mono ${plan.highlight ? 'text-neon drop-shadow-[0_0_20px_rgba(0,255,100,0.5)]' : 'text-white'}`}>
+                                        {plan.price.split('.')[0]}<span className="text-3xl">,{plan.price.split('.')[1]}</span>
+                                    </span>
+                                    <span className="text-slate-400 font-mono text-sm mb-2">€ / {plan.period}</span>
+                                </div>
+                                {plan.desc && <p className="text-slate-500 font-mono text-xs mt-2 h-4">{plan.desc}</p>}
+                                {plan.oldPrice && (
+                                    <div className="flex items-center gap-2 mt-2 h-4">
+                                        <span className="text-slate-500 font-mono text-xs line-through">{plan.oldPrice}</span>
+                                        <span className={`${plan.highlight ? 'text-neon' : 'text-slate-300'} font-mono text-sm font-bold ${plan.highlight ? 'bg-neon/10 px-2 py-0.5 rounded' : ''}`}>{plan.monthlyAvg}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-4 mb-8 flex-1">
+                                {plan.features.map((f, idx) => (
+                                    <div key={idx} className="flex items-start gap-3">
+                                        <Check className={`w-4 h-4 text-neon flex-shrink-0 mt-0.5 ${plan.highlight ? 'drop-shadow-[0_0_8px_rgba(0,255,100,0.8)]' : ''}`} />
+                                        <span className={`${plan.highlight ? 'text-white font-medium' : 'text-slate-300'} font-mono text-xs leading-relaxed`}>{f.text}</span>
+                                    </div>
                                 ))}
-                            </ul>
-                            <Link
-                                to={`/login?tab=register&plan=${plan.type}`}
-                                className={`group relative py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-center transition-all overflow-hidden ${plan.highlight
-                                    ? 'bg-neon text-black shadow-[0_0_30px_rgba(0,255,100,0.3)] hover:shadow-[0_0_50px_rgba(0,255,100,0.5)] active:scale-95'
-                                    : 'bg-white/5 text-white border border-white/10 hover:border-neon hover:text-neon active:scale-95'
+                                {plan.type === 'monthly' && (
+                                    <div className="flex items-start gap-3 opacity-40">
+                                        <Check className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
+                                        <span className="text-slate-400 font-mono text-xs line-through">Nuevas preguntas semanales</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={() => navigate(`/login?tab=register&plan=${plan.type}`)}
+                                className={`flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-black font-mono text-sm uppercase tracking-wide transition-all duration-300 ${plan.highlight
+                                    ? 'bg-neon text-[#0D0D0D] shadow-[0_0_20px_rgba(0,255,100,0.4)] hover:shadow-[0_0_40px_rgba(0,255,100,0.6)] hover:scale-[1.03]'
+                                    : 'bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-neon/40'
                                     }`}
                             >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    Activar Licencia <ArrowRight className="w-4 h-4" />
-                                </span>
-                            </Link>
+                                Empezar {plan.name} {plan.highlight && <ArrowRight className="w-5 h-5" />}
+                            </button>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-16 text-center">
-                    <div className="inline-flex items-center gap-4 px-8 py-5 bg-white/[0.03] border border-white/10 rounded-[2rem] text-slate-400 group hover:border-neon/30 hover:bg-neon/5 transition-all duration-500">
-                        <div className="w-12 h-12 rounded-2xl bg-neon/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                            <AlertTriangle className="w-6 h-6 text-neon" />
-                        </div>
-                        <div className="text-left">
-                            <p className="text-sm font-black uppercase tracking-widest text-white mb-0.5">Descuentos para Grupos</p>
-                            <p className="text-[11px] font-mono text-slate-500">Hay descuentos disponibles para grupos grandes. ¡Pide información!</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Trust badges */}
-                <div className="flex flex-wrap items-center justify-center gap-12 mt-24 opacity-40">
+                {/* Trust indications */}
+                <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-16">
                     {[
-                        [Lock, 'Cifrado de Pago AES-256'],
-                        [Shield, 'Cancelación en 1-click'],
-                        [Zap, 'Acceso Cloud Instantáneo'],
-                    ].map(([Icon, txt]) => (
-                        <div key={txt} className="flex items-center gap-3 text-slate-400 font-mono text-[10px] uppercase tracking-widest">
-                            <Icon className="w-4 h-4" />
-                            {txt}
+                        { icon: Lock, title: 'Pago 100% Seguro', desc: 'Procesado con Stripe con encriptación bancaria' },
+                        { icon: Shield, title: 'Sin Permanencia', desc: 'Cancela tu plan en cualquier momento' },
+                        { icon: Zap, title: 'Acceso Inmediato', desc: 'Tu cuenta se actualiza al instante' },
+                    ].map(({ icon: Icon, title, desc }) => (
+                        <div key={title} className="flex flex-col items-center text-center gap-3">
+                            <div className="p-3 rounded-full bg-neon/5 border border-neon/10 text-neon">
+                                <Icon className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h4 className="text-white font-bold font-mono text-sm mb-1">{title}</h4>
+                                <p className="text-slate-500 text-xs font-mono">{desc}</p>
+                            </div>
                         </div>
                     ))}
+                </div>
+
+                {/* Group Discount Notice adapted to new style */}
+                <div className="mt-20 text-center flex flex-col items-center gap-6">
+                    <p className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/[0.02] border border-white/5 text-slate-500 font-mono text-sm">
+                        <Star className="w-4 h-4 text-neon" />
+                        ¿Sois un grupo? Consulta nuestros <strong className="text-neon">descuentos para clases y grupos grandes</strong>.
+                    </p>
+                    <a
+                        href="mailto:info@tech4u.academy?subject=Consulta%20Grupo%20Academia"
+                        className="inline-flex items-center gap-2 px-8 py-4 bg-neon text-black font-black uppercase tracking-widest text-xs rounded-xl hover:shadow-[0_0_30px_rgba(0,255,100,0.4)] transition-all"
+                    >
+                        <MessageCircle className="w-4 h-4" /> Contactar con Soporte
+                    </a>
                 </div>
             </section>
 

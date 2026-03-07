@@ -5,7 +5,7 @@ import {
     ChevronRight, Monitor, Wifi, Server,
     Shield, Database, Code2, Cpu, FileCode, ArrowLeft, Zap, Star, Sparkles,
     BookOpen, ClipboardList, Bug,
-    CheckCircle2, XCircle, Info, Target
+    CheckCircle, XCircle, Info, Target, Gift
 } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import PageHeader from '../components/PageHeader'
@@ -368,141 +368,154 @@ export default function TestCenter() {
                 )}
 
                 {/* ── PHASE: RESULTS ── */}
-                {phase === 'results' && results && (
+                {phase === 'results' && (
                     <div className="max-w-3xl mx-auto animate-in slide-in-from-bottom-10 duration-700">
+                        {!results ? (
+                            <div className="glass rounded-[2rem] p-12 border border-red-500/20 text-center">
+                                <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
+                                <h2 className="text-2xl font-black text-white uppercase italic mb-4">Error al procesar resultados</h2>
+                                <p className="text-slate-400 mb-8 font-mono text-sm">No hemos podido recuperar los datos de tu test. Esto puede deberse a un fallo de conexión o un error en el servidor.</p>
+                                <button onClick={handleReset} className="px-10 py-4 bg-neon text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
+                                    Volver al Inicio
+                                </button>
+                            </div>
+                        ) : (
+                            <>
 
-                        {/* ── ITEM DROP POPUP ── */}
-                        {results.item_drop && (
-                            <div className="mb-8 p-1 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-600 rounded-[2rem] shadow-[0_0_50px_rgba(168,85,247,0.4)] animate-in zoom-in duration-500">
-                                <div className="bg-[#0b0510] rounded-[1.9rem] p-8 text-center relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
-                                    <div className="relative z-10">
-                                        <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-500/20 rounded-full mb-4 border-2 border-purple-500/30 animate-bounce">
-                                            <Gift className="w-10 h-10 text-purple-400" />
-                                        </div>
-                                        <h3 className="text-3xl font-black text-white uppercase italic mb-1 tracking-tighter">
-                                            ¡Item Conseguido!
-                                        </h3>
-                                        <p className="text-[10px] font-mono text-purple-400 uppercase tracking-[0.3em] mb-6">Nuevo objeto añadido a tu inventario</p>
+                                {/* ── ITEM DROP POPUP ── */}
+                                {results.item_drop && (
+                                    <div className="mb-8 p-1 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-600 rounded-[2rem] shadow-[0_0_50px_rgba(168,85,247,0.4)] animate-in zoom-in duration-500">
+                                        <div className="bg-[#0b0510] rounded-[1.9rem] p-8 text-center relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
+                                            <div className="relative z-10">
+                                                <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-500/20 rounded-full mb-4 border-2 border-purple-500/30 animate-bounce">
+                                                    <Gift className="w-10 h-10 text-purple-400" />
+                                                </div>
+                                                <h3 className="text-3xl font-black text-white uppercase italic mb-1 tracking-tighter">
+                                                    ¡Item Conseguido!
+                                                </h3>
+                                                <p className="text-[10px] font-mono text-purple-400 uppercase tracking-[0.3em] mb-6">Nuevo objeto añadido a tu inventario</p>
 
-                                        <div className="inline-flex items-center gap-6 bg-black/40 border-2 border-purple-500/20 p-6 rounded-2xl group transition-all hover:border-purple-500/50">
-                                            <span className="text-6xl group-hover:scale-110 transition-transform">{results.item_drop.emoji}</span>
-                                            <div className="text-left">
-                                                <p className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded border inline-block mb-1 ${results.item_drop.rarity === 'legendario' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                                                    results.item_drop.rarity === 'epico' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                                                        results.item_drop.rarity === 'raro' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                                                            'bg-slate-500/20 text-slate-400 border-slate-500/30'
-                                                    }`}>
-                                                    {results.item_drop.rarity}
-                                                </p>
-                                                <h4 className="text-xl font-black text-white uppercase">{results.item_drop.name}</h4>
-                                                <p className="text-xs text-slate-400 italic max-w-xs">{results.item_drop.description}</p>
+                                                <div className="inline-flex items-center gap-6 bg-black/40 border-2 border-purple-500/20 p-6 rounded-2xl group transition-all hover:border-purple-500/50">
+                                                    <span className="text-6xl group-hover:scale-110 transition-transform">{results.item_drop.emoji}</span>
+                                                    <div className="text-left">
+                                                        <p className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded border inline-block mb-1 ${results.item_drop.rarity === 'legendario' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                                            results.item_drop.rarity === 'epico' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                                                                results.item_drop.rarity === 'raro' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                                                                    'bg-slate-500/20 text-slate-400 border-slate-500/30'
+                                                            }`}>
+                                                            {results.item_drop.rarity}
+                                                        </p>
+                                                        <h4 className="text-xl font-black text-white uppercase">{results.item_drop.name}</h4>
+                                                        <p className="text-xs text-slate-400 italic max-w-xs">{results.item_drop.description}</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        )}
+                                )}
 
-                        <div className="glass rounded-[2rem] p-12 border border-white/5 mb-10 text-center relative overflow-hidden">
+                                <div className="glass rounded-[2rem] p-12 border border-white/5 mb-10 text-center relative overflow-hidden">
 
-                            <div className={`absolute top-0 left-0 w-full h-1 ${results.accuracy >= 50 ? 'bg-neon' : 'bg-red-500'}`} />
-                            <Trophy className={`w-20 h-20 mx-auto mb-6 ${results.accuracy >= 50 ? 'text-neon' : 'text-red-500'}`} />
-                            <h2 className="text-4xl font-black text-white uppercase italic mb-2">
-                                {results.accuracy >= 50 ? 'Aprobado' : 'Suspendido'}
-                            </h2>
-                            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.4em] mb-12">Reporte de rendimiento final</p>
-                            <div className="grid grid-cols-4 gap-6 mb-12">
-                                {[
-                                    ['Correctas', results.correct, 'text-neon'],
-                                    ['Falladas', (results.total || 0) - (results.correct || 0), 'text-red-500'],
-                                    ['Porcentaje', `${results.accuracy}%`, results.accuracy >= 50 ? 'text-neon' : 'text-red-500'],
-                                    ['XP Obtenida', `${results.xp_gained > 0 ? '+' : ''}${results.xp_gained} XP`, results.xp_gained > 0 ? 'text-blue-400' : 'text-slate-500'],
-                                ].map(([label, value, color]) => (
-                                    <div key={label} className="bg-white/[0.02] border border-white/5 rounded-2xl py-8 flex flex-col items-center justify-center">
-                                        <p className={`text-3xl font-black font-mono mb-1 ${color}`}>{value}</p>
-                                        <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">{label}</p>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {results.leveled_up && (
-                                <div className="mb-12 p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 via-neon/10 to-blue-500/10 border border-neon/30 animate-pulse flex items-center justify-center gap-4">
-                                    <Star className="w-8 h-8 text-neon" />
-                                    <div className="text-left">
-                                        <p className="text-[10px] font-mono text-blue-400 uppercase tracking-widest font-bold">¡Subida de nivel!</p>
-                                        <h3 className="text-xl font-black italic text-white uppercase">Has alcanzado el Nivel {results.new_level}</h3>
-                                    </div>
-                                    <Star className="w-8 h-8 text-neon" />
-                                </div>
-                            )}
-
-                            <div className="flex gap-4 justify-center">
-                                <button onClick={handleReset} className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 text-white">
-                                    <RefreshCw className="w-4 h-4" /> Otra Asignatura
-                                </button>
-                                <button onClick={() => { setPhase('detail'); setQuestions([]); setResults(null); setError(null); setMode(''); }} className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 text-white">
-                                    Repetir {selectedSubject?.label}
-                                </button>
-                                <button onClick={() => navigate('/dashboard')} className="px-10 py-4 bg-neon text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
-                                    Ir al Dashboard
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* ── DETAILED REVIEW ── */}
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-300">
-                            <h3 className="text-sm font-black uppercase italic text-slate-500 tracking-[0.3em] mb-4 flex items-center gap-2">
-                                <Info className="w-4 h-4" /> Revisión del Examen
-                            </h3>
-
-                            {results.detailed_results.map((res, idx) => (
-                                <div key={idx} className={`glass rounded-3xl p-8 border ${res.correct ? 'border-neon/20 bg-neon/5' : 'border-red-500/20 bg-red-500/5'}`}>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <span className={`text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full ${res.correct ? 'bg-neon/10 text-neon' : 'bg-red-500/10 text-red-500'}`}>
-                                            Pregunta {idx + 1} · {res.correct ? 'Correcta' : 'Fallada'}
-                                        </span>
-                                        {res.correct
-                                            ? <CheckCircle2 className="w-5 h-5 text-neon" />
-                                            : <XCircle className="w-5 h-5 text-red-500" />
-                                        }
+                                    <div className={`absolute top-0 left-0 w-full h-1 ${results.accuracy >= 50 ? 'bg-neon' : 'bg-red-500'}`} />
+                                    <Trophy className={`w-20 h-20 mx-auto mb-6 ${results.accuracy >= 50 ? 'text-neon' : 'text-red-500'}`} />
+                                    <h2 className="text-4xl font-black text-white uppercase italic mb-2">
+                                        {results.accuracy >= 50 ? 'Aprobado' : 'Suspendido'}
+                                    </h2>
+                                    <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.4em] mb-12">Reporte de rendimiento final</p>
+                                    <div className="grid grid-cols-4 gap-6 mb-12">
+                                        {[
+                                            ['Correctas', results.correct, 'text-neon'],
+                                            ['Falladas', (results.total || 0) - (results.correct || 0), 'text-red-500'],
+                                            ['Porcentaje', `${results.accuracy}%`, results.accuracy >= 50 ? 'text-neon' : 'text-red-500'],
+                                            ['XP Obtenida', `${results.xp_gained > 0 ? '+' : ''}${results.xp_gained} XP`, results.xp_gained > 0 ? 'text-blue-400' : 'text-slate-500'],
+                                        ].map(([label, value, color]) => (
+                                            <div key={label} className="bg-white/[0.02] border border-white/5 rounded-2xl py-8 flex flex-col items-center justify-center">
+                                                <p className={`text-3xl font-black font-mono mb-1 ${color}`}>{value}</p>
+                                                <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">{label}</p>
+                                            </div>
+                                        ))}
                                     </div>
 
-                                    <h4 className="text-lg font-bold text-white mb-6 leading-relaxed">
-                                        {res.question_text}
-                                    </h4>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                                        {['a', 'b', 'c', 'd'].map(opt => {
-                                            const isCorrect = res.correct_answer.toLowerCase() === opt
-                                            const isSelected = res.selected_answer.toLowerCase() === opt
-
-                                            let style = "p-4 rounded-xl border text-xs font-mono transition-all "
-                                            if (isCorrect) style += "border-neon bg-neon/10 text-neon font-black "
-                                            else if (isSelected && !isCorrect) style += "border-red-500 bg-red-500/10 text-red-500 "
-                                            else style += "border-white/5 text-slate-500 bg-white/[0.02] "
-
-                                            return (
-                                                <div key={opt} className={style}>
-                                                    <span className="uppercase mr-3 opacity-50">{opt})</span>
-                                                    {res[`option_${opt}`]}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-
-                                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-6">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Info className="w-4 h-4 text-blue-400" />
-                                            <p className="text-[10px] font-black uppercase text-blue-400 tracking-widest">Explicación Técnica</p>
+                                    {results.leveled_up && (
+                                        <div className="mb-12 p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 via-neon/10 to-blue-500/10 border border-neon/30 animate-pulse flex items-center justify-center gap-4">
+                                            <Star className="w-8 h-8 text-neon" />
+                                            <div className="text-left">
+                                                <p className="text-[10px] font-mono text-blue-400 uppercase tracking-widest font-bold">¡Subida de nivel!</p>
+                                                <h3 className="text-xl font-black italic text-white uppercase">Has alcanzado el Nivel {results.new_level}</h3>
+                                            </div>
+                                            <Star className="w-8 h-8 text-neon" />
                                         </div>
-                                        <p className="text-sm text-slate-300 leading-relaxed italic">
-                                            {res.explanation || "No hay una explicación detallada disponible para esta pregunta."}
-                                        </p>
+                                    )}
+
+                                    <div className="flex gap-4 justify-center">
+                                        <button onClick={handleReset} className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 text-white">
+                                            <RefreshCw className="w-4 h-4" /> Otra Asignatura
+                                        </button>
+                                        <button onClick={() => { setPhase('detail'); setQuestions([]); setResults(null); setError(null); setMode(''); }} className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 text-white">
+                                            Repetir {selectedSubject?.label}
+                                        </button>
+                                        <button onClick={() => navigate('/dashboard')} className="px-10 py-4 bg-neon text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
+                                            Ir al Dashboard
+                                        </button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+
+                                {/* ── DETAILED REVIEW ── */}
+                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-300">
+                                    <h3 className="text-sm font-black uppercase italic text-slate-500 tracking-[0.3em] mb-4 flex items-center gap-2">
+                                        <Info className="w-4 h-4" /> Revisión del Examen
+                                    </h3>
+
+                                    {results.detailed_results.map((res, idx) => (
+                                        <div key={idx} className={`glass rounded-3xl p-8 border ${res.correct ? 'border-neon/20 bg-neon/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <span className={`text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full ${res.correct ? 'bg-neon/10 text-neon' : 'bg-red-500/10 text-red-500'}`}>
+                                                    Pregunta {idx + 1} · {res.correct ? 'Correcta' : 'Fallada'}
+                                                </span>
+                                                {res.correct
+                                                    ? <CheckCircle className="w-5 h-5 text-neon" />
+                                                    : <XCircle className="w-5 h-5 text-red-500" />
+                                                }
+                                            </div>
+
+                                            <h4 className="text-lg font-bold text-white mb-6 leading-relaxed">
+                                                {res.question_text}
+                                            </h4>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                                                {['a', 'b', 'c', 'd'].map(opt => {
+                                                    const isCorrect = res.correct_answer.toLowerCase() === opt
+                                                    const isSelected = res.selected_answer.toLowerCase() === opt
+
+                                                    let style = "p-4 rounded-xl border text-xs font-mono transition-all "
+                                                    if (isCorrect) style += "border-neon bg-neon/10 text-neon font-black "
+                                                    else if (isSelected && !isCorrect) style += "border-red-500 bg-red-500/10 text-red-500 "
+                                                    else style += "border-white/5 text-slate-500 bg-white/[0.02] "
+
+                                                    return (
+                                                        <div key={opt} className={style}>
+                                                            <span className="uppercase mr-3 opacity-50">{opt})</span>
+                                                            {res[`option_${opt}`]}
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+
+                                            <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-6">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Info className="w-4 h-4 text-blue-400" />
+                                                    <p className="text-[10px] font-black uppercase text-blue-400 tracking-widest">Explicación Técnica</p>
+                                                </div>
+                                                <p className="text-sm text-slate-300 leading-relaxed italic">
+                                                    {res.explanation || "No hay una explicación detallada disponible para esta pregunta."}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
                 )}
 

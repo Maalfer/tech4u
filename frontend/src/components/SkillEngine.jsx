@@ -56,7 +56,11 @@ export default function SkillEngine({ exercises, onFinish }) {
         newDropped[blankIndex] = draggingWord;
         setDroppedWords(newDropped);
 
-        const newPool = wordPool.filter(w => w !== draggingWord);
+        const newPool = [...wordPool];
+        const wordIndex = newPool.indexOf(draggingWord);
+        if (wordIndex !== -1) {
+            newPool.splice(wordIndex, 1);
+        }
         if (existingWord) newPool.push(existingWord);
 
         setWordPool(newPool);
@@ -77,12 +81,20 @@ export default function SkillEngine({ exercises, onFinish }) {
     };
 
     const checkAnswers = () => {
-        const isPerfect = droppedWords.every((word, idx) => word === currentEx.answers[idx]);
+        const isPerfect = droppedWords.every((word, idx) => {
+            if (!word) return false;
+            // Robust normalization for accents and unseen characters
+            const userWord = word.trim().toLowerCase().normalize("NFC");
+            const correctWord = currentEx.answers[idx].trim().toLowerCase().normalize("NFC");
+
+            const match = userWord === correctWord;
+            return match;
+        });
 
         if (isPerfect) {
             setFeedback('success');
             setStats(s => ({ ...s, correct: s.correct + 1 }));
-            setTimeout(() => advance(), 3000);
+            setTimeout(() => advance(), 6000);
         } else {
             const newAttempts = attemptsLeft - 1;
             setAttemptsLeft(newAttempts);
@@ -92,7 +104,7 @@ export default function SkillEngine({ exercises, onFinish }) {
                 setFeedback('failed');
                 setDroppedWords([...currentEx.answers]);
                 setWordPool([]);
-                setTimeout(() => advance(), 10000);
+                setTimeout(() => advance(), 15000);
             } else {
                 setFeedback('error');
                 setTimeout(() => setFeedback(null), 1000);
