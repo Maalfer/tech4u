@@ -35,8 +35,20 @@ export default function SkillLabs() {
     const [selectedSubject, setSelectedSubject] = useState(null)
     const [exercises, setExercises] = useState([])
     const [results, setResults] = useState(null)
+    const [stats, setStats] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+
+    useEffect(() => {
+        api.get('/dashboard/stats').then(r => setStats(r.data)).catch(() => { })
+    }, [])
+
+    // Current XP info from real dashboard stats
+    const currentXP = stats?.current_xp || 0
+    const nextLevelXP = stats?.next_level_xp || 1000
+    const xpPercent = Math.min(Math.round((currentXP / nextLevelXP) * 100), 100)
+    const rankName = stats?.rank_name || (user?.rank_name) || 'Estudiante'
+    const userLevel = stats?.level || user?.level || 1
 
     const handleSelectSubject = (sub) => {
         setSelectedSubject(sub)

@@ -60,7 +60,7 @@ export default function TestCenter() {
     const nextLevelXP = stats?.next_level_xp || 1000
     const xpPercent = Math.min(Math.round((currentXP / nextLevelXP) * 100), 100)
     const rankName = stats?.rank_name || (user?.rank_name) || 'Recruit'
-    const userLevel = user?.level || 1
+    const userLevel = stats?.level || user?.level || 1;
 
     const handleSelectSubject = (sub) => {
         setSelectedSubject(sub)

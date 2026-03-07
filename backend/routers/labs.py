@@ -300,12 +300,7 @@ def complete_lab(
         raise HTTPException(status_code=404, detail="Lab no encontrado")
 
     # 4. Award XP and Save
-    current_user.xp = (current_user.xp or 0) + lab.xp_reward
-    leveled_up = False
-    level_before = current_user.level
-    current_user.level = (current_user.xp // 1000) + 1
-    if current_user.level > level_before:
-        leveled_up = True
+    leveled_up = current_user.add_xp(lab.xp_reward)
 
     completion = UserLabCompletion(
         user_id=current_user.id,

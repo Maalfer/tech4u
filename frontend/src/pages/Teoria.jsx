@@ -52,7 +52,7 @@ export default function Teoria() {
     const nextLevelXP = stats?.next_level_xp || 1000;
     const xpPercent = Math.min(Math.round((currentXP / nextLevelXP) * 100), 100);
     const rankName = stats?.rank_name || user?.rank_name || 'Estudiante';
-    const userLevel = user?.level || 1;
+    const userLevel = stats?.level || user?.level || 1;
 
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white font-sans">

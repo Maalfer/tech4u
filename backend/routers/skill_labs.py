@@ -74,14 +74,9 @@ async def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_d
     old_level = current_user.level
     current_user.xp += net_xp
 
+    current_user.add_xp(net_xp)
     leveled_up = False
-    new_level = current_user.level
-    rank_name = current_user.rank_name
-
-    while current_user.xp >= current_user.next_level_xp:
-        current_user.level += 1
-        current_user.xp -= current_user.next_level_xp
-        current_user.next_level_xp = int(current_user.next_level_xp * 1.5)
+    if current_user.level > old_level:
         leveled_up = True
 
     # Check rank updates
@@ -91,9 +86,10 @@ async def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_d
     elif current_user.level >= 20: current_user.rank_name = "Advanced"
     elif current_user.level >= 10: current_user.rank_name = "Intermediate"
     
+    new_level = current_user.level
+    rank_name = current_user.rank_name
+
     if leveled_up:
-        new_level = current_user.level
-        rank_name = current_user.rank_name
         # Send Level Up Notification
         await manager.send_personal_message({
             "type": "LEVEL_UP",

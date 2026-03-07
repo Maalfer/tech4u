@@ -9,7 +9,6 @@ import PremiumRoute from './components/PremiumRoute';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SubscriptionPlans from './pages/SubscriptionPlans';
-import InfoPage from './pages/InfoPage';
 
 // Alumno Pages
 import Dashboard from './pages/Dashboard';
@@ -85,7 +84,6 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/planes" element={<SubscriptionPlans />} />
-            <Route path="/descubre" element={<InfoPage />} />
 
             {/* 2. ÁREA PROTEGIDA (ALUMNOS Y GENERAL) */}
             {/* Las ponemos antes de los dashboards para asegurar prioridad de coincidencia */}
@@ -139,7 +137,7 @@ export default function App() {
             />
             <Route
               path="/explora"
-              element={<ProtectedRoute><ExploraAcademia /></ProtectedRoute>}
+              element={<ExploraAcademia />}
             />
             <Route
               path="/personaje"

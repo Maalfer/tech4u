@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
+import logo from '../assets/logo.png';
 import {
     Zap, BookOpen, FlaskConical, Layers, Trophy, Shield,
     Star, BarChart2, CreditCard, Play, Wrench, Globe2,
     Swords, MessageSquare, ChevronRight, Flame, Lock,
     ShieldCheck, ShieldOff, Award, Hammer, Target, AlertTriangle,
-    Map, Compass
+    Map, Compass, Terminal
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -96,13 +97,22 @@ const SECTIONS = [
         desc: 'Explora cursos en vídeo integrados directamente desde YouTube, organizados por asignatura. Puedes marcar vídeos como vistos y llevar un seguimiento de tu progreso en cada curso.'
     },
     {
-        id: 'cursos',
-        emoji: '🎓',
-        color: 'cyan',
-        label: 'Mis Cursos',
-        path: '/my-courses',
-        headline: 'Tu ruta de aprendizaje personalizada',
-        desc: 'En Mis Cursos puedes comprar cursos individuales y acceder a contenido premium adicional de la academia. Cada curso desbloqueado queda en tu perfil de forma permanente.'
+        id: 'teoria',
+        emoji: '📚',
+        color: 'violet',
+        label: 'Teoria',
+        path: '/teoria',
+        headline: 'Dungeon of Knowledge',
+        desc: 'Accede a todo el temario teórico organizado por asignaturas. Posts detallados, imágenes y guías paso a paso para dominar los conceptos antes de saltar a la práctica.'
+    },
+    {
+        id: 'terminal-skills',
+        emoji: '⌨️',
+        color: 'emerald',
+        label: 'Terminal Skills',
+        path: '/skill-labs',
+        headline: 'Entrenamiento técnico puro',
+        desc: 'Entorno de terminal interactivo para dominar comandos Linux, gestión de almacenamiento, redes y despliegue de servicios en tiempo real.'
     },
     {
         id: 'herramientas',
@@ -123,24 +133,6 @@ const SECTIONS = [
         desc: 'El Ranking muestra la tabla de clasificación global de todos los alumnos, ordenada por nivel y XP. Tu posición se actualiza en tiempo real cada vez que subes de nivel. ¿Puedes llegar al top 3?'
     },
     {
-        id: 'stats',
-        emoji: '📊',
-        color: 'cyan',
-        label: 'Test Stats',
-        path: '/test-stats',
-        headline: 'Tu historial y análisis de rendimiento',
-        desc: 'Test Stats es tu archivo personal de exámenes. Puedes ver todos los tests que has realizado: fecha, número de preguntas, aciertos, fallos, porcentaje y modo. Úsalo para analizar tus puntos débiles por módulo.'
-    },
-    {
-        id: 'suscripcion',
-        emoji: '💳',
-        color: 'emerald',
-        label: 'Mi Suscripción',
-        path: '/suscripcion/gestionar',
-        headline: 'Gestiona tu acceso premium',
-        desc: 'En Mi Suscripción puedes ver cuando empezó tu suscripción, cuándo vence, el tipo de plan que tienes y el estado general de tu cuenta. También puedes gestionar tu suscripción y acceder al portal de Stripe para cancelar o actualizar tu plan.'
-    },
-    {
         id: 'personaje',
         emoji: '🧙',
         color: 'blue',
@@ -148,15 +140,6 @@ const SECTIONS = [
         path: '/personaje',
         headline: 'Tu hoja de personaje RPG',
         desc: 'Mi Personaje es tu perfil gamificado completo. Muestra tu nivel, rango, XP, racha diaria, estadísticas por módulo ASIR (HW, OS, Redes, SQL, WEB, Cyber), equipamiento desbloqueado y medallas obtenidas. Es la representación completa de tu progreso.'
-    },
-    {
-        id: 'mundo',
-        emoji: '🌍',
-        color: 'teal',
-        label: 'Virtual World',
-        path: '/mundo',
-        headline: 'Explora el mundo RPG de la academia',
-        desc: 'El Virtual World es un mapa interactivo RPG donde puedes moverte con tu personaje, explorar zonas temáticas por módulo ASIR, leer infografías técnicas y desbloquear contenido oculto. Una experiencia inmersiva única en una academia FP.'
     },
     {
         id: 'incidencias',
@@ -283,9 +266,42 @@ export default function ExploraAcademia() {
                 <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-blue-500/4 blur-[150px] rounded-full" />
             </div>
 
-            <Sidebar />
+            {user && <Sidebar />}
 
-            <main className="flex-1 ml-60 min-h-screen">
+            <main className={`flex-1 ${user ? 'ml-60' : 'ml-0'} min-h-screen`}>
+                {!user && (
+                    <header className="fixed w-full top-0 z-50 bg-[#080810]/80 backdrop-blur-xl border-b border-white/5">
+                        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                            <div
+                                className="flex items-center gap-3 cursor-pointer group"
+                                onClick={() => navigate('/')}
+                            >
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-neon/20 blur-xl rounded-full group-hover:bg-neon/40 transition-all duration-500" />
+                                    <img src={logo} alt="Tech4U Logo" className="w-8 h-8 relative z-10 drop-shadow-[0_0_8px_var(--neon-alpha-50)]" />
+                                </div>
+                                <span className="text-xl font-black italic tracking-tighter text-white">
+                                    Tech<span className="text-neon">4</span>U
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="hidden md:block text-slate-300 font-mono text-sm hover:text-white transition-colors"
+                                >
+                                    Iniciar Sesión
+                                </button>
+                                <button
+                                    onClick={() => navigate('/suscripcion')}
+                                    className="bg-neon text-[#0D0D0D] px-6 py-2.5 rounded-full font-black text-sm uppercase transition-all hover:shadow-[0_0_20px_var(--neon-alpha-40)] hover:scale-105"
+                                >
+                                    Ver Planes
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+                )}
                 <div className="px-10 pt-10">
                     <PageHeader
                         title="Explora"
@@ -712,6 +728,64 @@ export default function ExploraAcademia() {
                                         <p className="text-[10px] font-mono text-slate-500 leading-tight">{r.desc}</p>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section id="terminal-skills" title="Terminal Skills" icon={<Terminal className="w-5 h-5" />} color="green">
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="space-y-6">
+                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+                                    <h3 className="text-lg font-black uppercase italic mb-4 text-emerald-400">Domina la Línea de Comandos</h3>
+                                    <p className="text-sm text-slate-400 font-mono leading-relaxed mb-4">
+                                        No eres un SysAdmin si no te sientes cómodo en la terminal. En esta sección encontrarás un entorno real donde practicar sin miedo a romper nada (o rompiéndolo todo y volviendo a empezar).
+                                    </p>
+                                    <ul className="space-y-3">
+                                        {[
+                                            { t: 'Linux Fundamentals', d: 'Desde la navegación básica hasta la gestión de permisos avanzada.' },
+                                            { t: 'Gestión de Almacenamiento', d: 'LVM, particionamiento, RAID y cuotas de disco.' },
+                                            { t: 'Servidores & Servicios', d: 'Despliegue de Apache, Nginx, SSH, FTP y bases de datos.' },
+                                            { t: 'Laboratorios Guiados', d: 'Escenarios reales con objetivos específicos que debes cumplir.' }
+                                        ].map(item => (
+                                            <li key={item.t} className="flex gap-3">
+                                                <div className="mt-1"><Zap className="w-3.5 h-3.5 text-emerald-500" /></div>
+                                                <div>
+                                                    <p className="text-[11px] font-black uppercase text-white">{item.t}</p>
+                                                    <p className="text-[10px] text-slate-500 font-mono">{item.d}</p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <AlertTriangle className="w-4 h-4 text-emerald-400" />
+                                        <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">Contenido Evolutivo</p>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 font-mono italic">
+                                        "Estamos añadiendo nuevos módulos y laboratorios constantemente. El mundo de la administración de sistemas es infinito, y tu entrenamiento también debe serlo."
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square md:aspect-auto">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+                                <div className="absolute inset-0 bg-emerald-500/10 animate-pulse" />
+                                <div className="absolute inset-0 flex items-center justify-center p-8">
+                                    <div className="w-full h-full bg-black/60 rounded-xl border border-white/5 p-4 font-mono text-[10px] text-emerald-400 overflow-hidden shadow-2xl group-hover:border-emerald-500/30 transition-all duration-700">
+                                        <p className="mb-1 opacity-50"># Acceso al sistema de entrenamiento...</p>
+                                        <p className="mb-1">tech4u@academy:~$ <span className="text-white animate-pulse">_</span></p>
+                                        <p className="mt-4 text-slate-500">{'>>'} Analizando capacidades del alumno...</p>
+                                        <p className="text-emerald-500/80">{'>>'} Cargando módulos de almacenamiento...</p>
+                                        <p className="text-emerald-500/60">{'>>'} Sincronizando laboratorios de red...</p>
+                                        <div className="absolute bottom-4 left-4 right-4 h-1 bg-white/5 rounded-full overflow-hidden">
+                                            <div className="h-full bg-emerald-500 w-2/3" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-6 left-6 right-6 z-20">
+                                    <p className="text-xs font-black uppercase tracking-widest text-white mb-1">Entorno de Simulación</p>
+                                    <p className="text-[10px] font-mono text-slate-400">Terminal 100% funcional integrada en el navegador.</p>
+                                </div>
                             </div>
                         </div>
                     </Section>

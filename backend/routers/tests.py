@@ -198,18 +198,8 @@ async def submit_test(
         if payload.test_mode and payload.test_mode.lower() == "examen" and len(payload.answers) == 40:
             gained_xp = (correct_count * 15) - (wrong_count * 5)
         
-        current_user.xp = max(0, (current_user.xp or 0) + gained_xp)
-        
-        leveled_up = False
-        new_level = current_user.level or 1
-        
-        next_level_xp = new_level * 500
-        while current_user.xp >= next_level_xp:
-            current_user.xp -= next_level_xp
-            new_level += 1
-            current_user.level = new_level
-            leveled_up = True
-            next_level_xp = new_level * 500
+        leveled_up = current_user.add_xp(gained_xp)
+        new_level = current_user.level
 
         # Award Achievements
         await award_achievement(current_user.id, "Primer Paso", db)

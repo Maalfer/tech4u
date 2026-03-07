@@ -51,6 +51,31 @@ class User(Base):
     suggestions = relationship("QuestionSuggestion", back_populates="user")
     achievements = relationship("UserAchievement", back_populates="user")
 
+    def get_next_level_xp(self):
+        return self.level * 500
+
+    def add_xp(self, amount: int):
+        """
+        Suma XP y maneja subidas de nivel de forma centralizada.
+        Fórmula: Costo del nivel N al N+1 = N * 500 XP.
+        """
+        self.xp = max(0, (self.xp or 0) + amount)
+        leveled_up = False
+        
+        while True:
+            needed = self.get_next_level_xp()
+            if self.xp >= needed:
+                self.xp -= needed
+                self.level += 1
+                leveled_up = True
+            else:
+                break
+        
+        # Actualización de rangos (Sincronizado con dashboard.py)
+        if self.level >= 20: self.role = self.role # No cambia el rol, pero podríamos disparar lógica
+        
+        return leveled_up
+
 
 class UserProgress(Base):
     __tablename__ = "user_progress"

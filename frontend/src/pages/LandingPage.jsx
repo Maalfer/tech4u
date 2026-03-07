@@ -4,7 +4,7 @@ import {
     Shield, Zap, ChevronRight, Check, Terminal, Globe,
     Database, MessageCircle, Code2, Cpu, Lock, Star,
     Trophy, FlaskConical, BookOpen, Gift, ShoppingBag, Fingerprint,
-    Gamepad2, Sparkles, Layout, Rocket, ArrowRight
+    Gamepad2, Sparkles, Layout, Rocket, ArrowRight, Hammer, AlertTriangle
 } from 'lucide-react'
 import Typewriter from 'typewriter-effect'
 import brandCombinedImg from '../assets/brand-combined.png'
@@ -41,10 +41,10 @@ const PLANS = [
 const SUBJECTS = [
     { icon: Database, label: 'Bases de Datos', color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
     { icon: Globe, label: 'Redes & Protocolos', color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/20' },
-    { icon: Terminal, label: 'Ciberseguridad', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
     { icon: Shield, label: 'Sistemas Operativos', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
     { icon: Cpu, label: 'Fundamentos de Hardware', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
     { icon: Code2, label: 'Lenguaje de Marcas', color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
+    { icon: Terminal, label: 'Ciberseguridad', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20', status: 'Próximamente...' },
 ]
 
 const FEATURES = [
@@ -55,22 +55,28 @@ const FEATURES = [
         highlight: 'bg-blue-500/20 text-blue-400'
     },
     {
-        icon: Gamepad2,
+        icon: Hammer,
         title: 'Skill Labs',
         desc: 'Experimentos interactivos "Drag & Drop" para dominar conceptos complejos de redes y sistemas.',
         highlight: 'bg-purple-500/20 text-purple-400'
+    },
+    {
+        icon: BookOpen,
+        title: 'Dungeon of Knowledge',
+        desc: 'Accede a todo el temario teórico organizado por asignaturas. Posts detallados, imágenes y guías paso a paso para dominar los conceptos antes de saltar a la terminal.',
+        highlight: 'bg-violet-500/20 text-violet-400'
+    },
+    {
+        icon: Terminal,
+        title: 'Terminal Skills',
+        desc: 'Entorno de terminal interactivo para dominar comandos Linux, gestión de almacenamiento y despliegue de servicios.',
+        highlight: 'bg-emerald-500/20 text-emerald-400'
     },
     {
         icon: Trophy,
         title: 'RPG Engine',
         desc: 'Sube de nivel, gana XP, desbloquea logros y compite en el ranking global de la academia.',
         highlight: 'bg-amber-500/20 text-amber-400'
-    },
-    {
-        icon: ShoppingBag,
-        title: 'Marketplace',
-        desc: 'Canjea tus puntos por cursos exclusivos, items para tu perfil y recursos premium.',
-        highlight: 'bg-emerald-500/20 text-emerald-400'
     },
 ]
 
@@ -103,7 +109,7 @@ export default function LandingPage() {
                         onClick={() => navigate('/')}
                     />
                     <nav className="hidden md:flex items-center gap-8">
-                        <Link to="/descubre" className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-neon transition-colors">
+                        <Link to="/explora" className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-neon transition-colors">
                             Descubre
                         </Link>
                         <Link to="/planes" className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-neon transition-colors">
@@ -154,7 +160,7 @@ export default function LandingPage() {
                         </span>
                     </button>
                     <button
-                        onClick={() => navigate('/descubre')}
+                        onClick={() => navigate('/explora')}
                         className="px-10 py-5 border border-white/10 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-white/5 transition-all"
                     >
                         Explorar Ecosistema
@@ -191,10 +197,10 @@ export default function LandingPage() {
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                         {RECENT_ACTIVITY.map((act, i) => (
                             <div key={i} className="flex items-center gap-4 bg-black/40 border border-white/5 p-4 rounded-2xl group hover:border-white/10 transition-all">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border font-black text-xs ${act.type === 'xp' ? 'border-neon/30 bg-neon/10 text-neon' :
+                                <div className={`w - 10 h - 10 rounded - xl flex items - center justify - center border font - black text - xs ${act.type === 'xp' ? 'border-neon/30 bg-neon/10 text-neon' :
                                     act.type === 'reward' ? 'border-orange-500/30 bg-orange-500/10 text-orange-500' :
                                         'border-indigo-500/30 bg-indigo-500/10 text-indigo-500'
-                                    }`}>
+                                    } `}>
                                     {act.type === 'xp' ? 'XP' : act.type === 'reward' ? '🎁' : '🛒'}
                                 </div>
                                 <div>
@@ -216,7 +222,7 @@ export default function LandingPage() {
                         <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none italic">Asignaturas de Alto Impacto</h2>
                         <p className="text-slate-500 font-mono text-sm mt-6">Domina el ecosistema completo del ciclo formativo ASIR con contenido actualizado 2026.</p>
                     </div>
-                    <Link to="/descubre" className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all whitespace-nowrap pb-1">
+                    <Link to="/explora" className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all whitespace-nowrap pb-1">
                         Ver todos los módulos <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
@@ -226,10 +232,13 @@ export default function LandingPage() {
                             key={label}
                             className="group relative bg-white/[0.03] border border-white/5 rounded-2xl p-6 flex flex-col items-center gap-4 text-center hover:bg-white/[0.07] hover:border-white/20 transition-all duration-500"
                         >
-                            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-110 ${bg}`}>
-                                <Icon className={`w-6 h-6 ${color}`} />
+                            <div className={`w - 12 h - 12 rounded - 2xl border flex items - center justify - center flex - shrink - 0 transition - transform duration - 500 group - hover: scale - 110 ${bg} `}>
+                                <Icon className={`w - 6 h - 6 ${color} `} />
                             </div>
                             <span className="text-[10px] font-black text-slate-400 leading-tight uppercase tracking-widest group-hover:text-white transition-colors">{label}</span>
+                            {SUBJECTS.find(s => s.label === label)?.status && (
+                                <span className="text-[8px] font-black text-neon uppercase tracking-tighter mt-1">{SUBJECTS.find(s => s.label === label).status}</span>
+                            )}
                             <div className="absolute inset-x-0 bottom-0 h-1 bg-neon scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-b-2xl opacity-50"></div>
                         </div>
                     ))}
@@ -244,7 +253,7 @@ export default function LandingPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {FEATURES.map(({ icon: Icon, title, desc, highlight }) => (
                                     <div key={title} className="group p-8 rounded-3xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition-all relative overflow-hidden">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:rotate-12 ${highlight}`}>
+                                        <div className={`w - 12 h - 12 rounded - 2xl flex items - center justify - center mb - 6 transition - transform group - hover: rotate - 12 ${highlight} `}>
                                             <Icon className="w-6 h-6" />
                                         </div>
                                         <h3 className="font-black text-white uppercase text-base mb-3 tracking-tighter italic">{title}</h3>
@@ -337,6 +346,18 @@ export default function LandingPage() {
                             </Link>
                         </div>
                     ))}
+                </div>
+
+                <div className="mt-16 text-center">
+                    <div className="inline-flex items-center gap-4 px-8 py-5 bg-white/[0.03] border border-white/10 rounded-[2rem] text-slate-400 group hover:border-neon/30 hover:bg-neon/5 transition-all duration-500">
+                        <div className="w-12 h-12 rounded-2xl bg-neon/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                            <AlertTriangle className="w-6 h-6 text-neon" />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-sm font-black uppercase tracking-widest text-white mb-0.5">Descuentos para Grupos</p>
+                            <p className="text-[11px] font-mono text-slate-500">Hay descuentos disponibles para grupos grandes. ¡Pide información!</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Trust badges */}
