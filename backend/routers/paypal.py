@@ -148,7 +148,13 @@ def capture_paypal_order(
         current_user.months_subscribed = (current_user.months_subscribed or 0) + (
             1 if order_rec.subscription_type == "monthly" else (3 if order_rec.subscription_type == "quarterly" else 12)
         )
-        
+
+        # Bonus shields on subscription activation
+        plan = order_rec.subscription_type
+        bonus_shields = 2 if plan == "quarterly" else (4 if plan == "annual" else 0)
+        if bonus_shields > 0:
+            current_user.streak_protections = (current_user.streak_protections or 0) + bonus_shields
+
         db.commit()
         return {"status": "COMPLETED", "subscription_type": current_user.subscription_type}
     else:

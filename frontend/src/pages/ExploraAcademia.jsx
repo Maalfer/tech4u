@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
 import logo from '../assets/logo.png';
@@ -7,7 +8,7 @@ import {
     Star, BarChart2, CreditCard, Play, Wrench, Globe2,
     Swords, MessageSquare, ChevronRight, Flame, Lock,
     ShieldCheck, ShieldOff, Award, Hammer, Target, AlertTriangle,
-    Map, Compass, Terminal
+    Map, Compass, Terminal, TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -167,7 +168,7 @@ const TEST_MODES = [
         name: 'Modo Examen',
         badge: '⚡ Otorga XP',
         badgeC: 'bg-neon/20 text-neon border-neon/40',
-        desc: 'El único modo que premia con XP. Exactamente 40 preguntas, temario mixto, modo cronometrado. Está diseñado para simular las condiciones reales del examen oficial de ASIR. Cada examen superado suma experiencia a tu personaje.'
+        desc: 'Este modo premia con XP. Exactamente 60 preguntas, temario mixto, modo cronometrado. Está diseñado para simular las condiciones reales del examen oficial de ASIR. Cada examen realizado suma experiencia a tu personaje, tanto si apruebas como si suspendes.'
     },
     {
         icon: <AlertTriangle className="w-6 h-6 text-orange-400" />,
@@ -196,10 +197,10 @@ const TEST_MODES = [
 ];
 
 const XP_TABLE = [
-    { score: '≥ 90%', xp: '+80 XP', note: 'Excelente' },
-    { score: '≥ 70%', xp: '+50 XP', note: 'Aprobado' },
-    { score: '≥ 50%', xp: '+25 XP', note: 'Suficiente' },
-    { score: '< 50%', xp: '+0 XP', note: 'Insuficiente' },
+    { score: '≥ 90%', xp: '+80 XP', note: 'Excelente', pct: 100, color: 'bg-neon', textC: 'text-neon' },
+    { score: '≥ 70%', xp: '+50 XP', note: 'Aprobado', pct: 63, color: 'bg-cyan-400', textC: 'text-cyan-400' },
+    { score: '≥ 50%', xp: '+25 XP', note: 'Suficiente', pct: 31, color: 'bg-blue-400', textC: 'text-blue-400' },
+    { score: '< 50%', xp: '+0 XP', note: 'Suspendido', pct: 0, color: 'bg-slate-700', textC: 'text-slate-500' },
 ];
 
 const RANKS = [
@@ -238,14 +239,10 @@ const COLOR_MAP = {
     slate: { border: 'border-slate-700/50', bg: 'bg-slate-900/20', text: 'text-slate-400', pill: 'bg-slate-800/60 text-slate-300 border-slate-600/40' },
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
-export default function ExploraAcademia() {
-    const navigate = useNavigate();
-    const { user } = useAuth();
-    const level = user?.level || 1;
-
-    const Section = ({ id, title, icon, color = 'neon', children }) => (
-        <section id={id} className="mb-16 scroll-mt-8">
+// ── Section component (MUST be outside the main component to avoid remount on re-render) ──
+function Section({ id, title, icon, color = 'neon', children }) {
+    return (
+        <section id={id} className="mb-16 scroll-mt-8 explora-reveal">
             <div className="flex items-center gap-4 mb-8">
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
                 <div className={`flex items-center gap-3 px-5 py-2 rounded-full border ${COLOR_MAP[color].border} ${COLOR_MAP[color].bg}`}>
@@ -257,13 +254,107 @@ export default function ExploraAcademia() {
             {children}
         </section>
     );
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+export default function ExploraAcademia() {
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const [scrollPct, setScrollPct] = useState(0);
+    const [activeSection, setActiveSection] = useState('secciones');
+
+    // Scroll-reveal — runs once on mount only
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('explora-reveal-in');
+                    }
+                });
+            },
+            { threshold: 0.06, rootMargin: '0px 0px -30px 0px' }
+        );
+        const els = document.querySelectorAll('.explora-reveal');
+        els.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    // Scroll progress bar
+    useEffect(() => {
+        const onScroll = () => {
+            const el = document.documentElement;
+            const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+            setScrollPct(Math.min(100, Math.max(0, pct)));
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    // Active section tracker
+    useEffect(() => {
+        const sectionIds = ['secciones', 'test-center', 'xp-system', 'rachas', 'escudos', 'ligas', 'personaje', 'medallas'];
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
+            },
+            { threshold: 0.3 }
+        );
+        sectionIds.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) observer.observe(el);
+        });
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <div className="flex min-h-screen bg-[#080810] text-white selection:bg-neon selection:text-black">
+            {/* Reveal animation CSS */}
+            <style>{`
+                .explora-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+                .explora-reveal.explora-reveal-in { opacity: 1; transform: translateY(0); }
+            `}</style>
+
+            {/* Scroll progress bar */}
+            <div className="fixed top-0 left-0 right-0 z-[9999] h-[2px] bg-black/20">
+                <div
+                    className="h-full bg-gradient-to-r from-neon via-cyan-400 to-blue-500 shadow-[0_0_8px_rgba(0,255,136,0.6)] transition-all duration-100"
+                    style={{ width: `${scrollPct}%` }}
+                />
+            </div>
+
+            {/* Floating mini-nav */}
+            <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden xl:flex flex-col gap-2">
+                {[
+                    { href: '#secciones', label: '🗂️', id: 'secciones' },
+                    { href: '#test-center', label: '🎯', id: 'test-center' },
+                    { href: '#xp-system', label: '⚡', id: 'xp-system' },
+                    { href: '#rachas', label: '🔥', id: 'rachas' },
+                    { href: '#escudos', label: '🛡️', id: 'escudos' },
+                    { href: '#ligas', label: '🏆', id: 'ligas' },
+                    { href: '#personaje', label: '🧙', id: 'personaje' },
+                    { href: '#medallas', label: '🏅', id: 'medallas' },
+                ].map(({ href, label, id }) => (
+                    <a
+                        key={id}
+                        href={href}
+                        title={id}
+                        className={`w-8 h-8 rounded-lg border flex items-center justify-center text-sm transition-all duration-200 ${
+                            activeSection === id
+                                ? 'border-neon bg-neon/20 shadow-[0_0_10px_rgba(0,255,136,0.3)] scale-110'
+                                : 'border-white/10 bg-black/40 hover:border-white/30 hover:bg-white/5'
+                        }`}
+                    >
+                        {label}
+                    </a>
+                ))}
+            </div>
+
             {/* Ambient */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
                 <div className="absolute top-0 left-1/4 w-[600px] h-[500px] bg-neon/3 blur-[180px] rounded-full" />
                 <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-blue-500/4 blur-[150px] rounded-full" />
+                <div className="absolute top-1/2 left-0 w-[400px] h-[300px] bg-purple-500/3 blur-[160px] rounded-full" />
             </div>
 
             {user && <Sidebar />}
@@ -313,9 +404,22 @@ export default function ExploraAcademia() {
                 <div className="px-10 py-10 max-w-6xl mx-auto">
 
                     {/* ── HERO ── */}
-                    <div className="relative rounded-3xl overflow-hidden border border-white/5 mb-16">
+                    <div className="relative rounded-3xl overflow-hidden border border-white/5 mb-16 explora-reveal">
                         <div className="absolute inset-0 bg-gradient-to-br from-neon/8 via-blue-900/10 to-purple-900/10" />
                         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-neon/40 to-transparent" />
+                        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
+                        {/* Floating particles */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                            {[...Array(6)].map((_, i) => (
+                                <div key={i} className="absolute rounded-full bg-neon/20 animate-ping"
+                                    style={{
+                                        width: `${4 + i * 2}px`, height: `${4 + i * 2}px`,
+                                        left: `${10 + i * 15}%`, top: `${20 + (i % 3) * 25}%`,
+                                        animationDuration: `${2 + i * 0.8}s`, animationDelay: `${i * 0.4}s`
+                                    }}
+                                />
+                            ))}
+                        </div>
                         <div className="relative px-10 py-14 text-center">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neon/10 border border-neon/20 mb-5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-neon animate-pulse" />
@@ -325,14 +429,30 @@ export default function ExploraAcademia() {
                                 <span className="text-white">Todo lo que puedes</span><br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon via-cyan-300 to-blue-400">hacer en la academia</span>
                             </h1>
-                            <p className="text-slate-400 font-mono text-base max-w-2xl mx-auto leading-relaxed">
+                            <p className="text-slate-400 font-mono text-base max-w-2xl mx-auto leading-relaxed mb-8">
                                 Esta guía te explica <span className="text-white font-bold">absolutamente todo</span>: secciones, modos de estudio, el sistema RPG de progresión, rangos, XP, rachas, escudos, medallas y mucho más. Léela con calma y aprovecha cada herramienta.
                             </p>
+                            {/* Stats bar */}
+                            <div className="flex flex-wrap items-center justify-center gap-6">
+                                {[
+                                    { label: 'Secciones', value: '12+', icon: '🗂️' },
+                                    { label: 'Modos de Test', value: '5', icon: '🎯' },
+                                    { label: 'Niveles', value: '20', icon: '📈' },
+                                    { label: 'Ligas', value: '6', icon: '🏆' },
+                                    { label: 'Medallas', value: '8+', icon: '🏅' },
+                                ].map((s) => (
+                                    <div key={s.label} className="flex flex-col items-center gap-1">
+                                        <span className="text-2xl">{s.icon}</span>
+                                        <span className="font-black text-xl text-white font-mono">{s.value}</span>
+                                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{s.label}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
                     {/* ── NAVEGACIÓN INTERNA ── */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-16">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-16 explora-reveal">
                         {[
                             { href: '#secciones', label: '🗂️ Secciones', color: 'border-white/10 hover:border-neon/30' },
                             { href: '#test-center', label: '🎯 Test Center', color: 'border-white/10 hover:border-green-500/30' },
@@ -380,7 +500,7 @@ export default function ExploraAcademia() {
                         <div className="mb-6 p-4 rounded-xl border border-neon/25 bg-neon/5 flex items-start gap-3">
                             <Zap className="w-5 h-5 text-neon shrink-0 mt-0.5" />
                             <p className="text-sm font-mono text-neon leading-relaxed">
-                                <span className="font-black">Regla de XP:</span> Solo el <span className="font-black">Modo Examen con 40 preguntas</span> otorga experiencia. El resto de modos te entrena pero no modifica tu nivel.
+                                <span className="font-black">Regla de XP:</span> Algunos modos como el <span className="font-black">Modo Examen con 60 preguntas</span> otorgan experiencia. El resto de modos te entrenan pero no modifican tu nivel.
                             </p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -407,17 +527,25 @@ export default function ExploraAcademia() {
                             <div>
                                 <h3 className="font-black text-white text-lg mb-4">¿Cómo se calcula el XP?</h3>
                                 <p className="text-slate-400 font-mono text-sm leading-relaxed mb-6">
-                                    Solo el <span className="text-neon font-bold">Modo Examen con exactamente 40 preguntas</span> otorga XP. La cantidad de XP que recibes depende del porcentaje de aciertos:
+                                    El <span className="text-neon font-bold">Modo Examen (60 preguntas)</span> otorga XP. Lo recibes tanto si apruebas como si suspendes, aunque la cantidad varía según tu resultado:
                                 </p>
                                 <div className="rounded-xl border border-white/5 overflow-hidden">
                                     <div className="bg-black/40 px-4 py-2 border-b border-white/5">
-                                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Tabla de recompensas</span>
+                                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Tabla de recompensas · Modo Examen</span>
                                     </div>
                                     {XP_TABLE.map((row, i) => (
-                                        <div key={i} className={`flex items-center justify-between px-4 py-3 border-b border-white/5 last:border-b-0 ${i === 0 ? 'bg-neon/5' : ''}`}>
-                                            <span className="font-mono text-sm text-slate-300">{row.score}</span>
-                                            <span className={`font-black font-mono text-sm ${i === 0 ? 'text-neon' : i === 3 ? 'text-slate-500' : 'text-white'}`}>{row.xp}</span>
-                                            <span className={`text-xs font-mono ${i === 0 ? 'text-neon' : i === 3 ? 'text-slate-600' : 'text-slate-400'}`}>{row.note}</span>
+                                        <div key={i} className={`px-4 py-3 border-b border-white/5 last:border-b-0 ${i === 0 ? 'bg-neon/5' : ''}`}>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="font-mono text-sm text-slate-300">{row.score}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`font-black font-mono text-sm ${row.textC}`}>{row.xp}</span>
+                                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${i === 0 ? 'border-neon/40 bg-neon/10 text-neon' : i === 3 ? 'border-slate-700 bg-slate-900/40 text-slate-500' : 'border-white/10 bg-white/5 text-slate-400'}`}>{row.note}</span>
+                                                </div>
+                                            </div>
+                                            {/* XP progress bar */}
+                                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                <div className={`h-full ${row.color} rounded-full transition-all duration-1000`} style={{ width: `${row.pct}%` }} />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -524,26 +652,30 @@ export default function ExploraAcademia() {
                                 <h3 className="font-black text-white text-lg mb-3">¿Cómo conseguir escudos?</h3>
                                 <div className="space-y-3 mb-6">
                                     {[
-                                        { icon: '🎁', text: 'Los alumnos premium reciben escudos de bonificación al activar su suscripción.' },
+                                        { icon: '👑', text: 'Suscripción Anual: recibes 4 escudos de bonificación automáticamente al activar tu plan.', hi: true },
+                                        { icon: '⚡', text: 'Suscripción Trimestral: recibes 2 escudos de bonificación al activar tu plan.', hi: true },
                                         { icon: '🛒', text: 'Próximamente disponibles en la Academy Shop como ítem de protección.' },
                                         { icon: '⭐', text: 'Eventos especiales de la academia pueden recompensar escudos a los participantes.' },
                                     ].map((item, i) => (
-                                        <div key={i} className="flex items-start gap-3 p-4 rounded-xl border border-white/5 bg-black/20">
+                                        <div key={i} className={`flex items-start gap-3 p-4 rounded-xl border bg-black/20 ${item.hi ? 'border-blue-500/30 bg-blue-900/10' : 'border-white/5'}`}>
                                             <span className="text-xl shrink-0">{item.icon}</span>
-                                            <p className="text-sm font-mono text-slate-300 leading-relaxed">{item.text}</p>
+                                            <p className={`text-sm font-mono leading-relaxed ${item.hi ? 'text-blue-200' : 'text-slate-300'}`}>{item.text}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="p-4 border border-white/5 rounded-xl bg-black/30 text-center">
-                                    <div className="flex justify-center gap-2 mb-2">
-                                        {[...Array(3)].map((_, i) => (
-                                            <Shield key={i} className="w-7 h-7 text-blue-400" />
-                                        ))}
-                                        {[...Array(1)].map((_, i) => (
-                                            <Shield key={i} className="w-7 h-7 text-slate-700" />
+                                <div className="p-5 border border-white/5 rounded-xl bg-black/30 text-center">
+                                    <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-4">Ejemplo visual de escudos</p>
+                                    <div className="flex justify-center gap-3 mb-4">
+                                        {[1,2,3,4].map((i) => (
+                                            <div key={i} className="flex flex-col items-center gap-1.5">
+                                                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center transition-all ${i <= 3 ? 'border-blue-500/50 bg-blue-900/30 shadow-[0_0_12px_rgba(59,130,246,0.3)]' : 'border-slate-700/40 bg-slate-900/30'}`}>
+                                                    <Shield className={`w-6 h-6 ${i <= 3 ? 'text-blue-400' : 'text-slate-700'}`} />
+                                                </div>
+                                                <span className={`text-[8px] font-mono ${i <= 3 ? 'text-blue-400' : 'text-slate-700'}`}>{i <= 3 ? 'ACTIVO' : 'VACÍO'}</span>
+                                            </div>
                                         ))}
                                     </div>
-                                    <p className="text-xs font-mono text-slate-500">Ejemplo: 3 escudos activos de 4 máximos</p>
+                                    <p className="text-xs font-mono text-slate-500">3 escudos activos · 1 vacío (suscripción anual = 4)</p>
                                 </div>
                             </div>
                         </div>
@@ -570,12 +702,12 @@ export default function ExploraAcademia() {
                             ))}
                         </div>
 
-                        {/* Level → XP table */}
+                        {/* Level → XP table with embedded character thumbnails */}
                         <div className="mt-10">
                             <h3 className="font-black text-white text-base mb-5 flex items-center gap-2">
                                 <BarChart2 className="w-4 h-4 text-yellow-400" /> Tabla completa de niveles y XP
                             </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2 mb-8">
+                            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2">
                                 {[
                                     { lv: 1, xp: '0', tag: 'Estudiante ASIR', c: 'border-slate-700 bg-slate-900/30 text-slate-400' },
                                     { lv: 2, xp: '500', tag: 'Estudiante ASIR', c: 'border-slate-700 bg-slate-900/30 text-slate-400' },
@@ -598,48 +730,22 @@ export default function ExploraAcademia() {
                                     { lv: 19, xp: '45.000', tag: 'Admin Senior', c: 'border-purple-600/40 bg-purple-900/20 text-purple-400' },
                                     { lv: 20, xp: '50.000', tag: 'SysAdmin Dios', c: 'border-yellow-400/50 bg-yellow-900/30 text-yellow-300' },
                                 ].map(({ lv, xp, tag, c }) => (
-                                    <div key={lv} className={`rounded-xl border p-3 text-center transition-all hover:scale-105 ${c}`}>
-                                        <div className="font-black font-mono text-lg mb-0.5">Lv.{lv}</div>
-                                        <div className="text-[10px] font-mono text-slate-500">{xp} XP</div>
-                                        <div className="text-[9px] font-mono mt-1 opacity-70">{tag}</div>
+                                    <div key={lv} className={`rounded-xl border p-2.5 text-center transition-all hover:scale-105 relative group ${c}`}>
+                                        {/* Character thumbnail */}
+                                        <img
+                                            src={PJ_ASSETS[lv]}
+                                            alt={`Nivel ${lv}`}
+                                            className="w-10 h-10 mx-auto object-contain mb-1.5"
+                                        />
+                                        <div className="font-black font-mono text-sm leading-none">Lv.{lv}</div>
+                                        <div className="text-[10px] font-mono text-slate-500 mt-0.5">{xp} XP</div>
+                                        <div className="text-[8px] font-mono mt-0.5 opacity-60 leading-tight">{tag}</div>
+                                        {/* Tooltip */}
+                                        <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-black/90 border border-white/10 text-[7px] font-mono text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+                                            Nivel {lv} · {tag}
+                                        </div>
                                     </div>
                                 ))}
-                            </div>
-
-                            {/* Mini Character Gallery Section */}
-                            <div className="p-6 rounded-2xl border border-white/5 bg-black/40 backdrop-blur-md">
-                                <h4 className="text-[10px] font-black font-mono text-slate-500 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-                                    <Layers className="w-3 h-3" /> Previsualización de evolución de personaje
-                                </h4>
-                                <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
-                                    {Object.entries(PJ_ASSETS).map(([lvl, img]) => {
-                                        const isCurrent = level === parseInt(lvl);
-                                        const isUnlocked = level >= parseInt(lvl);
-                                        return (
-                                            <div
-                                                key={lvl}
-                                                className={`relative aspect-square rounded-lg border flex items-center justify-center p-1 group transition-all
-                                                    ${isCurrent ? 'border-neon bg-neon/10 ring-1 ring-neon/40' :
-                                                        isUnlocked ? 'border-white/20 bg-white/5' :
-                                                            'border-white/5 bg-black/60 grayscale opacity-40'}`}
-                                            >
-                                                <img
-                                                    src={img}
-                                                    alt={`PJ ${lvl}`}
-                                                    className={`w-full h-full object-contain ${isCurrent ? 'animate-pulse' : ''}`}
-                                                />
-                                                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full bg-black border border-white/10 text-[7px] font-bold font-mono text-white pointer-events-none">
-                                                    {lvl}
-                                                </div>
-
-                                                {/* Tooltip hint on hover */}
-                                                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-black/90 border border-white/10 text-[7px] font-mono text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-tighter">
-                                                    Nivel {lvl} {isCurrent ? '(Actual)' : !isUnlocked ? '(Bloqueado)' : ''}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
                             </div>
                         </div>
                     </Section>
@@ -795,7 +901,7 @@ export default function ExploraAcademia() {
                         <div className="absolute inset-0 bg-gradient-to-br from-neon/8 via-transparent to-blue-900/10" />
                         <div className="relative px-10 py-12">
                             <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-3">¿Listo para subir de nivel?</h2>
-                            <p className="text-slate-400 font-mono text-sm mb-8 max-w-xl mx-auto">Ya conoces todo lo que tiene la academia. Ahora solo queda una cosa: hacer el primer examen de 40 preguntas y empezar a sumar XP.</p>
+                            <p className="text-slate-400 font-mono text-sm mb-8 max-w-xl mx-auto">Ya conoces todo lo que tiene la academia. Ahora solo queda una cosa: hacer el primer examen de 60 preguntas y empezar a sumar XP.</p>
                             <div className="flex items-center justify-center gap-4 flex-wrap">
                                 <button onClick={() => navigate('/tests')} className="px-8 py-3 bg-neon text-black font-black uppercase tracking-widest rounded-xl text-sm hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,255,136,0.2)] hover:shadow-[0_0_40px_rgba(0,255,136,0.4)]">
                                     Ir al Test Center ⚡

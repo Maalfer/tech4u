@@ -296,7 +296,12 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             reward_used = metadata.get("reward_used")
             if reward_used == "referral_10p":
                 user.pending_10p_discounts = max(0, (user.pending_10p_discounts or 0) - 1)
-                    
+
+            # Bonus shields on subscription activation
+            bonus_shields = 2 if plan == "quarterly" else (4 if plan == "annual" else 0)
+            if bonus_shields > 0:
+                user.streak_protections = (user.streak_protections or 0) + bonus_shields
+
             db.commit()
 
     return {"status": "ok"}
@@ -357,7 +362,12 @@ def verify_session(
             reward_used = session_obj.metadata.get("reward_used")
             if reward_used == "referral_10p":
                 current_user.pending_10p_discounts = max(0, (current_user.pending_10p_discounts or 0) - 1)
-            
+
+            # Bonus shields on subscription activation (Fallback)
+            bonus_shields = 2 if plan == "quarterly" else (4 if plan == "annual" else 0)
+            if bonus_shields > 0:
+                current_user.streak_protections = (current_user.streak_protections or 0) + bonus_shields
+
             db.commit()
             db.refresh(current_user)
 
