@@ -20,7 +20,7 @@ export default function ShopCourseDetail() {
             const res = await api.get(`/video-courses/${id}/shop-detail`);
             setCourse(res.data);
         } catch (err) {
-            console.error('Error cargando curso:', err);
+            (import.meta.env.DEV && console.error)('Error cargando curso:', err);
         } finally {
             setLoading(false);
         }
@@ -51,7 +51,7 @@ export default function ShopCourseDetail() {
             await api.post(`/video-courses/lessons/${lessonId}/complete`);
             await fetchCourse();
         } catch (err) {
-            console.error('Error al marcar lección:', err);
+            (import.meta.env.DEV && console.error)('Error al marcar lección:', err);
         }
     };
 

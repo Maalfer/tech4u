@@ -41,7 +41,7 @@ const PayPalButton = ({ planId, onPaypalClick, useReferralDiscount, useFreeMonth
                     const res = await api.post(`/paypal/create-order?plan=${planId}${useReferralDiscount ? '&use_referral_discount=true' : ''}${useFreeMonth ? '&use_free_month=true' : ''}${couponCode ? `&coupon_code=${couponCode}` : ''}`);
                     return res.data.order_id;
                 } catch (err) {
-                    console.error("PayPal Order Error:", err);
+                    (import.meta.env.DEV && console.error)("PayPal Order Error:", err);
                     alert("Error al iniciar el pago con PayPal.");
                     throw err;
                 }
@@ -51,7 +51,7 @@ const PayPalButton = ({ planId, onPaypalClick, useReferralDiscount, useFreeMonth
                     await api.post(`/paypal/capture-order/${data.orderID}`);
                     window.location.href = "/suscripcion/exito";
                 } catch (err) {
-                    console.error("PayPal Capture Error:", err);
+                    (import.meta.env.DEV && console.error)("PayPal Capture Error:", err);
                     alert("Error al procesar el pago de PayPal.");
                 }
             }

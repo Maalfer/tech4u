@@ -35,7 +35,7 @@ export default function AdminDashboard() {
             setStats(statsRes.data);
             setSuggestions(sugRes.data);
         } catch (err) {
-            console.error("Error recuperando datos de administración", err);
+            (import.meta.env.DEV && console.error)("Error recuperando datos de administración", err);
         } finally {
             setLoading(false);
         }
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
             const res = await api.get('/admin/users/suggestions');
             setSuggestions(res.data);
         } catch (err) {
-            console.error("Error fetching suggestions", err);
+            (import.meta.env.DEV && console.error)("Error fetching suggestions", err);
         }
     };
 
@@ -232,7 +232,7 @@ function AnnouncementConsole() {
             alert("🚀 Broadcast emitido con éxito");
             setText("");
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             alert("❌ Error al enviar el anuncio");
         } finally {
             setSending(false);

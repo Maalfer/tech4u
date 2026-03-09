@@ -41,7 +41,7 @@ export default function CoursePlayer() {
                 setActiveLesson(firstIncomplete || data.lessons[0]);
             }
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         } finally {
             setLoading(false);
         }
@@ -55,7 +55,7 @@ export default function CoursePlayer() {
             await api.post(`/video-courses/lessons/${lesson.id}/complete`);
             await fetchCourse();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     };
 

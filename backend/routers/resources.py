@@ -100,8 +100,6 @@ def get_resources(
     return visible_resources
 
 
-from fastapi import HTTPException
-
 @router.get("/{resource_id}")
 def get_resource(
     resource_id: int,

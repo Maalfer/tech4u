@@ -19,9 +19,10 @@ def get_my_achievements(
 
 @router.get("/all", response_model=List[AchievementOut])
 def list_all_achievements(
+    _: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Lista todos los logros disponibles en la plataforma."""
+    """(Logueado) Lista todos los logros disponibles en la plataforma."""
     return db.query(Achievement).all()
 
 # --- INTERNO / ADMIN ---

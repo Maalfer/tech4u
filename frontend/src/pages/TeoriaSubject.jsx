@@ -99,7 +99,7 @@ export default function TeoriaSubject() {
                                                 <div>
                                                     <h3 className="text-lg font-bold text-white group-hover:text-neon transition-colors mb-1">{post.title}</h3>
                                                     <div className="flex items-center gap-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                                                        <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {new Date(post.updated_at).toLocaleDateString()}</span>
+                                                        <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {new Date(post.updated_at).toLocaleDateString('es-ES')}</span>
                                                         <span className="w-1 h-1 bg-slate-800 rounded-full" />
                                                         <span>Lectura técnica</span>
                                                     </div>

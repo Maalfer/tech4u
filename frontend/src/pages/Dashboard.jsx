@@ -111,7 +111,7 @@ export default function Dashboard() {
                     myTickets: tickRes.data,
                 });
             } catch (err) {
-                console.error("Error cargando Dashboard:", err);
+                (import.meta.env.DEV && console.error)("Error cargando Dashboard:", err);
                 dispatch({ type: 'ERROR' });
             }
         };
@@ -159,6 +159,9 @@ export default function Dashboard() {
             dispatch({ type: 'SET_TICKETS', myTickets: res.data });
         } catch { alert("Error al enviar el mensaje."); }
     };
+
+    // Early return para admin — evita renderizar la vista de alumno incluso un frame
+    if (user?.role === 'admin') return null;
 
     if (loading) return (
         <div className="flex h-screen bg-[#0D0D0D] items-center justify-center">

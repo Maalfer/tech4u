@@ -40,7 +40,7 @@ const AdminReferrals = () => {
             setStats(statsRes.data);
             setReferrals(referralsRes.data.referrals || []);
         } catch (err) {
-            console.error("Error fetching referrals:", err);
+            (import.meta.env.DEV && console.error)("Error fetching referrals:", err);
             showNotification('Error al cargar datos', 'error');
         } finally {
             setLoading(false);
@@ -319,7 +319,7 @@ const AdminReferrals = () => {
                                                     </td>
                                                     <td className="p-4 text-center">
                                                         <span className="text-[9px] text-slate-400 font-mono">
-                                                            {referral.created_at ? new Date(referral.created_at).toLocaleDateString() : '-'}
+                                                            {referral.created_at ? new Date(referral.created_at).toLocaleDateString('es-ES') : '-'}
                                                         </span>
                                                     </td>
                                                     <td className="p-4 text-right">

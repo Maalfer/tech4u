@@ -24,9 +24,9 @@ export const NotificationProvider = ({ children }) => {
     useEffect(() => {
         if (!user?.id) return;
 
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host.includes('localhost') ? 'localhost:8000' : window.location.host;
-        const wsUrl = `${protocol}//${host}/ws/${user.id}`;
+        // Construir URL del WebSocket desde la variable de entorno (no hardcodear puertos)
+        const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+        const wsUrl = apiBase.replace(/^http/, 'ws') + `/ws/${user.id}`;
 
         const ws = new WebSocket(wsUrl);
 
@@ -35,12 +35,12 @@ export const NotificationProvider = ({ children }) => {
                 const data = JSON.parse(event.data);
                 addNotification(data);
             } catch (e) {
-                console.error("Error parsing WS message:", e);
+                if (import.meta.env.DEV) (import.meta.env.DEV && console.error)("WS parse error:", e);
             }
         };
 
-        ws.onerror = (err) => console.error("WS Error:", err);
-        ws.onclose = () => console.log("WS Closed");
+        ws.onerror = (err) => { if (import.meta.env.DEV) (import.meta.env.DEV && console.error)("WS Error:", err) };
+        ws.onclose = () => { if (import.meta.env.DEV) (import.meta.env.DEV && console.log)("WS Closed") };
 
         return () => {
             if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {

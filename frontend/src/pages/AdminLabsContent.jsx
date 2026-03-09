@@ -76,9 +76,9 @@ export default function AdminLabsContent() {
         try {
             await api.put(`/labs/${editingLab.id}`, { ...form, module_id: parseInt(moduleId) });
             setIsDirty(false);
-            console.log("Auto-saved lab:", editingLab.id);
+            (import.meta.env.DEV && console.log)("Auto-saved lab:", editingLab.id);
         } catch (err) {
-            console.error("Auto-save failed", err);
+            (import.meta.env.DEV && console.error)("Auto-save failed", err);
         }
     };
 
@@ -104,7 +104,7 @@ export default function AdminLabsContent() {
                 }
             }
         } catch (err) {
-            console.error("Error fetching module details", err);
+            (import.meta.env.DEV && console.error)("Error fetching module details", err);
         }
     };
 

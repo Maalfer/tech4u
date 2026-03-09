@@ -79,8 +79,11 @@ def delete_announcement(
 
 
 @router.get("/active", response_model=List[AnnouncementOut])
-def get_active_announcements(db: Session = Depends(get_db)):
-    """(Público logueado) Recupera SOLO el último anuncio activo de las últimas 24 horas."""
+def get_active_announcements(
+    _: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """(Logueado) Recupera SOLO el último anuncio activo de las últimas 24 horas."""
     cutoff = datetime.utcnow() - timedelta(hours=24)
     ann = db.query(Announcement).filter(
         Announcement.is_active == True,
@@ -90,8 +93,11 @@ def get_active_announcements(db: Session = Depends(get_db)):
 
 
 @router.get("/history", response_model=List[AnnouncementOut])
-def get_announcements_history(db: Session = Depends(get_db)):
-    """(Público logueado) Historial de todos los anuncios activos para la página de Noticias."""
+def get_announcements_history(
+    _: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """(Logueado) Historial de todos los anuncios activos para la página de Noticias."""
     return db.query(Announcement).filter(
         Announcement.is_active == True
     ).order_by(Announcement.created_at.desc()).limit(50).all()

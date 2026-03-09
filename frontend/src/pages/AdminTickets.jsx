@@ -36,7 +36,7 @@ export default function AdminTickets() {
             const res = await api.get('/admin/users/tickets')
             setTickets(res.data)
         } catch (err) {
-            console.error("Error al sincronizar tickets:", err)
+            (import.meta.env.DEV && console.error)("Error al sincronizar tickets:", err)
         } finally {
             setLoading(false)
         }
@@ -60,7 +60,7 @@ export default function AdminTickets() {
             fetchTickets();
         } catch (err) {
             alert("Error al enviar el mensaje.");
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     }
 
@@ -74,7 +74,7 @@ export default function AdminTickets() {
             fetchTickets();
         } catch (err) {
             alert("Error al intentar cerrar el ticket.");
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     };
 
@@ -261,7 +261,7 @@ export default function AdminTickets() {
                                                 <h4 className="text-sm font-bold text-slate-400 uppercase tracking-tight">{t.subject}</h4>
                                                 <span className="text-[9px] px-1.5 py-0.5 bg-neon/5 text-neon/60 border border-neon/20 rounded uppercase font-black">Fixed</span>
                                             </div>
-                                            <p className="text-[10px] font-mono text-slate-600 uppercase mb-4">Neutralizada el {new Date(t.created_at).toLocaleDateString()}</p>
+                                            <p className="text-[10px] font-mono text-slate-600 uppercase mb-4">Neutralizada el {new Date(t.created_at).toLocaleDateString('es-ES')}</p>
                                         </div>
                                     </div>
                                     <div className="text-right text-[9px] font-mono text-slate-700 uppercase">
@@ -328,7 +328,7 @@ export default function AdminTickets() {
                                 <span className="text-lg font-black text-white uppercase">{selectedUser.subscription_type}</span>
                                 {selectedUser.subscription_type !== 'lifetime' && selectedUser.subscription_type !== 'free' && selectedUser.subscription_end && (
                                     <span className="text-[9px] font-mono text-slate-600 tracking-wider">
-                                        Vence: {new Date(selectedUser.subscription_end).toLocaleDateString()}
+                                        Vence: {new Date(selectedUser.subscription_end).toLocaleDateString('es-ES')}
                                     </span>
                                 )}
                             </div>

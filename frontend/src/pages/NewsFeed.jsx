@@ -19,7 +19,7 @@ export default function NewsFeed() {
     useEffect(() => {
         api.get('/announcements/history')
             .then(r => setAnnouncements(r.data))
-            .catch(console.error)
+            .catch((import.meta.env.DEV && console.error))
             .finally(() => setLoading(false));
     }, []);
 

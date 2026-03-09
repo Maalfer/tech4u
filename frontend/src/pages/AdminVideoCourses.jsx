@@ -24,7 +24,7 @@ export default function AdminVideoCourses() {
             const res = await api.get('/video-courses/');
             setCourses(res.data);
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         } finally {
             setLoading(false);
         }
@@ -43,7 +43,7 @@ export default function AdminVideoCourses() {
             setView('list');
             setSelectedCourse(null);
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             alert("Error al guardar curso");
         }
     };
@@ -54,7 +54,7 @@ export default function AdminVideoCourses() {
             await api.delete(`/admin/video-courses/${id}`);
             await fetchCourses();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     };
 
@@ -83,7 +83,7 @@ export default function AdminVideoCourses() {
             // Necesario refrescar lista principal para reflejar conteo de clases
             fetchCourses();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             alert("Error al guardar lección");
         }
     };
@@ -96,7 +96,7 @@ export default function AdminVideoCourses() {
             setSelectedCourse(res.data);
             fetchCourses();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     };
 

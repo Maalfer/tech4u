@@ -467,15 +467,6 @@ def reset_user_streak(
     db.refresh(user)
     return {"message": f"Racha actualizada a {user.streak_count}", "streak_count": user.streak_count}
 
-# --- Añadir a routers/users_admin.py ---
-
-@router.post("/announcements")
-def create_announcement(data: AnnouncementCreate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    new_ann = Announcement(content=data.content)
-    db.add(new_ann)
-    db.commit()
-    return {"message": "Anuncio global publicado"}
-
 @router.get("/billing-breakdown")
 def get_billing_breakdown(_: User = Depends(require_admin), db: Session = Depends(get_db)):
     # Desglose real para las gráficas circulares
@@ -497,20 +488,41 @@ def get_suggestions(_: User = Depends(require_admin), db: Session = Depends(get_
 
 @router.patch("/suggestions/{suggestion_id}/approve")
 def approve_suggestion(suggestion_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """
+    (Admin) Aprueba una sugerencia creando una pregunta preliminar en el banco.
+    Las opciones se marcan como pendientes de completar por el admin en el editor de preguntas.
+    """
     sug = db.query(QuestionSuggestion).filter(QuestionSuggestion.id == suggestion_id).first()
-    if not sug: raise HTTPException(status_code=404, detail="Sugerencia no encontrada")
-    new_q = Question(subject=sug.subject, text=sug.text, option_a="---", option_b="---", option_c="---", option_d="---", correct_answer="a", approved=True)
+    if not sug:
+        raise HTTPException(status_code=404, detail="Sugerencia no encontrada")
+    # Crear pregunta con datos de la sugerencia; las opciones quedan marcadas para revisión
+    new_q = Question(
+        subject=sug.subject,
+        text=sug.text,
+        option_a="[Pendiente — completar en editor de preguntas]",
+        option_b="[Pendiente]",
+        option_c="[Pendiente]",
+        option_d="[Pendiente]",
+        correct_answer="a",
+        difficulty="media",
+        explanation=f"Pregunta aprobada desde sugerencia #{sug.id}. Completar opciones en el panel de preguntas.",
+        approved=False  # No activar hasta que el admin complete las opciones
+    )
     db.add(new_q)
     sug.status = "aprobada"
     db.commit()
-    return {"message": "Aprobado"}
+    db.refresh(new_q)
+    return {"message": "Sugerencia aprobada. Completa las opciones en el editor de preguntas.", "question_id": new_q.id}
 
 @router.delete("/suggestions/{suggestion_id}")
 def delete_suggestion(suggestion_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
     sug = db.query(QuestionSuggestion).filter(QuestionSuggestion.id == suggestion_id).first()
-    if not sug: raise HTTPException(status_code=404, detail="Sugerencia no encontrada")
+    if not sug:
+        raise HTTPException(status_code=404, detail="Sugerencia no encontrada")
     db.delete(sug)
     db.commit()
+    return {"ok": True, "message": "Sugerencia eliminada"}
+
 @router.get("/referral-ecosystem")
 def get_referral_ecosystem(
     _: User = Depends(require_developer),

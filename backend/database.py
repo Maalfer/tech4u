@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Float
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Float, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
@@ -95,12 +95,13 @@ class User(Base):
 class UserProgress(Base):
     __tablename__ = "user_progress"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     subject = Column(String, nullable=False)
     total_answered = Column(Integer, default=0)
     correct_answers = Column(Integer, default=0)
     time_invested_minutes = Column(Float, default=0.0)
     user = relationship("User", back_populates="progress")
+    __table_args__ = (Index("ix_user_progress_user_subject", "user_id", "subject"),)
 
 # --- MODELOS DE CONTENIDO ---
 
@@ -134,12 +135,13 @@ class Resource(Base):
 class UserError(Base):
     __tablename__ = "user_errors"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
     fail_count = Column(Integer, default=1)
     last_failed = Column(DateTime, default=datetime.utcnow)
     user = relationship("User", back_populates="errors")
     question = relationship("Question")
+    __table_args__ = (Index("ix_user_errors_user_question", "user_id", "question_id"),)
 
 class Ticket(Base):
     __tablename__ = "tickets"
@@ -440,13 +442,14 @@ class UserLabCompletion(Base):
     """Tracks which users have successfully completed which labs."""
     __tablename__ = "user_lab_completions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    lab_id = Column(Integer, ForeignKey("terminal_labs.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lab_id = Column(Integer, ForeignKey("terminal_labs.id"), nullable=False, index=True)
     completed_at = Column(DateTime, default=datetime.utcnow)
     xp_gained = Column(Integer, default=0)
 
     user = relationship("User")
     lab = relationship("Lab")
+    __table_args__ = (Index("ix_user_lab_completions_user_lab", "user_id", "lab_id"),)
 
 class UserChallengeCompletion(Base):
     """Tracks which users have completed specific challenges within a lab."""

@@ -12,34 +12,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 import marcoImg from '../assets/marco_pj.png';
-import pj1 from '../assets/pj_lvl_1.png';
-import pj2 from '../assets/pj_lvl_2.png';
-import pj3 from '../assets/pj_lvl_3.png';
-import pj4 from '../assets/pj_lvl_4.png';
-import pj5 from '../assets/pj_lvl_5.png';
-import pj6 from '../assets/pj_lvl_6.png';
-import pj7 from '../assets/pj_lvl_7.png';
-import pj8 from '../assets/pj_lvl_8.png';
-import pj9 from '../assets/pj_lvl_9.png';
-import pj10 from '../assets/pj_lvl_10.png';
-import pj11 from '../assets/pj_lvl_11.png';
-import pj12 from '../assets/pj_lvl_12.png';
-import pj13 from '../assets/pj_lvl_13.png';
-import pj14 from '../assets/pj_lvl_14.png';
-import pj15 from '../assets/pj_lvl_15.png';
-import pj16 from '../assets/pj_lvl_16.png';
-import pj17 from '../assets/pj_lvl_17.png';
-import pj18 from '../assets/pj_lvl_18.png';
-import pj19 from '../assets/pj_lvl_19.png';
-import pj20 from '../assets/pj_lvl_20.png';
-import newSkinPj20 from '../assets/new_skin_pj_lvl20.png';
-
-const PJ_ASSETS = {
-    1: pj1, 2: pj2, 3: pj3, 4: pj4, 5: pj5,
-    6: pj6, 7: pj7, 8: pj8, 9: pj9, 10: pj10,
-    11: pj11, 12: pj12, 13: pj13, 14: pj14, 15: pj15,
-    16: pj16, 17: pj17, 18: pj18, 19: pj19, 20: pj20
-};
+import { PJ_ASSETS, newSkinPj20, getCharacterImage } from '../constants/characterAssets';
 
 // ── Item Catalog List ────────────────────────────────────────────────────────
 const ITEM_CATALOG_LIST = [
@@ -98,9 +71,9 @@ export default function CharacterProfile() {
     const progressXP = Math.min((currentXP / nextLevelXP) * 100, 100);
     const level = stats?.level || 1;
 
-    // Choose avatar based on level
+    // Choose avatar based on level — usa getCharacterImage() de characterAssets.js
     const isLevel20Test = level === 20;
-    const avatarImg = isLevel20Test ? newSkinPj20 : (PJ_ASSETS[level] || pj1);
+    const avatarImg = getCharacterImage(level);
     const rankName = stats?.rank_name || 'Novato Digital';
 
     // Helper functions for ASIR Stats

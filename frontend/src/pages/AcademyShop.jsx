@@ -20,7 +20,7 @@ export default function AcademyShop() {
             const res = await api.get('/video-courses/shop');
             setCourses(res.data);
         } catch (err) {
-            console.error('Error cargando tienda:', err);
+            (import.meta.env.DEV && console.error)('Error cargando tienda:', err);
         } finally {
             setLoading(false);
         }

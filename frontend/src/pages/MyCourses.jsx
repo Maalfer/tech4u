@@ -17,7 +17,7 @@ export default function MyCourses() {
             // Filter only purchased courses
             setCourses(res.data.filter(c => c.is_purchased));
         } catch (err) {
-            console.error('Error cargando mis cursos:', err);
+            (import.meta.env.DEV && console.error)('Error cargando mis cursos:', err);
         } finally {
             setLoading(false);
         }

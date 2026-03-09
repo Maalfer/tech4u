@@ -56,7 +56,7 @@ export default function TestCenter() {
     const currentXP = stats?.current_xp || 0
     const nextLevelXP = stats?.next_level_xp || 1000
     const xpPercent = Math.min(Math.round((currentXP / nextLevelXP) * 100), 100)
-    const rankName = stats?.rank_name || (user?.rank_name) || 'Recruit'
+    const rankName = stats?.rank_name || 'Estudiante ASIR'
     const userLevel = stats?.level || user?.level || 1
 
     const handleSelectSubject = (sub) => {

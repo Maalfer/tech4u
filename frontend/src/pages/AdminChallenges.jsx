@@ -52,7 +52,7 @@ export default function AdminChallenges() {
             const res = await api.get(`/labs/${labId}`);
             setLab(res.data);
         } catch (err) {
-            console.error("Error fetching lab details", err);
+            (import.meta.env.DEV && console.error)("Error fetching lab details", err);
         }
     };
 

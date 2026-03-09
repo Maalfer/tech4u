@@ -122,7 +122,7 @@ export default function AdminUserDetail() {
             setShields(u.streak_protections);
             setStreak(u.streak_count);
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             alert('Error al cargar usuario');
             navigate('/admin-users');
         } finally {
@@ -384,13 +384,13 @@ export default function AdminUserDetail() {
                                     <div className="p-3 rounded-xl bg-black/30 border border-white/5">
                                         <p className="text-[9px] font-mono text-slate-600 uppercase">Inicio</p>
                                         <p className="text-xs font-mono text-emerald-400 mt-0.5">
-                                            {userData?.subscription_start ? new Date(userData.subscription_start).toLocaleDateString() : '—'}
+                                            {userData?.subscription_start ? new Date(userData.subscription_start).toLocaleDateString('es-ES') : '—'}
                                         </p>
                                     </div>
                                     <div className="p-3 rounded-xl bg-black/30 border border-white/5">
                                         <p className="text-[9px] font-mono text-slate-600 uppercase">Vencimiento</p>
                                         <p className="text-xs font-mono text-orange-400 mt-0.5">
-                                            {userData?.subscription_type === 'lifetime' ? '♾️ Infinito' : userData?.subscription_end ? new Date(userData.subscription_end).toLocaleDateString() : '—'}
+                                            {userData?.subscription_type === 'lifetime' ? '♾️ Infinito' : userData?.subscription_end ? new Date(userData.subscription_end).toLocaleDateString('es-ES') : '—'}
                                         </p>
                                     </div>
                                 </div>

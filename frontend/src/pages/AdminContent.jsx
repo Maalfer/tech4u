@@ -55,7 +55,7 @@ export default function AdminContent() {
                 setResources(res.data);
             }
         } catch (err) {
-            console.error("Error al sincronizar sector:", err);
+            (import.meta.env.DEV && console.error)("Error al sincronizar sector:", err);
         } finally {
             setLoading(false);
         }
@@ -160,7 +160,7 @@ export default function AdminContent() {
                 setShowBulkModal(false);
                 fetchContent();
             } catch (err) {
-                console.error(err);
+                (import.meta.env.DEV && console.error)(err);
                 alert("Error crítico parseando el archivo o enviando al servidor.");
             } finally {
                 setLoading(false);

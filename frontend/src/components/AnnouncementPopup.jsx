@@ -40,7 +40,7 @@ export default function AnnouncementPopup() {
             setVisible(false)
         } else {
             setAnnouncements(prev => prev.filter((_, i) => i !== current))
-            setCurrent(prev => Math.min(prev, announcements.length - 2))
+            setCurrent(prev => Math.min(prev, announcements.length - 2))  // -2 porque ya se filtró el actual
         }
     }
 

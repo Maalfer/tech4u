@@ -26,7 +26,7 @@ export default function AdminSuggestions() {
             const res = await api.get('/announcements/admin/suggestions');
             setSuggestions(res.data);
         } catch (err) {
-            console.error("Error al cargar sugerencias");
+            (import.meta.env.DEV && console.error)("Error al cargar sugerencias");
         } finally {
             setLoading(false);
         }

@@ -25,7 +25,7 @@ export default function VideoCourseDetail() {
                     setCurrentLesson(firstUncompleted || data.lessons[0]);
                 }
             } catch (err) {
-                console.error("Error fetching course", err);
+                (import.meta.env.DEV && console.error)("Error fetching course", err);
             } finally {
                 setLoading(false);
             }
@@ -58,7 +58,7 @@ export default function VideoCourseDetail() {
             setCurrentLesson({ ...currentLesson, is_completed: isNowCompleted });
 
         } catch (err) {
-            console.error("Error toggling completion", err);
+            (import.meta.env.DEV && console.error)("Error toggling completion", err);
         } finally {
             setToggling(false);
         }

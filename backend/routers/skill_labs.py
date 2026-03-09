@@ -9,6 +9,7 @@ from websocket_manager import manager
 
 from database import get_db, SkillLabExercise, User, AcademyStats
 from auth import get_current_user
+from utils import get_rank_name  # fuente de verdad centralizada
 
 router = APIRouter(
     prefix="/skill-labs",
@@ -67,14 +68,7 @@ class SkillSubmitRequest(BaseModel):
     correct_exercises: int
     failed_attempts: int
 
-def get_rank_name(level: int) -> str:
-    """Helper function to get rank name from level without modifying user object."""
-    if level >= 50: return "Master"
-    elif level >= 40: return "Expert"
-    elif level >= 30: return "Pro"
-    elif level >= 20: return "Advanced"
-    elif level >= 10: return "Intermediate"
-    return "Beginner"
+# get_rank_name importada de utils.py (fuente de verdad centralizada)
 
 @router.post("/submit")
 async def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -97,11 +91,7 @@ async def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_d
     if data.correct_exercises == data.total_exercises and data.failed_attempts == 0:
         net_xp += XP_PERFECT_BONUS
 
-    old_level = current_user.level
-    current_user.add_xp(net_xp)
-    leveled_up = False
-    if current_user.level > old_level:
-        leveled_up = True
+    leveled_up = current_user.add_xp(net_xp)
 
     new_level = current_user.level
     rank_name = get_rank_name(new_level)

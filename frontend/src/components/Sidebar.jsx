@@ -61,7 +61,7 @@ export default function Sidebar() {
             setTicketCount(ticketRes.data.count);
             setSuggestionCount(suggestionRes.data.length);
         } catch (err) {
-            console.error("Error al sincronizar notificaciones");
+            (import.meta.env.DEV && console.error)("Error al sincronizar notificaciones");
         }
     };
 

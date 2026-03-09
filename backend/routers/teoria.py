@@ -38,7 +38,10 @@ def ensure_unique_slug(base_slug: str, db: Session, model, exclude_id: int = Non
 # ── Public endpoints ──────────────────────────────────────────────────────────
 
 @router.get("/subjects")
-def list_subjects(db: Session = Depends(get_db)):
+def list_subjects(
+    _: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     subjects = db.query(TheorySubject).order_by(TheorySubject.order_index).all()
     return [
         {
@@ -53,7 +56,11 @@ def list_subjects(db: Session = Depends(get_db)):
     ]
 
 @router.get("/subjects/{slug}")
-def get_subject(slug: str, db: Session = Depends(get_db)):
+def get_subject(
+    slug: str,
+    _: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     subject = db.query(TheorySubject).filter(TheorySubject.slug == slug).first()
     if not subject:
         raise HTTPException(status_code=404, detail="Subject not found")
@@ -76,7 +83,12 @@ def get_subject(slug: str, db: Session = Depends(get_db)):
     }
 
 @router.get("/subjects/{subject_slug}/posts/{post_slug}")
-def get_post(subject_slug: str, post_slug: str, db: Session = Depends(get_db)):
+def get_post(
+    subject_slug: str,
+    post_slug: str,
+    _: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     subject = db.query(TheorySubject).filter(TheorySubject.slug == subject_slug).first()
     if not subject:
         raise HTTPException(status_code=404, detail="Subject not found")
@@ -97,7 +109,11 @@ def get_post(subject_slug: str, post_slug: str, db: Session = Depends(get_db)):
     }
 
 @router.get("/recent")
-def recent_posts(db: Session = Depends(get_db), limit: int = 5):
+def recent_posts(
+    _: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    limit: int = 5
+):
     posts = db.query(TheoryPost).order_by(TheoryPost.updated_at.desc()).limit(limit).all()
     return [
         {

@@ -51,7 +51,7 @@ export default function LabDetail() {
 
                 // Complete status is now managed by the backend shortcut
             } catch (err) {
-                console.error("Error fetching lab context:", err);
+                (import.meta.env.DEV && console.error)("Error fetching lab context:", err);
                 navigate('/labs');
             } finally {
                 setLoading(false);
@@ -71,7 +71,7 @@ export default function LabDetail() {
             });
             setWsUrl(res.data.ws_url);
         } catch (err) {
-            console.error("Error starting lab:", err);
+            (import.meta.env.DEV && console.error)("Error starting lab:", err);
             alert("No se pudo iniciar el sandbox. Contacta con soporte.");
         } finally {
             setStartingLab(false);
@@ -105,7 +105,7 @@ export default function LabDetail() {
                 alert(res.data.message || "Valor incorrecto. Revisa tu terminal.");
             }
         } catch (err) {
-            console.error("Error validating challenge:", err);
+            (import.meta.env.DEV && console.error)("Error validating challenge:", err);
             alert("Error de validación.");
         } finally {
             setValidatingChallenge(null);
@@ -118,7 +118,7 @@ export default function LabDetail() {
             const res = await api.get(`/labs/${id}/utils/ls`, { params: { path } });
             setDirContent(res.data.content);
         } catch (err) {
-            console.error("Error checking directory:", err);
+            (import.meta.env.DEV && console.error)("Error checking directory:", err);
             alert("No se pudo obtener el contenido. Asegúrate de que el sandbox esté activo.");
         } finally {
             setCheckingDir(false);
@@ -142,7 +142,7 @@ export default function LabDetail() {
                 alert(data.message || "Aún no has completado todos los retos.");
             }
         } catch (err) {
-            console.error("Error completing lab:", err);
+            (import.meta.env.DEV && console.error)("Error completing lab:", err);
         }
     };
 
@@ -158,7 +158,7 @@ export default function LabDetail() {
             });
             setWsUrl(res.data.ws_url);
         } catch (err) {
-            console.error("Error restarting lab:", err);
+            (import.meta.env.DEV && console.error)("Error restarting lab:", err);
             alert("No se pudo reiniciar el sandbox.");
         } finally {
             setStartingLab(false);

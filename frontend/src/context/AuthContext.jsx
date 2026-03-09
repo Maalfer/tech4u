@@ -1,14 +1,20 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useRef } from 'react'
 import api from '../services/api'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem('tech4u_user')
-        return saved ? JSON.parse(saved) : null
+        try {
+            const saved = localStorage.getItem('tech4u_user')
+            return saved ? JSON.parse(saved) : null
+        } catch {
+            return null
+        }
     })
     const [loading, setLoading] = useState(false)
+    // Evita llamadas concurrentes a refreshUser (race condition)
+    const refreshingRef = useRef(false)
 
     const login = async (email, password) => {
         setLoading(true)
@@ -51,14 +57,19 @@ export function AuthProvider({ children }) {
     }
 
     const refreshUser = async () => {
+        // Evitar llamadas concurrentes
+        if (refreshingRef.current) return
+        refreshingRef.current = true
         try {
             const res = await api.get('/auth/me')
             const updatedUser = res.data
             localStorage.setItem('tech4u_user', JSON.stringify(updatedUser))
             setUser(updatedUser)
             return updatedUser
-        } catch (err) {
-            console.error('Error refreshing user:', err)
+        } catch {
+            // Silencioso — el interceptor de api.js ya gestiona el 401
+        } finally {
+            refreshingRef.current = false
         }
     }
 

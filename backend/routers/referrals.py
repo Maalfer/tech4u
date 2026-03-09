@@ -130,9 +130,12 @@ def apply_referral_code(
     if referrer.id == current_user.id:
         raise HTTPException(status_code=400, detail="No puedes usar tu propio código de referido.")
 
-    # 4. El referidor no puede ser un alumno sin suscripción activa (opcional — descomenta si lo quieres)
-    # if referrer.subscription_type == "free":
-    #     raise HTTPException(status_code=400, detail="El propietario del código no tiene suscripción activa.")
+    # 4. Anti-fraude: el usuario que aplica el código no puede ya tener suscripción activa
+    if current_user.subscription_type and current_user.subscription_type != "free":
+        raise HTTPException(
+            status_code=400,
+            detail="No puedes aplicar un código de referido si ya tienes una suscripción activa."
+        )
 
     # 5. Abuso de IP: máx. 3 desde la misma IP en 24h hacia el mismo referidor
     ip_count = _count_recent_registrations_from_ip(db, ip, referrer.id, hours=24)

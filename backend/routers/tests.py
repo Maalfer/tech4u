@@ -314,7 +314,7 @@ def get_user_inventory(
             "item_key": it.item_key,
             "name": it.item_name,
             "emoji": it.item_emoji,
-            "rarity": it.item_rarity,
+            "rarity": it.item_rarity or "comun",  # garantizar default para frontend
             "description": it.item_description,
             "obtained_at": it.obtained_at.isoformat(),
         }

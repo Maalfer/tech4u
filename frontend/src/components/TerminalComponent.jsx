@@ -60,7 +60,7 @@ const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to secure sandb
 
         socket.onerror = (err) => {
             term.writeln('\r\n\x1b[31m[WebSocket Error]\x1b[0m');
-            console.error("Terminal WS Error:", err);
+            (import.meta.env.DEV && console.error)("Terminal WS Error:", err);
         };
 
         term.onData(data => {

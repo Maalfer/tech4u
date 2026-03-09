@@ -177,7 +177,7 @@ export default function AdminLabGenerator() {
             navigate(`/admin/terminal-builder/modules/${moduleId}/labs`);
 
         } catch (err) {
-            console.error("Generator Error", err);
+            (import.meta.env.DEV && console.error)("Generator Error", err);
             const detailDetail = err.response?.data?.detail;
             const errorMsg = typeof detailDetail === 'string' ? detailDetail : 'Hubo un error durante la generación.';
             addNotification({ title: 'Error', description: errorMsg, type: 'error' });

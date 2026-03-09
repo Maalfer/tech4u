@@ -34,7 +34,7 @@ export default function StreakCounter({ streak = 0, size = 'md' }) {
                     </span>
                 </div>
                 <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em] mt-1">
-                    {streak === 1 ? 'Día de Infiltración' : 'Días de Superviviencia'}
+                    {streak === 1 ? 'Día de Infiltración' : 'Días de Supervivencia'}
                 </p>
             </div>
         </div>

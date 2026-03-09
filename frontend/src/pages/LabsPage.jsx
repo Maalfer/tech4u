@@ -27,7 +27,7 @@ import linuxCover3 from '../assets/linux_lab_2_trofeo.png';
 import linuxCover4 from '../assets/linux_lab_storage.png';
 
 // Path covers (one per SkillPath)
-import coverLinuxFundamentals   from '../assets/linux_fundamentals_icon.png';
+import coverLinuxFundamentals   from '../assets/terminal_skills.png';
 import coverBashScripting       from '../assets/bash_scripting_icon.png';
 import coverStorageDisk         from '../assets/storage_disk_administration.png';
 import coverUsersLinux          from '../assets/users_linux_icon.png';
@@ -111,7 +111,7 @@ export default function LabsPage() {
                     }
                 }
             } catch (err) {
-                console.error("Error fetching labs context:", err);
+                (import.meta.env.DEV && console.error)("Error fetching labs context:", err);
             } finally {
                 setLoading(false);
             }
@@ -174,41 +174,46 @@ export default function LabsPage() {
                         {/* VIEW 1: SKILL PATHS */}
                         {!selectedPath && !selectedModule && (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {skillPaths.map(path => (
-                                    <div
-                                        key={path.id}
-                                        onClick={() => handleSelectPath(path)}
-                                        className="group relative bg-white/5 border border-white/10 rounded-[2rem] p-8 cursor-pointer hover:border-neon/50 transition-all overflow-hidden"
-                                    >
-                                        {/* Path cover image as background */}
-                                        {PATH_COVERS[path.title] && (
-                                            <div className="absolute inset-0 pointer-events-none">
+                                {skillPaths.map(path => {
+                                    const cover = PATH_COVERS[path.title] || defaultCover;
+                                    return (
+                                        <div
+                                            key={path.id}
+                                            onClick={() => handleSelectPath(path)}
+                                            className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-white/10 bg-black cursor-pointer hover:border-neon/50 transition-all duration-500 shadow-2xl hover:shadow-[0_0_40px_rgba(198,255,51,0.15)]"
+                                        >
+                                            {/* Full-bleed cover image */}
+                                            <div className="absolute inset-0">
                                                 <img
-                                                    src={PATH_COVERS[path.title]}
-                                                    alt=""
-                                                    className="w-full h-full object-cover opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-700"
+                                                    src={cover}
+                                                    alt={path.title}
+                                                    className="w-full h-full object-cover object-center group-hover:scale-110 group-hover:opacity-80 opacity-70 transition-all duration-700"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                                             </div>
-                                        )}
-                                        <span className="text-neon font-mono text-[9px] uppercase tracking-[0.3em] mb-4 block">Skill Path</span>
-                                        <h3 className="text-2xl font-black italic uppercase italic tracking-tighter group-hover:text-neon transition-colors mb-2">
-                                            {path.title}
-                                        </h3>
-                                        <p className="text-slate-500 text-xs font-mono line-clamp-2 mb-6">
-                                            {path.description}
-                                        </p>
-                                        <div className="flex items-center justify-between mt-auto">
-                                            <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono uppercase">
-                                                <ChevronRight className="w-4 h-4 text-neon" />
-                                                <span>{path.modules?.length || 0} Módulos</span>
-                                            </div>
-                                            <div className="w-8 h-8 rounded-xl bg-neon/10 flex items-center justify-center text-neon group-hover:bg-neon group-hover:text-black transition-all">
-                                                <ChevronRight className="w-4 h-4" />
+
+                                            {/* Text overlay — bottom */}
+                                            <div className="absolute inset-x-0 bottom-0 p-6">
+                                                <span className="text-neon font-mono text-[10px] uppercase tracking-[0.3em] mb-2 block">Skill Path</span>
+                                                <h3 className="text-2xl font-black uppercase italic leading-none tracking-tighter group-hover:text-neon transition-colors mb-3">
+                                                    {path.title}
+                                                </h3>
+                                                <p className="text-slate-400 text-[10px] font-mono line-clamp-2 mb-5 uppercase leading-relaxed">
+                                                    {path.description}
+                                                </p>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2 text-slate-500 font-mono text-[9px] uppercase">
+                                                        <TerminalIcon className="w-3.5 h-3.5 text-neon" />
+                                                        <span>{path.modules?.length || 0} Módulos</span>
+                                                    </div>
+                                                    <div className="w-10 h-10 rounded-2xl bg-neon flex items-center justify-center text-black shadow-lg group-hover:scale-110 transition-all">
+                                                        <ChevronRight className="w-5 h-5" />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
 
@@ -225,7 +230,7 @@ export default function LabsPage() {
                                             <img
                                                 src={getModuleCover(module.title, selectedPath?.title)}
                                                 alt={module.title}
-                                                className="w-full h-full object-cover opacity-60 group-hover:scale-110 group-hover:opacity-40 transition-all duration-700"
+                                                className="w-full h-full object-cover opacity-70 group-hover:scale-110 group-hover:opacity-80 transition-all duration-700"
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                                         </div>

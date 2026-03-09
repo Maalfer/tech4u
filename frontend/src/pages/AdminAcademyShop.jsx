@@ -28,7 +28,7 @@ export default function AdminAcademyShop() {
             // Only show shop courses in this panel
             setCourses(res.data.filter(c => c.is_shop_course));
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         } finally {
             setLoading(false);
         }
@@ -63,7 +63,7 @@ export default function AdminAcademyShop() {
             await api.delete(`/admin/video-courses/${id}`);
             await fetchCourses();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     };
 
@@ -72,7 +72,7 @@ export default function AdminAcademyShop() {
             const res = await api.patch(`/admin/video-courses/${course.id}/toggle-active`);
             setCourses(prev => prev.map(c => c.id === course.id ? { ...c, is_active: res.data.is_active } : c));
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     };
 
@@ -119,7 +119,7 @@ export default function AdminAcademyShop() {
             setLessonForm({ title: '', description: '', youtube_url: '', order_index: res.data.lessons.length + 1 });
             fetchCourses();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             alert('Error al guardar clase');
         } finally {
             setUploading(false);
@@ -134,7 +134,7 @@ export default function AdminAcademyShop() {
             setSelectedCourse(res.data);
             fetchCourses();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
         }
     };
 

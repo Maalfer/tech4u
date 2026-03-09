@@ -255,7 +255,7 @@ export default function AdminTeoria() {
                                             <div>
                                                 <h3 className="text-lg font-bold text-white mb-1">{p.title}</h3>
                                                 <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
-                                                    Slug: /{p.slug} · Actualizado: {new Date(p.updated_at).toLocaleDateString()}
+                                                    Slug: /{p.slug} · Actualizado: {new Date(p.updated_at).toLocaleDateString('es-ES')}
                                                 </p>
                                             </div>
                                         </div>

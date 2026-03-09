@@ -122,7 +122,7 @@ export default function AdminLabs() {
             setIsPathModalOpen(false);
             fetchPaths();
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             addNotification({ title: 'Error', description: 'Fallo al guardar ruta', type: 'error' });
         }
     };
@@ -137,7 +137,7 @@ export default function AdminLabs() {
             setIsModuleModalOpen(false);
             fetchModules(selectedPath.id);
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             addNotification({ title: 'Error', description: 'Fallo al guardar módulo', type: 'error' });
         }
     };

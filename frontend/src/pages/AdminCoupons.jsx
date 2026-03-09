@@ -38,7 +38,7 @@ export default function AdminCoupons() {
             const res = await api.get('/admin/coupons');
             setCoupons(res.data);
         } catch (err) {
-            console.error(err);
+            (import.meta.env.DEV && console.error)(err);
             showNotification('Error al cargar cupones', 'error');
         } finally {
             setLoading(false);

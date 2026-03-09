@@ -93,7 +93,7 @@ export default function Flashcards() {
             setCurrentIndex(0);
             setFlipped(false);
         } catch (err) {
-            console.error('Error fetching flashcards', err);
+            (import.meta.env.DEV && console.error)('Error fetching flashcards', err);
         } finally {
             setLoading(false);
         }

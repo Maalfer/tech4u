@@ -46,7 +46,7 @@ export default function AdminModules() {
             const currentPath = res.data.find(p => p.id === parseInt(pathId));
             setPath(currentPath);
         } catch (err) {
-            console.error("Error fetching path details", err);
+            (import.meta.env.DEV && console.error)("Error fetching path details", err);
         }
     };
 

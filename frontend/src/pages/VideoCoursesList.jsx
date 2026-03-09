@@ -18,7 +18,7 @@ export default function VideoCoursesList() {
                 const res = await api.get('/video-courses/');
                 setCourses(res.data);
             } catch (err) {
-                console.error("Error fetching courses", err);
+                (import.meta.env.DEV && console.error)("Error fetching courses", err);
             } finally {
                 setLoading(false);
             }

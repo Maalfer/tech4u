@@ -138,7 +138,7 @@ export default function App() {
             />
             <Route
               path="/explora"
-              element={<ExploraAcademia />}
+              element={<ProtectedRoute><ExploraAcademia /></ProtectedRoute>}
             />
             <Route
               path="/personaje"
