@@ -86,8 +86,8 @@ export default function VideoCourseDetail() {
             <div className="flex min-h-screen bg-[#0D0D0D]">
                 <Sidebar />
                 <main className="flex-1 ml-64 p-8 flex flex-col items-center justify-center text-center">
-                    <h2 className="text-3xl font-black text-white uppercase mb-4">Curso no encontrado</h2>
-                    <button onClick={() => navigate('/video-cursos')} className="px-6 py-3 bg-neon text-black font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-transform">Volver a Cursos</button>
+                    <h2 className="text-3xl font-black text-white uppercase mb-4">Videos no encontrados</h2>
+                    <button onClick={() => navigate('/video-cursos')} className="px-6 py-3 bg-red-600 text-white font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-transform">Volver a YT Videos</button>
                 </main>
             </div>
         );
@@ -108,10 +108,10 @@ export default function VideoCourseDetail() {
                             className="text-slate-400 hover:text-white flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider transition-colors"
                         >
                             <ChevronLeft className="w-4 h-4" />
-                            Volver al catálogo
+                            Volver a YT Videos
                         </button>
                         <div className="flex items-center gap-3">
-                            <span className="text-neon font-mono text-[10px] uppercase tracking-widest font-bold border border-neon px-3 py-1 rounded-full">Progreso: {course.progress_percentage}%</span>
+                            <span className="text-red-500 font-mono text-[10px] uppercase tracking-widest font-bold border border-red-500/50 px-3 py-1 rounded-full">Visto: {course.progress_percentage}%</span>
                         </div>
                     </div>
 
@@ -151,14 +151,14 @@ export default function VideoCourseDetail() {
                                     className={`flex items-center gap-2 px-6 py-4 rounded-xl font-black font-mono text-xs uppercase tracking-wider transition-all
                                         ${currentLesson.is_completed
                                             ? 'bg-transparent border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
-                                            : 'bg-neon text-black hover:bg-[#32e011] hover:scale-105 shadow-[0_0_20px_var(--neon-alpha-30)]'}
+                                            : 'bg-red-600 text-white hover:bg-red-500 hover:scale-105 shadow-[0_0_20px_rgba(220,38,38,0.3)]'}
                                         ${toggling ? 'opacity-50 cursor-not-allowed' : ''}
                                     `}
                                 >
                                     {currentLesson.is_completed ? (
-                                        <>Desmarcar <CheckCircle className="w-4 h-4 opacity-50" /></>
+                                        <>Desmarcar como visto <CheckCircle className="w-4 h-4 opacity-50" /></>
                                     ) : (
-                                        <>Marcar Completada <CheckCircle className="w-4 h-4" /></>
+                                        <>Marcar como visto <CheckCircle className="w-4 h-4" /></>
                                     )}
                                 </button>
                             </div>
@@ -174,7 +174,7 @@ export default function VideoCourseDetail() {
                 <div className="w-full md:w-80 bg-[#0A0A0A] border-l border-white/5 flex flex-col h-full">
                     <div className="p-6 border-b border-white/5">
                         <h3 className="text-white font-black uppercase text-sm mb-1">{course.title}</h3>
-                        <p className="text-slate-500 font-mono text-[10px] uppercase">{course.lessons?.length || 0} Clases</p>
+                        <p className="text-slate-500 font-mono text-[10px] uppercase">{course.lessons?.length || 0} Lecciones</p>
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
@@ -189,7 +189,7 @@ export default function VideoCourseDetail() {
                                             : 'bg-transparent border-transparent hover:bg-white/5'}
                                     `}
                                 >
-                                    <div className={`mt-1 flex-shrink-0 ${lesson.is_completed ? 'text-neon' : 'text-slate-600 group-hover:text-slate-400'}`}>
+                                    <div className={`mt-1 flex-shrink-0 ${lesson.is_completed ? 'text-red-500' : 'text-slate-600 group-hover:text-slate-400'}`}>
                                         {lesson.is_completed ? <CheckCircle className="w-5 h-5" /> : <PlayCircle className="w-5 h-5" />}
                                     </div>
                                     <div className="flex-1 min-w-0">

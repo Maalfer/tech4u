@@ -8,6 +8,9 @@ from database import get_db, User, Coupon, UserCoursePurchase
 from auth import get_current_user
 from dotenv import load_dotenv
 
+# Importación circular segura (solo se usa dentro del webhook)
+from routers.referrals import confirm_referral_on_payment
+
 load_dotenv()
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
@@ -91,17 +94,31 @@ def validate_coupon(code: str, plan: str = "monthly", current_user: User = Depen
     c = db.query(Coupon).filter(Coupon.code == code.upper(), Coupon.is_active == True).first()
     if not c:
         raise HTTPException(status_code=404, detail="Cupón inválido o inactivo.")
-    
+
     if c.current_uses >= c.max_uses:
-        c.is_active = False # Safe deactivation fallback
+        c.is_active = False
         db.commit()
         raise HTTPException(status_code=400, detail="El cupón ha superado el límite de usos.")
-    
+
+    # Verificar expiración
+    if c.expires_at and c.expires_at < datetime.utcnow():
+        c.is_active = False
+        db.commit()
+        raise HTTPException(status_code=400, detail="Este cupón ha expirado.")
+
     # Restricción de usuario único
     if c.assigned_to_id and c.assigned_to_id != current_user.id:
         raise HTTPException(status_code=403, detail="Este cupón no te pertenece.")
 
-    # Restricción de plan: >15% solo mensual y trimestral
+    # Restricción de plan aplicable
+    applicable = getattr(c, 'applicable_plans', 'all') or 'all'
+    if applicable != 'all' and applicable != plan:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Este cupón solo es válido para el plan {applicable}."
+        )
+
+    # Restricción legacy: >15% solo mensual y trimestral
     if c.discount_percent > 15 and plan == "annual":
         raise HTTPException(status_code=400, detail="Cupones superiores al 15% solo válidos para planes mensuales y trimestrales.")
 
@@ -292,7 +309,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                     coupon.current_uses += 1
                     if coupon.current_uses >= coupon.max_uses:
                         coupon.is_active = False
-            
+
             reward_used = metadata.get("reward_used")
             if reward_used == "referral_10p":
                 user.pending_10p_discounts = max(0, (user.pending_10p_discounts or 0) - 1)
@@ -303,6 +320,10 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 user.streak_protections = (user.streak_protections or 0) + bonus_shields
 
             db.commit()
+
+            # ── CONFIRMAR REFERIDO (si el usuario tiene uno pendiente) ──
+            # Esto otorga automáticamente la recompensa al referidor.
+            confirm_referral_on_payment(db, user)
 
     return {"status": "ok"}
 

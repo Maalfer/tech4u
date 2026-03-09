@@ -221,12 +221,6 @@ export default function LabDetail() {
                                 >
                                     <CheckCircle className="w-4 h-4" /> Objetivos
                                 </button>
-                                <button
-                                    onClick={() => { setActiveTab('guide'); setDirContent(null); }}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'guide' ? 'bg-white/5 text-neon shadow-[0_0_10px_rgba(198,255,51,0.1)]' : 'text-slate-500 hover:text-slate-300'}`}
-                                >
-                                    <Zap className="w-4 h-4" /> Guía Misión
-                                </button>
                             </div>
 
                             <div className="flex-1 overflow-y-auto p-6 scrollbar-premium">
@@ -240,6 +234,16 @@ export default function LabDetail() {
                                                 <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((lab.description || "Sin descripción.").replace(/\n/g, '<br/>')) }} />
                                             </div>
                                         </section>
+                                        {lab.step_by_step_guide && (
+                                            <section>
+                                                <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white mb-4">
+                                                    <Zap className="w-4 h-4 text-neon" /> Guía Paso a Paso
+                                                </h4>
+                                                <div className="prose prose-invert prose-xs max-w-none text-slate-400 font-mono leading-relaxed bg-neon/3 p-5 rounded-2xl border border-neon/10">
+                                                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lab.step_by_step_guide.replace(/\n/g, '<br/>')) }} />
+                                                </div>
+                                            </section>
+                                        )}
                                     </div>
                                 ) : activeTab === 'objectives' ? (
                                     <div className="animate-in fade-in slide-in-from-left-2 duration-300 space-y-4">
@@ -279,16 +283,7 @@ export default function LabDetail() {
                                             </div>
                                         ))}
                                     </div>
-                                ) : (
-                                    <div className="animate-in fade-in slide-in-from-left-2 duration-300 space-y-6">
-                                        <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white">
-                                            <Zap className="w-4 h-4 text-neon" /> Guía Misión / Walkthrough
-                                        </h4>
-                                        <div className="prose prose-invert prose-xs max-w-none text-slate-400 font-mono leading-relaxed bg-white/2 p-5 rounded-2xl border border-white/5">
-                                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((lab.step_by_step_guide || "Sin guía disponible.").replace(/\n/g, '<br/>')) }} />
-                                        </div>
-                                    </div>
-                                )}
+                                ) : null}
                             </div>
                         </div>
 

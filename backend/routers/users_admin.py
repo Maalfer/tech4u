@@ -412,20 +412,43 @@ def modify_user_xp(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    user.xp = data.xp
+    # ── Conversión XP total → (nivel, xp_restante) ──────────────────
+    # Usa la misma curva que database.py::get_next_level_xp para que
+    # el panel admin y el juego estén siempre sincronizados.
+    #   Niveles  1-5 :  800 XP/nivel
+    #   Niveles  6-10: 1500 XP/nivel
+    #   Niveles 11-15: 2500 XP/nivel
+    #   Niveles 16-19: 4000 XP/nivel  (total máx: 40 000 XP)
+    # data.xp se interpreta como XP TOTAL ganado por el alumno.
+    # ─────────────────────────────────────────────────────────────────
+    def _xp_per_level(lvl: int) -> int:
+        if lvl <= 5:  return 800
+        if lvl <= 10: return 1500
+        if lvl <= 15: return 2500
+        if lvl <= 19: return 4000
+        return 99999
 
-    # Recalculate level from XP
-    xp_thresholds = [0, 500, 1000, 1500, 2000, 3000, 4000, 5000, 7000, 9000,
-                     12000, 15000, 18000, 21000, 25000, 30000, 35000, 40000, 45000, 50000]
-    level = 1
-    for i, threshold in enumerate(xp_thresholds):
-        if data.xp >= threshold:
-            level = i + 1
-    user.level = min(level, 20)
+    remaining = max(0, data.xp)
+    computed_level = 1
+    while computed_level < 20:
+        needed = _xp_per_level(computed_level)
+        if remaining >= needed:
+            remaining -= needed
+            computed_level += 1
+        else:
+            break
+
+    user.level = min(computed_level, 20)
+    user.xp    = remaining if user.level < 20 else 0
 
     db.commit()
     db.refresh(user)
-    return {"message": f"XP actualizado a {data.xp}", "xp": user.xp, "level": user.level}
+    return {
+        "message": f"XP total {data.xp} → Nivel {user.level} con {user.xp} XP en el nivel actual",
+        "xp": user.xp,
+        "level": user.level,
+        "total_xp_set": data.xp,
+    }
 
 @router.patch("/{user_id}/streak")
 def reset_user_streak(

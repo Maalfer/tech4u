@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from database import get_db, User
+from database import get_db, User, Referral
 from schemas import UserRegister, UserLogin, TokenResponse, UserOut
 from auth import hash_password, verify_password, create_access_token, get_current_user
 import random
@@ -26,19 +26,6 @@ def register(request: Request, data: UserRegister, db: Session = Depends(get_db)
     while db.query(User).filter(User.referral_code == new_referral_code).first():
         new_referral_code = generate_referral_code()
 
-    # Handle incoming referral
-    referred_by_id = None
-    if data.referral_code:
-        referrer = db.query(User).filter(User.referral_code == data.referral_code).first()
-        if referrer:
-            referred_by_id = referrer.id
-            referrer.referral_reward_count = (referrer.referral_reward_count or 0) + 1
-            # Cada referido da un 10% de descuento
-            referrer.pending_10p_discounts = (referrer.pending_10p_discounts or 0) + 1
-            # Cada 10 referidos da un mes gratis adicional
-            if referrer.referral_reward_count % 10 == 0:
-                referrer.free_months_accumulated = (referrer.free_months_accumulated or 0) + 1
-
     now = datetime.utcnow()
 
     # Always create as free — subscription must be activated via Stripe payment
@@ -51,11 +38,47 @@ def register(request: Request, data: UserRegister, db: Session = Depends(get_db)
         streak_count=0,
         last_login=now,
         referral_code=new_referral_code,
-        referred_by_id=referred_by_id
+        referred_by_id=None  # Se asignará tras validar el referido
     )
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    # ── Procesar código de referido (si se proporcionó) ──
+    # Las recompensas NO se dan ahora. Solo se crea el vínculo (pending).
+    # La recompensa se genera cuando el invitado completa su primer pago (webhook Stripe).
+    if data.referral_code:
+        referrer = db.query(User).filter(
+            User.referral_code == data.referral_code.upper()
+        ).first()
+
+        if referrer and referrer.id != user.id:
+            # Obtener IP del registro para anti-fraude
+            forwarded_for = request.headers.get("X-Forwarded-For")
+            ip = forwarded_for.split(",")[0].strip() if forwarded_for else (
+                request.client.host if request.client else "unknown"
+            )
+
+            # Verificar límite de IP: máx. 3 registros hacia el mismo referidor en 24h
+            from datetime import timedelta
+            cutoff = now - timedelta(hours=24)
+            ip_count = db.query(Referral).filter(
+                Referral.referrer_id == referrer.id,
+                Referral.ip_address == ip,
+                Referral.created_at >= cutoff,
+            ).count()
+
+            if ip_count < 3:
+                # Crear relación de referido en estado "pending"
+                referral = Referral(
+                    referrer_id=referrer.id,
+                    referred_id=user.id,
+                    ip_address=ip,
+                    status="pending",
+                )
+                db.add(referral)
+                user.referred_by_id = referrer.id
+                db.commit()
 
     token = create_access_token({"sub": str(user.id)})
     # Send welcome email (non-blocking)
@@ -63,6 +86,7 @@ def register(request: Request, data: UserRegister, db: Session = Depends(get_db)
         mailer.send_welcome(user.email, user.nombre)
     except Exception:
         pass
+    db.refresh(user)
     return TokenResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
 
 

@@ -45,24 +45,38 @@ class User(Base):
     free_months_accumulated = Column(Integer, default=0) # Meses gratis por cada 10 invitados
 
     # Relaciones
-    referrals = relationship("User", backref="referrer", remote_side=[id])
     errors = relationship("UserError", back_populates="user")
     progress = relationship("UserProgress", back_populates="user")
     suggestions = relationship("QuestionSuggestion", back_populates="user")
     achievements = relationship("UserAchievement", back_populates="user")
 
     def get_next_level_xp(self):
-        return self.level * 500
+        """
+        XP necesaria para subir desde el nivel actual al siguiente.
+        Curva progresiva en 4 tramos:
+          Niveles  1-5 :   800 XP  (inicio rápido, enganchante)
+          Niveles  6-10:  1500 XP  (ritmo medio)
+          Niveles 11-15:  2500 XP  (esfuerzo serio)
+          Niveles 16-19:  4000 XP  (endgame, sólo los mejores)
+        Total acumulado para nivel 20: 40 000 XP
+        """
+        if self.level <= 5:  return 800
+        if self.level <= 10: return 1500
+        if self.level <= 15: return 2500
+        if self.level <= 19: return 4000
+        return 99999  # nivel 20 es el tope
 
     def add_xp(self, amount: int):
         """
-        Suma XP y maneja subidas de nivel de forma centralizada.
-        Fórmula: Costo del nivel N al N+1 = N * 500 XP.
+        Suma XP y gestiona subidas de nivel de forma centralizada.
+        self.xp almacena el XP DENTRO del nivel actual (no acumulado total).
         """
+        if amount <= 0:
+            return False
         self.xp = max(0, (self.xp or 0) + amount)
         leveled_up = False
-        
-        while True:
+
+        while self.level < 20:
             needed = self.get_next_level_xp()
             if self.xp >= needed:
                 self.xp -= needed
@@ -70,10 +84,11 @@ class User(Base):
                 leveled_up = True
             else:
                 break
-        
-        # Actualización de rangos (Sincronizado con dashboard.py)
-        if self.level >= 20: self.role = self.role # No cambia el rol, pero podríamos disparar lógica
-        
+
+        # Tope duro en nivel 20
+        if self.level >= 20:
+            self.level = 20
+
         return leveled_up
 
 
@@ -181,7 +196,11 @@ class Coupon(Base):
     max_uses = Column(Integer, default=1)
     current_uses = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
-    assigned_to_id = Column(Integer, ForeignKey("users.id"), nullable=True) # Lock to one user
+    assigned_to_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Lock to one user
+    # Nuevos campos
+    description = Column(String, nullable=True)                # Nota interna / propósito
+    expires_at = Column(DateTime, nullable=True)               # Expiración opcional
+    applicable_plans = Column(String, default="all")           # "all" | "monthly" | "quarterly" | "annual"
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class AnnouncementRead(Base):
@@ -295,6 +314,42 @@ class UserAchievement(Base):
 
     user = relationship("User", back_populates="achievements")
     achievement = relationship("Achievement")
+
+# --- SISTEMA DE REFERIDOS ---
+
+class Referral(Base):
+    """
+    Auditoría completa de cada relación referido→referidor.
+    Una entrada por usuario invitado (referred_id es único).
+    """
+    __tablename__ = "referrals"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Quién invitó y quién fue invitado
+    referrer_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    referred_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
+
+    # Estado del ciclo de vida
+    # pending   → el invitado se registró con el código pero aún no ha pagado
+    # confirmed → el invitado completó un pago → el referidor recibe la recompensa
+    # rejected  → rechazado manualmente por admin
+    # fraud     → detección automática o manual de fraude
+    status = Column(String, default="pending", index=True)
+
+    # Campos anti-fraude
+    ip_address = Column(String, nullable=True)           # IP del invitado en el momento del registro
+    device_fingerprint = Column(String, nullable=True)   # Huella del navegador (enviada por el frontend)
+
+    # Timeline
+    created_at = Column(DateTime, default=datetime.utcnow)   # Cuando se usó el código de referido
+    confirmed_at = Column(DateTime, nullable=True)            # Cuando se confirmó el pago
+    rejection_reason = Column(String, nullable=True)          # Motivo de rechazo/fraude
+
+    # Relaciones
+    referrer = relationship("User", foreign_keys=[referrer_id])
+    referred = relationship("User", foreign_keys=[referred_id])
+
 
 # --- TRANSACCIONES PAYPAL ---
 

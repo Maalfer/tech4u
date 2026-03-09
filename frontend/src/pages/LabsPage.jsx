@@ -20,12 +20,26 @@ import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 
-// Assets
-import linuxCover1 from '../assets/linux_lab_1.png';
+// Assets — module-specific covers (Linux Fundamentals, using existing files)
+import linuxCover1 from '../assets/linux_fundamentals_icon.png';
+import linuxCover2 from '../assets/linux_lab_1_trofeo.png';
+import linuxCover3 from '../assets/linux_lab_2_trofeo.png';
+import linuxCover4 from '../assets/linux_lab_storage.png';
+
+// Path covers (one per SkillPath)
+import coverLinuxFundamentals   from '../assets/linux_fundamentals_icon.png';
+import coverBashScripting       from '../assets/bash_scripting_icon.png';
+import coverStorageDisk         from '../assets/storage_disk_administration.png';
+import coverUsersLinux          from '../assets/users_linux_icon.png';
+
+const PATH_COVERS = {
+    'Linux Fundamentals':          coverLinuxFundamentals,
+    'Bash Scripting':              coverBashScripting,
+    'Storage & Disk Administration': coverStorageDisk,
+    'Usuarios y Permisos Linux':   coverUsersLinux,
+};
+
 const defaultCover = linuxCover1;
-import linuxCover3 from '../assets/linux_lab_3.png';
-import linuxCover4 from '../assets/linux_lab_4.png';
-import linuxCover2 from '../assets/linux_lab_2.png';
 
 const CATEGORY_ICONS = {
     'Sistemas': HardDrive,
@@ -41,6 +55,10 @@ const MODULE_COVERS = {
     'Linux Labs L3 — Processes and System Monitoring': linuxCover3,
     'Linux Labs L4 — File Management Commands': linuxCover4,
 };
+
+// Helper: get the best cover for a module, falling back to path cover
+const getModuleCover = (moduleTitle, pathTitle) =>
+    MODULE_COVERS[moduleTitle] || PATH_COVERS[pathTitle] || defaultCover;
 
 export default function LabsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -162,9 +180,17 @@ export default function LabsPage() {
                                         onClick={() => handleSelectPath(path)}
                                         className="group relative bg-white/5 border border-white/10 rounded-[2rem] p-8 cursor-pointer hover:border-neon/50 transition-all overflow-hidden"
                                     >
-                                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 group-hover:scale-125 transition-all">
-                                            <HardDrive className="w-20 h-20" />
-                                        </div>
+                                        {/* Path cover image as background */}
+                                        {PATH_COVERS[path.title] && (
+                                            <div className="absolute inset-0 pointer-events-none">
+                                                <img
+                                                    src={PATH_COVERS[path.title]}
+                                                    alt=""
+                                                    className="w-full h-full object-cover opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-700"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
+                                            </div>
+                                        )}
                                         <span className="text-neon font-mono text-[9px] uppercase tracking-[0.3em] mb-4 block">Skill Path</span>
                                         <h3 className="text-2xl font-black italic uppercase italic tracking-tighter group-hover:text-neon transition-colors mb-2">
                                             {path.title}
@@ -197,7 +223,7 @@ export default function LabsPage() {
                                     >
                                         <div className="absolute inset-0">
                                             <img
-                                                src={MODULE_COVERS[module.title] || defaultCover}
+                                                src={getModuleCover(module.title, selectedPath?.title)}
                                                 alt={module.title}
                                                 className="w-full h-full object-cover opacity-60 group-hover:scale-110 group-hover:opacity-40 transition-all duration-700"
                                             />

@@ -198,10 +198,24 @@ async def submit_test(
         total_questions = len(payload.answers)
         accuracy = (correct_count / total_questions * 100) if total_questions > 0 else 0
         
-        # Nueva logica: Solo gana xp si es EXAMEN y hay 60 preguntas (así está en el frontend)
+        # ── Sistema de XP v2 ──────────────────────────────────────────
+        # EXAMEN (60+ preguntas): recompensa principal, alta.
+        #   Base: (aciertos × 20) - (fallos × 7), mínimo 0
+        #   Bonus perfecto (100% accuracy): +200 XP
+        # PRÁCTICA / NORMAL (20+ preguntas): recompensa pequeña por estudio diario.
+        #   Base: max(0, aciertos × 6 - fallos × 2)
+        # Resto de modos (errors, etc.): 0 XP
+        # ─────────────────────────────────────────────────────────────
         gained_xp = 0
-        if payload.test_mode and payload.test_mode.lower() == "exam" and total_questions >= 60:
-            gained_xp = (correct_count * 15) - (wrong_count * 5)
+        mode = (payload.test_mode or "").lower()
+
+        if mode == "exam" and total_questions >= 60:
+            base_xp = (correct_count * 20) - (wrong_count * 7)
+            perfect_bonus = 200 if accuracy == 100 else 0
+            gained_xp = max(0, base_xp) + perfect_bonus
+
+        elif mode in ("normal", "practice", "") and total_questions >= 20:
+            gained_xp = max(0, (correct_count * 6) - (wrong_count * 2))
         
         leveled_up = current_user.add_xp(gained_xp)
         new_level = current_user.level

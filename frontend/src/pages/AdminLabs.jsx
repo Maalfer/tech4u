@@ -66,6 +66,9 @@ export default function AdminLabs() {
 
     const { addNotification } = useNotification();
 
+    // Delete confirm dialog state
+    const [deleteConfirm, setDeleteConfirm] = useState({ show: false, type: null, id: null, title: '' });
+
     // Form States
     const [pathForm, setPathForm] = useState({ title: '', description: '', difficulty: 'easy', order_index: 0, is_active: true });
     const [moduleForm, setModuleForm] = useState({ title: '', description: '', order_index: 0, requires_validation: true, is_active: true });
@@ -140,13 +143,40 @@ export default function AdminLabs() {
     };
 
 
-    const handleDeleteLab = async (id) => {
-        if (!confirm('¿Estás seguro de eliminar este laboratorio permanentemente?')) return;
+    const handleDeletePath = (id, title) => {
+        setDeleteConfirm({ show: true, type: 'path', id, title: title || `Path #${id}` });
+    };
+
+    const handleDeleteModule = (id, title) => {
+        setDeleteConfirm({ show: true, type: 'module', id, title: title || `Módulo #${id}` });
+    };
+
+    const handleDeleteLab = (id, title) => {
+        setDeleteConfirm({ show: true, type: 'lab', id, title: title || `Lab #${id}` });
+    };
+
+    const confirmDelete = async () => {
+        const { type, id } = deleteConfirm;
+        setDeleteConfirm({ show: false, type: null, id: null, title: '' });
         try {
-            await api.delete(`/labs/${id}`);
-            addNotification({ title: 'Borrado', description: 'Laboratorio eliminado', type: 'info' });
-            fetchLabs(selectedModule.id);
-        } catch (err) { addNotification({ title: 'Error', description: 'Fallo al eliminar', type: 'error' }); }
+            if (type === 'path') {
+                await api.delete(`/labs/admin/paths/${id}`);
+                addNotification({ title: 'Eliminado', description: 'Ruta eliminada completamente', type: 'info' });
+                fetchPaths();
+                setView('paths'); setSelectedPath(null); setSelectedModule(null);
+            } else if (type === 'module') {
+                await api.delete(`/labs/admin/modules/${id}`);
+                addNotification({ title: 'Eliminado', description: 'Módulo eliminado completamente', type: 'info' });
+                fetchModules(selectedPath.id);
+                setView('modules'); setSelectedModule(null);
+            } else if (type === 'lab') {
+                await api.delete(`/labs/${id}`);
+                addNotification({ title: 'Borrado', description: 'Laboratorio eliminado', type: 'info' });
+                fetchLabs(selectedModule.id);
+            }
+        } catch (err) {
+            addNotification({ title: 'Error', description: 'Fallo al eliminar', type: 'error' });
+        }
     };
 
     // --- MODAL POPULATORS ---
@@ -284,6 +314,7 @@ export default function AdminLabs() {
                                         {p.is_active ? <Eye className="w-4.5 h-4.5" /> : <EyeOff className="w-4.5 h-4.5" />}
                                     </button>
                                     <button onClick={(e) => { e.stopPropagation(); openPathModal(p); }} className="p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white"><Edit2 className="w-4.5 h-4.5" /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeletePath(p.id, p.title); }} className="p-2 bg-red-500/5 rounded-xl text-red-400 hover:bg-red-500/20 transition-all"><Trash2 className="w-4.5 h-4.5" /></button>
                                 </div>
                             </div>
                             <h3 className="text-3xl font-black italic uppercase italic tracking-tighter mb-4 group-hover:text-neon transition-colors leading-tight">{p.title}</h3>
@@ -310,6 +341,7 @@ export default function AdminLabs() {
                                         {m.is_active ? <Eye className="w-4.5 h-4.5" /> : <EyeOff className="w-4.5 h-4.5" />}
                                     </button>
                                     <button onClick={(e) => { e.stopPropagation(); openModuleModal(m); }} className="p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white"><Edit2 className="w-4.5 h-4.5" /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteModule(m.id, m.title); }} className="p-2 bg-red-500/5 rounded-xl text-red-400 hover:bg-red-500/20 transition-all"><Trash2 className="w-4.5 h-4.5" /></button>
                                 </div>
                             </div>
                             <h3 className="text-3xl font-black italic uppercase italic tracking-tighter mb-4 group-hover:text-indigo-400 transition-colors leading-tight">{m.title}</h3>
@@ -330,6 +362,7 @@ export default function AdminLabs() {
                                 <span className={`text-[10px] px-3 py-1 rounded-lg font-black uppercase border tracking-tighter ${l.difficulty === 'easy' ? 'text-emerald-400 border-emerald-400/20 bg-emerald-400/10' : 'text-amber-400 border-amber-400/20 bg-amber-400/10'}`}>{l.difficulty}</span>
                                 <div className="flex items-center gap-2">
                                     <button onClick={(e) => toggleLabActive(e, l)} className={`p-2 rounded-lg transition-all ${l.is_active ? 'text-emerald-400 bg-emerald-400/10' : 'text-red-400 bg-red-400/10'}`}>{l.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteLab(l.id, l.title); }} className="p-2 bg-red-500/5 rounded-lg text-red-400 hover:bg-red-500/20 transition-all"><Trash2 className="w-4 h-4" /></button>
                                 </div>
                             </div>
                             <h4 className="text-xl font-black uppercase italic tracking-tighter mb-3 group-hover:text-neon transition-colors">{l.title}</h4>
@@ -452,6 +485,45 @@ export default function AdminLabs() {
             )}
 
             {/* --- LAB MODAL (PREMIUM) --- */}
+
+            {/* Delete Confirm Modal */}
+            {deleteConfirm.show && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in zoom-in-95 duration-200">
+                    <div className="bg-[#0A0A0A] border border-red-500/30 rounded-[2.5rem] w-full max-w-md p-10 shadow-2xl space-y-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                                <Trash2 className="w-6 h-6 text-red-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white">
+                                    Eliminar {deleteConfirm.type === 'path' ? 'Ruta' : deleteConfirm.type === 'module' ? 'Módulo' : 'Lab'}
+                                </h3>
+                                <p className="text-[10px] font-mono text-slate-500 mt-1">Esta acción no se puede deshacer</p>
+                            </div>
+                        </div>
+                        <p className="text-slate-300 font-mono text-sm leading-relaxed">
+                            ¿Confirmas eliminar <span className="text-red-400 font-black">"{deleteConfirm.title}"</span>?
+                            {deleteConfirm.type === 'path' && ' Se eliminarán todos sus módulos y laboratorios.'}
+                            {deleteConfirm.type === 'module' && ' Se eliminarán todos sus laboratorios y retos.'}
+                            {deleteConfirm.type === 'lab' && ' Se eliminarán también todos sus retos.'}
+                        </p>
+                        <div className="flex gap-4 pt-4 border-t border-white/5">
+                            <button
+                                onClick={() => setDeleteConfirm({ show: false, type: null, id: null, title: '' })}
+                                className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-slate-400 font-black uppercase text-[11px] hover:bg-white/10 transition-all"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black uppercase text-[11px] hover:bg-red-600 transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                            >
+                                Sí, eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

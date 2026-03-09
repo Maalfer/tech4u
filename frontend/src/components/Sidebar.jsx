@@ -31,55 +31,18 @@ import {
     Hammer,
     Wrench,
     Compass,
-    Terminal
+    Terminal,
+    Layers
 } from 'lucide-react';
 import api from '../services/api';
 import logoImg from '../assets/logo.png';
-import customIcon from '../assets/banco_preguntas_icon.png';
-import flashcardIcon from '../assets/flashcard_icon.png';
-import miPersonajeIcon from '../assets/mipersonaje_icon.png';
-import academyShopIcon from '../assets/academyshop_icon.png';
-import testCenterIcon from '../assets/testcenter_icon.png';
-import recursosIcon from '../assets/recursos_icon.png';
-import cursosVideosIcon from '../assets/cursosvideos_icon.png';
-import herramientasIcon from '../assets/herramientas_icon.png';
-import mundoVirtualIcon from '../assets/mundovirtual_icon.png';
-import ytHelpIcon from '../assets/ythelp_icon.png';
-import incidenciasAcademiaIcon from '../assets/incidenciasacademia_icon.png';
-import userRolesIcon from '../assets/useryroles_icon.png';
-import cuponesDescuentoIcon from '../assets/cuponesdescuento_icon.png';
-import ciberseguridadIcon from '../assets/ciberseguridad_icon.png';
-import enviarNoticiaIcon from '../assets/enviarnoticia_icon.png';
-import propuestasAlumnosIcon from '../assets/preguntasalumnos_icon.png';
-import dashboardIcon from '../assets/dashboard_icon.png';
-import misCursosIcon from '../assets/miscursos_icon.png';
-import rankingIcon from '../assets/ranking_icon.png';
-import miHistorialIcon from '../assets/mihistorial_icon.png';
-import miSuscripcionIcon from '../assets/misuscripcion_icon.png';
-import noticiasAcademiaIcon from '../assets/noticiasacademia_icon.png';
-import skillLabsIcon from '../assets/skilllabs_icon.png';
-import exploraIcon from '../assets/explora_icon.png';
-import terminalSkillsIcon from '../assets/terminal_skills.png';
-import teoriaIcon from '../assets/teoria_icon.png';
-import terminalBuilderIcon from '../assets/skilllabs_icon.png'; // Using a placeholder icon or finding a better one
 
-// ── Palette: every icon has a fixed semantic color ──────────────────────────
-const IC = {
-    dashboard: 'text-violet-400',
-    courses: 'text-sky-400',
-    tests: 'text-emerald-400',
-    resources: 'text-cyan-400',
-    video: 'text-indigo-400',
-    sub: 'text-amber-400',
-    // Admin
-    db: 'text-neon',
-    adminVideo: 'text-indigo-400',
-    suggest: 'text-blue-400',
-    ticket: 'text-red-400',
-    users: 'text-violet-400',
-    coupons: 'text-amber-400',
-    shield: 'text-yellow-500',
-};
+// ── NavIcon Component: Reusable styled lucide icon container ──────────────────
+const NavIcon = ({ icon: Icon, color, bg }) => (
+    <div className={`w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg ${bg}`}>
+        <Icon className={`w-4 h-4 ${color}`} />
+    </div>
+);
 
 export default function Sidebar() {
     const { user, logout } = useAuth();
@@ -114,56 +77,55 @@ export default function Sidebar() {
     };
 
     const dashboardItem = {
-        icon: dashboardIcon,
-        isCustom: true,
+        icon: LayoutDashboard,
+        iconColor: 'text-violet-400',
+        iconBg: 'bg-violet-500/10',
         label: 'Dashboard',
         path: (user?.role === 'admin' || user?.role === 'developer') ? '/admin-dashboard' : '/dashboard',
-        customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1'
     };
 
     // --- ALUMNO SPECIFIC GROUPS ---
     const studentStatsGroup = [
-        { icon: exploraIcon, isCustom: true, label: 'Explora', path: '/explora', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' },
-        { icon: miSuscripcionIcon, isCustom: true, label: 'Mi Suscripción', path: '/suscripcion/gestionar', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
-        { icon: miHistorialIcon, isCustom: true, label: 'Test Stats', path: '/test-stats', customSize: 'w-8 h-8 scale-[1.2] origin-center' },
-        { icon: rankingIcon, isCustom: true, label: 'Ranking', path: '/leaderboard', customSize: 'w-8 h-8 scale-[1.2] origin-center' },
+        { icon: Compass, iconColor: 'text-sky-400', iconBg: 'bg-sky-500/10', label: 'Explora', path: '/explora' },
+        { icon: UserCircle, iconColor: 'text-purple-400', iconBg: 'bg-purple-500/10', label: 'Mi Personaje', path: '/personaje' },
+        { icon: CreditCard, iconColor: 'text-amber-400', iconBg: 'bg-amber-500/10', label: 'Mi Suscripción', path: '/suscripcion/gestionar' },
+        { icon: BarChart3, iconColor: 'text-blue-400', iconBg: 'bg-blue-500/10', label: 'Test Stats', path: '/test-stats' },
+        { icon: Trophy, iconColor: 'text-yellow-400', iconBg: 'bg-yellow-500/10', label: 'Ranking', path: '/leaderboard' },
     ];
 
     const studentAcademiaGroup = [
-        { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
-        { icon: teoriaIcon, isCustom: true, label: 'Teoría', path: '/teoria', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
-        { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: herramientasIcon, isCustom: true, label: 'Herramientas', path: '/tools', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
+        { icon: FlaskConical, iconColor: 'text-emerald-400', iconBg: 'bg-emerald-500/10', label: 'Test Center', path: '/tests' },
+        { icon: Gamepad2, iconColor: 'text-indigo-400', iconBg: 'bg-indigo-500/10', label: 'Skill Labs', path: '/skill-labs' },
+        { icon: Terminal, iconColor: 'text-[var(--color-neon)]', iconBg: 'bg-[var(--color-neon)]/10', label: 'Terminal Skills', path: '/labs' },
+        { icon: BookOpen, iconColor: 'text-cyan-400', iconBg: 'bg-cyan-500/10', label: 'Teoría', path: '/teoria' },
+        { icon: Layers, iconColor: 'text-violet-400', iconBg: 'bg-violet-500/10', label: 'Flashcards', path: '/flashcards' },
+        { icon: Wrench, iconColor: 'text-slate-300', iconBg: 'bg-slate-500/10', label: 'Herramientas', path: '/tools' },
     ];
 
     const studentResourcesGroup = [
-        { icon: cursosVideosIcon, isCustom: true, label: 'YT Videos', path: '/video-cursos', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: misCursosIcon, isCustom: true, label: 'Mis Cursos', path: '/my-courses', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
-        { icon: academyShopIcon, isCustom: true, label: 'Academy Shop', path: '/shop', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+        { icon: PlayCircle, iconColor: 'text-red-400', iconBg: 'bg-red-500/10', label: 'YT Videos', path: '/video-cursos' },
+        { icon: Video, iconColor: 'text-indigo-400', iconBg: 'bg-indigo-500/10', label: 'Mis Cursos', path: '/my-courses' },
+        { icon: ShoppingBag, iconColor: 'text-amber-400', iconBg: 'bg-amber-500/10', label: 'Academy Shop', path: '/shop' },
     ];
 
     // --- ADMIN / DOCENTE GROUPS (Used in the other section) ---
     const menuItemsRest = [
-        { icon: exploraIcon, isCustom: true, label: 'Explora', path: '/explora', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: miPersonajeIcon, isCustom: true, label: 'Mi Personaje', path: '/admin/personaje', customSize: 'w-8 h-8 scale-[2.8] origin-center -ml-1.5' },
-        { icon: testCenterIcon, isCustom: true, label: 'Test Center', path: '/tests', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: skillLabsIcon, isCustom: true, label: 'Skill Labs', path: '/skill-labs', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: terminalSkillsIcon, isCustom: true, label: 'Terminal Skills', path: '/labs', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
-        { icon: teoriaIcon, isCustom: true, label: 'Teoría', path: '/teoria', customSize: 'w-8 h-8 scale-[1.3] origin-center -ml-1' },
-        { icon: recursosIcon, isCustom: true, label: 'Recursos', path: '/resources', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: cursosVideosIcon, isCustom: true, label: 'YT Videos', path: '/video-cursos', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: flashcardIcon, isCustom: true, label: 'Flashcards', path: '/flashcards', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
-        { icon: herramientasIcon, isCustom: true, label: 'Herramientas', path: '/tools', customSize: 'w-8 h-8 scale-[1.5] origin-center -ml-1' },
-        { icon: noticiasAcademiaIcon, isCustom: true, label: 'Noticias Comunidad', path: '/noticias', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: academyShopIcon, isCustom: true, label: 'Academy Shop', path: '/shop', customSize: 'w-8 h-8 scale-[1.8] origin-center -ml-1.5' },
+        { icon: Compass, iconColor: 'text-sky-400', iconBg: 'bg-sky-500/10', label: 'Explora', path: '/explora' },
+        { icon: UserCircle, iconColor: 'text-purple-400', iconBg: 'bg-purple-500/10', label: 'Mi Personaje', path: '/admin/personaje' },
+        { icon: FlaskConical, iconColor: 'text-emerald-400', iconBg: 'bg-emerald-500/10', label: 'Test Center', path: '/tests' },
+        { icon: Gamepad2, iconColor: 'text-indigo-400', iconBg: 'bg-indigo-500/10', label: 'Skill Labs', path: '/skill-labs' },
+        { icon: Terminal, iconColor: 'text-[var(--color-neon)]', iconBg: 'bg-[var(--color-neon)]/10', label: 'Terminal Skills', path: '/labs' },
+        { icon: BookOpen, iconColor: 'text-cyan-400', iconBg: 'bg-cyan-500/10', label: 'Teoría', path: '/teoria' },
+        { icon: PlayCircle, iconColor: 'text-red-400', iconBg: 'bg-red-500/10', label: 'YT Videos', path: '/video-cursos' },
+        { icon: Layers, iconColor: 'text-violet-400', iconBg: 'bg-violet-500/10', label: 'Flashcards', path: '/flashcards' },
+        { icon: Wrench, iconColor: 'text-slate-300', iconBg: 'bg-slate-500/10', label: 'Herramientas', path: '/tools' },
+        { icon: Bell, iconColor: 'text-sky-400', iconBg: 'bg-sky-500/10', label: 'Noticias Comunidad', path: '/noticias' },
+        { icon: ShoppingBag, iconColor: 'text-amber-400', iconBg: 'bg-amber-500/10', label: 'Academy Shop', path: '/shop' },
     ];
 
     const upcomingItems = [
-        { icon: ciberseguridadIcon, isCustom: true, label: 'Ciberseguridad', path: '/ciberseguridad', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
-        { icon: mundoVirtualIcon, isCustom: true, label: 'Virtual World', path: '/mundo', customSize: 'w-8 h-8 scale-[2.0] origin-center -ml-1.5' },
+        { icon: Shield, iconColor: 'text-red-400', iconBg: 'bg-red-500/10', label: 'Ciberseguridad', path: '/ciberseguridad' },
+        { icon: Globe, iconColor: 'text-blue-400', iconBg: 'bg-blue-500/10', label: 'Virtual World', path: '/mundo' },
     ];
 
     if (!user) return null;
@@ -194,7 +156,7 @@ export default function Sidebar() {
                         : 'text-slate-400 hover:text-white hover:bg-white/5'
                         }`}
                 >
-                    <img src={dashboardItem.icon} className={`${dashboardItem.customSize} flex-shrink-0 object-contain`} alt="" />
+                    <NavIcon icon={dashboardItem.icon} color={dashboardItem.iconColor} bg={dashboardItem.iconBg} />
                     {dashboardItem.label}
                 </NavLink>
 
@@ -219,19 +181,19 @@ export default function Sidebar() {
                     <div className="space-y-0.5">
                         <div className="my-4 border-t border-white/5 pt-4">
                             <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-2 flex items-center gap-1.5 font-black">
-                                <Shield className={`w-3.5 h-3.5 ${IC.shield}`} /> Gestión de la Academia
+                                <Shield className="w-3.5 h-3.5 text-yellow-500" /> Gestión de la Academia
                             </p>
                         </div>
 
                         {/* Banco de Preguntas (General management) */}
                         <NavLink to="/gestion-contenido" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <img src={customIcon} className="w-8 h-8 flex-shrink-0 object-contain" alt="" />
+                            <NavIcon icon={Database} color="text-[var(--color-neon)]" bg="bg-[var(--color-neon)]/10" />
                             Banco de Preguntas
                         </NavLink>
 
                         {(user.role === 'admin' || user.role === 'developer') && (
                             <NavLink to="/gestion-usuarios" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                <img src={userRolesIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                <NavIcon icon={Users} color="text-violet-400" bg="bg-violet-500/10" />
                                 Usuarios y Roles
                             </NavLink>
                         )}
@@ -239,7 +201,7 @@ export default function Sidebar() {
                         {(user.role === 'admin' || user.role === 'developer') && (
                             <NavLink to="/admin/tickets" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                                 <div className="flex items-center gap-4">
-                                    <img src={incidenciasAcademiaIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                    <NavIcon icon={Ticket} color="text-red-400" bg="bg-red-500/10" />
                                     <span>Incidencias Academia</span>
                                 </div>
                                 {ticketCount > 0 && (
@@ -252,9 +214,7 @@ export default function Sidebar() {
 
                         {(user.role === 'admin' || user.role === 'developer') && (
                             <NavLink to="/admin/referidos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                <div className="w-8 h-8 flex items-center justify-center -ml-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
-                                    <TrendingUp className="w-4 h-4 text-indigo-400" />
-                                </div>
+                                <NavIcon icon={TrendingUp} color="text-indigo-400" bg="bg-indigo-500/10" />
                                 Ecosistema Referidos
                             </NavLink>
                         )}
@@ -262,7 +222,7 @@ export default function Sidebar() {
                         {(user.role === 'admin' || user.role === 'developer') && (
                             <NavLink to="/admin/sugerencias" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                                 <div className="flex items-center gap-4">
-                                    <img src={propuestasAlumnosIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                    <NavIcon icon={Lightbulb} color="text-blue-400" bg="bg-blue-500/10" />
                                     <span>Propuestas Alumnos</span>
                                 </div>
                                 {suggestionCount > 0 && (
@@ -274,38 +234,36 @@ export default function Sidebar() {
                         )}
 
                         <NavLink to="/admin/noticias" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <img src={enviarNoticiaIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                            <NavIcon icon={Megaphone} color="text-sky-400" bg="bg-sky-500/10" />
                             Enviar Noticia
                         </NavLink>
 
                         {(user.role === 'admin' || user.role === 'developer') && (
                             <NavLink to="/admin/cupones" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                                <img src={cuponesDescuentoIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                                <NavIcon icon={Tag} color="text-amber-400" bg="bg-amber-500/10" />
                                 Cupones Descuento
                             </NavLink>
                         )}
 
                         <NavLink to="/admin/shop" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <img src={academyShopIcon} className="w-8 h-8 scale-[1.8] origin-center -ml-1.5 flex-shrink-0 object-contain" alt="" />
+                            <NavIcon icon={ShoppingBag} color="text-amber-400" bg="bg-amber-500/10" />
                             Academy Shop
                         </NavLink>
 
                         <NavLink to="/admin/terminal-builder" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <div className="w-8 h-8 flex items-center justify-center -ml-1.5 bg-neon/10 rounded-xl border border-neon/20 shadow-[0_0_15px_rgba(198,255,51,0.15)] group">
-                                <Terminal className={`w-4 h-4 transition-colors ${location.pathname.startsWith('/admin/terminal-builder') ? 'text-neon' : 'text-slate-500 group-hover:text-neon'}`} />
-                            </div>
+                            <NavIcon icon={Terminal} color="text-[var(--color-neon)]" bg="bg-[var(--color-neon)]/10" />
                             Terminal Builder
                         </NavLink>
 
                         <NavLink to="/admin/teoria" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <img src={teoriaIcon} className="w-8 h-8 scale-[1.3] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
+                            <NavIcon icon={BookOpen} color="text-cyan-400" bg="bg-cyan-500/10" />
                             Teoría Admin
                         </NavLink>
 
 
                         <NavLink to="/admin/cursos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                            <img src={ytHelpIcon} className="w-8 h-8 scale-[1.5] origin-center -ml-1 flex-shrink-0 object-contain" alt="" />
-                            YT Help
+                            <NavIcon icon={PlayCircle} color="text-red-400" bg="bg-red-500/10" />
+                            YT Videos
                         </NavLink>
                     </div>
                 )}
@@ -327,7 +285,7 @@ export default function Sidebar() {
                                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
-                                <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                <NavIcon icon={item.icon} color={item.iconColor} bg={item.iconBg} />
                                 {item.label}
                             </NavLink>
                         ))}
@@ -347,7 +305,7 @@ export default function Sidebar() {
                                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
-                                <img src={item.icon} className={`${item.customSize || 'w-8 h-8'} flex-shrink-0 object-contain`} alt="" />
+                                <NavIcon icon={item.icon} color={item.iconColor} bg={item.iconBg} />
                                 {item.label}
                             </NavLink>
                         ))}
@@ -365,7 +323,7 @@ export default function Sidebar() {
                                         : 'text-slate-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
-                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                    <NavIcon icon={item.icon} color={item.iconColor} bg={item.iconBg} />
                                     {item.label}
                                 </NavLink>
                             ))}
@@ -382,7 +340,7 @@ export default function Sidebar() {
                                         : 'text-slate-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
-                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                    <NavIcon icon={item.icon} color={item.iconColor} bg={item.iconBg} />
                                     {item.label}
                                 </NavLink>
                             ))}
@@ -399,7 +357,7 @@ export default function Sidebar() {
                                         : 'text-slate-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
-                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain`} alt="" />
+                                    <NavIcon icon={item.icon} color={item.iconColor} bg={item.iconBg} />
                                     {item.label}
                                 </NavLink>
                             ))}
@@ -411,29 +369,11 @@ export default function Sidebar() {
                                 to="/noticias"
                                 className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                             >
-                                <img src={noticiasAcademiaIcon} className="w-8 h-8 scale-[2.0] origin-center -ml-1.5 flex-shrink-0 object-contain" alt="" />
+                                <NavIcon icon={Bell} color="text-sky-400" bg="bg-sky-500/10" />
                                 Noticias Comunidad
                             </NavLink>
                         </div>
 
-                        {/* PRÓXIMAMENTE — visible para alumnos */}
-                        <div className="mt-6 border-t border-white/5 pt-4">
-                            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] px-3 pb-2 flex items-center gap-1.5 font-black">
-                                <Hammer className="w-3.5 h-3.5 text-orange-500/70" /> Próximamente
-                            </p>
-                            {upcomingItems.map((item) => (
-                                <div
-                                    key={item.path}
-                                    className="flex items-center gap-4 px-4 py-3 rounded-xl font-mono text-[13px] text-slate-600 cursor-default select-none opacity-60"
-                                >
-                                    <img src={item.icon} className={`${item.customSize} flex-shrink-0 object-contain grayscale`} alt="" />
-                                    <span className="flex-1">{item.label}</span>
-                                    <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border border-orange-500/30 text-orange-500/70 bg-orange-500/5 whitespace-nowrap">
-                                        Soon
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
                     </>
                 )}
             </nav>

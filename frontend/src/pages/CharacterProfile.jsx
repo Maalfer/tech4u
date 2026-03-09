@@ -32,6 +32,7 @@ import pj17 from '../assets/pj_lvl_17.png';
 import pj18 from '../assets/pj_lvl_18.png';
 import pj19 from '../assets/pj_lvl_19.png';
 import pj20 from '../assets/pj_lvl_20.png';
+import newSkinPj20 from '../assets/new_skin_pj_lvl20.png';
 
 const PJ_ASSETS = {
     1: pj1, 2: pj2, 3: pj3, 4: pj4, 5: pj5,
@@ -98,7 +99,8 @@ export default function CharacterProfile() {
     const level = stats?.level || 1;
 
     // Choose avatar based on level
-    const avatarImg = PJ_ASSETS[level] || pj1;
+    const isLevel20Test = level === 20;
+    const avatarImg = isLevel20Test ? newSkinPj20 : (PJ_ASSETS[level] || pj1);
     const rankName = stats?.rank_name || 'Novato Digital';
 
     // Helper functions for ASIR Stats
@@ -177,14 +179,16 @@ export default function CharacterProfile() {
                                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-500/10 blur-[80px] rounded-full -z-10 group-hover:bg-blue-400/20 transition-colors duration-700" />
 
                                     {/* Frame Asset */}
-                                    <img
-                                        src={marcoImg}
-                                        alt="Frame"
-                                        className="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-                                    />
+                                    {!isLevel20Test && (
+                                        <img
+                                            src={marcoImg}
+                                            alt="Frame"
+                                            className="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                                        />
+                                    )}
 
                                     {/* Character Image */}
-                                    <div className="relative w-[70%] h-[70%] flex items-center justify-center overflow-hidden">
+                                    <div className={`relative ${isLevel20Test ? 'w-[90%] h-[90%]' : 'w-[70%] h-[70%]'} flex items-center justify-center overflow-hidden`}>
                                         <img
                                             src={avatarImg}
                                             alt="Character Avatar"

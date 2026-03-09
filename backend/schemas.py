@@ -204,11 +204,25 @@ class AdminDashboardStats(BaseModel):
 # ==============================
 
 class CouponCreate(BaseModel):
-    code: str = Field(..., min_length=3, max_length=20, pattern="^[A-Z0-9_-]+$")
+    code: str = Field(..., min_length=2, max_length=30)
     discount_percent: float = Field(..., ge=0, le=100)
     max_uses: int = Field(1, ge=1)
     is_active: bool = True
     assigned_to_id: Optional[int] = None
+    # Nuevos campos
+    assigned_to_email: Optional[str] = None   # Lookup por email para cupones de grupo
+    description: Optional[str] = Field(None, max_length=200)
+    expires_at: Optional[datetime] = None
+    applicable_plans: Optional[str] = "all"  # "all" | "monthly" | "quarterly" | "annual"
+
+class CouponBulkCreate(BaseModel):
+    """Creación masiva de cupones para grupos/clases."""
+    group_name: str = Field(..., min_length=2, max_length=100)
+    discount_percent: float = Field(..., ge=1, le=100)
+    code_prefix: str = Field(..., min_length=2, max_length=15)
+    emails: List[str] = Field(..., min_length=1)
+    description: Optional[str] = None
+    expires_at: Optional[datetime] = None
 
 class CouponOut(BaseModel):
     id: int
@@ -218,8 +232,11 @@ class CouponOut(BaseModel):
     current_uses: int
     is_active: bool
     assigned_to_id: Optional[int] = None
+    description: Optional[str] = None
+    expires_at: Optional[datetime] = None
+    applicable_plans: Optional[str] = "all"
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

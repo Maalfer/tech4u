@@ -439,12 +439,13 @@ export default function Flashcards() {
                 )}
             </main>
 
-            <style dangerouslySetInnerHTML={{ __html: `
-                .perspective-card { perspective: 1200px; }
-                .preserve-3d { transform-style: preserve-3d; will-change: transform; }
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .perspective-card { perspective: 1400px; }
+                .preserve-3d { transform-style: preserve-3d; }
                 .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-                .card-back { transform: rotateY(180deg); }
-                .card-flip { transition: transform 0.42s ease-in-out; }
+                .card-back { transform: rotateY(180deg) translateZ(2px); }
+                .card-flip { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
                 .card-flipped { transform: rotateY(180deg); }
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

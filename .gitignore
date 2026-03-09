@@ -1,3 +1,6 @@
+# ==== Claude =====
+.claude
+
 # ====== Entornos virtuales ======
 node_modules/
 venv/

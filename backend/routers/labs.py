@@ -302,13 +302,15 @@ def complete_lab(
     if not lab:
         raise HTTPException(status_code=404, detail="Lab no encontrado")
 
-    # 4. Award XP and Save
-    leveled_up = current_user.add_xp(lab.xp_reward)
+    # 4. Terminal Labs NO dan XP — son ejercicios prácticos de refuerzo,
+    #    no actividades de evaluación. El XP se gana en Exámenes y Skill Labs.
+    xp_gained = 0
+    leveled_up = False  # add_xp no se llama, nivel no cambia
 
     completion = UserLabCompletion(
         user_id=current_user.id,
         lab_id=lab.id,
-        xp_gained=lab.xp_reward
+        xp_gained=xp_gained
     )
     db.add(completion)
     db.commit()
@@ -316,7 +318,7 @@ def complete_lab(
     return LabCompleteResponse(
         success=True,
         message=f"¡Enhorabuena! Has completado todos los retos de '{lab.title}'.",
-        xp_gained=lab.xp_reward,
+        xp_gained=xp_gained,
         leveled_up=leveled_up,
         new_level=current_user.level
     )
@@ -413,9 +415,12 @@ def update_lab(lab_id: int, lab_data: LabCreate, _: User = Depends(require_admin
 
 @router.delete("/{lab_id}")
 def delete_lab(lab_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    """(Admin) Elimina un laboratorio."""
+    """(Admin) Elimina un laboratorio y sus registros de completado."""
     db_lab = db.query(Lab).filter(Lab.id == lab_id).first()
     if not db_lab: raise HTTPException(status_code=404)
+    # Borrar registros de completado que referencian este lab (sin cascade en la FK)
+    db.query(UserChallengeCompletion).filter(UserChallengeCompletion.lab_id == lab_id).delete()
+    db.query(UserLabCompletion).filter(UserLabCompletion.lab_id == lab_id).delete()
     db.delete(db_lab)
     db.commit()
     return {"message": "Lab purged from mainframe"}
@@ -500,8 +505,18 @@ def toggle_skill_path(path_id: int, _: User = Depends(require_admin), db: Sessio
 
 @router.delete("/admin/paths/{path_id}")
 def delete_skill_path(path_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """(Admin) Elimina un SkillPath en cascada: módulos → labs → completados."""
     db_path = db.query(SkillPath).filter(SkillPath.id == path_id).first()
     if not db_path: raise HTTPException(status_code=404)
+    # Recoger todos los lab_ids del path para borrar sus completados
+    lab_ids = [
+        lab.id
+        for module in db_path.modules
+        for lab in module.labs
+    ]
+    if lab_ids:
+        db.query(UserChallengeCompletion).filter(UserChallengeCompletion.lab_id.in_(lab_ids)).delete(synchronize_session=False)
+        db.query(UserLabCompletion).filter(UserLabCompletion.lab_id.in_(lab_ids)).delete(synchronize_session=False)
     db.delete(db_path)
     db.commit()
     return {"message": "Skill Path deleted"}
@@ -546,8 +561,13 @@ def toggle_module_visibility(module_id: int, _: User = Depends(require_admin), d
 
 @router.delete("/admin/modules/{module_id}")
 def delete_module(module_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """(Admin) Elimina un módulo en cascada: labs → completados."""
     db_module = db.query(Module).filter(Module.id == module_id).first()
     if not db_module: raise HTTPException(status_code=404)
+    lab_ids = [lab.id for lab in db_module.labs]
+    if lab_ids:
+        db.query(UserChallengeCompletion).filter(UserChallengeCompletion.lab_id.in_(lab_ids)).delete(synchronize_session=False)
+        db.query(UserLabCompletion).filter(UserLabCompletion.lab_id.in_(lab_ids)).delete(synchronize_session=False)
     db.delete(db_module)
     db.commit()
     return {"message": "Module deleted"}

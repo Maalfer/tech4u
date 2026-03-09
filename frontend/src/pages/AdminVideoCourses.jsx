@@ -111,22 +111,22 @@ export default function AdminVideoCourses() {
 
                 {/* HEADERS */}
                 <PageHeader
-                    title={<>YT <span className="text-neon">Help</span></>}
-                    subtitle="Cursos basados en contenido externo de YouTube para apoyo de los alumnos."
+                    title={<>YT <span className="text-red-500">Videos</span></>}
+                    subtitle="Gestión de material de apoyo gratuito linkado de YouTube."
                     Icon={Video}
                     gradient="from-white via-slate-100 to-neon"
-                    iconColor="text-neon"
-                    iconBg="bg-neon/20"
-                    iconBorder="border-neon/30"
-                    glowColor="bg-neon/20"
+                    iconColor="text-red-500"
+                    iconBg="bg-red-500/20"
+                    iconBorder="border-red-500/30"
+                    glowColor="bg-red-500/20"
                 >
                     {view === 'list' && (
                         <button
                             onClick={() => { setSelectedCourse(null); setCourseForm({ title: '', description: '', thumbnail_url: '' }); setView('course_form'); }}
-                            className="px-6 py-3 bg-neon text-black font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_20px_var(--neon-alpha-40)]"
+                            className="px-6 py-3 bg-red-600 text-white font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(220,38,38,0.4)]"
                         >
                             <Plus className="w-5 h-5" />
-                            Nuevo Curso
+                            Nuevo Álbum
                         </button>
                     )}
                 </PageHeader>
@@ -137,10 +137,10 @@ export default function AdminVideoCourses() {
                             <div key={course.id} className="bg-[#111] border border-white/5 rounded-3xl p-6 flex flex-col justify-between">
                                 <div>
                                     <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center border border-white/10 mb-4">
-                                        <Video className="w-6 h-6 text-neon" />
+                                        <Video className="w-6 h-6 text-red-500" />
                                     </div>
                                     <h3 className="text-white font-black uppercase text-lg mb-2">{course.title}</h3>
-                                    <p className="text-slate-500 font-mono text-[10px] mb-6">{course.lessons?.length || 0} Clases</p>
+                                    <p className="text-slate-500 font-mono text-[10px] mb-6">{course.lessons?.length || 0} Lecciones</p>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <button
@@ -176,24 +176,24 @@ export default function AdminVideoCourses() {
                             <button onClick={() => setView('list')} className="w-10 h-10 bg-white/5 rounded-full flex justify-center items-center hover:bg-white/10 transition-colors">
                                 <X className="w-5 h-5 text-white" />
                             </button>
-                            <h2 className="text-2xl font-black text-white uppercase">{selectedCourse ? 'Editar Curso' : 'Nuevo Curso'}</h2>
+                            <h2 className="text-2xl font-black text-white uppercase">{selectedCourse ? 'Editar Álbum' : 'Nuevo Álbum'}</h2>
                         </div>
 
                         <form onSubmit={handleSaveCourse} className="bg-[#111] border border-white/5 rounded-3xl p-8 space-y-6">
                             <div>
-                                <label className="block text-neon font-mono text-xs uppercase tracking-wider mb-2">Título del Curso</label>
-                                <input required type="text" value={courseForm.title} onChange={e => setCourseForm({ ...courseForm, title: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-neon outline-none transition-colors" placeholder="Ej: Curso Avanzado Patrón Yates" />
+                                <label className="block text-red-500 font-mono text-xs uppercase tracking-wider mb-2">Título del Álbum</label>
+                                <input required type="text" value={courseForm.title} onChange={e => setCourseForm({ ...courseForm, title: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-red-500 outline-none transition-colors" placeholder="Ej: Fundamentos de Networking" />
                             </div>
                             <div>
-                                <label className="block text-neon font-mono text-xs uppercase tracking-wider mb-2">Descripción (Opcional)</label>
-                                <textarea value={courseForm.description} onChange={e => setCourseForm({ ...courseForm, description: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-neon outline-none transition-colors h-32" placeholder="Resumen de lo que se aprenderá..."></textarea>
+                                <label className="block text-red-500 font-mono text-xs uppercase tracking-wider mb-2">Descripción (Opcional)</label>
+                                <textarea value={courseForm.description} onChange={e => setCourseForm({ ...courseForm, description: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-red-500 outline-none transition-colors h-32" placeholder="Resumen de lo que se aprenderá..."></textarea>
                             </div>
                             <div>
-                                <label className="block text-neon font-mono text-xs uppercase tracking-wider mb-2">URL Miniatura (Opcional)</label>
-                                <input type="url" value={courseForm.thumbnail_url} onChange={e => setCourseForm({ ...courseForm, thumbnail_url: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-neon outline-none transition-colors" placeholder="https://ejemplo.com/imagen.jpg" />
+                                <label className="block text-red-500 font-mono text-xs uppercase tracking-wider mb-2">URL Miniatura (Opcional)</label>
+                                <input type="url" value={courseForm.thumbnail_url} onChange={e => setCourseForm({ ...courseForm, thumbnail_url: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-red-500 outline-none transition-colors" placeholder="https://ejemplo.com/imagen.jpg" />
                             </div>
-                            <button type="submit" className="w-full py-4 bg-neon text-black font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-transform flex justify-center items-center gap-2">
-                                <Save className="w-5 h-5" /> Guardar Curso
+                            <button type="submit" className="w-full py-4 bg-red-600 text-white font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-transform flex justify-center items-center gap-2">
+                                <Save className="w-5 h-5" /> Guardar Álbum
                             </button>
                         </form>
                     </div>
@@ -210,12 +210,12 @@ export default function AdminVideoCourses() {
                                     <X className="w-5 h-5 text-white" />
                                 </button>
                                 <div>
-                                    <p className="text-neon font-mono text-[10px] uppercase">Gestionar Temario</p>
+                                    <p className="text-red-500 font-mono text-[10px] uppercase">Gestionar Lecciones</p>
                                     <h2 className="text-2xl font-black text-white uppercase">{selectedCourse.title}</h2>
                                 </div>
                             </div>
 
-                            <form onSubmit={handleSaveLesson} className="bg-[#111] border border-neon/30 rounded-3xl p-8 space-y-6">
+                            <form onSubmit={handleSaveLesson} className="bg-[#111] border border-red-500/30 rounded-3xl p-8 space-y-6">
                                 <h3 className="text-white font-mono text-sm border-b border-white/10 pb-4 mb-4">
                                     {editingLessonId ? 'Editar Clase Existente' : 'Añadir Nueva Clase'}
                                 </h3>
@@ -225,7 +225,7 @@ export default function AdminVideoCourses() {
                                 </div>
                                 <div>
                                     <label className="block text-slate-400 font-mono text-xs uppercase tracking-wider mb-2">URL de YouTube</label>
-                                    <input required type="url" value={lessonForm.youtube_url} onChange={e => setLessonForm({ ...lessonForm, youtube_url: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-neon font-mono text-sm focus:border-neon outline-none" placeholder="https://www.youtube.com/watch?v=..." />
+                                    <input required type="url" value={lessonForm.youtube_url} onChange={e => setLessonForm({ ...lessonForm, youtube_url: e.target.value })} className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-red-500 font-mono text-sm focus:border-red-500 outline-none" placeholder="https://www.youtube.com/watch?v=..." />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="col-span-2">
@@ -238,8 +238,8 @@ export default function AdminVideoCourses() {
                                     </div>
                                 </div>
                                 <div className="flex gap-4 pt-4 border-t border-white/10">
-                                    <button type="submit" className="flex-1 py-3 bg-neon text-black font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-transform flex justify-center items-center gap-2">
-                                        <Save className="w-4 h-4" /> Guardar Clase
+                                    <button type="submit" className="flex-1 py-3 bg-red-600 text-white font-black uppercase tracking-wider rounded-xl hover:scale-105 transition-transform flex justify-center items-center gap-2">
+                                        <Save className="w-4 h-4" /> Guardar Lección
                                     </button>
                                     {editingLessonId && (
                                         <button type="button" onClick={() => { setEditingLessonId(null); setLessonForm({ title: '', description: '', youtube_url: '', order_index: selectedCourse.lessons.length + 1 }); }} className="py-3 px-6 bg-white/5 text-white font-mono text-xs uppercase tracking-wider rounded-xl hover:bg-white/10 transition-colors">
@@ -254,19 +254,19 @@ export default function AdminVideoCourses() {
                         <div className="bg-[#111] border border-white/5 rounded-3xl p-6 lg:h-[calc(100vh-12rem)] flex flex-col">
                             <h3 className="text-white font-black uppercase text-lg mb-4 flex items-center justify-between">
                                 Temario Actual
-                                <span className="text-neon font-mono text-[10px] px-3 py-1 bg-neon/10 rounded-full">{selectedCourse.lessons?.length || 0} Clases</span>
+                                <span className="text-red-500 font-mono text-[10px] px-3 py-1 bg-red-500/10 rounded-full">{selectedCourse.lessons?.length || 0} Lecciones</span>
                             </h3>
                             <div className="flex-1 overflow-y-auto space-y-3 pr-2">
                                 {selectedCourse.lessons?.length === 0 ? (
                                     <div className="text-slate-500 font-mono text-sm text-center py-8">No hay clases registradas en este curso.</div>
                                 ) : (
                                     [...(selectedCourse.lessons || [])].sort((a, b) => a.order_index - b.order_index).map((lesson, idx) => (
-                                        <div key={lesson.id} className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-colors ${editingLessonId === lesson.id ? 'bg-neon/5 border-neon/50' : 'bg-black border-white/5 hover:border-white/20'}`}>
+                                        <div className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-colors ${editingLessonId === lesson.id ? 'bg-red-500/5 border-red-500/50' : 'bg-black border-white/5 hover:border-white/20'}`}>
                                             <div className="flex items-center gap-4">
                                                 <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 font-mono text-xs font-bold">{lesson.order_index}</div>
                                                 <div>
                                                     <h4 className="text-white font-mono text-sm font-bold truncate max-w-[200px] xl:max-w-[300px]">{lesson.title}</h4>
-                                                    <a href={lesson.youtube_url} target="_blank" rel="noreferrer" className="text-neon hover:underline font-mono text-[10px] uppercase truncate inline-block max-w-[150px]">Link YouTube</a>
+                                                    <a href={lesson.youtube_url} target="_blank" rel="noreferrer" className="text-red-500 hover:underline font-mono text-[10px] uppercase truncate inline-block max-w-[150px]">Link YouTube</a>
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">

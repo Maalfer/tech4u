@@ -58,6 +58,39 @@ const LEAGUE_COLORS = {
     '👑 SysAdmin Dios': { border: 'border-yellow-400', bg: 'bg-gradient-to-br from-yellow-900/40 to-amber-900/40', text: 'text-yellow-200' },
 };
 
+const inputClass = "w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon/50 transition-all placeholder:text-slate-700";
+const selectClass = "w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon/50 transition-all cursor-pointer";
+
+const UserCard = ({ title, icon, color = 'neon', children, onSave, danger = false, saving = false }) => (
+    <div className={`rounded-2xl border p-6 ${danger ? 'border-red-800/40 bg-red-950/10' : 'border-white/5 bg-black/20'} relative`}>
+        <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-xl ${danger ? 'bg-red-500/10 border border-red-500/30' : `bg-${color}-500/10 border border-${color}-500/30`}`}>
+                    {icon}
+                </div>
+                <h3 className={`font-black text-sm uppercase tracking-widest ${danger ? 'text-red-400' : 'text-white'}`}>{title}</h3>
+            </div>
+            {onSave && (
+                <button
+                    onClick={onSave}
+                    disabled={saving}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-neon/10 text-neon border border-neon/30 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-neon hover:text-black transition-all disabled:opacity-50"
+                >
+                    <Save className="w-3 h-3" /> Guardar
+                </button>
+            )}
+        </div>
+        {children}
+    </div>
+);
+
+const UserField = ({ label, children }) => (
+    <div>
+        <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">{label}</label>
+        {children}
+    </div>
+);
+
 export default function AdminUserDetail() {
     const { id } = useParams();
     const { user: currentUser } = useAuth();
@@ -189,39 +222,6 @@ export default function AdminUserDetail() {
     const rank = RANK_MAP[userData?.level] || RANK_MAP[1];
     const lc = LEAGUE_COLORS[rank] || LEAGUE_COLORS['🥉 Estudiante ASIR'];
 
-    const Card = ({ title, icon, color = 'neon', children, onSave, danger = false }) => (
-        <div className={`rounded-2xl border p-6 ${danger ? 'border-red-800/40 bg-red-950/10' : 'border-white/5 bg-black/20'} relative`}>
-            <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl ${danger ? 'bg-red-500/10 border border-red-500/30' : `bg-${color}-500/10 border border-${color}-500/30`}`}>
-                        {icon}
-                    </div>
-                    <h3 className={`font-black text-sm uppercase tracking-widest ${danger ? 'text-red-400' : 'text-white'}`}>{title}</h3>
-                </div>
-                {onSave && (
-                    <button
-                        onClick={onSave}
-                        disabled={saving}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-neon/10 text-neon border border-neon/30 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-neon hover:text-black transition-all disabled:opacity-50"
-                    >
-                        <Save className="w-3 h-3" /> Guardar
-                    </button>
-                )}
-            </div>
-            {children}
-        </div>
-    );
-
-    const Field = ({ label, children }) => (
-        <div>
-            <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">{label}</label>
-            {children}
-        </div>
-    );
-
-    const inputClass = "w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon/50 transition-all placeholder:text-slate-700";
-    const selectClass = "w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon/50 transition-all cursor-pointer";
-
     return (
         <div className="flex min-h-screen bg-[#050505] text-white selection:bg-neon selection:text-black">
             {/* Ambient */}
@@ -308,14 +308,14 @@ export default function AdminUserDetail() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                         {/* Perfil */}
-                        <Card title="Identidad" icon={<UserIcon className="w-4 h-4 text-violet-400" />} color="violet" onSave={handleSaveProfile}>
+                        <UserCard saving={saving} title="Identidad" icon={<UserIcon className="w-4 h-4 text-violet-400" />} color="violet" onSave={handleSaveProfile}>
                             <div className="space-y-4">
-                                <Field label="Nombre completo">
+                                <UserField label="Nombre completo">
                                     <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className={inputClass} />
-                                </Field>
-                                <Field label="Email">
+                                </UserField>
+                                <UserField label="Email">
                                     <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClass} />
-                                </Field>
+                                </UserField>
                                 <div className="grid grid-cols-2 gap-4 pt-2">
                                     <div className="p-3 rounded-xl bg-black/30 border border-white/5">
                                         <p className="text-[9px] font-mono text-slate-600 uppercase">Último login</p>
@@ -329,11 +329,11 @@ export default function AdminUserDetail() {
                                     </div>
                                 </div>
                             </div>
-                        </Card>
+                        </UserCard>
 
                         {/* Rol */}
-                        <Card title="Rol de Acceso" icon={<Crown className="w-4 h-4 text-yellow-400" />} color="yellow" onSave={currentUser?.role === 'admin' ? handleSaveRole : null}>
-                            <Field label="Nivel de acceso">
+                        <UserCard saving={saving} title="Rol de Acceso" icon={<Crown className="w-4 h-4 text-yellow-400" />} color="yellow" onSave={currentUser?.role === 'admin' ? handleSaveRole : null}>
+                            <UserField label="Nivel de acceso">
                                 <select
                                     value={role}
                                     onChange={e => setRole(e.target.value)}
@@ -345,7 +345,7 @@ export default function AdminUserDetail() {
                                     <option value="developer">🛠️ Developer</option>
                                     <option value="admin">🔴 Administrador</option>
                                 </select>
-                            </Field>
+                            </UserField>
                             <div className="mt-4 p-3 rounded-xl border border-white/5 bg-black/20">
                                 <div className="flex gap-3">
                                     {[
@@ -361,12 +361,12 @@ export default function AdminUserDetail() {
                                     ))}
                                 </div>
                             </div>
-                        </Card>
+                        </UserCard>
 
                         {/* Suscripción */}
-                        <Card title="Suscripción" icon={<CreditCard className="w-4 h-4 text-emerald-400" />} color="emerald" onSave={currentUser?.role === 'admin' ? handleSaveSubscription : null}>
+                        <UserCard saving={saving} title="Suscripción" icon={<CreditCard className="w-4 h-4 text-emerald-400" />} color="emerald" onSave={currentUser?.role === 'admin' ? handleSaveSubscription : null}>
                             <div className="space-y-4">
-                                <Field label="Plan de suscripción">
+                                <UserField label="Plan de suscripción">
                                     <select
                                         value={subType}
                                         onChange={e => setSubType(e.target.value)}
@@ -379,7 +379,7 @@ export default function AdminUserDetail() {
                                         <option value="annual">📅 Anual</option>
                                         <option value="lifetime">♾️ Vitalicio</option>
                                     </select>
-                                </Field>
+                                </UserField>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="p-3 rounded-xl bg-black/30 border border-white/5">
                                         <p className="text-[9px] font-mono text-slate-600 uppercase">Inicio</p>
@@ -401,14 +401,14 @@ export default function AdminUserDetail() {
                                     </div>
                                 )}
                             </div>
-                        </Card>
+                        </UserCard>
 
                         {/* XP y Nivel */}
-                        <Card title="XP y Nivel" icon={<Zap className="w-4 h-4 text-neon" />} color="neon" onSave={handleSaveXP}>
+                        <UserCard saving={saving} title="XP y Nivel" icon={<Zap className="w-4 h-4 text-neon" />} color="neon" onSave={handleSaveXP}>
                             <div className="space-y-4">
-                                <Field label="Experiencia total (XP)">
+                                <UserField label="Experiencia total (XP)">
                                     <input type="number" min="0" value={xp} onChange={e => setXp(e.target.value)} className={inputClass} />
-                                </Field>
+                                </UserField>
                                 <div className="p-4 rounded-xl border border-neon/20 bg-neon/5">
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-xs font-mono text-neon font-bold">Nivel calculado: Lv.{userData?.level}</span>
@@ -417,14 +417,14 @@ export default function AdminUserDetail() {
                                     <p className="text-[10px] font-mono text-slate-500">El nivel se recalcula automáticamente al guardar el XP según la tabla de umbrales.</p>
                                 </div>
                             </div>
-                        </Card>
+                        </UserCard>
 
                         {/* Racha */}
-                        <Card title="Racha Diaria" icon={<Flame className="w-4 h-4 text-orange-400" />} color="orange" onSave={handleSaveStreak}>
+                        <UserCard saving={saving} title="Racha Diaria" icon={<Flame className="w-4 h-4 text-orange-400" />} color="orange" onSave={handleSaveStreak}>
                             <div className="space-y-4">
-                                <Field label="Días de racha consecutivos">
+                                <UserField label="Días de racha consecutivos">
                                     <input type="number" min="0" value={streak} onChange={e => setStreak(e.target.value)} className={inputClass} />
-                                </Field>
+                                </UserField>
                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-black/30 border border-white/5">
                                     <Flame className="w-5 h-5 text-orange-400" />
                                     <div>
@@ -433,14 +433,14 @@ export default function AdminUserDetail() {
                                     </div>
                                 </div>
                             </div>
-                        </Card>
+                        </UserCard>
 
                         {/* Escudos */}
-                        <Card title="Escudos de Protección" icon={<ShieldCheck className="w-4 h-4 text-sky-400" />} color="sky" onSave={handleSaveShields}>
+                        <UserCard saving={saving} title="Escudos de Protección" icon={<ShieldCheck className="w-4 h-4 text-sky-400" />} color="sky" onSave={handleSaveShields}>
                             <div className="space-y-4">
-                                <Field label="Número de escudos">
+                                <UserField label="Número de escudos">
                                     <input type="number" min="0" max="10" value={shields} onChange={e => setShields(e.target.value)} className={inputClass} />
-                                </Field>
+                                </UserField>
                                 <div className="flex items-center gap-2 p-3 rounded-xl bg-black/30 border border-white/5">
                                     {Array.from({ length: Math.max(parseInt(shields) || 0, 4) }).map((_, i) => {
                                         const has = i < (parseInt(shields) || 0);
@@ -457,15 +457,15 @@ export default function AdminUserDetail() {
                                     <span className="ml-2 text-xs font-mono font-bold text-sky-400">{shields} activos</span>
                                 </div>
                             </div>
-                        </Card>
+                        </UserCard>
 
                         {/* Contraseña */}
                         {currentUser?.role === 'admin' && (
-                            <Card title="Restablecer Contraseña" icon={<Key className="w-4 h-4 text-red-400" />} color="red">
+                            <UserCard saving={saving} title="Restablecer Contraseña" icon={<Key className="w-4 h-4 text-red-400" />} color="red">
                                 <div className="space-y-4">
-                                    <Field label="Nueva contraseña">
+                                    <UserField label="Nueva contraseña">
                                         <input type="password" value={newPass} onChange={e => setNewPass(e.target.value)} className={inputClass} placeholder="Introduce la nueva contraseña..." />
-                                    </Field>
+                                    </UserField>
                                     <button
                                         onClick={handleResetPassword}
                                         disabled={saving || !newPass.trim()}
@@ -474,11 +474,11 @@ export default function AdminUserDetail() {
                                         <Key className="w-3.5 h-3.5" /> Ejecutar Reset de Contraseña
                                     </button>
                                 </div>
-                            </Card>
+                            </UserCard>
                         )}
 
                         {/* Referidos */}
-                        <Card title="Referidos y Premios" icon={<TrendingUp className="w-4 h-4 text-indigo-400" />} color="indigo">
+                        <UserCard saving={saving} title="Referidos y Premios" icon={<TrendingUp className="w-4 h-4 text-indigo-400" />} color="indigo">
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="p-3 rounded-xl bg-black/30 border border-white/5">
@@ -510,11 +510,11 @@ export default function AdminUserDetail() {
                                     Limpiar Recompensas
                                 </button>
                             </div>
-                        </Card>
+                        </UserCard>
 
                         {/* Zona peligrosa */}
                         {currentUser?.role === 'admin' && (
-                            <Card title="Zona Peligrosa" icon={<AlertTriangle className="w-4 h-4 text-red-400" />} danger>
+                            <UserCard saving={saving} title="Zona Peligrosa" icon={<AlertTriangle className="w-4 h-4 text-red-400" />} danger>
                                 <p className="text-xs font-mono text-slate-500 mb-4">
                                     Estas acciones son irreversibles. Asegúrate de lo que estás haciendo antes de proceder.
                                 </p>
@@ -524,57 +524,8 @@ export default function AdminUserDetail() {
                                 >
                                     <Trash2 className="w-3.5 h-3.5" /> Eliminar usuario permanentemente
                                 </button>
-                            </Card>
+                            </UserCard>
                         )}
-                    </div>
-
-                    {/* ── User Character Progression Gallery ── */}
-                    <div className="mt-12 p-8 rounded-3xl border border-white/5 bg-black/20 backdrop-blur-md relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-neon/5 blur-[100px] pointer-events-none" />
-
-                        <div className="flex items-center gap-4 mb-8">
-                            <Layers className="w-5 h-5 text-neon" />
-                            <div>
-                                <h3 className="text-white font-black uppercase tracking-widest text-sm">Progreso del Personaje</h3>
-                                <p className="text-[10px] font-mono text-slate-500 uppercase">Visualización de evolución y niveles desbloqueados</p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
-                            {Object.entries(PJ_ASSETS).map(([lvl, img]) => {
-                                const l = parseInt(lvl);
-                                const isCurrent = userData?.level === l;
-                                const isUnlocked = userData?.level >= l;
-
-                                return (
-                                    <div
-                                        key={lvl}
-                                        className={`relative aspect-[4/5] rounded-xl border transition-all duration-300 flex items-center justify-center p-1 group
-                                            ${isCurrent
-                                                ? 'border-neon bg-neon/10 shadow-[0_0_15px_rgba(0,255,136,0.2)]'
-                                                : isUnlocked
-                                                    ? 'border-white/10 bg-white/5 hover:border-white/30'
-                                                    : 'border-white/5 bg-black/40 opacity-40 grayscale'}`}
-                                    >
-                                        <div className={`absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded text-[7px] font-black font-mono border z-20
-                                            ${isCurrent ? 'bg-neon text-black border-neon' : 'bg-black text-slate-500 border-white/10'}`}>
-                                            LV.{lvl}
-                                        </div>
-
-                                        <img
-                                            src={img}
-                                            alt={`PJ ${lvl}`}
-                                            className={`w-full h-full object-contain transition-transform duration-500
-                                                ${isCurrent ? 'scale-110 drop-shadow-[0_0_8px_rgba(0,255,136,0.5)]' : 'group-hover:scale-110'}`}
-                                        />
-
-                                        {isCurrent && (
-                                            <div className="absolute inset-0 bg-neon/5 animate-pulse rounded-xl pointer-events-none" />
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
                     </div>
 
                     <div className="h-16" />

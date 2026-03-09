@@ -18,7 +18,9 @@ import {
     Layout,
     BookOpen,
     Layers,
-    Globe
+    Globe,
+    Code,
+    Settings
 } from 'lucide-react';
 import api from '../services/api';
 import { useNotification } from '../context/NotificationContext';
@@ -31,7 +33,7 @@ export default function AdminLabsContent() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLab, setEditingLab] = useState(null);
-    const [activeTab, setActiveTab] = useState('basic'); // basic | content | structural
+    const [activeTab, setActiveTab] = useState('basic'); // basic | content | validation | advanced
 
     const [form, setForm] = useState({
         title: '',
@@ -42,9 +44,19 @@ export default function AdminLabsContent() {
         xp_reward: 150,
         is_active: true,
         order_index: 0,
-        docker_image: 'ubuntu:22.04'
+        docker_image: 'ubuntu:22.04',
+        // NEW FIELDS:
+        time_limit: 30,
+        category: 'Linux',
+        validation_command: '',
+        expected_result: '',
+        expected_flag: '',
+        validation_rules: '',
+        scenario_setup: '',
+        lab_type: 'free' // 'free' or 'ctf'
     });
     const [isDirty, setIsDirty] = useState(false);
+    const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, title: '' });
 
     const { addNotification } = useNotification();
 
@@ -82,7 +94,6 @@ export default function AdminLabsContent() {
 
     const fetchModuleDetails = async () => {
         try {
-            // We don't have a direct "get module" but we can find it in paths
             const res = await api.get('/labs/paths');
             for (const path of res.data) {
                 const modRes = await api.get(`/labs/paths/${path.id}/modules`);
@@ -122,7 +133,15 @@ export default function AdminLabsContent() {
                 xp_reward: lab.xp_reward || 150,
                 is_active: lab.is_active ?? true,
                 order_index: lab.order_index || 0,
-                docker_image: lab.docker_image || 'ubuntu:22.04'
+                docker_image: lab.docker_image || 'ubuntu:22.04',
+                time_limit: lab.time_limit || 30,
+                category: lab.category || 'Linux',
+                validation_command: lab.validation_command || '',
+                expected_result: lab.expected_result || '',
+                expected_flag: lab.expected_flag || '',
+                validation_rules: lab.validation_rules || '',
+                scenario_setup: lab.scenario_setup || '',
+                lab_type: lab.expected_flag ? 'ctf' : 'free'
             });
         } else {
             setEditingLab(null);
@@ -135,7 +154,15 @@ export default function AdminLabsContent() {
                 xp_reward: 150,
                 is_active: true,
                 order_index: labs.length,
-                docker_image: 'ubuntu:22.04'
+                docker_image: 'ubuntu:22.04',
+                time_limit: 30,
+                category: 'Linux',
+                validation_command: '',
+                expected_result: '',
+                expected_flag: '',
+                validation_rules: '',
+                scenario_setup: '',
+                lab_type: 'free'
             });
         }
         setIsDirty(false);
@@ -162,8 +189,13 @@ export default function AdminLabsContent() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('¿Estás seguro de eliminar este laboratorio?')) return;
+    const handleDelete = (id, title) => {
+        setDeleteConfirm({ show: true, id, title: title || `Lab #${id}` });
+    };
+
+    const confirmDelete = async () => {
+        const { id } = deleteConfirm;
+        setDeleteConfirm({ show: false, id: null, title: '' });
         try {
             await api.delete(`/labs/${id}`);
             addNotification({ title: 'Eliminado', description: 'Laboratorio eliminado', type: 'info' });
@@ -268,7 +300,7 @@ export default function AdminLabsContent() {
                                 >
                                     <Edit2 className="w-4 h-4" />
                                 </button>
-                                <button onClick={() => handleDelete(lab.id)} className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl hover:bg-red-500/20 hover:border-red-500/30 transition-all text-red-400">
+                                <button onClick={() => handleDelete(lab.id, lab.title)} className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl hover:bg-red-500/20 hover:border-red-500/30 transition-all text-red-400">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
@@ -290,7 +322,7 @@ export default function AdminLabsContent() {
                                     {editingLab ? 'Editar Laboratorio' : 'Crear Laboratorio'}
                                 </h2>
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-2 flex items-center gap-2">
-                                    <Zap className="w-3 h-3 text-neon" /> ID: {editingLab?.id || 'TEMP_UUID'} • {editingLab?.docker_image}
+                                    <Zap className="w-3 h-3 text-neon" /> ID: {editingLab?.id || 'TEMP_UUID'} • {editingLab?.docker_image || form.docker_image}
                                 </p>
                             </div>
                             <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
@@ -299,16 +331,17 @@ export default function AdminLabsContent() {
                         </div>
 
                         {/* Tabs Navigation */}
-                        <div className="px-10 py-4 flex items-center gap-8 border-b border-white/5">
+                        <div className="px-10 py-4 flex items-center gap-8 border-b border-white/5 overflow-x-auto">
                             {[
                                 { id: 'basic', label: 'Datos Básicos', icon: Layout },
                                 { id: 'content', label: 'Guía y Objetivos', icon: BookOpen },
-                                { id: 'structural', label: 'Configuración VM', icon: Target },
+                                { id: 'validation', label: 'Validación y Retos', icon: Target },
+                                { id: 'advanced', label: 'Configuración Avanzada', icon: Settings },
                             ].map(tab => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest pb-4 transition-all relative ${activeTab === tab.id ? 'text-neon' : 'text-slate-500 hover:text-white'
+                                    className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest pb-4 transition-all relative whitespace-nowrap ${activeTab === tab.id ? 'text-neon' : 'text-slate-500 hover:text-white'
                                         }`}
                                 >
                                     <tab.icon className="w-4 h-4" />
@@ -346,6 +379,31 @@ export default function AdminLabsContent() {
                                                     <option value="medium">Medium (Standard)</option>
                                                     <option value="hard">Hard (Avanzado)</option>
                                                 </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-8">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Categoría</label>
+                                                <select
+                                                    value={form.category}
+                                                    onChange={e => handleFormChange({ category: e.target.value })}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all appearance-none font-mono"
+                                                >
+                                                    <option value="Linux">Linux</option>
+                                                    <option value="Redes">Redes</option>
+                                                    <option value="Seguridad">Seguridad</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Tiempo Límite (minutos)</label>
+                                                <input
+                                                    type="number"
+                                                    value={form.time_limit}
+                                                    onChange={e => handleFormChange({ time_limit: parseInt(e.target.value) || 30 })}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono"
+                                                    placeholder="30"
+                                                />
                                             </div>
                                         </div>
 
@@ -396,7 +454,7 @@ export default function AdminLabsContent() {
                                                 <span className="text-neon/40 lowercase font-mono"># H1 ## H2 *italics*</span>
                                             </label>
                                             <textarea
-                                                rows="8"
+                                                rows="10"
                                                 value={form.step_by_step_guide}
                                                 onChange={e => handleFormChange({ step_by_step_guide: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono text-sm leading-relaxed"
@@ -417,47 +475,122 @@ export default function AdminLabsContent() {
                                     </div>
                                 )}
 
-                                {activeTab === 'structural' && (
+                                {activeTab === 'validation' && (
                                     <div className="space-y-8 animate-in fade-in duration-300">
-                                        <div className="p-8 border border-white/5 rounded-3xl bg-white/[0.01]">
-                                            <div className="flex items-center gap-3 mb-6">
-                                                <Target className="w-5 h-5 text-blue-400" />
-                                                <h4 className="text-sm font-black uppercase tracking-tighter text-slate-300">Virtual Environment</h4>
-                                            </div>
-                                            <div className="space-y-6">
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4 font-black">Docker Image</label>
-                                                    <input
-                                                        value={form.docker_image}
-                                                        onChange={e => handleFormChange({ docker_image: e.target.value })}
-                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all font-mono text-blue-400"
-                                                        placeholder="ubuntu:22.04"
-                                                    />
-                                                </div>
-                                                <p className="text-[9px] text-slate-600 italic px-4 leading-relaxed">
-                                                    Nota: Por seguridad, solo usa imágenes verificadas por el equipo de Tech4U Academy.
-                                                    El resto de la configuración del escenario se gestionará en la siguiente fase de desarrollo.
-                                                </p>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Docker Image</label>
+                                            <input
+                                                value={form.docker_image}
+                                                onChange={e => handleFormChange({ docker_image: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono text-sm"
+                                                placeholder="ubuntu:22.04"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Comando de Validación</label>
+                                            <textarea
+                                                rows="2"
+                                                value={form.validation_command}
+                                                onChange={e => handleFormChange({ validation_command: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono text-sm leading-relaxed"
+                                                placeholder="Ej: ls /home/user/proyecto"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Resultado Esperado</label>
+                                            <textarea
+                                                rows="3"
+                                                value={form.expected_result}
+                                                onChange={e => handleFormChange({ expected_result: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono text-sm leading-relaxed"
+                                                placeholder="Salida esperada del comando..."
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Tipo de Laboratorio</label>
+                                            <div className="flex items-center gap-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleFormChange({ lab_type: 'free' })}
+                                                    className={`flex-1 px-4 py-3 rounded-2xl border font-black uppercase text-xs tracking-wider transition-all ${form.lab_type === 'free' ? 'bg-neon/10 border-neon/30 text-neon' : 'bg-white/5 border-white/10 text-slate-500 hover:text-white'}`}
+                                                >
+                                                    Comandos Libres
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleFormChange({ lab_type: 'ctf' })}
+                                                    className={`flex-1 px-4 py-3 rounded-2xl border font-black uppercase text-xs tracking-wider transition-all ${form.lab_type === 'ctf' ? 'bg-neon/10 border-neon/30 text-neon' : 'bg-white/5 border-white/10 text-slate-500 hover:text-white'}`}
+                                                >
+                                                    CTF / Flag
+                                                </button>
                                             </div>
                                         </div>
 
-                                        <div className="p-8 border border-blue-500/10 rounded-3xl bg-blue-500/[0.02]">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="flex items-center gap-2">
-                                                    <Target className="w-5 h-5 text-blue-400" />
-                                                    <span className="text-xs font-black uppercase tracking-widest text-blue-400">Retos & Validación</span>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => navigate(`/admin/terminal-builder/labs/${editingLab.id}/challenges`)}
-                                                    className="bg-blue-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-400 transition-colors flex items-center gap-2"
-                                                >
-                                                    <Plus className="w-3 h-3" /> Configurar Retos
-                                                </button>
+                                        {form.lab_type === 'ctf' && (
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Flag CTF</label>
+                                                <input
+                                                    value={form.expected_flag}
+                                                    onChange={e => handleFormChange({ expected_flag: e.target.value })}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono text-sm"
+                                                    placeholder="Ej: flag{linux_master_123}"
+                                                />
                                             </div>
-                                            <p className="text-[10px] text-slate-500 font-mono italic">
-                                                Personaliza los hitos de validación, comandos esperados y recompensas de XP para este escenario.
-                                            </p>
+                                        )}
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Reglas de Validación JSON</label>
+                                            <textarea
+                                                rows="4"
+                                                value={form.validation_rules}
+                                                onChange={e => handleFormChange({ validation_rules: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono text-xs leading-relaxed"
+                                                placeholder='Array JSON de reglas. Ej: [{"type": "file_exists", "path": "/etc/hosts"}]'
+                                            />
+                                            <p className="text-[9px] text-slate-600 italic px-4">Array JSON de reglas adicionales para validación automática</p>
+                                        </div>
+
+                                        {editingLab && (
+                                            <button
+                                                type="button"
+                                                onClick={() => navigate(`/admin/terminal-builder/labs/${editingLab.id}/challenges`)}
+                                                className="w-full bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-400 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Plus className="w-4 h-4" /> Configurar Retos Específicos
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
+                                {activeTab === 'advanced' && (
+                                    <div className="space-y-8 animate-in fade-in duration-300">
+                                        <div className="p-6 border border-emerald-500/20 rounded-3xl bg-emerald-500/[0.02]">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Target className="w-5 h-5 text-emerald-400" />
+                                                <h4 className="text-sm font-black uppercase tracking-tighter text-emerald-400">Imágenes Docker Aprobadas</h4>
+                                            </div>
+                                            <ul className="space-y-2 text-[10px] text-slate-400 font-mono">
+                                                <li className="flex items-center gap-2"><span className="text-neon">✓</span> <code className="text-emerald-300">ubuntu:22.04</code> <span className="text-neon text-[8px] ml-auto">(RECOMENDADA)</span></li>
+                                                <li className="flex items-center gap-2"><span className="text-slate-600">✓</span> <code className="text-slate-300">debian:12</code></li>
+                                                <li className="flex items-center gap-2"><span className="text-slate-600">✓</span> <code className="text-slate-300">alpine:latest</code></li>
+                                                <li className="flex items-center gap-2"><span className="text-slate-600">✓</span> <code className="text-slate-300">kali-linux:latest</code></li>
+                                                <li className="flex items-center gap-2"><span className="text-slate-600">✓</span> <code className="text-slate-300">centos:8</code></li>
+                                            </ul>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block px-4">Scenario Setup JSON</label>
+                                            <textarea
+                                                rows="6"
+                                                value={form.scenario_setup}
+                                                onChange={e => handleFormChange({ scenario_setup: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-neon/50 focus:bg-white/10 transition-all font-mono text-xs leading-relaxed"
+                                                placeholder='Configuración inicial de la máquina virtual. Ej: {"files": [...], "permissions": [...], "services": [...]}'
+                                            />
+                                            <p className="text-[9px] text-slate-600 italic px-4">Configuración JSON del estado inicial de la VM. Define archivos, permisos, servicios, etc.</p>
                                         </div>
                                     </div>
                                 )}
@@ -487,6 +620,40 @@ export default function AdminLabsContent() {
                                     <Save className="w-5 h-5" /> {editingLab ? 'Guardar Cambios' : 'Lanzar Laboratorio'}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirm Modal */}
+            {deleteConfirm.show && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in zoom-in-95 duration-200">
+                    <div className="bg-[#0A0A0A] border border-red-500/30 rounded-[2.5rem] w-full max-w-md p-10 shadow-2xl space-y-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                                <Trash2 className="w-6 h-6 text-red-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white">Eliminar Lab</h3>
+                                <p className="text-[10px] font-mono text-slate-500 mt-1">Esta acción no se puede deshacer</p>
+                            </div>
+                        </div>
+                        <p className="text-slate-300 font-mono text-sm leading-relaxed">
+                            ¿Confirmas que quieres eliminar <span className="text-red-400 font-black">"{deleteConfirm.title}"</span>? Se borrarán también todos sus retos.
+                        </p>
+                        <div className="flex gap-4 pt-4 border-t border-white/5">
+                            <button
+                                onClick={() => setDeleteConfirm({ show: false, id: null, title: '' })}
+                                className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-slate-400 font-black uppercase text-[11px] hover:bg-white/10 transition-all"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black uppercase text-[11px] hover:bg-red-600 transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                            >
+                                Sí, eliminar
+                            </button>
                         </div>
                     </div>
                 </div>

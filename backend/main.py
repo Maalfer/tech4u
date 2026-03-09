@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from websocket_manager import manager
 from database import create_tables, get_db, Lab, User
 from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements, subscriptions, video_courses, coupons_admin, leaderboard, support, skill_labs, paypal, achievements, labs, teoria
+from routers import referrals
 from docker_client import docker_launcher
 from auth import decode_token, get_current_user
 from schemas import TerminalStartResponse
@@ -100,6 +101,7 @@ app.include_router(paypal.router)
 app.include_router(achievements.router)
 app.include_router(labs.router)
 app.include_router(teoria.router)
+app.include_router(referrals.router)
 
 # --- TERMINAL SANDBOX ENDPOINTS MOVED TO labs.py ---
 

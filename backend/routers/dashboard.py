@@ -32,7 +32,12 @@ def get_rank_name(level: int) -> str:
     return rank_map.get(level, rank_map.get(20, "👑 SysAdmin Dios") if level > 20 else "🥉 Estudiante ASIR")
 
 def get_next_level_xp(level: int) -> int:
-    return level * 500
+    """Sincronizado con database.py::get_next_level_xp — curva progresiva v2."""
+    if level <= 5:  return 800
+    if level <= 10: return 1500
+    if level <= 15: return 2500
+    if level <= 19: return 4000
+    return 0  # nivel 20 = tope máximo
 
 @router.get("/stats", response_model=DashboardStats)
 def get_stats(

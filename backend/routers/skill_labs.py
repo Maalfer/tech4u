@@ -15,9 +15,17 @@ router = APIRouter(
     tags=["Skill Labs"]
 )
 
-# Constantes XP
-XP_PER_EXERCISE = 100
-MIN_XP_PER_EXERCISE = 20
+# ── Constantes XP v2 ─────────────────────────────────────────────────
+# Los Skill Labs son la fuente de XP más rica: requieren comprensión real.
+#   XP base por ejercicio correcto: 180
+#   Mínimo garantizado por ejercicio (aunque haya errores): 40
+#   Penalización por intento fallido: 25 XP
+#   Bonus por completar sin errores (perfect run): +150 XP
+# ─────────────────────────────────────────────────────────────────────
+XP_PER_EXERCISE     = 180
+MIN_XP_PER_EXERCISE = 40
+XP_PENALTY_PER_FAIL = 25
+XP_PERFECT_BONUS    = 150
 
 @router.get("/exercises")
 def get_exercises(subject: str = None, limit: int = 10, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
@@ -74,11 +82,20 @@ async def submit_skill_lab(data: SkillSubmitRequest, db: Session = Depends(get_d
     Submits a final payload after finishing a Skill Lab run.
     Grants XP and checks leveling up.
     """
-    # Base XP for completing the lab. Subtract XP for failed attempts (max subtraction of 80% of XP to still give *some* reward if they stuck it out)
-    gross_xp = data.correct_exercises * XP_PER_EXERCISE
-    penalty = data.failed_attempts * 15 # Lose 15 XP per mistake made
+    # ── Cálculo XP v2 ────────────────────────────────────────────────
+    # XP bruto = ejercicios correctos × 180
+    # Penalización = intentos fallidos × 25 (pero nunca baja del mínimo garantizado)
+    # Mínimo garantizado = ejercicios correctos × 40
+    # Bonus perfect run (todos correctos, 0 errores) = +150 XP
+    # ─────────────────────────────────────────────────────────────────
+    gross_xp    = data.correct_exercises * XP_PER_EXERCISE
+    penalty     = data.failed_attempts   * XP_PENALTY_PER_FAIL
+    guaranteed  = data.correct_exercises * MIN_XP_PER_EXERCISE
+    net_xp      = max(guaranteed, gross_xp - penalty)
 
-    net_xp = max((data.correct_exercises * MIN_XP_PER_EXERCISE), gross_xp - penalty)
+    # Bonus por racha perfecta
+    if data.correct_exercises == data.total_exercises and data.failed_attempts == 0:
+        net_xp += XP_PERFECT_BONUS
 
     old_level = current_user.level
     current_user.add_xp(net_xp)
