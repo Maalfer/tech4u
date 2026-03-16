@@ -1,0 +1,1 @@
+-- Migration file no longer used — can be deleted manually.

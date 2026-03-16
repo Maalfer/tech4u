@@ -1,0 +1,172 @@
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import {
+    Shield, Zap, Lock, Star, ArrowRight,
+    MessageCircle, Rocket, Terminal, CheckCircle, Users, TrendingUp
+} from 'lucide-react';
+import PricingCards from '../components/PricingCards';
+import logoImg from '../assets/tech4u_logo.png';
+import { useSEO } from '../hooks/useSEO';
+
+export default function SubscriptionPlans() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    // Animated subscriber counter (social proof)
+    const [subCount, setSubCount] = useState(127);
+    useEffect(() => {
+        // Subtle drift to simulate live count (purely cosmetic)
+        const id = setInterval(() => {
+            setSubCount(prev => {
+                const delta = Math.random() < 0.3 ? 1 : 0;
+                return prev + delta;
+            });
+        }, 12000);
+        return () => clearInterval(id);
+    }, []);
+
+    useSEO({
+        title: 'Planes y Suscripciones',
+        description: 'Elige tu plan Tech4U Academy. Accede a todos los laboratorios de ASIR, Terminal Skills, SQL Skills y más. Desde 9,99€/mes sin permanencia.',
+        path: '/planes',
+    });
+
+    const handleSelectPlan = () => {
+        navigate(user ? '/suscripcion' : '/login');
+    };
+
+    return (
+        <div className="min-h-screen bg-[#0D0D0D] flex flex-col relative overflow-hidden">
+
+            {/* ── Background ── */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 bg-[#0D0D0D]" />
+                <div
+                    className="absolute inset-0 opacity-[0.07]"
+                    style={{ backgroundImage: 'radial-gradient(rgba(198,255,51,0.8) 1px, transparent 1px)', backgroundSize: '44px 44px' }}
+                />
+                <div className="absolute top-[-15%] left-[-5%] w-[700px] h-[700px] rounded-full blur-[160px]" style={{ background: 'radial-gradient(ellipse, rgba(198,255,51,0.04) 0%, transparent 70%)' }} />
+                <div className="absolute top-[30%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[180px]" style={{ background: 'radial-gradient(ellipse, rgba(99,102,241,0.05) 0%, transparent 70%)' }} />
+                <div className="absolute bottom-0 left-[25%] w-[600px] h-[400px] rounded-full blur-[200px]" style={{ background: 'radial-gradient(ellipse, rgba(56,189,248,0.04) 0%, transparent 70%)' }} />
+            </div>
+
+            {/* ── Navbar ── */}
+            <header className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-white/5 backdrop-blur-md bg-[#0D0D0D]/80">
+                <div onClick={() => navigate('/')} className="flex items-center gap-3 cursor-pointer group">
+                    <img src={logoImg} alt="Tech4U" className="w-9 h-9 object-contain drop-shadow-[0_0_8px_rgba(198,255,51,0.5)] group-hover:drop-shadow-[0_0_14px_rgba(198,255,51,0.7)] transition-all" />
+                    <span className="text-xl font-black text-neon font-mono tracking-wider">Tech4U</span>
+                </div>
+                <button
+                    onClick={() => navigate(user ? '/dashboard' : '/login')}
+                    className="flex items-center gap-2 text-slate-400 hover:text-white font-mono text-sm transition-colors"
+                >
+                    {user ? 'Ir al Dashboard' : 'Iniciar Sesión'} <ArrowRight className="w-4 h-4" />
+                </button>
+            </header>
+
+            <main className="flex-1 relative z-10 px-6 py-16 overflow-y-auto">
+
+                {/* ── Hero ── */}
+                <div className="text-center mb-14 max-w-3xl mx-auto">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/25 mb-6">
+                        <Rocket className="w-4 h-4 text-neon" />
+                        <span className="text-neon font-mono text-[11px] uppercase tracking-[0.2em] font-black">Tech Premium</span>
+                    </div>
+                    <h1 className="text-5xl md:text-6xl font-black text-white uppercase italic tracking-tight leading-none mb-5">
+                        Impulsa tu carrera<br />
+                        <span
+                            className="text-transparent bg-clip-text"
+                            style={{ backgroundImage: 'linear-gradient(90deg, #c6ff33 0%, #60a5fa 50%, #a78bfa 100%)' }}
+                        >
+                            Sin Límites
+                        </span>
+                    </h1>
+                    <p className="text-slate-400 font-mono text-sm md:text-base leading-relaxed">
+                        Elige el plan que mejor se adapte a tu ritmo. Todos incluyen acceso completo al contenido base —<br />
+                        los planes superiores desbloquean la <span className="text-neon font-bold">Terminal interactiva</span> y acceso anticipado a todo lo nuevo.
+                    </p>
+                </div>
+
+                {/* ── What's locked notice ── */}
+                <div className="max-w-2xl mx-auto mb-10">
+                    <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-neon/15 bg-neon/[0.04]">
+                        <Terminal className="w-4 h-4 text-neon flex-shrink-0 mt-0.5" />
+                        <p className="text-slate-400 font-mono text-xs leading-relaxed">
+                            <span className="text-white font-bold">Terminal Skills</span> (entornos Linux interactivos) requiere plan
+                            <span className="text-neon font-bold mx-1">Trimestral</span> o superior.
+                            Los suscriptores mensuales pueden ver los contenidos pero no practicar en la terminal.
+                        </p>
+                    </div>
+                </div>
+
+                {/* ── Social proof bar ── */}
+                <div className="max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-center gap-4">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.07]">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <Users className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-[11px] font-mono text-slate-300">
+                            <strong className="text-white">{subCount.toLocaleString('es-ES')}</strong> alumnos suscritos
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.07]">
+                        <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
+                        <span className="text-[11px] font-mono text-slate-300">
+                            <strong className="text-white">+18</strong> nuevos este mes
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
+                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                        <span className="text-[11px] font-mono text-amber-300">
+                            <strong>4.9/5</strong> valoración media de los alumnos
+                        </span>
+                    </div>
+                </div>
+
+                {/* ── Pricing grid ── */}
+                <div className="max-w-5xl mx-auto mb-16 pt-6">
+                    <PricingCards onSelectPlan={handleSelectPlan} />
+                </div>
+
+                {/* ── Trust strip ── */}
+                <div className="max-w-3xl mx-auto border-t border-white/5 pt-10 pb-6">
+                    <div className="flex flex-wrap items-center justify-center gap-8">
+                        {[
+                            { icon: Lock, title: 'Pago 100% Seguro', desc: 'Procesado por Stripe' },
+                            { icon: Shield, title: 'Sin Permanencia', desc: 'Cancela cuando quieras' },
+                            { icon: Zap, title: 'Acceso Inmediato', desc: 'Se activa al instante tras el pago' },
+                            { icon: CheckCircle, title: 'Sin sorpresas', desc: 'Todo incluido en el precio' },
+                        ].map(({ icon: Icon, title, desc }) => (
+                            <div key={title} className="flex flex-col items-center text-center max-w-[150px] gap-2">
+                                <div className="p-2.5 rounded-xl bg-neon/5 border border-neon/10">
+                                    <Icon className="w-4 h-4 text-neon/70" />
+                                </div>
+                                <div>
+                                    <p className="text-white font-bold font-mono text-xs mb-0.5">{title}</p>
+                                    <p className="text-slate-600 text-[10px] font-mono">{desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-12 text-center flex flex-col items-center gap-5">
+                        <button
+                            onClick={() => navigate('/para-centros')}
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/[0.02] border border-white/5 text-slate-400 hover:text-white font-mono text-sm transition-all hover:border-neon/20 hover:bg-neon/[0.03]"
+                        >
+                            <Star className="w-4 h-4 text-neon" />
+                            ¿Sois un grupo o instituto? <strong className="text-neon mx-1">Planes para centros educativos →</strong>
+                        </button>
+                        <a
+                            href="mailto:info@tech4u.academy?subject=Consulta%20Grupo%20Academia"
+                            className="inline-flex items-center gap-2 px-8 py-3.5 bg-neon text-black font-black uppercase tracking-widest text-xs rounded-xl hover:shadow-[0_0_30px_rgba(198,255,51,0.4)] transition-all"
+                        >
+                            <MessageCircle className="w-4 h-4" /> Contactar con Soporte
+                        </a>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    );
+}

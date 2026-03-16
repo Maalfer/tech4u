@@ -1,0 +1,150 @@
+══════════════════════════════════════════════════════════════════════════════
+TECH4U ACADEMY — PLANTILLAS DE EMAIL PARA CAPTACIÓN B2B DE CENTROS EDUCATIVOS
+══════════════════════════════════════════════════════════════════════════════
+
+Instrucciones de uso:
+- Personaliza los campos entre [CORCHETES] antes de enviar.
+- Envía desde una dirección profesional del tipo hola@tech4u.es o edu@tech4u.es.
+- Espera 3-5 días hábiles entre email y email si no hay respuesta.
+- Secuencia recomendada: Email 1 → Email 2 (follow-up) → Email 3 (caso de uso) → Email 4 (cierre).
+
+──────────────────────────────────────────────────────────────────────────────
+EMAIL 1 — INTRODUCCIÓN / PRIMER CONTACTO
+──────────────────────────────────────────────────────────────────────────────
+
+Asunto: Práctica de Linux, SQL y redes para tus alumnos de ASIR — sin instalación
+
+Hola [NOMBRE DEL DOCENTE],
+
+Me pongo en contacto contigo porque impartes [ASIGNATURA / CICLO] en [NOMBRE DEL CENTRO] y creo que lo que hacemos en Tech4U Academy puede ahorrarte tiempo y mejorar mucho la parte práctica de tu clase.
+
+En resumen: somos una plataforma donde los alumnos de ASIR practican comandos Linux, SQL, configuración de redes y ciberseguridad directamente desde el navegador. Sin instalar nada, sin máquinas virtuales que fallen el día del examen.
+
+Lo que más les gusta a los docentes que ya nos usan:
+
+→ Panel docente con seguimiento individual en tiempo real.
+→ Tú activas los módulos que coinciden con tu temario.
+→ Rankings de clase que disparan la motivación (de verdad).
+→ Los alumnos practican en casa igual que en clase.
+
+Si quieres, puedo prepararte una demo de 20 minutos adaptada a tu asignatura. Sin compromiso.
+
+¿Tienes hueco esta semana o la siguiente?
+
+Un saludo,
+[TU NOMBRE]
+Tech4U Academy
+[EMAIL] · [TELÉFONO/WHATSAPP]
+https://tech4u.es/educacion
+
+P.D. Si prefieres probarlo directamente antes de hablar, tienes un piloto gratuito de 30 días (hasta 30 alumnos, todos los módulos) en: https://tech4u.es/educacion-demo
+
+──────────────────────────────────────────────────────────────────────────────
+EMAIL 2 — FOLLOW-UP (Sin respuesta al Email 1, enviar 4-5 días después)
+──────────────────────────────────────────────────────────────────────────────
+
+Asunto: Re: Práctica de Linux y SQL para ASIR — ¿llegó mi mensaje?
+
+Hola [NOMBRE],
+
+Solo quería asegurarme de que mi email anterior no acabó en spam.
+
+Te hacía la pregunta sobre Tech4U Academy: laboratorios prácticos de Linux, SQL, redes y ciberseguridad para alumnos de ASIR, con panel docente en tiempo real.
+
+Entiendo que estás ocupado/a y que los mails de "tengo una solución para ti" son ruido la mayor parte del tiempo. Así que voy al grano:
+
+¿Cuál es tu mayor problema con las prácticas en clase ahora mismo?
+
+- ¿Los alumnos no tienen equipos suficientes?
+- ¿Las máquinas virtuales fallan constantemente?
+- ¿Te resulta difícil saber quién ha practicado y quién no?
+- ¿Los alumnos llegan al examen sin haber tocado una terminal de verdad?
+
+Si alguno de estos puntos resuena, tiene sentido que hablemos. Si no, sin problema, lo entiendo perfectamente.
+
+Un saludo,
+[TU NOMBRE]
+Tech4U Academy
+
+──────────────────────────────────────────────────────────────────────────────
+EMAIL 3 — CASO DE USO / PRUEBA SOCIAL (Enviar 5-7 días después si no hay respuesta)
+──────────────────────────────────────────────────────────────────────────────
+
+Asunto: Cómo [NOMBRE DE OTRO CENTRO] mejoró sus prácticas de ASIR sin cambiar su temario
+
+Hola [NOMBRE],
+
+Te cuento un caso real (con permiso del centro):
+
+[IES EJEMPLO] lleva un trimestre usando Tech4U Academy con sus alumnos de ASIR 2º. Antes de implantarlo, el docente nos contó que el 40% de los alumnos llegaba a los exámenes prácticos sin haber tocado un terminal más de 3 horas en toda la semana. Los laboratorios en clase consumían 20 minutos solo en configurar máquinas virtuales.
+
+Ahora, los alumnos practican en casa desde el navegador. El docente ve en tiempo real quién avanzó esa tarde, qué lab se atascó, y quién necesita refuerzo. En tres semanas, el tiempo medio de práctica semanal por alumno subió de 1,5 horas a 4,3 horas.
+
+No es magia: es que el entorno no falla, el ranking de clase los engancha y pueden practicar desde el móvil si hace falta.
+
+¿Te parece si te preparo algo similar para [NOMBRE DEL CENTRO]? Una demo de 20 minutos por videollamada, a tu hora.
+
+Escríbeme o llámame cuando quieras.
+
+[TU NOMBRE]
+Tech4U Academy
+[EMAIL] · [TELÉFONO]
+
+──────────────────────────────────────────────────────────────────────────────
+EMAIL 4 — CIERRE / ÚLTIMA OPORTUNIDAD (Enviar 7-10 días después)
+──────────────────────────────────────────────────────────────────────────────
+
+Asunto: Última cosa antes de desaparecer de tu bandeja de entrada
+
+Hola [NOMBRE],
+
+He intentado contactar contigo un par de veces sobre Tech4U Academy y no he obtenido respuesta. Entiendo perfectamente que puede no ser el momento, que hay otras prioridades, o simplemente que no encaja.
+
+Solo te pido que consideres esto:
+
+Si tienes alumnos de ASIR que practican poco fuera de clase, que tienen dificultades con Linux o SQL, o si tú como docente pierdes tiempo valioso con infraestructura que falla —  tenemos una solución que funciona desde el primer día, sin que tengas que montar nada.
+
+El piloto es gratuito: 30 días, hasta 30 alumnos, todos los módulos, sin tarjeta de crédito. Lo activas en 5 minutos: https://tech4u.es/educacion-demo
+
+Si en algún momento cambia la situación y quieres hablar, estaré encantado/a.
+
+Mucho ánimo con el curso,
+
+[TU NOMBRE]
+Tech4U Academy
+[EMAIL]
+
+──────────────────────────────────────────────────────────────────────────────
+NOTAS ADICIONALES PARA EL EQUIPO DE VENTAS
+──────────────────────────────────────────────────────────────────────────────
+
+PERFILES OBJETIVO PRIMARIOS:
+- Docentes de ASIR (Administración de Sistemas Informáticos en Red)
+- Docentes de DAM/DAW (Desarrollo de Aplicaciones)
+- Coordinadores TIC de centros con FP de informática
+- Jefes de departamento de Informática
+
+DÓNDE ENCONTRARLOS:
+- LinkedIn (buscar "docente ASIR", "profesor ASIR", "coordinador TIC IES")
+- Twitter/X (comunidad #FPInformática, #ASIR, #docentes)
+- Grupos de Facebook de docentes de FP
+- Directorio de centros del Ministerio de Educación (para email directo)
+- Congresos y jornadas de FP (JJII, Evento "FP Innova", etc.)
+
+OBJECIONES FRECUENTES Y RESPUESTAS:
+1. "No tenemos presupuesto" → El piloto es gratis. Tras el piloto, el plan Starter es 24,99€/mes para 15 alumnos.
+2. "Ya usamos otra plataforma" → ¿Te cubre los laboratorios prácticos de terminal? ¿Tiene ranking de clase?
+3. "No tengo tiempo para implementarlo" → El setup tarda 5 minutos. Los alumnos se unen con un código.
+4. "Los alumnos no van a usarlo" → Los rankings y la gamificación disparan el engagement. Puedes comprobarlo en el piloto.
+5. "¿Funciona en móvil?" → Sí, los labs de teoría y test funcionan en móvil. Los laboratorios de terminal requieren teclado.
+
+PRECIO DE REFERENCIA PARA NEGOCIACIÓN:
+- Starter: 24,99€/mes · 15 alumnos (249,90€/año)
+- Clase:   39,99€/mes · 30 alumnos (399,90€/año)
+- Centro:  59,99€/mes · 60 alumnos (599,90€/año)
+- Campus:  89,99€/mes · 100 alumnos (899,90€/año)
+- Para centros con >100 alumnos: contactar para precio personalizado.
+
+══════════════════════════════════════════════════════════════════════════════
+© Tech4U Academy — Uso interno
+══════════════════════════════════════════════════════════════════════════════

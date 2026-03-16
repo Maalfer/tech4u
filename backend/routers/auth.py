@@ -1,0 +1,205 @@
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
+from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
+from database import get_db, User, Referral
+from schemas import UserRegister, UserLogin, TokenResponse, UserOut
+from auth import decode_token, get_current_user, hash_password, verify_password, create_access_token
+import random
+import string
+import emails as mailer
+from limiter import limiter
+
+def generate_referral_code(length=6):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
+router = APIRouter(prefix="/auth", tags=["Auth"])
+
+@router.post("/register", response_model=TokenResponse, status_code=201)
+@limiter.limit("5/minute")
+def register(request: Request, response: Response, data: UserRegister, db: Session = Depends(get_db)):
+    existing = db.query(User).filter(User.email == data.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
+
+    # Generate unique referral code for the new user
+    new_referral_code = generate_referral_code()
+    while db.query(User).filter(User.referral_code == new_referral_code).first():
+        new_referral_code = generate_referral_code()
+
+    now = datetime.utcnow()
+
+    user_role = data.role or "alumno"
+
+    # Always create as free — subscription must be activated via Stripe payment
+    user = User(
+        nombre=data.nombre,
+        email=data.email,
+        password_hash=hash_password(data.password),
+        subscription_type="free",
+        subscription_end=None,
+        streak_count=0,
+        last_login=now,
+        referral_code=new_referral_code,
+        referred_by_id=None,  # Se asignará tras validar el referido
+        role=user_role,
+    )
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    # ── Procesar código de referido (si se proporcionó) ──
+    # Las recompensas NO se dan ahora. Solo se crea el vínculo (pending).
+    # La recompensa se genera cuando el invitado completa su primer pago (webhook Stripe).
+    if data.referral_code:
+        referrer = db.query(User).filter(
+            User.referral_code == data.referral_code.upper()
+        ).first()
+
+        if referrer:
+            # Prevent self-referral by exact email match
+            if referrer.email.lower() == data.email.lower():
+                raise HTTPException(status_code=400, detail="No puedes usar tu propio código de referido")
+
+        if referrer and referrer.id != user.id:
+            # Obtener IP del registro para anti-fraude
+            forwarded_for = request.headers.get("X-Forwarded-For")
+            ip = forwarded_for.split(",")[0].strip() if forwarded_for else (
+                request.client.host if request.client else "unknown"
+            )
+
+            # Verificar límite de IP: máx. 3 registros hacia el mismo referidor en 24h
+            from datetime import timedelta
+            cutoff = now - timedelta(hours=24)
+            ip_count = db.query(Referral).filter(
+                Referral.referrer_id == referrer.id,
+                Referral.ip_address == ip,
+                Referral.created_at >= cutoff,
+            ).count()
+
+            if ip_count < 3:
+                # Crear relación de referido en estado "pending"
+                referral = Referral(
+                    referrer_id=referrer.id,
+                    referred_id=user.id,
+                    ip_address=ip,
+                    status="pending",
+                )
+                db.add(referral)
+                user.referred_by_id = referrer.id
+                db.commit()
+
+    token = create_access_token({"sub": str(user.id)})
+
+    # Set authentication cookie
+    import os
+    env = os.getenv("ENVIRONMENT", "development")
+    if env == "production":
+        cookie_domain = ".tech4uacademy.es"
+        secure_cookie = True
+        samesite = "None"
+    else:
+        cookie_domain = None
+        secure_cookie = False
+        samesite = "Lax"
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=secure_cookie,
+        samesite=samesite,
+        domain=cookie_domain,
+        path="/"
+    )
+
+    # Send emails (non-blocking)
+    try:
+        mailer.send_welcome(user.email, user.nombre)
+    except Exception:
+        pass
+    db.refresh(user)
+    return TokenResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
+
+
+@router.post("/login", response_model=TokenResponse)
+@limiter.limit("10/minute")
+def login(request: Request, response: Response, data: UserLogin, db: Session = Depends(get_db)):
+    # Case-insensitive lookup
+    user = db.query(User).filter(User.email.ilike(data.email)).first()
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+        
+    if not verify_password(data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+
+    now = datetime.utcnow()
+
+    # Streak logic: if last login was yesterday → increment, if same day → keep, else → reset
+    if user.last_login:
+        delta = (now.date() - user.last_login.date()).days
+        if delta == 1:
+            user.streak_count += 1
+        elif delta > 1:
+            # Check for streak protections (Anti-loss shield)
+            if (user.streak_protections or 0) > 0:
+                user.streak_protections -= 1
+                # Streak is preserved, delta is ignored
+            else:
+                # Reset streak and apply XP penalty
+                user.streak_count = 1
+                user.remove_xp(100) # Penalización de 100 XP
+        # delta == 0 → same day, keep streak
+    else:
+        user.streak_count = 1
+
+    user.last_login = now
+    db.commit()
+    db.refresh(user)
+
+    token = create_access_token({"sub": str(user.id)})
+
+    # Set authentication cookie
+    import os
+    env = os.getenv("ENVIRONMENT", "development")
+    if env == "production":
+        cookie_domain = ".tech4uacademy.es"
+        secure_cookie = True
+        samesite = "None"
+    else:
+        cookie_domain = None
+        secure_cookie = False
+        samesite = "Lax"
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=secure_cookie,
+        samesite=samesite,
+        domain=cookie_domain,
+        path="/"
+    )
+
+    return TokenResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
+
+
+@router.post("/logout")
+def logout(response: Response):
+    import os
+    env = os.getenv("ENVIRONMENT", "development")
+    cookie_domain = ".tech4uacademy.es" if env == "production" else None
+    
+    response.delete_cookie(
+        key="access_token",
+        domain=cookie_domain,
+        path="/"
+    )
+    return {"detail": "Sesión cerrada"}
+
+
+@router.get("/me")
+def me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Devuelve el perfil del usuario."""
+    return UserOut.model_validate(current_user)

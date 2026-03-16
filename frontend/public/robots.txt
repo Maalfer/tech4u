@@ -1,0 +1,42 @@
+User-agent: *
+
+# ── Public content — allow indexing ──────────────────────
+Allow: /$
+Allow: /explora
+Allow: /planes
+Allow: /teoria
+Allow: /teoria/
+Allow: /linux-terminal-exercises
+Allow: /sql-practice
+Allow: /ciberseguridad-labs
+Allow: /redes-informaticas
+Allow: /login
+Allow: /aviso-legal
+Allow: /privacidad
+Allow: /cookies
+
+# ── Private / auth-required — block crawlers ─────────────
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /personaje
+Disallow: /suscripcion
+Disallow: /suscripcion/
+Disallow: /mundo
+Disallow: /mundo-virtual
+Disallow: /shop
+Disallow: /my-courses
+Disallow: /leaderboard
+Disallow: /test-stats
+Disallow: /watch/
+Disallow: /netlab
+Disallow: /netlab/
+Disallow: /resources
+Disallow: /recursos/
+Disallow: /admin-dashboard
+Disallow: /gestion-usuarios
+Disallow: /gestion-contenido
+Disallow: /admin/
+
+# ── Sitemap ───────────────────────────────────────────────
+Sitemap: https://tech4u.academy/sitemap.xml
+Sitemap: https://tech4u.academy/sitemap-teoria.xml

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/tech4u_logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ── Primary SEO ──────────────────────────────────────── -->
+  <title>Tech4U — Domina la FP de ASIR</title>
+  <meta name="description"
+    content="Tech4U Academy — Domina la FP de ASIR. Aprende Redes, Sistemas, SQL y Ciberseguridad con laboratorios interactivos, XP y desafíos reales." />
+  <meta name="keywords"
+    content="ASIR, SMR, ciberseguridad, SQL, Linux, redes, FP informática, academia online, laboratorios, sistemas operativos" />
+  <meta name="author" content="Tech4U Academy" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0D0D0D" />
+  <link rel="canonical" href="https://tech4u.academy/" />
+
+  <!-- ── Google Search Console verification (replace content value) ── -->
+  <meta name="google-site-verification" content="REPLACE_WITH_GSC_TOKEN" />
+
+  <!-- ── Open Graph (Facebook, WhatsApp, LinkedIn) ──────── -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Tech4U Academy" />
+  <meta property="og:title" content="Tech4U — Domina la FP de ASIR" />
+  <meta property="og:description"
+    content="Aprende Redes, Sistemas, SQL y Ciberseguridad con laboratorios interactivos, XP y desafíos reales. La academia definitiva para ASIR y SMR." />
+  <meta property="og:image" content="https://tech4u.academy/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Tech4U Academy — Conviértete en un SysAdmin" />
+  <meta property="og:url" content="https://tech4u.academy/" />
+  <meta property="og:locale" content="es_ES" />
+
+  <!-- ── Twitter / Instagram Card ────────────────────────── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@tech4uacademy" />
+  <meta name="twitter:creator" content="@tech4uacademy" />
+  <meta name="twitter:title" content="Tech4U — Domina la FP de ASIR" />
+  <meta name="twitter:description"
+    content="Aprende Redes, Sistemas, SQL y Ciberseguridad con laboratorios interactivos, XP y desafíos reales." />
+  <meta name="twitter:image" content="https://tech4u.academy/og-image.png" />
+
+  <!-- ── JSON-LD: Organización Educativa ─────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "Tech4U Academy",
+    "url": "https://tech4u.academy",
+    "logo": "https://tech4u.academy/favicon.svg",
+    "description": "La plataforma de entrenamiento líder para ciclos formativos de informática ASIR y SMR.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "info@tech4u.academy",
+      "availableLanguage": "Spanish"
+    },
+    "sameAs": [
+      "https://www.instagram.com/tech4uacademy",
+      "https://discord.gg/tech4u"
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Planes de Suscripción Tech4U",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "name": "Plan Mensual",
+          "price": "9.99",
+          "priceCurrency": "EUR",
+          "url": "https://tech4u.academy/planes"
+        },
+        {
+          "@type": "Offer",
+          "name": "Plan Trimestral",
+          "price": "24.99",
+          "priceCurrency": "EUR",
+          "url": "https://tech4u.academy/planes"
+        },
+        {
+          "@type": "Offer",
+          "name": "Plan Anual",
+          "price": "89.99",
+          "priceCurrency": "EUR",
+          "url": "https://tech4u.academy/planes"
+        }
+      ]
+    }
+  }
+  </script>
+
+  <!-- ── Google Analytics 4 ──────────────────────────────── -->
+  <!-- Replace G-XXXXXXXXXX with your actual GA4 Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', {
+      page_path: window.location.pathname,
+      send_page_view: false  // React Router will send page views manually
+    });
+    // Custom event helper — call window.trackEvent('event_name', {key: val}) anywhere
+    window.trackEvent = function(event, params) {
+      if (typeof gtag !== 'undefined') gtag('event', event, params || {});
+    };
+  </script>
+
+  <!-- ── PWA Meta Tags ───────────────────────────────────── -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tech4U" />
+  <meta name="application-name" content="Tech4U Academy" />
+
+  <!-- ── Fonts ────────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+  <!-- Load fonts asynchronously to avoid render blocking -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet" />
+  </noscript>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

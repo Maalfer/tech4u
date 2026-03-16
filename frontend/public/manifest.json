@@ -1,0 +1,29 @@
+{
+  "name": "Tech4U — Academia de Ciberseguridad",
+  "short_name": "Tech4U",
+  "description": "Aprende SQL Injection, Pentesting, Redes y más con tests adaptativos, gamificación y labs reales.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0D0D0D",
+  "theme_color": "#0D0D0D",
+  "lang": "es",
+  "categories": ["education", "productivity", "security"],
+  "icons": [
+    {
+      "src": "/tech4u_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/tech4u_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
