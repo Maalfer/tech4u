@@ -92,6 +92,8 @@ const AcademyShop = lazy(() => import('./pages/AcademyShop'));
 const NewsFeed = lazy(() => import('./pages/NewsFeed'));
 const ShopCourseDetail = lazy(() => import('./pages/ShopCourseDetail'));
 const CoursePlayer = lazy(() => import('./pages/CoursePlayer'));
+const CertificacionPlayer = lazy(() => import('./pages/CertificacionPlayer'));
+const AdminCursos = lazy(() => import('./pages/AdminCursos'));
 const AdminAcademyShop = lazy(() => import('./pages/AdminAcademyShop'));
 const Tools = lazy(() => import('./pages/Tools'));
 const SubnetCalculator = lazy(() => import('./pages/SubnetCalculator'));
@@ -216,6 +218,7 @@ export default function App() {
               <Route path="/shop/:id" element={<ProtectedRoute><ShopCourseDetail /></ProtectedRoute>} />
               <Route path="/noticias" element={<ProtectedRoute><NewsFeed /></ProtectedRoute>} />
               <Route path="/watch/:id" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
+              <Route path="/certificacion/:slug" element={<PremiumRoute><CertificacionPlayer /></PremiumRoute>} />
               <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
               <Route path="/video-courses" element={<PremiumRoute><VideoCoursesList /></PremiumRoute>} />
               <Route path="/video-courses/:id" element={<PremiumRoute><VideoCourseDetail /></PremiumRoute>} />
@@ -245,6 +248,7 @@ export default function App() {
               <Route path="/gestion-contenido" element={<RoleRoute allowedRoles={['admin', 'developer', 'docente']}><AdminContent /></RoleRoute>} />
               <Route path="/admin/noticias" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminBroadcast /></RoleRoute>} />
               <Route path="/admin/teoria" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminTeoria /></RoleRoute>} />
+              <Route path="/admin/cursos" element={<RoleRoute allowedRoles={['admin', 'developer', 'docente']}><AdminCursos /></RoleRoute>} />
               <Route path="/admin/analytics" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminAnalytics /></RoleRoute>} />
 
               {/* ── Otras rutas protegidas ────────────────────────────────────────── */}

@@ -307,6 +307,11 @@ export default function Sidebar() {
                             Teoría Admin
                         </NavLink>
 
+                        <NavLink to="/admin/cursos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                            <NavIcon icon={Video} color="text-orange-400" bg="bg-orange-500/10" />
+                            Gestión Cursos
+                        </NavLink>
+
                         <NavLink to="/admin/sql-editor" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={BrainCircuit} color="text-blue-400" bg="bg-blue-500/10" />
                             SQL Editor

@@ -4,8 +4,11 @@ from sqlalchemy import func
 from pydantic import BaseModel
 from typing import List, Optional
 import json
+import logging
 import random
 from datetime import datetime, date, timedelta
+
+logger = logging.getLogger(__name__)
 from websocket_manager import manager
 
 from database import get_db, SkillLabExercise, SkillLabSession, User, AcademyStats

@@ -1529,6 +1529,21 @@ async def startup():
             "CREATE INDEX IF NOT EXISTS ix_users_reset_token ON users (reset_token);",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS ciclo VARCHAR;",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE;",
+            # eJPTv2 video course migrations
+            "ALTER TABLE video_courses ADD COLUMN IF NOT EXISTS slug VARCHAR UNIQUE;",
+            "CREATE INDEX IF NOT EXISTS ix_video_courses_slug ON video_courses (slug);",
+            "ALTER TABLE video_lessons ADD COLUMN IF NOT EXISTS section_title VARCHAR;",
+            "ALTER TABLE video_lessons ADD COLUMN IF NOT EXISTS is_quiz BOOLEAN DEFAULT FALSE;",
+            """CREATE TABLE IF NOT EXISTS lesson_materials (
+                id SERIAL PRIMARY KEY,
+                lesson_id INTEGER NOT NULL REFERENCES video_lessons(id) ON DELETE CASCADE,
+                title VARCHAR NOT NULL,
+                file_path VARCHAR NOT NULL,
+                file_type VARCHAR,
+                file_size INTEGER,
+                created_at TIMESTAMP DEFAULT NOW()
+            );""",
+            "CREATE INDEX IF NOT EXISTS ix_lesson_materials_lesson_id ON lesson_materials (lesson_id);",
         ]
     else:
         # SQLite doesn't support IF NOT EXISTS on ADD COLUMN — check manually
@@ -1557,6 +1572,7 @@ async def startup():
                     logger.warning(f"⚠️  Migration skipped (already applied?): {e}")
 
     os.makedirs("static/videos", exist_ok=True)
+    os.makedirs("static/materials", exist_ok=True)
     # Migración: mover 'Usuarios y Permisos' a 'Linux Fundamentals'
     migrate_usuarios_permisos_to_linux()
     # Migración: fusionar SkillPath duplicado "Linux Fundamentals" con el original "Linux Fundamentals v1.0"
@@ -1638,8 +1654,12 @@ app.include_router(flashcard_spaced.router)
 async def terminal_websocket(websocket: WebSocket, container_id: str):
     await websocket.accept()
 
-    # 1. Verify User from token query param
-    token = websocket.query_params.get("token")
+    # 1. Verify User — read httpOnly cookie first, fall back to query param (legacy/dev)
+    token = (
+        websocket.cookies.get("tech4u_token")
+        or websocket.cookies.get("access_token")
+        or websocket.query_params.get("token")
+    )
     if not token:
         logger.warning(f"SECURITY: Anonymous WS connection attempt to {container_id}")
         await websocket.close(code=4001) # Policy Violation
@@ -1752,7 +1772,14 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
                 os.close(slave_fd)
             except Exception:
                 pass
-        docker_launcher.kill_container(container_id)
+        # NOTE: We intentionally do NOT kill the container here.
+        # The container lifecycle is managed by the lab endpoints:
+        #   - POST /labs/{id}/start    → kill_all_for_user + new container
+        #   - POST /labs/{id}/restart  → kill_all_for_user + new container
+        #   - POST /labs/{id}/complete → kill_all_for_user
+        # Killing here causes React StrictMode (dev) to destroy the container
+        # on the first effect cleanup, before the second mount can reconnect.
+        logger.debug(f"[Terminal] WS closed for container {container_id} — container kept alive")
         try:
             if websocket.client_state == status.WS_CONNECTED:
                 await websocket.close()

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Tuple, Optional
 import json
 import logging
+import re
 from database import get_db, User, Lab, UserLabCompletion, UserChallengeCompletion, Challenge, SkillPath, Module
 from auth import get_current_user, require_admin, require_developer
 from services.permission_service import require_module_access
@@ -294,12 +295,17 @@ def ls_utility(
     db: Session = Depends(get_db)
 ):
     """Utility to help students see directory content without having to validate."""
+    # Sanitize path — only allow safe filesystem characters to prevent shell injection
+    if not path or not re.match(r'^[a-zA-Z0-9/_.\-]+$', path):
+        raise HTTPException(status_code=400, detail="Ruta no válida.")
+
     containers = docker_launcher.get_active_containers_for_user(current_user.id)
     if not containers:
         raise HTTPException(status_code=400, detail="Sandbox no activo.")
-    
+
     container = containers[0]
-    res = container.exec_run(f"ls -a {path}", user="root")
+    # Pass path as a list argument — never interpolated into a shell string
+    res = container.exec_run(["ls", "-a", path], user="root")
     content = res.output.decode().strip()
     return {"path": path, "content": content}
 
@@ -495,14 +501,30 @@ async def start_lab_endpoint(
     }
 
 @router.post("/{lab_id}/restart", response_model=TerminalStartResponse)
+@limiter.limit("10/minute")
 async def restart_lab_endpoint(
-    lab_id: int, 
+    lab_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Kills current user lab and starts a fresh one."""
+    """Kills current user lab containers and starts a fresh one."""
     docker_launcher.kill_all_for_user(current_user.id)
-    return await start_lab_endpoint(lab_id, None, db, current_user)
+
+    lab = db.query(Lab).filter(Lab.id == lab_id).first()
+    if not lab:
+        raise HTTPException(status_code=404, detail="Lab not found")
+
+    container = docker_launcher.start_lab_container(
+        current_user.id,
+        lab_id,
+        lab.docker_image,
+        scenario_setup=lab.scenario_setup
+    )
+    return {
+        "container_id": container.id,
+        "ws_url": f"/ws/terminal/{container.id}"
+    }
 
 
 # --- SKILL PATH ADMIN ---

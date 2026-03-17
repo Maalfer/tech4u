@@ -390,12 +390,26 @@ class ResourceCreate(BaseModel):
 # VIDEO COURSES
 # ==============================
 
+class LessonMaterialOut(BaseModel):
+    id: int
+    lesson_id: int
+    title: str
+    file_path: str
+    file_type: Optional[str] = None
+    file_size: Optional[int] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class VideoLessonCreate(BaseModel):
     title: str = Field(..., min_length=2, max_length=150)
     description: Optional[str] = None
     youtube_url: Optional[str] = None       # YT Help courses
-    video_file_path: Optional[str] = None   # Shop courses (self-hosted)
+    video_file_path: Optional[str] = None   # Self-hosted videos
     order_index: Optional[int] = Field(0, ge=0)
+    section_title: Optional[str] = None
+    is_quiz: Optional[bool] = False
 
 class VideoLessonOut(BaseModel):
     id: int
@@ -405,14 +419,18 @@ class VideoLessonOut(BaseModel):
     youtube_url: Optional[str]
     video_file_path: Optional[str] = None
     order_index: int
+    section_title: Optional[str] = None
+    is_quiz: Optional[bool] = False
     created_at: datetime
     is_completed: Optional[bool] = False  # Set dynamically when listing for a user
+    materials: List[LessonMaterialOut] = []
 
     class Config:
         from_attributes = True
 
 class VideoCourseCreate(BaseModel):
     title: str = Field(..., min_length=2, max_length=150)
+    slug: Optional[str] = None
     description: Optional[str] = None
     thumbnail_url: Optional[str] = None
     price: Optional[float] = Field(None, ge=0)
@@ -422,6 +440,7 @@ class VideoCourseCreate(BaseModel):
 class VideoCourseOut(BaseModel):
     id: int
     title: str
+    slug: Optional[str] = None
     description: Optional[str]
     thumbnail_url: Optional[str]
     price: Optional[float] = None

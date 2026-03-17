@@ -333,6 +333,7 @@ class VideoCourse(Base):
     __tablename__ = "video_courses"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
+    slug = Column(String, unique=True, index=True, nullable=True)  # e.g. "ejptv2" for URL routing
     description = Column(Text, nullable=True)
     thumbnail_url = Column(String, nullable=True)
     # Shop fields
@@ -340,7 +341,7 @@ class VideoCourse(Base):
     is_shop_course = Column(Boolean, default=False) # If True, appears in Academy Shop and requires purchase
     is_active = Column(Boolean, default=True)       # Admin can disable a course to hide it from students
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     lessons = relationship("VideoLesson", back_populates="course", cascade="all, delete-orphan")
     purchases = relationship("UserCoursePurchase", back_populates="course", cascade="all, delete-orphan")
 
@@ -353,10 +354,26 @@ class VideoLesson(Base):
     youtube_url = Column(String, nullable=True)   # For YT Help courses
     video_file_path = Column(String, nullable=True) # For Shop courses (self-hosted)
     order_index = Column(Integer, default=0)
+    section_title = Column(String, nullable=True)  # Section grouping label (e.g. "Sección 1: Introducción")
+    is_quiz = Column(Boolean, default=False)        # True for quiz/assessment entries
     created_at = Column(DateTime, default=datetime.utcnow)
     
     course = relationship("VideoCourse", back_populates="lessons")
     progress = relationship("LessonProgress", back_populates="lesson", cascade="all, delete-orphan")
+    materials = relationship("LessonMaterial", back_populates="lesson", cascade="all, delete-orphan")
+
+class LessonMaterial(Base):
+    """Material adicional adjunto a una lección (PDFs, slides, scripts, etc.)"""
+    __tablename__ = "lesson_materials"
+    id = Column(Integer, primary_key=True, index=True)
+    lesson_id = Column(Integer, ForeignKey("video_lessons.id"), nullable=False, index=True)
+    title = Column(String, nullable=False)
+    file_path = Column(String, nullable=False)  # /static/materials/<uuid>.<ext>
+    file_type = Column(String, nullable=True)   # "pdf", "zip", "txt", etc.
+    file_size = Column(Integer, nullable=True)  # bytes
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    lesson = relationship("VideoLesson", back_populates="materials")
 
 class LessonProgress(Base):
     __tablename__ = "lesson_progress"

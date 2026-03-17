@@ -9,14 +9,15 @@ import stripe
 
 logger = logging.getLogger(__name__)
 
-from database import get_db, User, VideoCourse, VideoLesson, LessonProgress, UserCoursePurchase
-from schemas import VideoCourseCreate, VideoCourseOut, VideoLessonCreate, VideoLessonOut, UserCoursePurchaseOut
+from database import get_db, User, VideoCourse, VideoLesson, LessonProgress, UserCoursePurchase, LessonMaterial
+from schemas import VideoCourseCreate, VideoCourseOut, VideoLessonCreate, VideoLessonOut, UserCoursePurchaseOut, LessonMaterialOut
 from auth import get_current_user, require_management, require_subscription
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 VIDEOS_DIR = "static/videos"
+MATERIALS_DIR = "static/materials"
 
 # ---------------------------------------------------------
 # DOS ROUTERS: UNO PARA ADMIN/DOCENTE Y OTRO PARA USUARIOS
@@ -123,6 +124,33 @@ def get_course_detail(course_id: int, current_user: User = Depends(get_current_u
     course_out.lessons.sort(key=lambda x: x.order_index)
         
     return course_out
+
+@public_router.get("/slug/{slug}", response_model=VideoCourseOut)
+def get_course_by_slug(slug: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Obtiene un curso por su slug (ej: 'ejptv2') con lecciones y progreso del usuario."""
+    course = db.query(VideoCourse).filter(VideoCourse.slug == slug).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+    course_out = VideoCourseOut.model_validate(course)
+
+    completed_lesson_ids = {
+        lp.lesson_id for lp in db.query(LessonProgress).filter(
+            LessonProgress.user_id == current_user.id
+        ).all()
+    }
+    for lesson in course_out.lessons:
+        lesson.is_completed = lesson.id in completed_lesson_ids
+
+    if len(course_out.lessons) > 0:
+        completed = sum(1 for l in course_out.lessons if l.is_completed)
+        course_out.progress_percentage = int((completed / len(course_out.lessons)) * 100)
+    else:
+        course_out.progress_percentage = 0
+
+    course_out.lessons.sort(key=lambda x: x.order_index)
+    return course_out
+
 
 @public_router.post("/lessons/{lesson_id}/complete")
 def toggle_lesson_complete(lesson_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -464,6 +492,101 @@ def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
     db.delete(lesson)
     db.commit()
     return {"detail": "Lección eliminada correctamente"}
+
+# --- MATERIALES DE LECCIÓN ---
+
+@admin_router.post("/lessons/{lesson_id}/upload-video", response_model=VideoLessonOut)
+async def upload_video_to_existing_lesson(
+    lesson_id: int,
+    video: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Sube (o reemplaza) el vídeo de una lección ya existente."""
+    lesson = db.query(VideoLesson).filter(VideoLesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lección no encontrada")
+
+    allowed = {"video/mp4", "video/webm", "video/ogg", "video/quicktime"}
+    if video.content_type not in allowed:
+        raise HTTPException(status_code=400, detail=f"Tipo de archivo no permitido: {video.content_type}")
+
+    # Borrar vídeo anterior si existe
+    if lesson.video_file_path:
+        old_path = lesson.video_file_path.lstrip("/")
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+    ext = os.path.splitext(video.filename)[1] if video.filename else ".mp4"
+    filename = f"{uuid.uuid4()}{ext}"
+    filepath = os.path.join(VIDEOS_DIR, filename)
+    os.makedirs(VIDEOS_DIR, exist_ok=True)
+
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(video.file, buffer)
+
+    lesson.video_file_path = f"/static/videos/{filename}"
+    db.commit()
+    db.refresh(lesson)
+    return lesson
+
+
+@admin_router.post("/lessons/{lesson_id}/materials", response_model=LessonMaterialOut)
+async def upload_lesson_material(
+    lesson_id: int,
+    title: str = Form(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Adjunta material adicional (PDF, ZIP, etc.) a una lección."""
+    lesson = db.query(VideoLesson).filter(VideoLesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lección no encontrada")
+
+    allowed_types = {
+        "application/pdf", "application/zip", "application/x-zip-compressed",
+        "text/plain", "text/markdown", "application/octet-stream",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "image/png", "image/jpeg", "image/gif",
+    }
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail=f"Tipo de archivo no permitido: {file.content_type}")
+
+    ext = os.path.splitext(file.filename)[1] if file.filename else ""
+    filename = f"{uuid.uuid4()}{ext}"
+    filepath = os.path.join(MATERIALS_DIR, filename)
+    os.makedirs(MATERIALS_DIR, exist_ok=True)
+
+    content = await file.read()
+    with open(filepath, "wb") as buffer:
+        buffer.write(content)
+
+    material = LessonMaterial(
+        lesson_id=lesson_id,
+        title=title,
+        file_path=f"/static/materials/{filename}",
+        file_type=ext.lstrip(".").lower() if ext else None,
+        file_size=len(content),
+    )
+    db.add(material)
+    db.commit()
+    db.refresh(material)
+    return material
+
+
+@admin_router.delete("/materials/{material_id}")
+def delete_lesson_material(material_id: int, db: Session = Depends(get_db)):
+    """Elimina un material adjunto de una lección."""
+    material = db.query(LessonMaterial).filter(LessonMaterial.id == material_id).first()
+    if not material:
+        raise HTTPException(status_code=404, detail="Material no encontrado")
+    if material.file_path:
+        path = material.file_path.lstrip("/")
+        if os.path.exists(path):
+            os.remove(path)
+    db.delete(material)
+    db.commit()
+    return {"detail": "Material eliminado"}
+
 
 # --- GESTIÓN DE TIENDA ---
 

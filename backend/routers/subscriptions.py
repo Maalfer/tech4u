@@ -562,7 +562,8 @@ def cancel_subscription(
     db: Session = Depends(get_db),
 ):
     """
-    Cancela la renovación automática de la suscripción. 
+    Marca la suscripción como no renovable (auto_renew=False).
+    No realiza ningún cargo ni cancela nada en Stripe — los planes son pagos únicos.
     El usuario mantiene el acceso hasta la fecha de finalización actual.
     """
     if current_user.subscription_type == "free":
