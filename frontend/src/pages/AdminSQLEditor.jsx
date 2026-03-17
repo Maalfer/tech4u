@@ -3,6 +3,7 @@ import {
     Database, Plus, Edit2, Trash2, RefreshCw, Check,
     X, ChevronDown, ChevronUp, AlertCircle, Search, Hash, Layers, BookOpen
 } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import Sidebar from '../components/Sidebar';
 import api from '../services/api';
 
@@ -331,7 +332,7 @@ export default function AdminSQLEditor() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
@@ -723,7 +724,7 @@ export default function AdminSQLEditor() {
                                                 <div>
                                                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-600 mb-1">Descripción</p>
                                                     <p className="text-slate-400 text-xs font-mono"
-                                                        dangerouslySetInnerHTML={{ __html: ex.description }} />
+                                                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ex.description) }} />
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-600 mb-1">Solución SQL</p>

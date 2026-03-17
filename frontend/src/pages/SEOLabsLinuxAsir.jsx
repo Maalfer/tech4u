@@ -1,81 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, Terminal, Users, Lock, Network, FileCode, Zap } from 'lucide-react';
+import { ChevronDown, Terminal, Users, Lock, Network, FileCode, Zap, Database, Shield } from 'lucide-react';
+import { useSEO, schemaFAQ, schemaOrganization } from '../hooks/useSEO';
 import logoImg from '../assets/tech4u_logo.png';
 
 const SEOLabsLinuxAsir = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
-  useEffect(() => {
-    // Add JSON-LD structured data
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      name: 'Labs de Linux para ASIR: Practica comandos y administración de sistemas',
-      description: 'Laboratorios prácticos de Linux para estudiantes de ASIR. Domina bash, permisos, servicios, networking y scripting en entornos virtualizados.',
-      url: 'https://tech4u.academy/labs-linux-asir',
-      publisher: {
-        '@type': 'Organization',
-        name: 'Tech4U Academy',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://tech4u.academy/logo.png'
+  useSEO({
+    title: 'Labs de Linux para ASIR',
+    description: 'Laboratorios prácticos de Linux para estudiantes de ASIR. Domina bash, permisos, servicios, networking y scripting en entornos virtualizados.',
+    path: '/labs-linux-asir',
+    type: 'article',
+    schemas: [
+      schemaOrganization(),
+      schemaFAQ([
+        {
+          question: '¿Qué son los labs de Linux para ASIR?',
+          answer: 'Son laboratorios prácticos virtualizados donde estudiantes de ASIR pueden practicar administración de sistemas Linux, desde comandos básicos hasta configuración avanzada de servicios.'
+        },
+        {
+          question: '¿Necesito Linux instalado en mi ordenador?',
+          answer: 'No, todos los labs funcionan en el navegador. Tenemos máquinas virtuales Linux listas para usar sin necesidad de instalación.'
+        },
+        {
+          question: '¿Qué temas cubre la práctica de Linux?',
+          answer: 'Cubrimos bash, permisos de archivos, usuarios y grupos, procesos, servicios, networking, SSH, cron jobs, scripting y administración de paquetes.'
+        },
+        {
+          question: '¿Los ejercicios tienen corrección automática?',
+          answer: 'Sí, nuestros scripts validan automáticamente si has completado correctamente cada tarea. Recibes feedback inmediato y puedes reintentar.'
+        },
+        {
+          question: '¿Puedo practicar con Debian y Ubuntu?',
+          answer: 'Sí, ofrecemos labs en múltiples distribuciones Linux incluyendo Debian, Ubuntu y Red Hat Enterprise, las más comunes en ASIR.'
         }
-      },
-      mainEntity: {
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: '¿Qué son los labs de Linux para ASIR?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Son laboratorios prácticos virtualizados donde estudiantes de ASIR pueden practicar administración de sistemas Linux, desde comandos básicos hasta configuración avanzada de servicios.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Necesito Linux instalado en mi ordenador?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'No, todos los labs funcionan en el navegador. Tenemos máquinas virtuales Linux listas para usar sin necesidad de instalación.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Qué temas cubre la práctica de Linux?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Cubrimos bash, permisos de archivos, usuarios y grupos, procesos, servicios, networking, SSH, cron jobs, scripting y administración de paquetes.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Los ejercicios tienen corrección automática?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, nuestros scripts validan automáticamente si has completado correctamente cada tarea. Recibes feedback inmediato y puedes reintentar.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Puedo practicar con Debian y Ubuntu?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, ofrecemos labs en múltiples distribuciones Linux incluyendo Debian, Ubuntu y Red Hat Enterprise, las más comunes en ASIR.'
-            }
-          }
-        ]
-      }
-    });
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+      ])
+    ]
+  });
 
   const toggleFaq = (index) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -206,9 +168,10 @@ const SEOLabsLinuxAsir = () => {
           <p className="text-xl text-gray-300 mb-4 max-w-2xl mx-auto">
             Practica comandos y administración de sistemas en entornos Linux reales, virtualizados en tu navegador.
           </p>
-          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-400 mb-4 max-w-2xl mx-auto">
             Domina bash, permisos de archivos, servicios, networking y scripting con ejercicios progresivos y corrección automática.
           </p>
+          <p className="text-sm text-gray-400 mb-8">Actualizado: 15 de enero de 2025 · 8 min de lectura</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/planes"
@@ -484,6 +447,49 @@ const SEOLabsLinuxAsir = () => {
               Ya tengo cuenta
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Internal Links */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 className="text-3xl font-bold font-mono mb-8 text-center">También te puede interesar</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            to="/plataforma-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Terminal className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Plataforma ASIR Completa
+            </h3>
+            <p className="text-sm text-gray-300">
+              Accede a todos los 6 módulos prácticos de ASIR en una sola plataforma.
+            </p>
+          </Link>
+          <Link
+            to="/sql-practice-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Database className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              SQL para ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Ejercicios de SQL con corrección automática para ASIR.
+            </p>
+          </Link>
+          <Link
+            to="/ciberseguridad-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Shield className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Ciberseguridad ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Labs de seguridad, hacking ético y análisis de vulnerabilidades.
+            </p>
+          </Link>
         </div>
       </section>
 

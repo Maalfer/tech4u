@@ -5,6 +5,7 @@ import {
     ShoppingBag, Unlock, Clock, BookOpen
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import LazyImage from '../components/LazyImage';
 import api from '../services/api';
 
 export default function ShopCourseDetail() {
@@ -72,7 +73,7 @@ export default function ShopCourseDetail() {
     return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden">
 
                 {/* Ambient */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/5 blur-[150px] rounded-full -z-10 animate-pulse" />
@@ -92,7 +93,7 @@ export default function ShopCourseDetail() {
                         {/* Thumbnail */}
                         <div className="w-full md:w-72 h-48 flex-shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-900/30 to-black border border-white/5 flex items-center justify-center">
                             {course.thumbnail_url ? (
-                                <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
+                                <LazyImage src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
                             ) : (
                                 <BookOpen className="w-16 h-16 text-purple-500/30" />
                             )}

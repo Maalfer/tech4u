@@ -116,13 +116,14 @@ class HardenedDockerClient:
         for c in containers:
             try:
                 c.stop(timeout=1)
-            except:
-                pass
+            except Exception as e:
+                logger.warning(f"Could not stop container {getattr(c, 'id', '?')} for user {user_id}: {e}")
 
     def get_container(self, container_id: str):
         try:
             return self.client.containers.get(container_id)
-        except:
+        except Exception as e:
+            logger.debug(f"Container {container_id} not found: {e}")
             return None
 
     def kill_container(self, container_id: str):
@@ -130,7 +131,7 @@ class HardenedDockerClient:
         if container:
             try:
                 container.stop(timeout=2)
-            except:
-                pass
+            except Exception as e:
+                logger.warning(f"Could not stop container {container_id}: {e}")
 
 docker_launcher = HardenedDockerClient()

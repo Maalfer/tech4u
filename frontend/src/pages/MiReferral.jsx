@@ -107,7 +107,7 @@ export default function MiReferral() {
     return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 overflow-y-auto">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 overflow-y-auto">
 
                 {/* Ambient glow */}
                 <div className="fixed top-0 right-1/4 w-[500px] h-[400px] bg-violet-600/4 blur-[160px] rounded-full pointer-events-none -z-10" />

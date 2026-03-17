@@ -75,10 +75,11 @@ export default function SEOCiberseguridadPage() {
                     Laboratorios de<br />
                     <span className="text-red-400">Ciberseguridad</span>
                 </h1>
-                <p className="text-lg text-slate-400 font-mono max-w-2xl mx-auto leading-relaxed mb-10">
+                <p className="text-lg text-slate-400 font-mono max-w-2xl mx-auto leading-relaxed mb-4">
                     Practica ciberseguridad real: firewalls, criptografía, hardening y análisis de tráfico.
                     Preparación para <strong className="text-white">ASIR</strong> y certificaciones de seguridad.
                 </p>
+                <p className="text-sm text-slate-500 font-mono mb-10">Actualizado: 15 de enero de 2025 · 8 min de lectura</p>
                 <div className="flex flex-wrap gap-4 justify-center">
                     <Link to="/login?tab=register" className="px-10 py-4 bg-red-500 text-white font-black uppercase tracking-widest text-sm rounded-2xl hover:shadow-[0_0_30px_rgba(239,68,68,0.4)] transition-all">
                         Empezar gratis <ArrowRight className="inline w-4 h-4 ml-2" aria-hidden="true" />

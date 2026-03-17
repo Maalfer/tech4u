@@ -1,6 +1,7 @@
 // ── Windows Server Lab Scenarios ─────────────────────────────────────────────
 import { WIN_MODULES_2, WIN_SCENARIOS_2 } from './winServerData2';
 import { WIN_MODULES_3, WIN_SCENARIOS_3 } from './winServerData3';
+import { WIN_MODULES_4, WIN_SCENARIOS_4 } from './winServerData4';
 import { WIN_MODULE_TROUBLESHOOT, WIN_SCENARIOS_TROUBLESHOOT } from './winServerTroubleshoot';
 
 const WIN_MODULES_BASE = [
@@ -18,6 +19,7 @@ export const WIN_MODULES = [
   ...WIN_MODULES_BASE,
   ...WIN_MODULES_2,
   ...WIN_MODULES_3,
+  ...WIN_MODULES_4,
   WIN_MODULE_TROUBLESHOOT,
 ];
 
@@ -2064,5 +2066,6 @@ export const WIN_SCENARIOS = [
   ...WIN_SCENARIOS_BASE,
   ...WIN_SCENARIOS_2,
   ...WIN_SCENARIOS_3,
+  ...WIN_SCENARIOS_4,
   ...WIN_SCENARIOS_TROUBLESHOOT,
 ];

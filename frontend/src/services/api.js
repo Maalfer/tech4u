@@ -5,25 +5,18 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const api = axios.create({
     baseURL: API_BASE,
     headers: { 'Content-Type': 'application/json' },
-    withCredentials: true
+    withCredentials: true  // httpOnly cookies are sent automatically with this flag
 })
 
-// Attach JWT token to every request
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('tech4u_token')
-    if (token) config.headers.Authorization = `Bearer ${token}`
-    return config
-})
-
-// On 401 → clear token and redirect to login
+// On 401 → clear user and redirect to login
 api.interceptors.response.use(
     (res) => res,
     (err) => {
         const isAuthRequest = err.config?.url?.includes('/auth/login') || err.config?.url?.includes('/auth/register')
         if (err.response?.status === 401 && !isAuthRequest) {
             api.post('/auth/logout').catch(() => {})
-            localStorage.removeItem('tech4u_token')
             localStorage.removeItem('tech4u_user')
+            // httpOnly cookie will be cleared by backend on /auth/logout
             window.location.href = '/login'
         }
         if (err.response?.status === 429) {

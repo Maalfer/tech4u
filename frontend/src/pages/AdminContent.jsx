@@ -178,7 +178,7 @@ export default function AdminContent() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white font-sans">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8">
                 <PageHeader
                     title={<>Gestión de <span className="text-neon">{activeTab === 'questions' ? 'Preguntas' : 'Recursos'}</span></>}
                     subtitle={selectedSubject ? `Sector Activo: ${selectedSubject}` : "Nucleus de Almacenamiento Técnico"}
@@ -266,64 +266,175 @@ export default function AdminContent() {
                             </div>
                         </div>
 
-                        <div className="glass rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-                            <table className="w-full text-left text-[11px] font-mono">
-                                <thead className="bg-white/[0.03] text-slate-500 uppercase font-bold border-b border-white/5">
-                                    <tr>
-                                        <th className="p-6">{activeTab === 'questions' ? 'ID' : 'Tipo'}</th>
-                                        <th className="p-6">Contenido</th>
-                                        <th className="p-6">{activeTab === 'questions' ? 'Nivel' : 'Acceso'}</th>
-                                        <th className="p-6 text-right">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {filteredList.map((item) => (
-                                        <tr key={item.id} className="hover:bg-neon/5 transition-colors group">
-                                            <td className="p-6">
-                                                {activeTab === 'questions' ? (
-                                                    <span className="text-neon/60 font-black">#{item.id}</span>
-                                                ) : (
+                        {/* ── Question Cards (preguntas) ──────────────────── */}
+                        {activeTab === 'questions' ? (
+                            <>
+                                {/* Stats bar */}
+                                <div className="flex items-center gap-4 px-1 mb-2">
+                                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                                        {filteredList.length} pregunta{filteredList.length !== 1 ? 's' : ''}
+                                        {searchTerm && ' encontradas'}
+                                    </span>
+                                    <div className="flex gap-3 ml-auto">
+                                        {['easy','medium','hard'].map(d => {
+                                            const count = filteredList.filter(q => q.difficulty === d).length
+                                            const colors = { easy: 'text-emerald-400', medium: 'text-amber-400', hard: 'text-red-400' }
+                                            const labels = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' }
+                                            return count > 0 ? (
+                                                <span key={d} className={`text-[9px] font-mono ${colors[d]}`}>
+                                                    {count} {labels[d]}
+                                                </span>
+                                            ) : null
+                                        })}
+                                    </div>
+                                </div>
+
+                                {filteredList.length === 0 && !loading ? (
+                                    <div className="glass rounded-[2rem] border border-white/5 p-20 text-center">
+                                        <FileText className="w-12 h-12 text-slate-700 mx-auto mb-4" />
+                                        <p className="text-slate-600 font-mono text-[10px] uppercase tracking-widest">
+                                            {searchTerm ? 'No hay preguntas que coincidan con la búsqueda' : 'No hay preguntas en este sector. Crea la primera.'}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                        {filteredList.map((item) => {
+                                            const diffColors = {
+                                                easy: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+                                                medium: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+                                                hard: 'bg-red-500/10 text-red-400 border-red-500/20',
+                                            }
+                                            const diffLabels = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' }
+                                            const opts = [
+                                                { key: 'a', text: item.option_a },
+                                                { key: 'b', text: item.option_b },
+                                                { key: 'c', text: item.option_c },
+                                                { key: 'd', text: item.option_d },
+                                            ]
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    className="glass rounded-2xl border border-white/5 p-5 hover:border-neon/20 transition-all duration-200 group flex flex-col gap-4"
+                                                >
+                                                    {/* Header: ID + difficulty + actions */}
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                                            <span className="text-[10px] font-mono font-black text-neon/50">#{item.id}</span>
+                                                            <span className={`px-2 py-0.5 rounded-lg border text-[9px] font-mono font-black uppercase ${diffColors[item.difficulty] || 'bg-slate-500/10 text-slate-400 border-slate-500/20'}`}>
+                                                                {diffLabels[item.difficulty] || item.difficulty}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button
+                                                                onClick={() => handleOpenModal(item)}
+                                                                className="p-2 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-neon hover:border-neon/20 transition-all"
+                                                                title="Editar"
+                                                            >
+                                                                <Edit3 className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDelete(item.id)}
+                                                                className="p-2 bg-red-500/5 border border-red-500/10 rounded-xl text-slate-500 hover:text-red-400 transition-all"
+                                                                title="Eliminar"
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Question text */}
+                                                    <p className="text-sm text-white font-medium leading-relaxed line-clamp-3">
+                                                        {item.text}
+                                                    </p>
+
+                                                    {/* Options grid */}
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {opts.map(({ key, text }) => {
+                                                            const isCorrect = item.correct_answer === key
+                                                            return (
+                                                                <div
+                                                                    key={key}
+                                                                    className={`flex items-start gap-2 p-2.5 rounded-xl border text-[11px] font-mono transition-all ${
+                                                                        isCorrect
+                                                                            ? 'bg-neon/10 border-neon/30 text-neon'
+                                                                            : 'bg-white/[0.02] border-white/5 text-slate-400'
+                                                                    }`}
+                                                                >
+                                                                    <span className={`flex-shrink-0 w-4 h-4 rounded-md flex items-center justify-center text-[9px] font-black uppercase ${
+                                                                        isCorrect ? 'bg-neon text-black' : 'bg-white/10 text-slate-500'
+                                                                    }`}>
+                                                                        {key}
+                                                                    </span>
+                                                                    <span className="line-clamp-2 leading-snug">{text || '—'}</span>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+
+                                                    {/* Explanation preview */}
+                                                    {item.explanation && (
+                                                        <p className="text-[10px] text-slate-600 font-mono italic line-clamp-1 border-t border-white/5 pt-2">
+                                                            💡 {item.explanation}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            /* ── Resources Table ─────────────────────────── */
+                            <div className="glass rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
+                                <table className="w-full text-left text-[11px] font-mono">
+                                    <thead className="bg-white/[0.03] text-slate-500 uppercase font-bold border-b border-white/5">
+                                        <tr>
+                                            <th className="p-5">Tipo</th>
+                                            <th className="p-5">Título</th>
+                                            <th className="p-5">Acceso</th>
+                                            <th className="p-5 text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {filteredList.map((item) => (
+                                            <tr key={item.id} className="hover:bg-neon/5 transition-colors group">
+                                                <td className="p-5">
                                                     <FileText className={`w-5 h-5 ${item.file_type === 'pdf' ? 'text-red-400' : 'text-blue-400'}`} />
-                                                )}
-                                            </td>
-                                            <td className="p-6 text-slate-300 max-w-lg">
-                                                <p className="line-clamp-2">{activeTab === 'questions' ? item.text : item.title}</p>
-                                            </td>
-                                            <td className="p-6 uppercase font-bold">
-                                                {activeTab === 'questions' ? (
-                                                    <span className="px-3 py-1 rounded-lg border border-white/10 text-[9px] bg-white/5">{item.difficulty}</span>
-                                                ) : (
+                                                </td>
+                                                <td className="p-5 text-slate-300 max-w-lg">
+                                                    <p className="line-clamp-2 font-medium">{item.title}</p>
+                                                    {item.url && <p className="text-[9px] text-slate-600 mt-0.5 truncate max-w-xs">{item.url}</p>}
+                                                </td>
+                                                <td className="p-5">
                                                     <div className="flex flex-col gap-1">
                                                         <span className={`text-[9px] font-black ${item.requires_subscription ? 'text-amber-400' : 'text-emerald-400'}`}>
-                                                            {item.requires_subscription ? 'PREMIUM' : 'OPEN'}
+                                                            {item.requires_subscription ? '🔒 PREMIUM' : '🌐 OPEN'}
                                                         </span>
                                                         <span className={`text-[8px] ${item.is_published ? 'text-neon' : 'text-slate-600'}`}>
                                                             {item.is_published ? '● PUBLICADO' : '○ BORRADOR'}
                                                         </span>
                                                     </div>
-                                                )}
-                                            </td>
-                                            <td className="p-6 text-right">
-                                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {activeTab === 'resources' && (
+                                                </td>
+                                                <td className="p-5 text-right">
+                                                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button onClick={() => handleTogglePublish(item.id, item.is_published)} className={`p-2.5 rounded-xl transition-all ${item.is_published ? 'bg-neon/10 text-neon' : 'bg-white/5 text-slate-600 hover:text-neon'}`}>
                                                             {item.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                         </button>
-                                                    )}
-                                                    <button onClick={() => handleOpenModal(item)} className="p-2.5 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-neon hover:border-neon/20 transition-all"><Edit3 className="w-4 h-4" /></button>
-                                                    <button onClick={() => handleDelete(item.id)} className="p-2.5 bg-red-500/5 border border-red-500/10 rounded-xl text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {filteredList.length === 0 && !loading && (
-                                <div className="p-20 text-center text-slate-600 font-mono text-[10px] uppercase tracking-widest italic">
-                                    No se encontraron registros en este sector del mainframe.
-                                </div>
-                            )}
-                        </div>
+                                                        <button onClick={() => handleOpenModal(item)} className="p-2.5 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-neon hover:border-neon/20 transition-all"><Edit3 className="w-4 h-4" /></button>
+                                                        <button onClick={() => handleDelete(item.id)} className="p-2.5 bg-red-500/5 border border-red-500/10 rounded-xl text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {filteredList.length === 0 && !loading && (
+                                    <div className="p-20 text-center text-slate-600 font-mono text-[10px] uppercase tracking-widest italic">
+                                        No se encontraron recursos en este sector.
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 

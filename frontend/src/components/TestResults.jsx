@@ -5,6 +5,7 @@ import {
     CheckCircle, XCircle, Star, Gift, Zap,
     Shield, Flame, ChevronDown, ChevronUp
 } from 'lucide-react'
+import { fireConfetti, firePerfectScore } from '../utils/confetti'
 
 // ─── Animated Counter ────────────────────────────────────────────────────────
 function AnimatedNumber({ value, duration = 1200, suffix = '' }) {
@@ -79,6 +80,19 @@ export default function TestResults({ results, selectedSubject, mode, onReset, o
         const t = setTimeout(() => setVisible(true), 80)
         return () => clearTimeout(t)
     }, [])
+
+    // 🎉 Confetti on pass
+    useEffect(() => {
+        if (!results) return
+        const accuracy = results?.accuracy ?? 0
+        if (accuracy === 100) {
+            const t = setTimeout(() => firePerfectScore(), 400)
+            return () => clearTimeout(t)
+        } else if (accuracy >= 70) {
+            const t = setTimeout(() => fireConfetti(), 400)
+            return () => clearTimeout(t)
+        }
+    }, [results])
 
     if (!results) return (
         <div className="glass rounded-[2rem] p-12 border border-red-500/20 text-center max-w-xl mx-auto mt-20">

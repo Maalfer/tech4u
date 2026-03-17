@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import brandCombinedImg from '../assets/brand-combined.png'
+import brandCombinedImg from '../assets/tech4u_logo.png'
 import { Mail, ChevronRight } from 'lucide-react'
 
 export default function LegalLayout({ title, subtitle, lastUpdated, children }) {

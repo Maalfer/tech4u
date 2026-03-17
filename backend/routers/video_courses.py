@@ -4,7 +4,10 @@ from sqlalchemy import func
 from datetime import datetime
 from typing import List, Optional
 import os, uuid, shutil
+import logging
 import stripe
+
+logger = logging.getLogger(__name__)
 
 from database import get_db, User, VideoCourse, VideoLesson, LessonProgress, UserCoursePurchase
 from schemas import VideoCourseCreate, VideoCourseOut, VideoLessonCreate, VideoLessonOut, UserCoursePurchaseOut
@@ -251,8 +254,12 @@ def create_course_checkout_session(
             customer_email=current_user.email,
         )
         return {"url": session.url}
+    except stripe.StripeError as e:
+        logger.error(f"Stripe error creating course checkout session: {e}", exc_info=True)
+        raise HTTPException(status_code=502, detail="Error al procesar el pago. Inténtalo de nuevo.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Unexpected error creating course checkout session: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 
 @shop_router.post("/{course_id}/purchase", response_model=UserCoursePurchaseOut)

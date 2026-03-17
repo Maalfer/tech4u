@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -34,6 +34,8 @@ import {
     Swords,
     Monitor,
     BarChart2,
+    Menu,
+    X as XIcon,
 } from 'lucide-react';
 import api from '../services/api';
 import logoImg from '../assets/tech4u_logo.png';
@@ -49,8 +51,18 @@ export default function Sidebar() {
     const { user, logout } = useAuth();
     const [ticketCount, setTicketCount] = useState(0);
     const [suggestionCount, setSuggestionCount] = useState(0);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+
+    // Close drawer on route change (mobile)
+    useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
+    // Prevent body scroll when drawer is open
+    useEffect(() => {
+        document.body.style.overflow = mobileOpen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [mobileOpen]);
 
     const fetchNotificationCounts = async () => {
         if (!user || (user.role !== 'admin' && user.role !== 'developer')) return;
@@ -138,9 +150,34 @@ export default function Sidebar() {
     if (!user) return null;
 
     return (
-        <aside className="w-60 bg-[#0A0A0A] border-r border-white/5 h-screen fixed left-0 top-0 flex flex-col z-50">
-            {/* Logo */}
+        <>
+        {/* ── Hamburger button — only visible on mobile ── */}
+        <button
+            onClick={() => setMobileOpen(true)}
+            className="md:hidden fixed top-4 left-4 z-[60] w-10 h-10 flex items-center justify-center rounded-xl bg-[#0A0A0A] border border-white/10 text-slate-300 hover:text-white transition-colors shadow-lg"
+            aria-label="Abrir menú"
+        >
+            <Menu className="w-5 h-5" />
+        </button>
+
+        {/* ── Backdrop overlay — mobile only ── */}
+        {mobileOpen && (
+            <div
+                className="md:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[55]"
+                onClick={() => setMobileOpen(false)}
+            />
+        )}
+
+        <aside className={`
+            w-60 bg-[#0A0A0A] border-r border-white/5 h-screen fixed left-0 top-0 flex flex-col
+            transition-transform duration-300 ease-in-out
+            z-[58]
+            ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
+            md:translate-x-0
+        `}>
+            {/* Logo + mobile close */}
             <div className="p-6 pb-5 border-b border-white/5">
+                <div className="flex items-center gap-3 justify-between">
                 <div className="flex items-center gap-3">
                     <div className="relative">
                         <div className="absolute inset-0 bg-neon/20 blur-lg rounded-full" />
@@ -151,9 +188,18 @@ export default function Sidebar() {
                         <span className="block text-[9px] font-mono text-neon/60 uppercase tracking-[0.2em]">Academy</span>
                     </div>
                 </div>
+                {/* Close button — mobile only */}
+                <button
+                    onClick={() => setMobileOpen(false)}
+                    className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label="Cerrar menú"
+                >
+                    <XIcon className="w-4 h-4" />
+                </button>
+                </div>
             </div>
 
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
+            <nav className="flex-1 min-h-0 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
 
                 {/* 1. DASHBOARD — ALWAYS TOP */}
                 <NavLink
@@ -401,5 +447,6 @@ export default function Sidebar() {
                 </button>
             </div>
         </aside>
+        </>
     );
 }

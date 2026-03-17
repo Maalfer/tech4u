@@ -6,10 +6,13 @@ import random
 import string
 import asyncio
 import json
+import logging
 
 from database import get_db, User, Question
 from auth import get_current_user, decode_token
 from websocket_manager import manager
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/battle", tags=["Battle"])
 
@@ -319,8 +322,8 @@ async def battle_websocket_handler(
                                     for uid, p in room["players"].items()
                                 },
                             })
-                        except:
-                            pass
+                        except (WebSocketDisconnect, RuntimeError, ConnectionError) as e:
+                            logger.debug(f"Battle score broadcast skipped (disconnected player {pid}): {e}")
 
                 # Check if both players finished all questions
                 all_answered = all(
@@ -351,8 +354,8 @@ async def battle_websocket_handler(
                                     "scores": scores,
                                     "correct_answers": correct_answers,
                                 })
-                            except:
-                                pass
+                            except (WebSocketDisconnect, RuntimeError, ConnectionError) as e:
+                                logger.debug(f"Battle result broadcast skipped (disconnected player {pid}): {e}")
 
                     # Award XP: winner gets 50, loser gets 10
                     for uid, player in room["players"].items():
@@ -369,9 +372,9 @@ async def battle_websocket_handler(
         if user_id in room["players"]:
             room["players"][user_id]["ws"] = None
     except Exception as e:
-        print(f"Battle WebSocket error: {e}")
+        logger.error(f"Battle WebSocket error for user {user_id} in room {room_code}: {e}", exc_info=True)
     finally:
         try:
             await websocket.close()
-        except:
-            pass
+        except (RuntimeError, ConnectionError):
+            pass  # WebSocket may already be closed — safe to ignore

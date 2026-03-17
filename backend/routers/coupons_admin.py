@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+import secrets
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from typing import List
@@ -91,12 +92,16 @@ def create_bulk_coupons(
         if not email:
             continue
 
-        code = f"{prefix}_{str(idx + 1).zfill(3)}"
+        # Generate a cryptographically random unique suffix for each coupon
+        random_suffix = secrets.token_urlsafe(4).upper()[:6]
+        code = f"{prefix}_{random_suffix}"
 
-        # Verificar que el código no exista
-        if db.query(Coupon).filter(Coupon.code == code).first():
-            # Añadir sufijo extra para garantizar unicidad
-            code = f"{prefix}_{str(idx + 1).zfill(3)}X"
+        # Garantizar unicidad en caso de colisión (extremadamente improbable con token_urlsafe)
+        attempts = 0
+        while db.query(Coupon).filter(Coupon.code == code).first() and attempts < 10:
+            random_suffix = secrets.token_urlsafe(4).upper()[:6]
+            code = f"{prefix}_{random_suffix}"
+            attempts += 1
 
         # Intentar asociar al usuario
         assigned_to_id = None

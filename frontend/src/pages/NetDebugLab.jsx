@@ -346,7 +346,7 @@ export default function NetDebugLab() {
     return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden">
 
                 {/* Ambient glows */}
                 <div className="absolute top-0 right-1/4 w-[500px] h-[400px] bg-orange-500/4 blur-[160px] rounded-full -z-10 pointer-events-none" />

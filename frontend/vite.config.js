@@ -37,6 +37,16 @@ export default defineConfig({
             urlPattern: /\/api\/teoria\/.*/i,
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'api-teoria-cache', expiration: { maxEntries: 50, maxAgeSeconds: 60*60*24 } }
+          },
+          {
+            urlPattern: /\/api\/tests\/questions.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'api-tests-cache', expiration: { maxEntries: 20, maxAgeSeconds: 60*60*6 } }
+          },
+          {
+            urlPattern: /\/api\/flashcards\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'api-flashcards-cache', expiration: { maxEntries: 10, maxAgeSeconds: 60*60*24 } }
           }
         ]
       }
@@ -49,7 +59,9 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-ui': ['lucide-react', 'framer-motion', 'typewriter-effect'],
           'vendor-utils': ['axios', 'dompurify'],
-          'vendor-heavy': ['phaser', 'xterm', 'xterm-addon-fit', '@uiw/react-md-editor'],
+          'vendor-phaser': ['phaser'],
+          'vendor-terminal': ['xterm', 'xterm-addon-fit'],
+          'vendor-editor': ['@uiw/react-md-editor'],
         }
       }
     },

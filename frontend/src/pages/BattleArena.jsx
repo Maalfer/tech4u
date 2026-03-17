@@ -120,9 +120,11 @@ export default function BattleArena() {
     // ── Connect WebSocket ─────────────────────────────────────────────────────
     const connectWS = useCallback((code) => {
         cleanup();
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const wsBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/^http/, 'ws');
-        const ws = new WebSocket(`${wsBase}/ws/battle/${code}?token=${token}`);
+        // NOTE: WebSocket connections to the same origin will include httpOnly cookies automatically.
+        // The backend should verify authentication using the cookie instead of a query parameter.
+        // If backend still requires token param, it will need a one-time ticket from /ws-ticket endpoint.
+        const ws = new WebSocket(`${wsBase}/ws/battle/${code}`);
         wsRef.current = ws;
 
         ws.onopen = () => setError('');

@@ -44,7 +44,7 @@ export default function VideoCourseDetail() {
         return (
             <div className="flex min-h-screen bg-[#0D0D0D]">
                 <Sidebar />
-                <main className="flex-1 ml-64 flex items-center justify-center">
+                <main className="flex-1 ml-0 md:ml-64 flex items-center justify-center">
                     <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
                 </main>
             </div>
@@ -55,7 +55,7 @@ export default function VideoCourseDetail() {
         return (
             <div className="flex min-h-screen bg-[#0D0D0D]">
                 <Sidebar />
-                <main className="flex-1 ml-64 p-8 flex flex-col items-center justify-center text-center">
+                <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 flex flex-col items-center justify-center text-center">
                     <h2 className="text-3xl font-black text-white uppercase mb-4">Colección no encontrada</h2>
                     <button
                         onClick={() => navigate('/video-cursos')}
@@ -71,7 +71,7 @@ export default function VideoCourseDetail() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
-            <main className="flex-1 ml-64 flex flex-col md:flex-row h-screen overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 flex flex-col md:flex-row h-screen overflow-hidden">
 
                 {/* ── Columna principal (75%) ────────────────────────────────── */}
                 <div className="flex-1 bg-black flex flex-col overflow-y-auto">

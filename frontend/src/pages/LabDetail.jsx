@@ -67,12 +67,8 @@ export default function LabDetail() {
     const handleStartLab = async () => {
         setStartingLab(true);
         try {
-            const token = localStorage.getItem('tech4u_token');
-            const res = await api.post(`/labs/${id}/start`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // Token is now in httpOnly cookie, sent automatically by axios with withCredentials
+            const res = await api.post(`/labs/${id}/start`, {});
             setWsUrl(res.data.ws_url);
         } catch (err) {
             if (import.meta.env.DEV) console.error("Error starting lab:", err);
@@ -154,12 +150,8 @@ export default function LabDetail() {
         setWsUrl(null);
         setStartingLab(true);
         try {
-            const token = localStorage.getItem('tech4u_token');
-            const res = await api.post(`/labs/${id}/restart`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // Token is sent automatically via httpOnly cookie (withCredentials: true in api.js)
+            const res = await api.post(`/labs/${id}/restart`, {});
             setWsUrl(res.data.ws_url);
         } catch (err) {
             if (import.meta.env.DEV) console.error("Error restarting lab:", err);
@@ -176,7 +168,7 @@ export default function LabDetail() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 flex flex-col h-screen overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 flex flex-col h-screen overflow-hidden">
                 {/* Header */}
                 <header className="mb-6 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-4">

@@ -122,7 +122,7 @@ export default function SubscriptionPage() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 overflow-y-auto">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 overflow-y-auto">
 
                 {/* ── Page header ── */}
                 <header className="mb-10 flex items-center gap-4">

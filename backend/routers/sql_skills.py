@@ -6,10 +6,11 @@ import sqlite3
 import json
 import re
 import time
+import logging
 from datetime import datetime
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -18,6 +19,8 @@ from database import get_db, SQLDataset, SQLExercise, UserSQLProgress, User, SQL
 from auth import get_current_user, require_developer
 from services.permission_service import require_module_access
 from limiter import limiter
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/sql", tags=["sql_skills"])
 
@@ -268,7 +271,8 @@ def _results_match(actual: dict, expected_json: str) -> bool:
         a_rows = norm(actual.get("rows", []))
         e_rows = norm(expected.get("rows", []))
         return a_rows == e_rows
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Error comparing SQL query results: {e}")
         return False
 
 
@@ -344,7 +348,8 @@ def get_dataset_schema(
             
         return schema
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al procesar el esquema: {str(e)}")
+        logger.error(f"Error processing SQL schema: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error al procesar el esquema de la base de datos")
     finally:
         conn.close()
 
@@ -541,13 +546,8 @@ def execute_query(
             if is_correct and not prog.completed:
                 prog.completed = True
                 prog.completed_at = datetime.utcnow()
-                if not prog.xp_awarded:
-                    prog.xp_awarded = True
-                    try:
-                        leveled_up = current_user.add_xp(ex.xp_reward)
-                        xp_gained = ex.xp_reward
-                    except Exception:
-                        pass  # XP no crítico; la consulta sigue siendo correcta
+                # SQL Skills NO otorgan XP — solo registran el progreso del ejercicio.
+                # El XP se gana únicamente en Tests y Skill Labs.
 
             db.commit()
 
@@ -719,45 +719,66 @@ def admin_get_exercises(db: Session = Depends(get_db), _: User = Depends(_requir
     ]
 
 
+def _bg_compute_and_save(exercise_id: int, schema_sql: str, seed_sql: str, solution_sql: str):
+    """Background task: compute expected_result and persist it without blocking the request."""
+    from database import SessionLocal
+    db = SessionLocal()
+    try:
+        expected = _compute_expected(schema_sql, seed_sql, solution_sql)
+        ex = db.query(SQLExercise).filter(SQLExercise.id == exercise_id).first()
+        if ex:
+            ex.expected_result = expected
+            db.commit()
+    except Exception as e:
+        logger.warning(f"BG compute expected_result failed for exercise {exercise_id}: {e}")
+    finally:
+        db.close()
+
+
 @router.post("/admin/exercises")
-def admin_create_exercise(data: ExerciseCreate, db: Session = Depends(get_db), _: User = Depends(_require_admin)):
+def admin_create_exercise(data: ExerciseCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db), _: User = Depends(_require_admin)):
     dataset = db.query(SQLDataset).filter(SQLDataset.id == data.dataset_id).first()
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset no encontrado")
 
-    # Calcular resultado esperado automáticamente
-    try:
-        expected = _compute_expected(dataset.schema_sql, dataset.seed_sql, data.solution_sql)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Error en la solución SQL: {str(e)}")
-
-    ex = SQLExercise(**data.dict(), expected_result=expected)
+    # Guardar el ejercicio inmediatamente sin bloquear en el cálculo SQL
+    ex = SQLExercise(**data.dict(), expected_result=None)
     db.add(ex)
     db.commit()
     db.refresh(ex)
-    return {"ok": True, "id": ex.id}
+
+    # Calcular expected_result en background (no bloquea la respuesta)
+    background_tasks.add_task(
+        _bg_compute_and_save, ex.id, dataset.schema_sql, dataset.seed_sql, data.solution_sql
+    )
+    return {"ok": True, "id": ex.id, "note": "expected_result se calculará en segundo plano"}
 
 
 @router.put("/admin/exercises/{exercise_id}")
-def admin_update_exercise(exercise_id: int, data: ExerciseUpdate, db: Session = Depends(get_db), _: User = Depends(_require_admin)):
+def admin_update_exercise(exercise_id: int, data: ExerciseUpdate, background_tasks: BackgroundTasks, db: Session = Depends(get_db), _: User = Depends(_require_admin)):
     ex = db.query(SQLExercise).filter(SQLExercise.id == exercise_id).first()
     if not ex:
         raise HTTPException(status_code=404, detail="Ejercicio no encontrado")
 
     update_data = data.dict(exclude_unset=True)
 
-    # Si se actualiza la solución, recalcular expected_result
-    if "solution_sql" in update_data:
-        dataset = db.query(SQLDataset).filter(SQLDataset.id == ex.dataset_id).first()
-        try:
-            update_data["expected_result"] = _compute_expected(dataset.schema_sql, dataset.seed_sql, update_data["solution_sql"])
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=f"Error en la solución SQL: {str(e)}")
+    # Si se actualiza la solución, recalcular expected_result en background
+    needs_recompute = "solution_sql" in update_data
+    if needs_recompute:
+        update_data.pop("expected_result", None)  # no sobreescribir todavía
 
     for key, value in update_data.items():
         setattr(ex, key, value)
 
     db.commit()
+
+    if needs_recompute:
+        dataset = db.query(SQLDataset).filter(SQLDataset.id == ex.dataset_id).first()
+        if dataset:
+            background_tasks.add_task(
+                _bg_compute_and_save, ex.id, dataset.schema_sql, dataset.seed_sql, update_data["solution_sql"]
+            )
+
     return {"ok": True}
 
 

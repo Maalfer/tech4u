@@ -137,7 +137,7 @@ export default function BinaryConverter() {
     return (
         <div className="flex min-h-screen bg-[#050507] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 overflow-y-auto h-screen custom-scrollbar">
+            <main className="flex-1 ml-0 md:ml-64 overflow-y-auto h-screen custom-scrollbar">
 
                 {/* Header */}
                 <div className="relative border-b border-white/[0.05] overflow-hidden" style={{ background: 'linear-gradient(135deg,#07050f,#090714,#06050e)' }}>

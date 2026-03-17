@@ -21,7 +21,7 @@ export const PLAN_DATA = [
     {
         id: 'monthly',
         name: 'Mensual',
-        tagline: 'Empieza sin compromiso',
+        tagline: 'Perfecto para empezar',
         price: '9,99',
         priceSuffix: '€/mes',
         period: 'mes',
@@ -43,7 +43,8 @@ export const PLAN_DATA = [
             { icon: BookOpen,     text: 'Todos los recursos y apuntes PDF',       included: true },
             { icon: BarChart3,    text: 'Estadísticas de rendimiento',            included: true },
             { icon: Trophy,       text: 'Ranking competitivo y gamificación',     included: true },
-            { icon: Terminal,     text: 'Terminal Skills interactiva',            included: false, lockLabel: 'Trimestral+' },
+            { icon: Terminal,     text: 'Terminal Skills (5 labs/mes)',            included: true, isLimited: true },
+            { icon: Rocket,       text: 'NetLabs y WinLabs ilimitados',           included: false, lockLabel: 'Trimestral+' },
             { icon: Rocket,       text: 'Acceso anticipado a novedades',          included: false, lockLabel: 'Trimestral+' },
             { icon: Sparkles,     text: 'Nuevos modos en acceso anticipado',      included: false, lockLabel: 'Solo Anual' },
         ],
@@ -236,11 +237,15 @@ function PlanCard({ plan, onSelectPlan, renderActions, compact }) {
                         <li key={feat.text} className={`flex items-start gap-3 ${!feat.included ? 'opacity-38' : ''}`}>
                             {feat.included ? (
                                 <div className={`flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center mt-0.5
-                                    ${feat.isExclusive
+                                    ${feat.isExclusive || feat.isLimited
                                         ? `${plan.accentBg} border ${plan.accentBorder}`
                                         : 'bg-white/5 border border-white/10'
                                     }`}>
-                                    <Check className={`w-3 h-3 ${feat.isExclusive ? plan.accentText : 'text-white/60'}`} />
+                                    {feat.isLimited ? (
+                                        <span className="text-[10px] font-black text-amber-400">!</span>
+                                    ) : (
+                                        <Check className={`w-3 h-3 ${feat.isExclusive ? plan.accentText : 'text-white/60'}`} />
+                                    )}
                                 </div>
                             ) : (
                                 <div className="flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center mt-0.5 bg-white/3 border border-white/8">
@@ -249,7 +254,7 @@ function PlanCard({ plan, onSelectPlan, renderActions, compact }) {
                             )}
 
                             <div className="flex-1 min-w-0">
-                                <span className={`font-mono text-xs leading-relaxed ${feat.included ? (feat.isExclusive ? `font-bold ${plan.accentText === 'text-neon' ? 'text-white' : 'text-white'}` : 'text-slate-300') : 'text-slate-600 line-through'}`}>
+                                <span className={`font-mono text-xs leading-relaxed ${feat.included ? (feat.isExclusive || feat.isLimited ? `font-bold ${plan.accentText === 'text-neon' ? 'text-white' : 'text-white'}` : 'text-slate-300') : 'text-slate-600 line-through'}`}>
                                     {feat.text}
                                 </span>
                                 {!feat.included && feat.lockLabel && (
@@ -260,6 +265,11 @@ function PlanCard({ plan, onSelectPlan, renderActions, compact }) {
                                 {feat.included && feat.isExclusive && (
                                     <span className={`ml-1.5 text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${plan.accentBg} ${plan.accentText} ${plan.accentBorder} opacity-80`}>
                                         Exclusivo
+                                    </span>
+                                )}
+                                {feat.included && feat.isLimited && (
+                                    <span className="ml-1.5 text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 text-amber-400 opacity-90">
+                                        Limitado
                                     </span>
                                 )}
                             </div>

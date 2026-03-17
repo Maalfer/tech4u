@@ -64,7 +64,7 @@ export default function TestHistory() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8">
                 <div className="max-w-[1400px] w-full mx-auto relative">
                     {/* Background glow */}
                     <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none -z-10" />

@@ -13,6 +13,7 @@ import TestResults from '../components/TestResults'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { SubjectCoverComponent } from '../components/TestCenterCovers'
+import { trackEvent } from '../utils/analytics'
 
 const SUBJECTS = [
     { key: 'general',                  label: 'Examen General',          Icon: Trophy,    accent: '#f59e0b', accentRgb: '245,158,11',  topics: ['Mixto', 'ASIR', 'Global'] },
@@ -262,6 +263,7 @@ export default function TestCenter() {
             }
             setQuestions(res.data)
             setPhase('running')
+            trackEvent('test_started', sub.key, 'test', { mode: 'exam', question_count: 60 })
         } catch {
             setError('Fallo de conexión con el servidor.')
         } finally {
@@ -285,13 +287,14 @@ export default function TestCenter() {
             const endpoint   = mode === 'errors' ? '/tests/failed' : '/tests/questions'
             let finalLimit   = questionCount
             if (mode === 'exam')   finalLimit = 60
-            if (mode === 'errors') finalLimit = 1000
+            if (mode === 'errors') finalLimit = 200
             const res = await api.get(endpoint, { params: { subject: selectedSubject?.key, limit: finalLimit } })
             if (res.data.length === 0) {
                 setError(mode === 'errors' ? 'No tienes errores registrados. ¡Estás al día!' : 'No hay preguntas disponibles para esta asignatura.')
                 setLoading(false); return
             }
             setQuestions(res.data); setPhase('running')
+            trackEvent('test_started', selectedSubject?.key, 'test', { mode, question_count: res.data.length })
         } catch { setError('Fallo de conexión con el servidor.') }
         finally { setLoading(false) }
     }
@@ -302,7 +305,12 @@ export default function TestCenter() {
             const res = await api.post('/tests/submit', { subject: selectedSubject?.key || 'General', answers, test_mode: mode })
             setResults(res.data)
             api.get('/dashboard/stats').then(r => setStats(r.data)).catch(() => {})
-        } catch { setResults(null) }
+            const score = res.data?.score ?? null
+            trackEvent('test_completed', selectedSubject?.key, 'test', { mode, score, total: answers.length })
+        } catch {
+            setResults(null)
+            trackEvent('test_abandoned', selectedSubject?.key, 'test', { mode })
+        }
         finally { setLoading(false); setPhase('results') }
     }
 
@@ -316,7 +324,7 @@ export default function TestCenter() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white font-sans">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8">
 
                 {/* ══ PHASE: SUBJECTS ══════════════════════════════════════════ */}
                 {phase === 'subjects' && (
@@ -568,10 +576,28 @@ export default function TestCenter() {
                                     </div>
                                 )}
 
-                                {/* Error */}
+                                {/* Empty / Error state */}
                                 {error && (
-                                    <div className="flex items-center gap-3 font-mono text-[11px] text-orange-400 bg-orange-400/5 border border-orange-400/20 rounded-xl p-4 mb-5">
-                                        <AlertCircle size={14} className="flex-shrink-0" /> {error}
+                                    <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 mb-5">
+                                        <div className="flex items-start gap-3">
+                                            <AlertCircle size={16} className="text-orange-400 flex-shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="font-mono text-[11px] font-black text-orange-400 uppercase tracking-wider mb-1">
+                                                    {mode === 'errors' ? 'Sin errores registrados' : 'Sin preguntas disponibles'}
+                                                </p>
+                                                <p className="font-mono text-[10px] text-slate-400 leading-relaxed">{error}</p>
+                                                {mode === 'errors' && (
+                                                    <p className="font-mono text-[10px] text-slate-500 mt-2">
+                                                        ¡Estás al día! Prueba el <strong className="text-slate-400">modo normal</strong> para practicar más preguntas.
+                                                    </p>
+                                                )}
+                                                {mode !== 'errors' && (
+                                                    <p className="font-mono text-[10px] text-slate-500 mt-2">
+                                                        Esta asignatura aún no tiene preguntas aprobadas. Vuelve pronto o prueba otra asignatura.
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>

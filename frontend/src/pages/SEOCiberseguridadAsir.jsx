@@ -1,81 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, Shield, Lock, Network, Zap, Eye, Code2 } from 'lucide-react';
+import { ChevronDown, Shield, Lock, Network, Zap, Eye, Code2, Database, Terminal } from 'lucide-react';
+import { useSEO, schemaFAQ, schemaOrganization } from '../hooks/useSEO';
 import logoImg from '../assets/tech4u_logo.png';
 
 const SEOCiberseguridadAsir = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
-  useEffect(() => {
-    // Add JSON-LD structured data
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      name: 'Ciberseguridad para ASIR: Laboratorios de hacking ético y seguridad informática',
-      description: 'Labs prácticos de ciberseguridad para ASIR. Domina hacking ético, OSINT, análisis de vulnerabilidades, seguridad de redes y CTF challenges.',
-      url: 'https://tech4u.academy/ciberseguridad-asir',
-      publisher: {
-        '@type': 'Organization',
-        name: 'Tech4U Academy',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://tech4u.academy/logo.png'
+  useSEO({
+    title: 'Ciberseguridad para ASIR',
+    description: 'Labs prácticos de ciberseguridad para ASIR. Domina hacking ético, OSINT, análisis de vulnerabilidades, seguridad de redes y CTF challenges.',
+    path: '/ciberseguridad-asir',
+    type: 'article',
+    schemas: [
+      schemaOrganization(),
+      schemaFAQ([
+        {
+          question: '¿Qué son los labs de ciberseguridad para ASIR?',
+          answer: 'Son laboratorios prácticos especializados en ciberseguridad, hacking ético y vulnerabilidades. Diseñados para estudiantes de ASIR con escenarios reales virtualizados.'
+        },
+        {
+          question: '¿Es legal practicar hacking ético?',
+          answer: 'Sí, hacking ético es totalmente legal cuando se practica en entornos autorizados como nuestros labs virtualizados. Aprendes técnicas reales de forma segura.'
+        },
+        {
+          question: '¿Qué herramientas de seguridad usaré?',
+          answer: 'Nmap, Metasploit, Wireshark, Burp Suite, SQLmap, John the Ripper y otras herramientas profesionales de ciberseguridad.'
+        },
+        {
+          question: '¿Necesito conocimientos previos en seguridad?',
+          answer: 'No, nuestros labs van desde principiante hasta avanzado. Empezamos con conceptos básicos y escalamos progresivamente en dificultad.'
+        },
+        {
+          question: '¿Hay desafíos tipo CTF?',
+          answer: 'Sí, incluimos desafíos tipo Capture The Flag (CTF) donde debes encontrar flags ocultas en máquinas vulnerables para aprender penetration testing.'
         }
-      },
-      mainEntity: {
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: '¿Qué son los labs de ciberseguridad para ASIR?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Son laboratorios prácticos especializados en ciberseguridad, hacking ético y vulnerabilidades. Diseñados para estudiantes de ASIR con escenarios reales virtualizados.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Es legal practicar hacking ético?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, hacking ético es totalmente legal cuando se practica en entornos autorizados como nuestros labs virtualizados. Aprendes técnicas reales de forma segura.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Qué herramientas de seguridad usaré?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Nmap, Metasploit, Wireshark, Burp Suite, SQLmap, John the Ripper y otras herramientas profesionales de ciberseguridad.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Necesito conocimientos previos en seguridad?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'No, nuestros labs van desde principiante hasta avanzado. Empezamos con conceptos básicos y escalamos progresivamente en dificultad.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Hay desafíos tipo CTF?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, incluimos desafíos tipo Capture The Flag (CTF) donde debes encontrar flags ocultas en máquinas vulnerables para aprender penetration testing.'
-            }
-          }
-        ]
-      }
-    });
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+      ])
+    ]
+  });
 
   const toggleFaq = (index) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -206,9 +168,10 @@ const SEOCiberseguridadAsir = () => {
           <p className="text-xl text-gray-300 mb-4 max-w-2xl mx-auto">
             Laboratorios de hacking ético y seguridad informática. Aprende pentesting, análisis de vulnerabilidades y hardening de sistemas.
           </p>
-          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-400 mb-4 max-w-2xl mx-auto">
             Herramientas profesionales, máquinas vulnerables y desafíos CTF. Todo dentro de tu navegador de forma legal y segura.
           </p>
+          <p className="text-sm text-gray-400 mb-8">Actualizado: 15 de enero de 2025 · 8 min de lectura</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/planes"
@@ -523,6 +486,49 @@ const SEOCiberseguridadAsir = () => {
               Ya tengo cuenta
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Internal Links */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 className="text-3xl font-bold font-mono mb-8 text-center">También te puede interesar</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            to="/plataforma-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Shield className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Plataforma ASIR Completa
+            </h3>
+            <p className="text-sm text-gray-300">
+              Accede a todos los 6 módulos prácticos de ASIR en una sola plataforma.
+            </p>
+          </Link>
+          <Link
+            to="/labs-linux-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Terminal className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Labs de Linux para ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Practica administración de sistemas con comandos, permisos y servicios.
+            </p>
+          </Link>
+          <Link
+            to="/sql-practice-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Database className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Práctica de SQL para ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Ejercicios de SQL con corrección automática para ASIR.
+            </p>
+          </Link>
         </div>
       </section>
 

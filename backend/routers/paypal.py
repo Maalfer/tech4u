@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -11,6 +12,8 @@ from schemas import PayPalOrderCreate
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/paypal", tags=["PayPal"])
 
@@ -115,8 +118,8 @@ def create_paypal_order(
                 )
                 if approval_url:
                     return {"id": existing.paypal_order_id, "approval_url": approval_url}
-        except Exception:
-            pass  # fall through and create a new order if re-fetch fails
+        except Exception as e:
+            logger.warning(f"Failed to re-fetch PayPal order {existing.paypal_order_id}: {e}")
 
     # Build the order payload
     return_url = f"{FRONTEND_URL}/suscripcion/paypal-retorno"

@@ -1,81 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, Code2, Database, Shield, Network, BookOpen, Zap } from 'lucide-react';
+import { useSEO, schemaFAQ, schemaOrganization } from '../hooks/useSEO';
 import logoImg from '../assets/tech4u_logo.png';
 
 const SEOAsirPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
-  useEffect(() => {
-    // Add JSON-LD structured data
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      name: 'Plataforma de prácticas para ASIR | Tech4U Academy',
-      description: 'Plataforma educativa especializada en ASIR con labs de Linux, SQL, ciberseguridad y más. Aprende administración de sistemas informáticos en red con ejercicios prácticos.',
-      url: 'https://tech4u.academy/plataforma-asir',
-      publisher: {
-        '@type': 'Organization',
-        name: 'Tech4U Academy',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://tech4u.academy/logo.png'
+  useSEO({
+    title: 'Plataforma de prácticas para ASIR',
+    description: 'La academia interactiva para ASIR. Labs de Linux, SQL, ciberseguridad y más. Práctica real desde el navegador.',
+    path: '/plataforma-asir',
+    type: 'article',
+    schemas: [
+      schemaOrganization(),
+      schemaFAQ([
+        {
+          question: '¿Qué es la plataforma ASIR de Tech4U?',
+          answer: 'Es una plataforma educativa especializada en Administración de Sistemas Informáticos en Red con módulos prácticos de Linux, SQL, ciberseguridad, redes, scripting y más.'
+        },
+        {
+          question: '¿Cuántos módulos de práctica incluye?',
+          answer: 'La plataforma incluye 6 módulos principales: Labs de Linux, Práctica de SQL, Ciberseguridad, Configuración de Redes, Scripting Avanzado y Administración de Servicios.'
+        },
+        {
+          question: '¿Puedo practicar sin descargar nada?',
+          answer: 'Sí, todos nuestros labs funcionan directamente en el navegador. No necesitas instalar software adicional en tu ordenador.'
+        },
+        {
+          question: '¿Hay corrección automática de ejercicios?',
+          answer: 'Sí, disponemos de corrección automática en SQL y scripting. Para otros módulos, recibes feedback detallado de nuestros correctores.'
+        },
+        {
+          question: '¿Cuántos estudiantes usan Tech4U para ASIR?',
+          answer: 'Miles de estudiantes de ASIR en España utilizan Tech4U para mejorar sus habilidades prácticas y prepararse para el mercado laboral.'
         }
-      },
-      mainEntity: {
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: '¿Qué es la plataforma ASIR de Tech4U?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Es una plataforma educativa especializada en Administración de Sistemas Informáticos en Red con módulos prácticos de Linux, SQL, ciberseguridad, redes, scripting y más.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Cuántos módulos de práctica incluye?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'La plataforma incluye 6 módulos principales: Labs de Linux, Práctica de SQL, Ciberseguridad, Configuración de Redes, Scripting Avanzado y Administración de Servicios.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Puedo practicar sin descargar nada?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, todos nuestros labs funcionan directamente en el navegador. No necesitas instalar software adicional en tu ordenador.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Hay corrección automática de ejercicios?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, disponemos de corrección automática en SQL y scripting. Para otros módulos, recibes feedback detallado de nuestros correctores.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Cuántos estudiantes usan Tech4U para ASIR?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Miles de estudiantes de ASIR en España utilizan Tech4U para mejorar sus habilidades prácticas y prepararse para el mercado laboral.'
-            }
-          }
-        ]
-      }
-    });
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+      ])
+    ]
+  });
 
   const toggleFaq = (index) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -206,6 +168,7 @@ const SEOAsirPage = () => {
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Domina Administración de Sistemas Informáticos en Red con labs prácticos de Linux, SQL, ciberseguridad y más. Aprende con ejercicios reales en tu navegador.
           </p>
+          <p className="text-sm text-gray-400 mb-8">Actualizado: 15 de enero de 2025 · 8 min de lectura</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/planes"
@@ -223,8 +186,22 @@ const SEOAsirPage = () => {
         </div>
       </section>
 
+      {/* Table of Contents */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="glass rounded-2xl border border-white/5 p-6">
+          <h2 className="text-lg font-bold font-mono mb-4">Contenidos</h2>
+          <ul className="space-y-2">
+            <li><a href="#modules-section" className="text-neon hover:underline text-sm">Los 6 Módulos Principales para ASIR</a></li>
+            <li><a href="#why-choose-section" className="text-neon hover:underline text-sm">Por qué elegir Tech4U para ASIR</a></li>
+            <li><a href="#how-works-section" className="text-neon hover:underline text-sm">Cómo funciona para estudiantes ASIR</a></li>
+            <li><a href="#faq-section" className="text-neon hover:underline text-sm">Preguntas frecuentes sobre ASIR</a></li>
+            <li><a href="#resources-section" className="text-neon hover:underline text-sm">Recursos relacionados</a></li>
+          </ul>
+        </div>
+      </section>
+
       {/* Modules Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="modules-section" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold font-mono mb-4 text-center">
           Los 6 Módulos Principales para ASIR
         </h2>
@@ -249,7 +226,7 @@ const SEOAsirPage = () => {
       </section>
 
       {/* Why Choose Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="why-choose-section" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold font-mono mb-12 text-center">
           Por qué elegir Tech4U para ASIR
         </h2>
@@ -267,7 +244,7 @@ const SEOAsirPage = () => {
       </section>
 
       {/* How It Works */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="how-works-section" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold font-mono mb-12 text-center">
           Cómo funciona para estudiantes ASIR
         </h2>
@@ -341,7 +318,7 @@ const SEOAsirPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="faq-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold font-mono mb-12 text-center">
           Preguntas frecuentes sobre ASIR
         </h2>
@@ -373,7 +350,7 @@ const SEOAsirPage = () => {
       </section>
 
       {/* Related Resources Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="resources-section" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold font-mono mb-8 text-center">Recursos relacionados</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
@@ -438,6 +415,49 @@ const SEOAsirPage = () => {
               Ya tengo cuenta
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Internal Links Section */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 className="text-3xl font-bold font-mono mb-8 text-center">También te puede interesar</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            to="/labs-linux-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Code2 className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Labs de Linux para ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Practica administración de sistemas con comandos, permisos y servicios en entornos reales virtualizados.
+            </p>
+          </Link>
+          <Link
+            to="/sql-practice-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Database className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              SQL para ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Domina consultas SQL, joins y administración de bases de datos con ejercicios interactivos.
+            </p>
+          </Link>
+          <Link
+            to="/ciberseguridad-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Shield className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Ciberseguridad en ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Labs de hacking ético, análisis de vulnerabilidades y seguridad de sistemas.
+            </p>
+          </Link>
         </div>
       </section>
 

@@ -283,7 +283,7 @@ export default function SubnetCalculator() {
     return (
         <div className="flex min-h-screen bg-[#050507] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 overflow-y-auto h-screen custom-scrollbar">
+            <main className="flex-1 ml-0 md:ml-64 overflow-y-auto h-screen custom-scrollbar">
 
                 {/* ── HERO HEADER ─── */}
                 <div className="relative overflow-hidden border-b border-white/[0.05]"

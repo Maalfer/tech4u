@@ -16,7 +16,7 @@ export default function AcademiaWorld() {
         <div className="flex min-h-screen bg-[#020510] overflow-hidden font-sans">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-8 relative z-10 flex flex-col items-center justify-center">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative z-10 flex flex-col items-center justify-center">
 
                 {/* Header Section */}
                 <div className="w-full max-w-[800px] mb-12 flex flex-col items-center animate-in fade-in slide-in-from-top duration-700">

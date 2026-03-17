@@ -124,7 +124,7 @@ const AdminReferrals = () => {
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden">
                 <PageHeader
                     title={<>Ecosistema <span className="text-neon">Referidos</span></>}
                     subtitle="Monitorización avanzada de referidos, detección de fraude y gestión de recompensas."

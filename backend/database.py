@@ -48,6 +48,14 @@ class User(Base):
     last_xp_date = Column(DateTime, nullable=True)
     xp_today = Column(Integer, default=0)
 
+    # Password Reset
+    reset_token = Column(String, nullable=True, index=True)
+    reset_token_expiry = Column(DateTime, nullable=True)
+
+    # Onboarding
+    ciclo = Column(String, nullable=True)           # 'ASIR' | 'DAM' | 'DAW' | 'SMR'
+    onboarding_completed = Column(Boolean, default=False)
+
     # Relaciones
     errors = relationship("UserError", back_populates="user")
     progress = relationship("UserProgress", back_populates="user")
@@ -149,7 +157,7 @@ class User(Base):
 class PayPalOrder(Base):
     __tablename__ = "paypal_orders"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     paypal_order_id = Column(String, unique=True, index=True, nullable=False)
     status = Column(String, default="CREATED") # CREATED, CAPTURED, FAILED
     amount = Column(Float, nullable=False)
@@ -166,12 +174,35 @@ class SkillLabExercise(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     subject = Column(String, index=True, nullable=False)
-    sentence_template = Column(String, nullable=False) 
+    sentence_template = Column(String, nullable=False)
     correct_answers = Column(String, nullable=False) # JSON list e.g. '["sshd", "rsyslog"]'
     distractors = Column(String, nullable=False) # JSON list e.g. '["httpd", "systemd"]'
-    explanation = Column(String, nullable=True) 
+    explanation = Column(String, nullable=True)
     difficulty = Column(String, default="medium")
     approved = Column(Boolean, default=True)
+
+
+class NetLabScenario(Base):
+    """NetLab interactive Cisco CLI simulator scenarios."""
+    __tablename__ = "netlabs_scenarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, unique=True, index=True, nullable=False)
+    description = Column(Text, nullable=False)
+    difficulty = Column(String, default="medium", index=True)  # easy | medium | hard
+    subject = Column(String, default="redes", index=True, nullable=False)
+    category = Column(String, default="Networking")  # Routing | Switching | QoS | Addressing | etc.
+    points = Column(Integer, default=100)
+    estimated_time = Column(String, nullable=True)  # e.g. "15–20 min"
+    topology = Column(Text, nullable=False)  # JSON: nodes, links, viewBox
+    symptom = Column(Text, nullable=False)  # Problem description in Spanish
+    commands = Column(Text, nullable=False)  # JSON: deviceId -> [{cmd, output, revealsFault}]
+    fault = Column(Text, nullable=False)  # JSON: {deviceId, description, fixCommand}
+    diagnosis_options = Column(Text, nullable=False)  # JSON: [{id, text, correct}]
+    solution_explanation = Column(Text, nullable=False)  # Educational explanation in Spanish
+    hints = Column(Text, nullable=False)  # JSON: array of hint strings in Spanish
+    is_active = Column(Boolean, default=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class UserProgress(Base):
@@ -292,8 +323,8 @@ class AnnouncementRead(Base):
     """Tracks which users have read which announcements (for unread popup)."""
     __tablename__ = "announcement_reads"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
     read_at = Column(DateTime, default=datetime.utcnow)
 
 # --- MODELOS DE CURSOS EN VÍDEO ---
@@ -330,8 +361,8 @@ class VideoLesson(Base):
 class LessonProgress(Base):
     __tablename__ = "lesson_progress"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    lesson_id = Column(Integer, ForeignKey("video_lessons.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lesson_id = Column(Integer, ForeignKey("video_lessons.id"), nullable=False, index=True)
     completed_at = Column(DateTime, default=datetime.utcnow)
     
     user = relationship("User")
@@ -354,8 +385,8 @@ class UserCoursePurchase(Base):
 class TestSession(Base):
     __tablename__ = "test_sessions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    subject = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    subject = Column(String, nullable=False, index=True)
     mode = Column(String, default="normal")          # normal | exam | errors
     total = Column(Integer, default=0)
     correct = Column(Integer, default=0)
@@ -393,12 +424,13 @@ class Achievement(Base):
 class UserAchievement(Base):
     __tablename__ = "user_achievements"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=False, index=True)
     obtained_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="achievements")
     achievement = relationship("Achievement")
+    __table_args__ = (Index("ix_user_achievements_user_ach", "user_id", "achievement_id"),)
 
 # --- SISTEMA DE REFERIDOS ---
 
@@ -511,8 +543,8 @@ class UserChallengeCompletion(Base):
     """Tracks which users have completed specific challenges within a lab."""
     __tablename__ = "user_challenge_completions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    lab_id = Column(Integer, ForeignKey("terminal_labs.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lab_id = Column(Integer, ForeignKey("terminal_labs.id"), nullable=False, index=True)
     challenge_id = Column(String, nullable=False) # ID of the challenge inside the JSON
     completed_at = Column(DateTime, default=datetime.utcnow)
 

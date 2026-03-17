@@ -13,7 +13,12 @@ import {
     Code2,
     GraduationCap,
     FileText,
+    Shield,
+    Clock,
 } from 'lucide-react';
+
+// Slugs que aún no están listos para alumnos — se muestran como "Próximamente"
+const COMING_SOON_SLUGS = ['ciberseguridad', 'ejptv2'];
 import Sidebar from '../components/Sidebar';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -210,6 +215,68 @@ function SubjectCard({ subject }) {
     );
 }
 
+// ── Coming Soon Card ──────────────────────────────────────────────────────────
+function ComingSoonCard({ name, icon: Icon, accent, accentRgb, description }) {
+    return (
+        <div
+            className="relative rounded-2xl overflow-hidden select-none"
+            style={{
+                aspectRatio: '4/5',
+                border: `1.5px solid rgba(${accentRgb},0.10)`,
+                background: 'rgba(255,255,255,0.02)',
+                opacity: 0.55,
+            }}
+        >
+            {/* Subtle grid bg */}
+            <div className="absolute inset-0 opacity-[0.04]"
+                style={{
+                    backgroundImage: `linear-gradient(rgba(${accentRgb},0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(${accentRgb},0.8) 1px, transparent 1px)`,
+                    backgroundSize: '32px 32px',
+                }} />
+
+            {/* Lock badge */}
+            <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full border"
+                style={{ borderColor: `rgba(${accentRgb},0.25)`, background: `rgba(${accentRgb},0.08)` }}>
+                <Clock size={9} style={{ color: `rgb(${accentRgb})` }} />
+                <span className="font-mono text-[9px] uppercase tracking-widest" style={{ color: `rgb(${accentRgb})` }}>
+                    Próximamente
+                </span>
+            </div>
+
+            {/* Dark gradient overlay */}
+            <div className="absolute inset-0"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)' }} />
+
+            {/* Top accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] opacity-30"
+                style={{ background: `linear-gradient(90deg, transparent, rgba(${accentRgb},1), transparent)` }} />
+
+            {/* Content */}
+            <div className="absolute bottom-0 left-0 right-0 p-5 flex flex-col gap-2.5">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{
+                            background: `rgba(${accentRgb},0.10)`,
+                            border: `1px solid rgba(${accentRgb},0.20)`,
+                        }}>
+                        <Icon size={18} style={{ color: `rgb(${accentRgb})` }} />
+                    </div>
+                    <h3 className="font-black text-slate-400 text-sm uppercase italic leading-tight tracking-tight">
+                        {name}
+                    </h3>
+                </div>
+                {description && (
+                    <p className="text-[10px] font-mono text-slate-600 leading-snug">{description}</p>
+                )}
+                <div className="flex items-center justify-between pt-0.5">
+                    <span className="font-mono text-[9px] text-slate-700 uppercase tracking-widest">ASIR</span>
+                    <Lock size={10} className="text-slate-700" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Teoria() {
     const { user } = useAuth();
@@ -225,8 +292,13 @@ export default function Teoria() {
 
     useEffect(() => {
         // Fetch subjects publicly — no auth needed
+        // Filtramos 'Examen General' y los slugs marcados como próximamente
         api.get('/teoria/subjects')
-            .then(res => setSubjects(Array.isArray(res.data) ? res.data.filter(s => s.name !== 'Examen General') : []))
+            .then(res => setSubjects(
+                Array.isArray(res.data)
+                    ? res.data.filter(s => s.name !== 'Examen General' && !COMING_SOON_SLUGS.includes(s.slug))
+                    : []
+            ))
             .catch(() => { })
             .finally(() => setLoading(false));
 
@@ -245,7 +317,7 @@ export default function Teoria() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white font-sans">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8">
 
                 <div className="animate-in fade-in duration-500">
 
@@ -296,6 +368,14 @@ export default function Teoria() {
                             {subjects.map(s => (
                                 <SubjectCard key={s.id} subject={s} />
                             ))}
+                            {/* Tarjetas "Próximamente" — visibles pero bloqueadas */}
+                            <ComingSoonCard
+                                name="Ciberseguridad"
+                                icon={Shield}
+                                accent="#ef4444"
+                                accentRgb="239,68,68"
+                                description="OWASP, Pentesting, Criptografía, Firewalls y Análisis Forense"
+                            />
                         </div>
                     )}
 

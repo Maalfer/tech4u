@@ -89,6 +89,10 @@ def get_failed_questions(
     current_user: User = Depends(get_current_user),
 ):
     from sqlalchemy import func
+    # Hard cap: nunca devolver más de 200 preguntas falladas de una vez
+    # para evitar cargas innecesarias cuando hay muchos errores acumulados.
+    safe_limit = min(limit, 200)
+
     query = (
         db.query(Question)
         .join(UserError, Question.id == UserError.question_id)
@@ -98,7 +102,7 @@ def get_failed_questions(
     if subject:
         query = query.filter(Question.subject == subject)
 
-    questions = query.order_by(func.random()).limit(limit).all()
+    questions = query.order_by(func.random()).limit(safe_limit).all()
 
     return questions
 
@@ -318,7 +322,7 @@ async def submit_test(
         db.rollback()
         error_msg = traceback.format_exc()
         logger.error(f"CRITICAL ERROR EN SUBMIT:\n{error_msg}")
-        raise HTTPException(status_code=500, detail=f"Error en el servidor: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 
 # =====================================================

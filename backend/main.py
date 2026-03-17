@@ -50,31 +50,39 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-origins = [
-    frontend_url,
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://tech4uacademy.es",
-]
+# Read allowed origins from environment or use defaults
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",")]
 
+# Add frontend_url if not already in list
+if frontend_url not in allowed_origins:
+    allowed_origins.append(frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 @app.middleware("http")
 async def security_middleware(request: Request, call_next):
-    """Populates request.state.user_id for rate limiting purposes."""
+    """Populates request.state.user_id for rate limiting purposes AND adds HTTP security headers."""
     request.state.user_id = None
+    token = None
+
+    # Try Authorization header first
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1]
+    else:
+        # Fall back to cookies: try tech4u_token (httpOnly) first, then access_token for backward compat
+        token = request.cookies.get("tech4u_token") or request.cookies.get("access_token")
+
+    if token:
         try:
             # Inline import to avoid circular dependencies if auth ever imports main
             from auth import decode_token
@@ -84,7 +92,26 @@ async def security_middleware(request: Request, call_next):
                 request.state.user_id = int(user_id)
         except Exception:
             pass
-    return await call_next(request)
+    response = await call_next(request)
+    # ── HTTP Security Headers ────────────────────────────────────────────────
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    # CSP: permissive enough for the SPA but blocks framing and unknown scripts
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com data:; "
+        "img-src 'self' data: blob: https:; "
+        "media-src 'self' blob: https:; "
+        "connect-src 'self' wss: ws: https:; "
+        "frame-src https://www.paypal.com https://www.sandbox.paypal.com; "
+        "frame-ancestors 'none';"
+    )
+    return response
 
 def migrate_usuarios_permisos_to_linux():
     """Migración única: mueve todos los módulos del SkillPath 'Usuarios y Permisos Linux'
@@ -1477,9 +1504,58 @@ def fix_linux_fundamentals_duplicate():
 
 @app.on_event("startup")
 async def startup():
+    # ── Validación de variables de entorno críticas ──────────────────────────
+    REQUIRED_ENV_VARS = ["SECRET_KEY", "DATABASE_URL"]
+    missing = [v for v in REQUIRED_ENV_VARS if not os.getenv(v)]
+    if missing:
+        raise RuntimeError(
+            f"🚨 STARTUP FAILED — Variables de entorno requeridas no configuradas: {', '.join(missing)}\n"
+            f"   Crea el archivo .env con estos valores antes de arrancar el servidor."
+        )
+    logger.info("✅ Validación de entorno OK — todas las variables requeridas están presentes.")
+
     # Crear tablas nuevas que no existan en BD (seguro: no modifica tablas existentes)
     from database import create_tables
     create_tables()
+
+    # ── Safe column migrations (ADD COLUMN IF NOT EXISTS) ────────────────────
+    # Runs on every startup but is idempotent — safe to run multiple times.
+    from database import engine, DATABASE_URL
+    if not DATABASE_URL.startswith("sqlite"):
+        # PostgreSQL
+        _safe_columns = [
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR;",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP;",
+            "CREATE INDEX IF NOT EXISTS ix_users_reset_token ON users (reset_token);",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS ciclo VARCHAR;",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE;",
+        ]
+    else:
+        # SQLite doesn't support IF NOT EXISTS on ADD COLUMN — check manually
+        from sqlalchemy import text, inspect as sa_inspect
+        with engine.connect() as conn:
+            inspector = sa_inspect(engine)
+            existing_cols = [c["name"] for c in inspector.get_columns("users")]
+        _safe_columns = []
+        if "reset_token" not in existing_cols:
+            _safe_columns.append("ALTER TABLE users ADD COLUMN reset_token VARCHAR;")
+        if "reset_token_expiry" not in existing_cols:
+            _safe_columns.append("ALTER TABLE users ADD COLUMN reset_token_expiry DATETIME;")
+        if "ciclo" not in existing_cols:
+            _safe_columns.append("ALTER TABLE users ADD COLUMN ciclo VARCHAR;")
+        if "onboarding_completed" not in existing_cols:
+            _safe_columns.append("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT 0;")
+
+    if _safe_columns:
+        from sqlalchemy import text
+        with engine.begin() as conn:
+            for stmt in _safe_columns:
+                try:
+                    conn.execute(text(stmt))
+                    logger.info(f"✅ Migration applied: {stmt.strip()}")
+                except Exception as e:
+                    logger.warning(f"⚠️  Migration skipped (already applied?): {e}")
+
     os.makedirs("static/videos", exist_ok=True)
     # Migración: mover 'Usuarios y Permisos' a 'Linux Fundamentals'
     migrate_usuarios_permisos_to_linux()
@@ -1489,6 +1565,11 @@ async def startup():
     seed_sql_advanced_theory()
     # Seed: añadir labs de VM Skills si no existen
     seed_vm_labs()
+    # Seed: Teoría Ciberseguridad (5 guías: OWASP, Kali, Cripto, Firewall, Forense)
+    # Seed: eJPTv2 - Junior Penetration Tester (7 módulos completos)
+    from seed_teoria_startup import seed_ciberseguridad_teoria, seed_ejptv2_teoria
+    seed_ciberseguridad_teoria()
+    seed_ejptv2_teoria()
     # Start background cleanup task
     asyncio.create_task(cleanup_stale_containers())
 
@@ -1680,6 +1761,35 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: int):
+    """WebSocket endpoint with JWT token validation via cookie or query parameter."""
+    # Extract token from cookie or query parameter
+    token = websocket.cookies.get("tech4u_token") or websocket.cookies.get("access_token")
+    if not token:
+        token = websocket.query_params.get("token")
+
+    if not token:
+        await websocket.close(code=4001, reason="Unauthorized: No token provided")
+        return
+
+    # Decode and verify JWT token
+    try:
+        payload = decode_token(token)
+        token_user_id = payload.get("sub")
+        if not token_user_id:
+            await websocket.close(code=4001, reason="Unauthorized: Invalid token")
+            return
+
+        # Verify token user_id matches URL user_id to prevent user impersonation
+        if str(token_user_id) != str(user_id):
+            await websocket.close(code=4001, reason="Unauthorized: User ID mismatch")
+            return
+
+    except Exception as e:
+        logger.warning(f"WebSocket token validation failed: {e}")
+        await websocket.close(code=4001, reason="Unauthorized: Token validation failed")
+        return
+
+    # Token is valid, proceed with connection
     await manager.connect(user_id, websocket)
     try:
         while True:
@@ -1704,3 +1814,99 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+# ── SEO: robots.txt ──────────────────────────────────────────────────────────
+from fastapi.responses import PlainTextResponse, Response as FastAPIResponse
+
+@app.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
+def robots_txt():
+    """Serve robots.txt for search engine crawlers."""
+    frontend = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
+    return f"""User-agent: *
+Allow: /
+
+# Block admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /docs
+Disallow: /redoc
+Disallow: /openapi.json
+
+# Sitemap location
+Sitemap: {frontend}/sitemap.xml
+"""
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+def sitemap_xml(db: Session = Depends(get_db)):
+    """Generate dynamic sitemap.xml with all public URLs."""
+    from datetime import date
+    frontend = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
+    today = date.today().isoformat()
+
+    # Static public routes
+    static_urls = [
+        ("", "1.0", "daily"),
+        ("/planes", "0.9", "weekly"),
+        ("/login", "0.8", "monthly"),
+        ("/para-centros", "0.7", "monthly"),
+        ("/plataforma-asir", "0.7", "monthly"),
+        ("/linux-terminal-exercises", "0.7", "monthly"),
+        ("/sql-practice", "0.7", "monthly"),
+        ("/sql-practice-asir", "0.6", "monthly"),
+        ("/ciberseguridad-asir", "0.6", "monthly"),
+        ("/labs-linux-asir", "0.6", "monthly"),
+    ]
+
+    # Dynamic theory subjects + posts
+    try:
+        subjects = db.query(TheorySubject).filter(TheorySubject.is_published == True).all()
+    except Exception:
+        subjects = []
+
+    url_entries = []
+    for path, priority, freq in static_urls:
+        url_entries.append(
+            f"  <url>\n"
+            f"    <loc>{frontend}{path}</loc>\n"
+            f"    <lastmod>{today}</lastmod>\n"
+            f"    <changefreq>{freq}</changefreq>\n"
+            f"    <priority>{priority}</priority>\n"
+            f"  </url>"
+        )
+
+    for subj in subjects:
+        url_entries.append(
+            f"  <url>\n"
+            f"    <loc>{frontend}/teoria/{subj.slug}</loc>\n"
+            f"    <lastmod>{today}</lastmod>\n"
+            f"    <changefreq>weekly</changefreq>\n"
+            f"    <priority>0.8</priority>\n"
+            f"  </url>"
+        )
+        try:
+            posts = db.query(TheoryPost).filter(
+                TheoryPost.subject_id == subj.id,
+                TheoryPost.is_published == True
+            ).all()
+            for post in posts:
+                url_entries.append(
+                    f"  <url>\n"
+                    f"    <loc>{frontend}/teoria/{subj.slug}/{post.slug}</loc>\n"
+                    f"    <lastmod>{today}</lastmod>\n"
+                    f"    <changefreq>monthly</changefreq>\n"
+                    f"    <priority>0.7</priority>\n"
+                    f"  </url>"
+                )
+        except Exception:
+            pass
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(url_entries)
+        + "\n</urlset>"
+    )
+    return FastAPIResponse(content=xml, media_type="application/xml")

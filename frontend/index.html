@@ -90,22 +90,67 @@
   }
   </script>
 
-  <!-- ── Google Analytics 4 ──────────────────────────────── -->
-  <!-- Replace G-XXXXXXXXXX with your actual GA4 Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ── Analytics                                              ── -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+
+  <!-- ── Option A: Google Analytics 4 ───────────────────────────── -->
+  <!-- TO ACTIVATE: replace G-XXXXXXXXXX with your Measurement ID   -->
+  <!-- Get it at: analytics.google.com → Admin → Data Streams       -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX', {
       page_path: window.location.pathname,
-      send_page_view: false  // React Router will send page views manually
+      send_page_view: false,
+      anonymize_ip: true
     });
-    // Custom event helper — call window.trackEvent('event_name', {key: val}) anywhere
     window.trackEvent = function(event, params) {
       if (typeof gtag !== 'undefined') gtag('event', event, params || {});
     };
+  </script> -->
+
+  <!-- ── Option B: Plausible Analytics (GDPR-friendly, no cookies) ─ -->
+  <!-- RECOMMENDED: Plausible is lightweight (< 1KB), no cookie banner needed, -->
+  <!-- GDPR/LSSI compliant out of the box. Free self-hosted or 9€/mo cloud.   -->
+  <!-- TO ACTIVATE: replace tech4uacademy.es with your domain and uncomment   -->
+  <!-- Self-hosted docs: https://plausible.io/docs/self-hosting              -->
+  <!-- <script defer data-domain="tech4uacademy.es" src="https://plausible.io/js/script.tagged-events.js"></script>
+  <script>
+    window.plausible = window.plausible || function() {
+      (window.plausible.q = window.plausible.q || []).push(arguments)
+    };
+    // Usage: plausible('Signup', { props: { plan: 'monthly' } })
+    window.trackEvent = function(event, params) {
+      if (typeof window.plausible === 'function') window.plausible(event, { props: params || {} });
+    };
+  </script> -->
+
+  <!-- ── Shared fallback (no-op until you activate one of the above) ─ -->
+  <script>
+    window.trackEvent = window.trackEvent || function() {};
   </script>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ── Meta Ads Pixel (optional — for retargeting campaigns)  ── -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- TO ACTIVATE: replace PIXEL_ID with your Meta Pixel ID        -->
+  <!-- Get it at: business.facebook.com → Events Manager            -->
+  <!--
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'PIXEL_ID');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+  -->
 
   <!-- ── PWA Meta Tags ───────────────────────────────────── -->
   <link rel="manifest" href="/manifest.json" />

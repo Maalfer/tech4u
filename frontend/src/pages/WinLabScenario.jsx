@@ -6,9 +6,9 @@ import {
   AlertCircle, ChevronDown, ChevronUp, GraduationCap, Layers, Flag,
   Zap, Clock, Target, FlaskConical, EyeOff, Eye, Timer, Trophy, Sparkles
 } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import Sidebar from '../components/Sidebar';
 import logoImg from '../assets/tech4u_logo.png';
-import api from '../services/api';
 import { WIN_SCENARIOS as WIN_SCENARIOS_RAW, WIN_MODULES as WIN_MODULES_RAW } from '../data/winServerScenarios';
 
 // Normalise: some scenarios use moduleId instead of subject, and varied difficulty/time formats
@@ -116,9 +116,9 @@ function MD({ children, compact = false }) {
           {items.map((item, ii) => (
             <li key={ii} className="flex items-start gap-2 text-xs text-slate-400">
               <span className="text-violet-400 mt-0.5 font-bold flex-shrink-0">›</span>
-              <span dangerouslySetInnerHTML={{ __html: item
+              <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item
                 .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-200">$1</strong>')
-                .replace(/`(.*?)`/g, '<code class="text-violet-300 bg-violet-900/30 px-1 py-0.5 rounded text-[10px]">$1</code>') }} />
+                .replace(/`(.*?)`/g, '<code class="text-violet-300 bg-violet-900/30 px-1 py-0.5 rounded text-[10px]">$1</code>')) }} />
             </li>
           ))}
         </ul>
@@ -136,7 +136,7 @@ function MD({ children, compact = false }) {
         });
       elements.push(
         <p key={i} className="text-xs text-slate-400 leading-relaxed my-1"
-          dangerouslySetInnerHTML={{ __html: safeHtml }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(safeHtml) }}
         />
       );
     }
@@ -295,7 +295,6 @@ export default function WinLabScenario() {
   const [showHint, setShowHint] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [xpAwarded, setXpAwarded] = useState(false);
   const [examMode, setExamMode] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
@@ -394,13 +393,7 @@ export default function WinLabScenario() {
           if (allModDone && moduleScenarios.length > 1) setModuleCompleted(true);
         }
       } catch {}
-      if (!xpAwarded) {
-        setXpAwarded(true);
-        api.post('/gamification/award-xp', { xp: scenario.xp, reason: `winlab_${scenario.id}` }).catch(() => {});
-        if (typeof window.trackEvent === 'function') {
-          window.trackEvent('winlab_completed', { lab_id: scenario.id, xp: scenario.xp });
-        }
-      }
+      // Windows Server Labs no otorgan XP — solo se registra el progreso en localStorage.
     }
   };
 
@@ -419,7 +412,6 @@ export default function WinLabScenario() {
     setFinished(false);
     setShowHint(false);
     setShowSolution(false);
-    setXpAwarded(false);
     try { localStorage.removeItem(storageKey); } catch {}
   };
 

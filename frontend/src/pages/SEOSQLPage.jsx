@@ -80,10 +80,11 @@ export default function SEOSQLPage() {
                     Práctica SQL<br />
                     <span className="text-violet-400">Interactiva</span>
                 </h1>
-                <p className="text-lg text-slate-400 font-mono max-w-2xl mx-auto leading-relaxed mb-10">
+                <p className="text-lg text-slate-400 font-mono max-w-2xl mx-auto leading-relaxed mb-4">
                     Editor SQL en el navegador con corrección automática. Desde consultas básicas hasta diseño
                     avanzado de bases de datos para <strong className="text-white">ASIR</strong> y <strong className="text-white">SMR</strong>.
                 </p>
+                <p className="text-sm text-slate-500 font-mono mb-10">Actualizado: 15 de enero de 2025 · 8 min de lectura</p>
                 <div className="flex flex-wrap gap-4 justify-center">
                     <Link to="/login?tab=register" className="px-10 py-4 bg-violet-500 text-white font-black uppercase tracking-widest text-sm rounded-2xl hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all">
                         Empezar gratis <ArrowRight className="inline w-4 h-4 ml-2" aria-hidden="true" />
@@ -149,6 +150,26 @@ export default function SEOSQLPage() {
                         Crear cuenta gratis <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </Link>
                     <p className="text-slate-600 font-mono text-xs mt-4">Acceso premium desde 9,99€/mes · Sin permanencia</p>
+                </div>
+            </section>
+
+            {/* ── Internal Links ── */}
+            <section className="max-w-5xl mx-auto px-8 py-16 border-t border-white/5" aria-labelledby="also-interested-sql">
+                <h2 id="also-interested-sql" className="text-2xl font-black uppercase italic tracking-tighter text-white mb-6">
+                    También te puede interesar
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                        { label: 'Ejercicios de Terminal Linux', href: '/linux-terminal-exercises', desc: 'Comandos Linux en el navegador.' },
+                        { label: 'Labs de Ciberseguridad', href: '/ciberseguridad-labs', desc: 'Pentesting y análisis de seguridad.' },
+                        { label: 'Redes Informáticas', href: '/redes-informaticas', desc: 'VLANs, routing y ACLs práctica.' },
+                    ].map(({ label, href, desc }) => (
+                        <Link key={label} to={href} className="group block p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-violet-400/20 hover:bg-white/[0.04] transition-all no-underline">
+                            <p className="font-bold text-white text-sm mb-1 group-hover:text-violet-400 transition-colors">{label}</p>
+                            <p className="text-slate-500 text-xs font-mono">{desc}</p>
+                            <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-violet-400 mt-2 transition-colors" aria-hidden="true" />
+                        </Link>
+                    ))}
                 </div>
             </section>
 

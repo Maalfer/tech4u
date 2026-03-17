@@ -111,7 +111,7 @@ export default function CharacterProfile() {
             <div className="absolute bottom-[10%] left-[20%] w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full -z-10" />
 
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative z-10 overflow-y-auto h-screen custom-scrollbar">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative z-10 overflow-y-auto h-screen custom-scrollbar">
 
                 {/* Background ambient effect */}
                 <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full -z-10 animate-pulse" />

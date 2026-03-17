@@ -68,7 +68,8 @@ def get_current_user(
     if credentials:
         token = credentials.credentials
     else:
-        token = request.cookies.get("access_token")
+        # Try tech4u_token (httpOnly cookie) first, then fall back to access_token for backward compat
+        token = request.cookies.get("tech4u_token") or request.cookies.get("access_token")
 
     if not token:
         raise HTTPException(
@@ -76,7 +77,7 @@ def get_current_user(
             detail="Token no proporcionado",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     payload = decode_token(token)
     user_id: int = payload.get("sub")
     if user_id is None:
@@ -97,7 +98,8 @@ def get_optional_user(
     if credentials:
         token = credentials.credentials
     else:
-        token = request.cookies.get("access_token")
+        # Try tech4u_token (httpOnly cookie) first, then fall back to access_token for backward compat
+        token = request.cookies.get("tech4u_token") or request.cookies.get("access_token")
 
     if not token:
         return None

@@ -384,7 +384,7 @@ export default function NetDebugScenario() {
         return (
             <div className="flex min-h-screen bg-[#050505] text-white">
                 <Sidebar />
-                <main className="flex-1 ml-64 flex items-center justify-center p-8">
+                <main className="flex-1 ml-0 md:ml-64 flex items-center justify-center p-8">
                     <div className="max-w-lg w-full text-center space-y-6">
                         {/* Trophy */}
                         <div className="relative mx-auto w-24 h-24">
@@ -484,7 +484,7 @@ export default function NetDebugScenario() {
     return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 flex flex-col h-screen overflow-hidden">
 
                 {/* ── Top bar ── */}
                 <div className="flex-shrink-0 flex items-center gap-4 px-6 py-4 border-b border-white/6 bg-[#080808]">

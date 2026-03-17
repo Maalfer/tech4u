@@ -7,16 +7,34 @@ import RoleRoute from './components/RoleRoute';
 import PremiumRoute from './components/PremiumRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import CookieBanner from './components/CookieBanner';
 import { useAuth } from './context/AuthContext';
+import { trackEvent } from './utils/analytics';
+import useUserStore from './store/userStore';
 
-// ── GA4 page view tracker ─────────────────────────────────────────────────────
+// ── Silent token refresh on app boot ─────────────────────────────────────────
+function SilentRefresh() {
+    const silentRefreshToken = useUserStore(s => s.silentRefreshToken);
+    useEffect(() => {
+        silentRefreshToken();
+    }, []);
+    return null;
+}
+
+// ── Page view tracker (GA4 + backend analytics) ───────────────────────────────
 function PageViewTracker() {
   const location = useLocation();
+  const { user } = useAuth();
   useEffect(() => {
+    // GA4 (if present)
     if (typeof window.trackEvent === 'function') {
       window.trackEvent('page_view', { page_path: location.pathname + location.search });
     }
-  }, [location]);
+    // Backend analytics — only track authenticated users
+    if (user) {
+      trackEvent('page_view', location.pathname, 'page');
+    }
+  }, [location, user]);
   return null;
 }
 
@@ -31,9 +49,13 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const OAuthCallback = lazy(() => import('./pages/OAuthCallback'));
 const SubscriptionPlans = lazy(() => import('./pages/SubscriptionPlans'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Alumno Pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
 const CharacterProfile = lazy(() => import('./pages/CharacterProfile'));
 const Courses = lazy(() => import('./pages/Courses'));
 const TestCenter = lazy(() => import('./pages/TestCenter'));
@@ -77,6 +99,12 @@ const BinaryConverter = lazy(() => import('./pages/BinaryConverter'));
 const PortReference = lazy(() => import('./pages/PortReference'));
 const ChmodCalculator = lazy(() => import('./pages/ChmodCalculator'));
 const OsiExplorer = lazy(() => import('./pages/OsiExplorer'));
+const VlsmCalculator = lazy(() => import('./pages/VlsmCalculator'));
+const Ipv6Calculator = lazy(() => import('./pages/Ipv6Calculator'));
+const RegexTester = lazy(() => import('./pages/RegexTester'));
+const HashGenerator = lazy(() => import('./pages/HashGenerator'));
+const DnsLookup = lazy(() => import('./pages/DnsLookup'));
+const CronBuilder = lazy(() => import('./pages/CronBuilder'));
 const NetDebugLab = lazy(() => import('./pages/NetDebugLab'));
 const NetDebugScenario = lazy(() => import('./pages/NetDebugScenario'));
 const NetLabCLI = lazy(() => import('./pages/NetLabCLI'));
@@ -126,6 +154,9 @@ const SEOLabsLinuxAsir = lazy(() => import('./pages/SEOLabsLinuxAsir'));
 const SEOSqlAsir = lazy(() => import('./pages/SEOSqlAsir'));
 const SEOCiberseguridadAsir = lazy(() => import('./pages/SEOCiberseguridadAsir'));
 
+// Changelog
+const ChangelogPage = lazy(() => import('./pages/ChangelogPage'));
+
 
 export default function App() {
   return (
@@ -133,12 +164,16 @@ export default function App() {
       <AuthProvider>
         <NotificationProvider>
           <BrowserRouter>
+              <SilentRefresh />
               <PageViewTracker />
               <PWAInstallPrompt />
+              <CookieBanner />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/oauth/callback" element={<OAuthCallback />} />
               <Route path="/planes" element={<SubscriptionPlans />} />
               <Route path="/para-centros" element={<ParaCentros />} />
@@ -146,6 +181,8 @@ export default function App() {
               <Route path="/labs-linux-asir" element={<SEOLabsLinuxAsir />} />
               <Route path="/sql-practice-asir" element={<SEOSqlAsir />} />
               <Route path="/ciberseguridad-asir" element={<SEOCiberseguridadAsir />} />
+              <Route path="/novedades" element={<ChangelogPage />} />
+              <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
               <Route path="/resources" element={<PremiumRoute><Resources /></PremiumRoute>} />
               <Route path="/tests" element={<PremiumRoute module="tests"><TestCenter /></PremiumRoute>} />
               <Route path="/skill-labs" element={<PremiumRoute module="skill_labs"><SkillLabs /></PremiumRoute>} />
@@ -217,6 +254,12 @@ export default function App() {
               <Route path="/tools/ports" element={<ProtectedRoute><PortReference /></ProtectedRoute>} />
               <Route path="/tools/chmod" element={<ProtectedRoute><ChmodCalculator /></ProtectedRoute>} />
               <Route path="/tools/osi" element={<ProtectedRoute><OsiExplorer /></ProtectedRoute>} />
+              <Route path="/tools/vlsm" element={<ProtectedRoute><VlsmCalculator /></ProtectedRoute>} />
+              <Route path="/tools/ipv6" element={<ProtectedRoute><Ipv6Calculator /></ProtectedRoute>} />
+              <Route path="/tools/regex" element={<ProtectedRoute><RegexTester /></ProtectedRoute>} />
+              <Route path="/tools/hash" element={<ProtectedRoute><HashGenerator /></ProtectedRoute>} />
+              <Route path="/tools/dns" element={<ProtectedRoute><DnsLookup /></ProtectedRoute>} />
+              <Route path="/tools/cron" element={<ProtectedRoute><CronBuilder /></ProtectedRoute>} />
               <Route path="/battle" element={<PremiumRoute><BattleArena /></PremiumRoute>} />
               <Route path="/winlabs" element={<PremiumRoute module="terminal_skills"><WinLabsPage /></PremiumRoute>} />
               <Route path="/winlabs/path" element={<PremiumRoute module="terminal_skills"><WinLearningPath /></PremiumRoute>} />
@@ -235,6 +278,8 @@ export default function App() {
               <Route path="/test-stats" element={<ProtectedRoute><TestHistory /></ProtectedRoute>} />
               <Route path="/mi-referral" element={<ProtectedRoute><MiReferral /></ProtectedRoute>} />
               <Route path="/recursos/:id" element={<ProtectedRoute><ResourceViewer /></ProtectedRoute>} />
+              {/* 404 catch-all — must be last */}
+              <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </Suspense>
             </BrowserRouter>

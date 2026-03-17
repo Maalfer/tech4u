@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Hammer, Calculator, Network, Zap, ChevronRight,
     Binary, Layers, Shield, BookOpen, Globe,
-    Wrench, Cpu, Code2, Star,
+    Wrench, Cpu, Code2, Star, Search, Hash, Clock, Wifi,
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
@@ -159,12 +159,96 @@ export default function Tools() {
             tagBg: 'bg-violet-500/10 border-violet-500/25',
             path: '/tools/osi',
         },
+        {
+            id: 'vlsm',
+            title: 'Calculadora VLSM',
+            description: 'Asignación óptima de subredes variables. Ordena subredes por tamaño, calcula máscaras dinámicas y visualiza el uso del espacio de direccionamiento.',
+            icon: Network,
+            gradient: 'from-cyan-600 to-blue-600',
+            glow: 'rgba(34,211,238,0.18)',
+            accentColor: '#22d3ee',
+            hoverBorderColor: 'rgba(34,211,238,0.5)',
+            tag: 'VLSM · IPv4 · Subredes',
+            tagColor: 'text-cyan-400',
+            tagBg: 'bg-cyan-500/10 border-cyan-500/25',
+            path: '/tools/vlsm',
+        },
+        {
+            id: 'ipv6',
+            title: 'Calculadora IPv6',
+            description: 'Conversión, compresión y análisis de direcciones IPv6. Incluye detector de tipos, calculadora EUI-64 y tabla de prefijos comunes.',
+            icon: Wifi,
+            gradient: 'from-sky-600 to-cyan-600',
+            glow: 'rgba(14,165,233,0.18)',
+            accentColor: '#0ea5e9',
+            hoverBorderColor: 'rgba(14,165,233,0.5)',
+            tag: 'IPv6 · EUI-64 · Prefijos',
+            tagColor: 'text-sky-400',
+            tagBg: 'bg-sky-500/10 border-sky-500/25',
+            path: '/tools/ipv6',
+        },
+        {
+            id: 'regex',
+            title: 'Probador Regex',
+            description: 'Pruebas en tiempo real de expresiones regulares. Resaltado de coincidencias, presets comunes, modo reemplazo y referencia rápida de sintaxis.',
+            icon: Code2,
+            gradient: 'from-green-600 to-emerald-600',
+            glow: 'rgba(34,197,94,0.18)',
+            accentColor: '#22c55e',
+            hoverBorderColor: 'rgba(34,197,94,0.5)',
+            tag: 'RegEx · Patrones · Pruebas',
+            tagColor: 'text-green-400',
+            tagBg: 'bg-green-500/10 border-green-500/25',
+            path: '/tools/regex',
+        },
+        {
+            id: 'hash',
+            title: 'Generador de Hash',
+            description: 'Genera hashes en MD5, SHA-1, SHA-256 y SHA-512. Incluye comparador de hashes y advertencias sobre seguridad de algoritmos.',
+            icon: Hash,
+            gradient: 'from-orange-600 to-red-600',
+            glow: 'rgba(251,146,60,0.18)',
+            accentColor: '#fb923c',
+            hoverBorderColor: 'rgba(251,146,60,0.5)',
+            tag: 'Hash · MD5 · SHA',
+            tagColor: 'text-orange-400',
+            tagBg: 'bg-orange-500/10 border-orange-500/25',
+            path: '/tools/hash',
+        },
+        {
+            id: 'dns',
+            title: 'Consulta DNS',
+            description: 'Consulta registros DNS usando Cloudflare API. Soporta A, AAAA, MX, TXT, NS, CNAME y SOA con resultados detallados.',
+            icon: Search,
+            gradient: 'from-purple-600 to-pink-600',
+            glow: 'rgba(168,85,247,0.18)',
+            accentColor: '#d8b4fe',
+            hoverBorderColor: 'rgba(168,85,247,0.5)',
+            tag: 'DNS · Registros · CloudFlare',
+            tagColor: 'text-purple-400',
+            tagBg: 'bg-purple-500/10 border-purple-500/25',
+            path: '/tools/dns',
+        },
+        {
+            id: 'cron',
+            title: 'Constructor Cron',
+            description: 'Constructor visual de expresiones cron. Vista previa de próximas ejecuciones, presets comunes y referencia de sintaxis integrada.',
+            icon: Clock,
+            gradient: 'from-indigo-600 to-purple-600',
+            glow: 'rgba(99,102,241,0.18)',
+            accentColor: '#a5b4fc',
+            hoverBorderColor: 'rgba(99,102,241,0.5)',
+            tag: 'Cron · Planificación · Linux',
+            tagColor: 'text-indigo-400',
+            tagBg: 'bg-indigo-500/10 border-indigo-500/25',
+            path: '/tools/cron',
+        },
     ];
 
     return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden">
                 {/* Ambient glows */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/4 blur-[150px] rounded-full -z-10" />
                 <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-violet-600/4 blur-[150px] rounded-full -z-10" />

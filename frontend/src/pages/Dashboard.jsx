@@ -256,7 +256,7 @@ export default function Dashboard() {
         <div className="flex min-h-screen bg-[#050505] selection:bg-neon selection:text-black">
             <AnnouncementPopup />
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden">
 
                 {/* Background ambient */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-neon/5 blur-[120px] rounded-full -z-10 animate-pulse" />

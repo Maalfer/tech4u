@@ -28,7 +28,6 @@ export default function OAuthCallback() {
   const setUserFromOAuth = useUserStore.setState;
 
   useEffect(() => {
-    const token = params.get('token');
     const error = params.get('error');
 
     if (error) {
@@ -38,34 +37,27 @@ export default function OAuthCallback() {
       return;
     }
 
-    if (!token) {
-      setErrorMsg('No se recibió token de sesión.');
-      setStatus('error');
-      setTimeout(() => navigate('/login'), 2000);
-      return;
-    }
+    // With httpOnly cookies, the OAuth callback sets the cookie automatically.
+    // We just need to fetch the user profile.
 
-    // 1. Guardar el token primero para que las llamadas API lo usen
-    localStorage.setItem('tech4u_token', token);
-
-    // 2. Obtener el perfil del usuario con ese token
+    // 1. Obtener el perfil del usuario (cookie will be sent automatically via withCredentials)
     fetch(`${API_BASE}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',  // Include httpOnly cookies
     })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((userData) => {
-        // 3. Guardar el usuario en localStorage (lo mismo que hace el login normal)
+        // 2. Guardar el usuario en localStorage
         localStorage.setItem('tech4u_user', JSON.stringify(userData));
 
-        // 4. Actualizar el store de Zustand directamente (sin recargar)
+        // 3. Actualizar el store de Zustand directamente (sin recargar)
         setUserFromOAuth({ user: userData });
 
         setStatus('success');
 
-        // 5. Navegar al dashboard
+        // 4. Navegar al dashboard
         setTimeout(() => {
           window.location.href = '/dashboard';
         }, 800);
@@ -73,7 +65,6 @@ export default function OAuthCallback() {
       .catch((err) => {
         console.error('OAuthCallback: error obteniendo perfil', err);
         // Si /auth/me falla limpiamos para evitar estado inconsistente
-        localStorage.removeItem('tech4u_token');
         localStorage.removeItem('tech4u_user');
         setErrorMsg('No se pudo cargar el perfil. Inténtalo de nuevo.');
         setStatus('error');

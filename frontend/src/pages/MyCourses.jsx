@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PlayCircle, BookOpen, Video, ChevronRight, CheckCircle, Sparkles, GraduationCap } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
+import LazyImage from '../components/LazyImage';
 import api from '../services/api';
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
@@ -117,7 +118,7 @@ export default function MyCourses() {
     return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden">
                 {/* Ambient BG */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-600/5 blur-[150px] rounded-full -z-10 animate-pulse" />
 
@@ -155,7 +156,7 @@ function MyCourseCard({ course }) {
             {/* Thumbnail */}
             <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-emerald-900/30 to-black flex-shrink-0">
                 {course.thumbnail_url ? (
-                    <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
+                    <LazyImage src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center">
                         <Video className="w-16 h-16 text-emerald-500/40" />

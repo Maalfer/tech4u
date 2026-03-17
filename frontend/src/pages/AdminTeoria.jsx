@@ -151,7 +151,7 @@ export default function AdminTeoria() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white font-sans">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8">
 
                 <PageHeader
                     title={<>Admin<span className="text-white"> Teoría</span></>}

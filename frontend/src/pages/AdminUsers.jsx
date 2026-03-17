@@ -73,7 +73,7 @@ export default function AdminUsers() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative">
                 <PageHeader
                     title={<>Control <span className="text-white">de Academia</span></>}
                     subtitle="Panel de gestión de accesos y membresías Tech4U"

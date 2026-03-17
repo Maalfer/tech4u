@@ -502,7 +502,7 @@ function TerminalSkillsLocked() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 flex items-center justify-center p-8">
+            <main className="flex-1 ml-0 md:ml-64 flex items-center justify-center p-8">
                 <div className="max-w-lg w-full text-center">
                     <div className="relative mx-auto w-28 h-28 mb-8">
                         <div className="absolute inset-0 rounded-full blur-2xl" style={{ background: `rgba(${NEON_RGB},0.15)` }} />
@@ -629,7 +629,7 @@ export default function LabsPage() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 overflow-y-auto">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 overflow-y-auto">
 
                 {/* ── Hero — only on landing ── */}
                 {!selectedPath && !selectedModule && !loading && (

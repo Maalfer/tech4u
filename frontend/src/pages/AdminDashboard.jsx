@@ -83,7 +83,7 @@ export default function AdminDashboard() {
     if (!stats) return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 flex items-center justify-center flex-col gap-4 text-red-500 font-mono">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 flex items-center justify-center flex-col gap-4 text-red-500 font-mono">
                 <AlertCircle className="w-12 h-12 animate-pulse" />
                 <h1 className="text-2xl font-black uppercase tracking-tighter italic">Fallo de Mainframe</h1>
                 <p className="text-sm opacity-80 text-center max-w-md">No se han podido cargar las estadísticas del panel de control maestro. Verifica el estado del núcleo de servidor.</p>
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
         <div className="flex min-h-screen bg-[#050505] text-slate-200 selection:bg-neon selection:text-black">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-neon/5 blur-[120px] rounded-full -z-10 animate-pulse" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-sky-500/5 blur-[100px] rounded-full -z-10" />
 

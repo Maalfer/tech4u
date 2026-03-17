@@ -141,7 +141,7 @@ export default function AdminAcademyShop() {
     if (loading) return (
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 flex items-center justify-center">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
             </main>
         </div>
@@ -150,7 +150,7 @@ export default function AdminAcademyShop() {
     return (
         <div className="flex min-h-screen bg-[#050505] text-white">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 overflow-y-auto relative">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 overflow-y-auto relative">
 
                 {/* Ambient */}
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/5 blur-[150px] rounded-full -z-10 pointer-events-none animate-pulse" />

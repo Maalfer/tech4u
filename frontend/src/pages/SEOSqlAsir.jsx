@@ -1,81 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, Database, Code2, CheckCircle, Zap, BookOpen, Shield } from 'lucide-react';
+import { useSEO, schemaFAQ, schemaOrganization } from '../hooks/useSEO';
 import logoImg from '../assets/tech4u_logo.png';
 
 const SEOSqlAsir = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
-  useEffect(() => {
-    // Add JSON-LD structured data
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      name: 'Práctica de SQL para ASIR: Ejercicios de bases de datos con corrección automática',
-      description: 'Ejercicios prácticos de SQL para estudiantes de ASIR. Domina SELECT, JOIN, subconsultas, DDL y DML con corrección automática en sandbox.',
-      url: 'https://tech4u.academy/sql-practice-asir',
-      publisher: {
-        '@type': 'Organization',
-        name: 'Tech4U Academy',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://tech4u.academy/logo.png'
+  useSEO({
+    title: 'Práctica de SQL para ASIR',
+    description: 'Ejercicios prácticos de SQL para estudiantes de ASIR. Domina SELECT, JOIN, subconsultas, DDL y DML con corrección automática en sandbox.',
+    path: '/sql-practice-asir',
+    type: 'article',
+    schemas: [
+      schemaOrganization(),
+      schemaFAQ([
+        {
+          question: '¿Qué es SQL practice para ASIR?',
+          answer: 'Es una plataforma de ejercicios prácticos de SQL con corrección automática, diseñada para estudiantes de ASIR. Cubre desde consultas básicas hasta procedimientos almacenados.'
+        },
+        {
+          question: '¿Necesito instalar una base de datos?',
+          answer: 'No, todos los ejercicios funcionan en un sandbox en el navegador. Tenemos bases de datos de ejemplo pre-configuradas listas para usar.'
+        },
+        {
+          question: '¿Hay corrección automática de SQL?',
+          answer: 'Sí, tu código SQL se valida automáticamente. Recibes feedback inmediato si tu consulta es correcta o necesita ajustes.'
+        },
+        {
+          question: '¿Qué temas de SQL se cubren?',
+          answer: 'SELECT básicos, WHERE, ORDER BY, JOIN, GROUP BY, HAVING, subconsultas, vistas, DDL, DML, transacciones y procedimientos almacenados.'
+        },
+        {
+          question: '¿Puedo practicar con MySQL, PostgreSQL y SQL Server?',
+          answer: 'Sí, ofrecemos ejercicios en múltiples sistemas de bases de datos incluyendo MySQL, PostgreSQL y SQL Server, los más comunes en ASIR.'
         }
-      },
-      mainEntity: {
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: '¿Qué es SQL practice para ASIR?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Es una plataforma de ejercicios prácticos de SQL con corrección automática, diseñada para estudiantes de ASIR. Cubre desde consultas básicas hasta procedimientos almacenados.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Necesito instalar una base de datos?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'No, todos los ejercicios funcionan en un sandbox en el navegador. Tenemos bases de datos de ejemplo pre-configuradas listas para usar.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Hay corrección automática de SQL?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, tu código SQL se valida automáticamente. Recibes feedback inmediato si tu consulta es correcta o necesita ajustes.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Qué temas de SQL se cubren?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'SELECT básicos, WHERE, ORDER BY, JOIN, GROUP BY, HAVING, subconsultas, vistas, DDL, DML, transacciones y procedimientos almacenados.'
-            }
-          },
-          {
-            '@type': 'Question',
-            name: '¿Puedo practicar con MySQL, PostgreSQL y SQL Server?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Sí, ofrecemos ejercicios en múltiples sistemas de bases de datos incluyendo MySQL, PostgreSQL y SQL Server, los más comunes en ASIR.'
-            }
-          }
-        ]
-      }
-    });
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+      ])
+    ]
+  });
 
   const toggleFaq = (index) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -206,9 +168,10 @@ const SEOSqlAsir = () => {
           <p className="text-xl text-gray-300 mb-4 max-w-2xl mx-auto">
             Ejercicios de bases de datos con corrección automática. Domina SELECT, JOIN, subconsultas, DDL y DML.
           </p>
-          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-400 mb-4 max-w-2xl mx-auto">
             Sandbox completo en tu navegador. Practica con MySQL, PostgreSQL y SQL Server sin instalar nada.
           </p>
+          <p className="text-sm text-gray-400 mb-8">Actualizado: 15 de enero de 2025 · 8 min de lectura</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/planes"
@@ -529,6 +492,49 @@ const SEOSqlAsir = () => {
               Ya tengo cuenta
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Internal Links */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 className="text-3xl font-bold font-mono mb-8 text-center">También te puede interesar</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            to="/plataforma-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Database className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Plataforma ASIR Completa
+            </h3>
+            <p className="text-sm text-gray-300">
+              Accede a todos los 6 módulos prácticos de ASIR en una sola plataforma.
+            </p>
+          </Link>
+          <Link
+            to="/labs-linux-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Code2 className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Labs de Linux para ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Practica administración de sistemas con comandos, permisos y servicios.
+            </p>
+          </Link>
+          <Link
+            to="/ciberseguridad-asir"
+            className="glass rounded-2xl border border-white/5 p-6 hover:border-neon/50 transition-all group"
+          >
+            <Shield className="w-8 h-8 text-neon mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-mono font-bold mb-2 group-hover:text-neon transition-colors">
+              Ciberseguridad ASIR
+            </h3>
+            <p className="text-sm text-gray-300">
+              Labs de seguridad, hacking ético y análisis de vulnerabilidades.
+            </p>
+          </Link>
         </div>
       </section>
 

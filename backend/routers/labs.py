@@ -207,7 +207,7 @@ def generate_lab(data: LabGeneratorPayload, _: User = Depends(require_developer)
     except Exception as e:
         db.rollback()
         logger.error(f"LAB GENERATOR ERROR: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 @router.get("/{lab_id}", response_model=LabOut)
 def get_lab_student(
@@ -343,8 +343,8 @@ def complete_lab(
     # Liberar el container Docker para evitar lag al iniciar el siguiente lab
     try:
         docker_launcher.kill_all_for_user(current_user.id)
-    except Exception:
-        pass  # No bloqueamos si el container ya expiró
+    except Exception as e:
+        logger.warning(f"Failed to cleanup Docker containers for user {current_user.id}: {e}")
 
     return LabCompleteResponse(
         success=True,

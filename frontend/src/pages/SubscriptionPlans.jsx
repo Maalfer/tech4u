@@ -13,18 +13,12 @@ export default function SubscriptionPlans() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Animated subscriber counter (social proof)
-    const [subCount, setSubCount] = useState(127);
-    useEffect(() => {
-        // Subtle drift to simulate live count (purely cosmetic)
-        const id = setInterval(() => {
-            setSubCount(prev => {
-                const delta = Math.random() < 0.3 ? 1 : 0;
-                return prev + delta;
-            });
-        }, 12000);
-        return () => clearInterval(id);
-    }, []);
+    // Testimonials for social proof
+    const testimonials = [
+        { text: 'Suspendía Redes todos los exámenes. Dos semanas con Tech4U y saqué un 8.', author: 'Carlos M.', role: 'ASIR 2024' },
+        { text: 'Los labs de SQL son brutales. El dataset del Hospital me lo sé de memoria.', author: 'Lucía P.', role: 'DAM' },
+        { text: 'Nunca entendí las ACLs de Cisco hasta que las practiqué aquí.', author: 'Álvaro R.', role: 'ASIR' },
+    ];
 
     useSEO({
         title: 'Planes y Suscripciones',
@@ -100,26 +94,34 @@ export default function SubscriptionPlans() {
                     </div>
                 </div>
 
-                {/* ── Social proof bar ── */}
-                <div className="max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-center gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.07]">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        <Users className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-[11px] font-mono text-slate-300">
-                            <strong className="text-white">{subCount.toLocaleString('es-ES')}</strong> alumnos suscritos
-                        </span>
+                {/* ── Social proof with testimonials ── */}
+                <div className="max-w-5xl mx-auto mb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        {testimonials.map((testimonial, idx) => (
+                            <div key={idx} className="px-5 py-4 rounded-2xl border border-white/10 bg-white/[0.02] hover:border-neon/20 hover:bg-white/[0.035] transition-all">
+                                <p className="text-slate-300 font-mono text-xs leading-relaxed mb-3">"{testimonial.text}"</p>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-white font-bold text-xs">{testimonial.author}</p>
+                                        <p className="text-slate-500 text-[10px]">{testimonial.role}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.07]">
-                        <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
-                        <span className="text-[11px] font-mono text-slate-300">
-                            <strong className="text-white">+18</strong> nuevos este mes
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
-                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        <span className="text-[11px] font-mono text-amber-300">
-                            <strong>4.9/5</strong> valoración media de los alumnos
-                        </span>
+                    <div className="flex flex-wrap items-center justify-center gap-4">
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.07]">
+                            <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
+                            <span className="text-[11px] font-mono text-slate-300">
+                                <strong className="text-white">+18</strong> nuevos este mes
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
+                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                            <span className="text-[11px] font-mono text-amber-300">
+                                <strong>4.9/5</strong> valoración media de los alumnos
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -149,7 +151,22 @@ export default function SubscriptionPlans() {
                         ))}
                     </div>
 
-                    <div className="mt-12 text-center flex flex-col items-center gap-5">
+                    {/* ── Referral CTA Banner ── */}
+                    <div className="mt-12 mb-8 max-w-3xl mx-auto">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 rounded-2xl bg-neon/8 border border-neon/25">
+                            <span className="text-slate-300 font-mono text-sm">
+                                <span className="text-lg">🎁</span> ¿Ya tienes cuenta? Comparte tu enlace de referido y consigue <strong className="text-neon">1 mes gratis</strong>
+                            </span>
+                            <Link
+                                to="/referral"
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neon text-black font-bold font-mono text-xs uppercase tracking-wider hover:shadow-[0_0_20px_rgba(198,255,51,0.4)] transition-all whitespace-nowrap"
+                            >
+                                Ver mi enlace <ArrowRight className="w-3 h-3" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 text-center flex flex-col items-center gap-5">
                         <button
                             onClick={() => navigate('/para-centros')}
                             className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/[0.02] border border-white/5 text-slate-400 hover:text-white font-mono text-sm transition-all hover:border-neon/20 hover:bg-neon/[0.03]"

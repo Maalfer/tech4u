@@ -14,7 +14,6 @@ const useUserStore = create((set, get) => ({
             // Handle malformed or corrupted user data in localStorage
             console.error('Failed to parse stored user data:', error)
             localStorage.removeItem('tech4u_user')
-            localStorage.removeItem('tech4u_token')
             return null
         }
     })(),
@@ -24,11 +23,9 @@ const useUserStore = create((set, get) => ({
         set({ loading: true })
         try {
             const res = await api.post('/auth/login', { email, password })
-            const { access_token, user: userData } = res.data
-            // Note: Token is also stored in localStorage for API calls via Authorization header.
-            // XSS risk is mitigated by the httpOnly cookie used for session auth.
-            // TODO: Migrate fully to httpOnly cookies and remove localStorage token.
-            localStorage.setItem('tech4u_token', access_token)
+            const { user: userData } = res.data
+            // Token is now handled via httpOnly cookie automatically by the backend.
+            // No need to store in localStorage or add Authorization header.
             localStorage.setItem('tech4u_user', JSON.stringify(userData))
             set({ user: userData })
             return userData
@@ -48,11 +45,9 @@ const useUserStore = create((set, get) => ({
                 referral_code: referralCode,
                 role: role
             })
-            const { access_token, user: userData } = res.data
-            // Note: Token is also stored in localStorage for API calls via Authorization header.
-            // XSS risk is mitigated by the httpOnly cookie used for session auth.
-            // TODO: Migrate fully to httpOnly cookies and remove localStorage token.
-            localStorage.setItem('tech4u_token', access_token)
+            const { user: userData } = res.data
+            // Token is now handled via httpOnly cookie automatically by the backend.
+            // No need to store in localStorage or add Authorization header.
             localStorage.setItem('tech4u_user', JSON.stringify(userData))
             set({ user: userData })
             return userData
@@ -67,7 +62,6 @@ const useUserStore = create((set, get) => ({
         } catch (error) {
             console.error('Logout error:', error)
         }
-        localStorage.removeItem('tech4u_token')
         localStorage.removeItem('tech4u_user')
         set({ user: null })
     },
@@ -83,7 +77,16 @@ const useUserStore = create((set, get) => ({
         } catch (error) {
             console.error('Refresh error:', error)
         }
-    }
+    },
+
+    /**
+     * silentRefreshToken — Deprecated with httpOnly cookies.
+     * The backend now handles session refresh automatically via refresh tokens in httpOnly cookies.
+     * This function is kept for backward compatibility but does nothing.
+     */
+    silentRefreshToken: async () => {
+        // No-op: httpOnly cookies handle refresh automatically on the backend
+    },
 }))
 
 export default useUserStore

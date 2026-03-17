@@ -11,6 +11,7 @@ import DOMPurify from 'dompurify';
 import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
 import api from '../services/api';
+import { trackEvent } from '../utils/analytics';
 
 // ─── SVG Covers (replacing PNG covers) ──────────────────────────────────────
 import { SQLModeCoverComponent, CoverEscribeConsulta } from '../components/SQLLabCovers';
@@ -3543,6 +3544,10 @@ export default function SQLSkillsPage() {
                     ));
                     if (data.xp_gained > 0) {
                         setProgress(prev => ({ ...prev, completed: prev.completed + 1 }));
+                        trackEvent('sql_exercise_completed', String(exercise.id), 'sql_exercise', {
+                            exercise_type: exercise.exercise_type,
+                            xp_gained: data.xp_gained,
+                        });
                         // Trigger XP float animation
                         setXPFloat({ amount: data.xp_gained, color: activeLevelCfg?.color || '#10b981' });
                         // Track per-type completed count for analytics
@@ -3701,7 +3706,7 @@ export default function SQLSkillsPage() {
         <div className="flex min-h-screen bg-[#0D0D0D] text-white">
             <Sidebar />
 
-            <div className="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
+            <div className="flex-1 ml-0 md:ml-64 flex flex-col h-screen overflow-hidden">
 
                 {/* ── HEADER (always visible) ───────────────── */}
                 <div className="px-8 pt-8 pb-4 flex-shrink-0">

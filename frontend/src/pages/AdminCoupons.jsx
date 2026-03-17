@@ -172,7 +172,7 @@ export default function AdminCoupons() {
     return (
         <div className="flex min-h-screen bg-[#0D0D0D]">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative">
                 <PageHeader
                     title={<>Gestión de <span className="text-white">Cupones</span></>}
                     subtitle="Crea y administra códigos de descuento o acceso gratuito"

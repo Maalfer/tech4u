@@ -43,6 +43,8 @@ class UserOut(BaseModel):
     referral_reward_count: int = 0
     pending_10p_discounts: int = 0
     free_months_accumulated: int = 0
+    ciclo: Optional[str] = None
+    onboarding_completed: bool = False
 
     class Config:
         from_attributes = True

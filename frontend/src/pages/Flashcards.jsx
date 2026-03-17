@@ -347,7 +347,7 @@ export default function Flashcards() {
         <div className="flex min-h-screen bg-[#050505] text-white selection:bg-orange-500/30">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-10 overflow-hidden relative">
+            <main className="flex-1 ml-0 md:ml-64 p-10 overflow-hidden relative">
                 {/* RPG Ambient Atmosphere */}
                 <div className="absolute top-[-10%] right-[-5%] w-[50%] h-[50%] bg-orange-600/5 blur-[120px] rounded-full animate-pulse" />
                 <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-blue-900/10 blur-[100px] rounded-full" />

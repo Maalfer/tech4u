@@ -85,7 +85,7 @@ export default function Courses() {
     return (
         <div className="flex min-h-screen">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8">
                 {/* ── Header ── */}
                 <PageHeader
                     title={<>Aca<span className="text-white">demia</span></>}

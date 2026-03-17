@@ -91,7 +91,7 @@ export default function AdminTickets() {
         <div className="flex min-h-screen bg-[#050505] text-slate-200 selection:bg-orange-500 selection:text-white">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-8 relative">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative">
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 blur-[100px] -z-10" />
 
                 <PageHeader

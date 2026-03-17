@@ -13,7 +13,7 @@ export default function VirtualWorldComingSoon() {
     return (
         <div className="min-h-screen bg-[#050505] text-white flex">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 relative overflow-hidden flex flex-col items-center justify-center">
+            <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative overflow-hidden flex flex-col items-center justify-center">
 
                 {/* ── AMBIENT BACKGROUND ── */}
                 <div className="absolute inset-0 z-0 pointer-events-none">

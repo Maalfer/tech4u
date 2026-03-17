@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { Shield, Eye, EyeOff, AlertCircle, GraduationCap } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { redirectUser } from '../utils/redirectUser'
+import { trackEvent } from '../utils/analytics'
 import OAuthButtons from '../components/OAuthButtons'
 import logoImg from '../assets/tech4u_logo.png';
 
@@ -31,10 +32,12 @@ export default function LoginPage() {
         try {
             if (tab === 'login') {
                 const userData = await login(form.email, form.password)
+                trackEvent('login_success', null, 'auth', { method: 'email' })
                 redirectUser(userData)
             } else {
                 const roleString = isDocenteFlow ? 'docente' : 'alumno'
                 const userData = await register(form.nombre, form.email, form.password, form.referral_code || null, 'free', roleString)
+                trackEvent('user_registered', null, 'auth', { role: roleString, plan: defaultPlan })
                 if (defaultPlan && defaultPlan !== 'free' && roleString !== 'docente') {
                     navigate('/suscripcion')
                 } else {
@@ -104,7 +107,14 @@ export default function LoginPage() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-mono text-slate-500 mb-1.5 uppercase tracking-wider">Contraseña</label>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider">Contraseña</label>
+                                    {tab === 'login' && (
+                                        <Link to="/forgot-password" className="text-[10px] font-mono text-slate-600 hover:text-neon transition-colors uppercase tracking-wider">
+                                            ¿Olvidaste la contraseña?
+                                        </Link>
+                                    )}
+                                </div>
                                 <div className="relative">
                                     <input className={inputClass} type={showPass ? 'text' : 'password'} placeholder="••••••••" value={form.password} onChange={handle('password')} required minLength={6} />
                                     <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-neon transition-colors">

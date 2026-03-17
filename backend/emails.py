@@ -100,6 +100,23 @@ def send_payment_confirmation(to: str, nombre: str, plan: str, end_date) -> bool
     return _send(to, f"✅ Suscripción {plan_label} activada — Tech4U", _base_template("¡Pago confirmado!", body))
 
 
+def send_password_reset(to: str, nombre: str, reset_url: str) -> bool:
+    body = f"""
+    <p style="color:#aaa;font-size:15px;line-height:1.7;">Hola <strong style="color:#fff;">{nombre}</strong>,</p>
+    <p style="color:#aaa;font-size:15px;line-height:1.7;">
+        Recibimos una solicitud para restablecer la contraseña de tu cuenta.
+        Si no fuiste tú, puedes ignorar este correo — tu contraseña no cambiará.
+    </p>
+    <a href="{reset_url}" style="display:inline-block;margin:20px 0;padding:14px 28px;background:#C6FF33;color:#0D0D0D;font-weight:900;text-decoration:none;border-radius:10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">
+        Restablecer contraseña →
+    </a>
+    <p style="color:#555;font-size:12px;margin-top:8px;">Este enlace expira en <strong style="color:#aaa;">1 hora</strong>.</p>
+    <p style="color:#555;font-size:12px;">Si el botón no funciona, copia este enlace en tu navegador:</p>
+    <p style="color:#C6FF33;font-size:11px;word-break:break-all;">{reset_url}</p>
+    """
+    return _send(to, "Restablece tu contraseña — Tech4U Academy", _base_template("Restablecer contraseña", body))
+
+
 def send_expiry_warning(to: str, nombre: str, days_left: int, end_date) -> bool:
     end_str = end_date.strftime("%d/%m/%Y") if end_date else "—"
     body = f"""

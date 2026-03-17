@@ -86,11 +86,12 @@ export default function SEOLinuxPage() {
                     <span className="text-neon">Terminal Linux</span>
                 </h1>
 
-                <p className="text-lg text-slate-400 font-mono max-w-2xl mx-auto leading-relaxed mb-10">
+                <p className="text-lg text-slate-400 font-mono max-w-2xl mx-auto leading-relaxed mb-4">
                     Practica comandos Linux con laboratorios interactivos en el navegador.
                     Diseñado para estudiantes de <strong className="text-white">ASIR</strong> y <strong className="text-white">SMR</strong>.
                     Sin instalar nada.
                 </p>
+                <p className="text-sm text-slate-500 font-mono mb-10">Actualizado: 15 de enero de 2025 · 8 min de lectura</p>
 
                 <div className="flex flex-wrap gap-4 justify-center">
                     <Link
@@ -176,6 +177,26 @@ export default function SEOLinuxPage() {
                         Crear cuenta gratis <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </Link>
                     <p className="text-slate-600 font-mono text-xs mt-4">Acceso premium desde 9,99€/mes · Sin permanencia</p>
+                </div>
+            </section>
+
+            {/* ── Internal Links ── */}
+            <section className="max-w-5xl mx-auto px-8 py-16 border-t border-white/5" aria-labelledby="also-interested">
+                <h2 id="also-interested" className="text-2xl font-black uppercase italic tracking-tighter text-white mb-6">
+                    También te puede interesar
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                        { label: 'Práctica SQL Interactiva', href: '/sql-practice', desc: 'Ejercicios SQL en el navegador.' },
+                        { label: 'Labs de Ciberseguridad', href: '/ciberseguridad-labs', desc: 'Pentesting y análisis de seguridad.' },
+                        { label: 'Redes Informáticas', href: '/redes-informaticas', desc: 'VLANs, routing y ACLs práctica.' },
+                    ].map(({ label, href, desc }) => (
+                        <Link key={label} to={href} className="group block p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-neon/20 hover:bg-white/[0.04] transition-all no-underline">
+                            <p className="font-bold text-white text-sm mb-1 group-hover:text-neon transition-colors">{label}</p>
+                            <p className="text-slate-500 text-xs font-mono">{desc}</p>
+                            <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-neon mt-2 transition-colors" aria-hidden="true" />
+                        </Link>
+                    ))}
                 </div>
             </section>
 
