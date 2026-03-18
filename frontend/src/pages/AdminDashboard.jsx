@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Users,
     DollarSign,
@@ -24,6 +24,20 @@ export default function AdminDashboard() {
     const [stats, setStats] = useState(null);
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [toasts, setToasts] = useState([]);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const toastTimers = useRef([]);
+
+    const toast = (msg, type = 'success') => {
+        const id = Date.now() + Math.random();
+        setToasts(t => [...t, { id, msg, type }]);
+        const tid = setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3500);
+        toastTimers.current.push(tid);
+    };
+
+    useEffect(() => {
+        return () => toastTimers.current.forEach(clearTimeout);
+    }, []);
 
     const fetchData = async () => {
         try {
@@ -43,7 +57,7 @@ export default function AdminDashboard() {
 
     const fetchSuggestions = async () => {
         try {
-            const res = await api.get('/admin/users/suggestions');
+            const res = await api.get('/announcements/admin/suggestions');
             setSuggestions(res.data);
         } catch (err) {
             if (import.meta.env.DEV) console.error("Error fetching suggestions", err);
@@ -54,19 +68,24 @@ export default function AdminDashboard() {
         try {
             await api.patch(`/admin/users/suggestions/${id}/approve`);
             fetchSuggestions();
-            alert("🚀 Pregunta aprobada y movida al banco para desarrollo.");
+            toast("Pregunta aprobada y movida al banco para desarrollo.", 'success');
         } catch (err) {
-            alert("❌ Error al aprobar sugerencia");
+            toast("Error al aprobar sugerencia", 'error');
         }
     };
 
     const handleDeleteSuggestion = async (id) => {
-        if (!confirm("¿Seguro que quieres descartar esta sugerencia?")) return;
+        setDeleteConfirm(id);
+    };
+
+    const confirmDeleteSuggestion = async (id) => {
         try {
             await api.delete(`/admin/users/suggestions/${id}`);
             fetchSuggestions();
+            setDeleteConfirm(null);
+            toast("Sugerencia eliminada.", 'success');
         } catch (err) {
-            alert("❌ Error al eliminar sugerencia");
+            toast("Error al eliminar sugerencia", 'error');
         }
     };
 
@@ -124,6 +143,13 @@ export default function AdminDashboard() {
                         </div>
                     )}
                     <StatCard
+                        title="Suscripciones Activas"
+                        value={stats.active_subscriptions}
+                        icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                        colorClass="emerald"
+                        trend="Alumnos con acceso premium"
+                    />
+                    <StatCard
                         title="Alertas Rojas"
                         value={stats.pending_tickets}
                         icon={<AlertCircle className="w-4 h-4 text-orange-400" />}
@@ -142,7 +168,7 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-1">
-                        <AnnouncementConsole />
+                        <AnnouncementConsole toast={toast} />
                     </div>
 
                     <div className="lg:col-span-2 bg-gradient-to-b from-stone-900/50 to-transparent rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group">
@@ -176,32 +202,53 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
                             {suggestions.length > 0 ? (
                                 suggestions.map((sug) => (
-                                    <div key={`suggestion-${sug.id}`} className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 flex flex-col justify-between group hover:bg-white/[0.04] hover:border-blue-500/30 transition-all gap-4">
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <span className="text-[9px] font-black font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 uppercase border border-blue-500/20">
-                                                    {sug.subject}
-                                                </span>
-                                                <span className="text-[8px] text-slate-600 font-mono font-bold uppercase tracking-widest">ID: #{sug.id.toString().padStart(4, '0')}</span>
+                                    <div key={`suggestion-${sug.id}`}>
+                                        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 flex flex-col justify-between group hover:bg-white/[0.04] hover:border-blue-500/30 transition-all gap-4">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="text-[9px] font-black font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 uppercase border border-blue-500/20">
+                                                        {sug.subject}
+                                                    </span>
+                                                    <span className="text-[8px] text-slate-600 font-mono font-bold uppercase tracking-widest">ID: #{sug.id.toString().padStart(4, '0')}</span>
+                                                </div>
+                                                <p className="text-[11px] text-slate-400 italic">"{sug.text}"</p>
                                             </div>
-                                            <p className="text-[11px] text-slate-400 italic">"{sug.text}"</p>
+                                            <div className="flex gap-2 justify-end mt-4 pt-4 border-t border-white/5">
+                                                <button
+                                                    className="p-2.5 rounded-xl bg-neon/10 border border-neon/20 text-neon hover:bg-neon hover:text-black transition-all group/btn"
+                                                    title="Aprobar y desarrollar"
+                                                    onClick={() => handleApprove(sug.id)}
+                                                >
+                                                    <CheckCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                                                </button>
+                                                <button
+                                                    className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all group/btn"
+                                                    title="Descartar"
+                                                    onClick={() => handleDeleteSuggestion(sug.id)}
+                                                >
+                                                    <XCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2 justify-end mt-4 pt-4 border-t border-white/5">
-                                            <button
-                                                className="p-2.5 rounded-xl bg-neon/10 border border-neon/20 text-neon hover:bg-neon hover:text-black transition-all group/btn"
-                                                title="Aprobar y desarrollar"
-                                                onClick={() => handleApprove(sug.id)}
-                                            >
-                                                <CheckCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                                            </button>
-                                            <button
-                                                className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all group/btn"
-                                                title="Descartar"
-                                                onClick={() => handleDeleteSuggestion(sug.id)}
-                                            >
-                                                <XCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                                            </button>
-                                        </div>
+                                        {deleteConfirm === sug.id && (
+                                            <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-3 mt-2 flex items-center justify-between gap-3">
+                                                <p className="text-[11px] text-slate-300 font-mono">¿Eliminar?</p>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => confirmDeleteSuggestion(sug.id)}
+                                                        className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[10px] font-bold uppercase"
+                                                    >
+                                                        Sí
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setDeleteConfirm(null)}
+                                                        className="px-2.5 py-1 bg-slate-600 hover:bg-slate-700 text-white rounded text-[10px] font-bold uppercase"
+                                                    >
+                                                        No
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 ))
                             ) : (
@@ -213,6 +260,16 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
+
+                {/* Toast notifications */}
+                <div className="fixed top-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none">
+                    {toasts.map(t => (
+                        <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-xl text-sm font-mono font-bold pointer-events-auto
+                            ${t.type === 'success' ? 'bg-green-950/80 border-green-500/40 text-green-300' : 'bg-red-950/80 border-red-500/40 text-red-300'}`}>
+                            {t.type === 'success' ? '✅' : '❌'} {t.msg}
+                        </div>
+                    ))}
+                </div>
             </main>
         </div>
     );
@@ -220,7 +277,7 @@ export default function AdminDashboard() {
 
 /* --- COMPONENTES AUXILIARES --- */
 
-function AnnouncementConsole() {
+function AnnouncementConsole({ toast }) {
     const [text, setText] = useState("");
     const [sending, setSending] = useState(false);
 
@@ -229,11 +286,11 @@ function AnnouncementConsole() {
         setSending(true);
         try {
             await api.post('/announcements/', { content: text });
-            alert("🚀 Broadcast emitido con éxito");
+            toast("Broadcast emitido con éxito", 'success');
             setText("");
         } catch (err) {
             if (import.meta.env.DEV) console.error(err);
-            alert("❌ Error al enviar el anuncio");
+            toast("Error al enviar el anuncio", 'error');
         } finally {
             setSending(false);
         }
@@ -272,6 +329,7 @@ function StatCard({ title, value, icon, colorClass, trend, alert = false }) {
         orange: 'border-orange-500/20 hover:border-orange-500/50',
         sky: 'border-sky-500/20 hover:border-sky-500/50',
         neon: 'border-neon/20 hover:border-neon/50',
+        emerald: 'border-emerald-500/20 hover:border-emerald-500/50',
     };
 
     const bgs = {
@@ -279,6 +337,7 @@ function StatCard({ title, value, icon, colorClass, trend, alert = false }) {
         orange: 'bg-orange-500/10 border-orange-500/20',
         sky: 'bg-sky-500/10 border-sky-500/20',
         neon: 'bg-neon/10 border-neon/20',
+        emerald: 'bg-emerald-500/10 border-emerald-500/20',
     };
 
     const textColors = {
@@ -286,11 +345,12 @@ function StatCard({ title, value, icon, colorClass, trend, alert = false }) {
         orange: 'text-orange-400',
         sky: 'text-sky-400',
         neon: 'text-neon',
+        emerald: 'text-emerald-400',
     };
 
     return (
         <div className={`group relative bg-gradient-to-br from-stone-900 to-black p-6 rounded-[2rem] border ${alert ? 'border-orange-500/40 shadow-[0_0_20px_rgba(249,115,22,0.1)]' : 'border-white/5'} transition-all duration-500 shadow-xl overflow-hidden hover:${borders[colorClass]?.split(' ')[1]}`}>
-            <div className={`absolute -right-10 -top-10 w-32 h-32 opacity-20 blur-2xl rounded-full ${colorClass === 'violet' ? 'bg-violet-500' : colorClass === 'orange' ? 'bg-orange-500' : 'bg-sky-500'}`} />
+            <div className={`absolute -right-10 -top-10 w-32 h-32 opacity-20 blur-2xl rounded-full ${colorClass === 'violet' ? 'bg-violet-500' : colorClass === 'orange' ? 'bg-orange-500' : colorClass === 'emerald' ? 'bg-emerald-500' : 'bg-sky-500'}`} />
 
             <div className="flex justify-between items-start mb-6">
                 <div className={`p-2 rounded-xl border ${bgs[colorClass]} group-hover:scale-110 transition-transform`}>

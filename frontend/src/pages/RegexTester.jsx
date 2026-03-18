@@ -3,6 +3,7 @@ import { ChevronLeft, Copy, Info, CheckCircle2, ChevronDown } from 'lucide-react
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import Sidebar from '../components/Sidebar';
+import SafeHTML from '../components/SafeHTML';
 
 const PRESETS = [
     { name: 'Email', pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$', example: 'user@example.com' },
@@ -206,7 +207,7 @@ export default function RegexTester() {
                                     </div>
                                     <div className="p-6">
                                         <div className="bg-black/40 border border-white/[0.08] rounded-xl px-4 py-3 text-sm font-mono whitespace-pre-wrap break-words">
-                                            <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(highlightText().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/<mark>/g, '<span style="background: rgba(34, 197, 94, 0.3); color: #22c55e;">').replace(/<\/mark>/g, '</span>'))}} />
+                                            <SafeHTML html={highlightText().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/<mark>/g, '<span style="background: rgba(34, 197, 94, 0.3); color: #22c55e;">').replace(/<\/mark>/g, '</span>')} />
                                         </div>
                                     </div>
                                 </div>

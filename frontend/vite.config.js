@@ -53,6 +53,8 @@ export default defineConfig({
     })
   ],
   build: {
+    // No exponer el código fuente en producción
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {

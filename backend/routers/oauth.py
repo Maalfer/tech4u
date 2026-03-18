@@ -26,7 +26,7 @@ import time
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -45,7 +45,12 @@ GOOGLE_CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 MS_CLIENT_ID         = os.getenv("MICROSOFT_CLIENT_ID", "")
 MS_CLIENT_SECRET     = os.getenv("MICROSOFT_CLIENT_SECRET", "")
-SECRET_KEY           = os.getenv("SECRET_KEY", "change-me")
+SECRET_KEY           = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if os.getenv("ENVIRONMENT", "development") == "production":
+        raise RuntimeError("🚨 production: SECRET_KEY NO CONFIGURADA en oauth.py. Deteniendo por seguridad.")
+    log.error("SECRET_KEY no configurada en oauth.py. El sistema de firma de states fallará.")
+
 FRONTEND_URL         = os.getenv("FRONTEND_URL", "http://localhost:5173")
 BACKEND_URL          = os.getenv("BACKEND_URL", "http://localhost:8000")
 MS_TENANT            = os.getenv("MICROSOFT_TENANT_ID", "common")
@@ -65,7 +70,8 @@ STATE_MAX_AGE = 600  # 10 minutos
 # ══════════════════════════════════════════════════════════════════════════════
 
 def _make_state_cookie(raw_state: str) -> str:
-    """base64url({"s": state, "t": timestamp}) + '.' + HMAC-SHA256"""
+    if not SECRET_KEY:
+        raise HTTPException(status_code=500, detail="OAuth state signature failed: SECRET_KEY missing")
     payload = base64.urlsafe_b64encode(
         json.dumps({"s": raw_state, "t": int(time.time())}, separators=(",", ":")).encode()
     ).decode().rstrip("=")
@@ -466,7 +472,11 @@ async def microsoft_callback(request: Request, db: Session = Depends(get_db)):
     email        = profile.get("mail") or profile.get("userPrincipalName", "")
     display_name = profile.get("displayName") or ""
 
-    if not provider_uid or not email:
+    if not email:
+        log.warning("oauth:ms_callback: email missing from Microsoft profile")
+        return RedirectResponse(f"{FRONTEND_URL}/login?error=email_not_provided")
+
+    if not provider_uid:
         return RedirectResponse(f"{FRONTEND_URL}/login?error=invalid_profile")
 
     # Cuentas de invitado de Microsoft tienen #EXT# en el email — normalizar

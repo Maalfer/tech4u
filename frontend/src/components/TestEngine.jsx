@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
     ChevronRight, ChevronLeft, Clock, LogOut, Flag,
     Trophy, Activity, CheckCircle2, Circle, AlertTriangle,
@@ -71,12 +72,14 @@ const THEME = {
 }
 
 export default function TestEngine({ questions = [], mode = 'normal', onFinish, timeLimit = null }) {
-    const [current,   setCurrent]   = useState(0)
-    const [answers,   setAnswers]   = useState({})
-    const [timeLeft,  setTimeLeft]  = useState(timeLimit)
-    const [startTime, setStartTime] = useState(Date.now())
-    const [direction, setDirection] = useState(0)
+    const navigate = useNavigate()
+    const [current,      setCurrent]      = useState(0)
+    const [answers,      setAnswers]      = useState({})
+    const [timeLeft,     setTimeLeft]     = useState(timeLimit)
+    const [startTime,    setStartTime]    = useState(Date.now())
+    const [direction,    setDirection]    = useState(0)
     const [confirmFinish, setConfirmFinish] = useState(false)
+    const [confirmQuit,  setConfirmQuit]  = useState(false)
     const timerRef   = useRef(null)
     const answersRef = useRef(answers)
     const t = THEME[mode] || THEME.normal
@@ -134,7 +137,7 @@ export default function TestEngine({ questions = [], mode = 'normal', onFinish, 
         const formatted = Object.entries(answersRef.current).filter(([_,d])=>d.selected_answer).map(([id,d])=>({ question_id:Number(id), selected_answer:d.selected_answer, time_spent_seconds:d.time_spent_seconds }))
         if (onFinish) onFinish(formatted)
     }
-    const handleQuit = () => { if (window.confirm('¿Abandonar el test? Se perderá el progreso.')) window.location.href = '/tests' }
+    const handleQuit = () => setConfirmQuit(true)
 
     if (!q) return null
 
@@ -411,6 +414,47 @@ export default function TestEngine({ questions = [], mode = 'normal', onFinish, 
                     </p>
                 </main>
             </div>
+
+            {/* ══ CONFIRM QUIT MODAL ═════════════════════════════════════════ */}
+            <AnimatePresence>
+                {confirmQuit && (
+                    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+                        style={{ background:'rgba(0,0,0,0.88)', backdropFilter:'blur(8px)' }}
+                        onClick={() => setConfirmQuit(false)}>
+                        <motion.div initial={{ scale:0.93, opacity:0 }} animate={{ scale:1, opacity:1 }} exit={{ scale:0.93, opacity:0 }}
+                            transition={{ type:'spring', stiffness:400, damping:30 }}
+                            className="w-full max-w-sm rounded-3xl border p-8 relative"
+                            style={{ background:'#0e0e0e', borderColor:'rgba(239,68,68,0.35)', boxShadow:'0 0 40px rgba(239,68,68,0.15)' }}
+                            onClick={e => e.stopPropagation()}>
+                            <div className="h-[2px] absolute top-0 left-0 right-0 rounded-t-3xl"
+                                style={{ background:'linear-gradient(90deg,transparent,#ef4444,transparent)' }} />
+                            <button onClick={() => setConfirmQuit(false)}
+                                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-xl border border-white/10 text-slate-500 hover:text-white hover:border-white/25 transition-all">
+                                <X size={14} />
+                            </button>
+                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 mx-auto bg-red-500/10 border border-red-500/25">
+                                <LogOut size={26} className="text-red-400" />
+                            </div>
+                            <h3 className="text-xl font-black text-white text-center mb-2">¿Abandonar el test?</h3>
+                            <p className="text-sm text-slate-500 text-center mb-6">
+                                Has respondido <span className="text-white font-bold">{answeredCount}</span> de <span className="text-white font-bold">{questions.length}</span> preguntas.
+                                <br /><span className="text-red-400/80">El progreso se perderá.</span>
+                            </p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setConfirmQuit(false)}
+                                    className="flex-1 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-slate-400 text-[11px] font-black uppercase tracking-widest hover:bg-white/[0.08] transition-all">
+                                    Continuar
+                                </button>
+                                <button onClick={() => navigate('/tests')}
+                                    className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-[11px] font-black uppercase tracking-widest transition-all">
+                                    Salir
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* ══ CONFIRM FINISH MODAL ════════════════════════════════════════ */}
             <AnimatePresence>

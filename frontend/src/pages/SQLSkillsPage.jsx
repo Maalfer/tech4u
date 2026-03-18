@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import Sidebar from '../components/Sidebar';
+import SafeHTML from '../components/SafeHTML';
 import PageHeader from '../components/PageHeader';
 import api from '../services/api';
 import { trackEvent } from '../utils/analytics';
@@ -388,11 +389,12 @@ const SQLEditor = ({ value, onChange, disabled }) => {
 
                 <div className="relative flex-1 min-h-[220px] cursor-text" onClick={() => editorRef.current?.focus()}>
                     {/* Highlighting Overlay */}
-                    <pre
+                    <SafeHTML
+                        as="pre"
                         ref={preRef}
                         aria-hidden="true"
                         className="absolute inset-0 py-4 px-4 bg-transparent m-0 pointer-events-none whitespace-pre-wrap break-words leading-6 text-slate-300 z-10 overflow-hidden font-mono text-sm"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(highlightSQL(value) + '\n') }}
+                        html={highlightSQL(value) + '\n'}
                     />
 
                     {/* Real Textarea */}
@@ -720,8 +722,11 @@ function renderMarkdown(text, accentColor = '#3b82f6') {
                         <div className="w-2 h-2 rounded-full bg-green-500/60" />
                         <span className="text-[9px] font-mono text-slate-600 ml-2 uppercase tracking-widest">{lang || 'sql'}</span>
                     </div>
-                    <pre className="px-4 py-3 font-mono text-xs leading-relaxed overflow-x-auto text-slate-300"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(isSql ? highlightSQL(code) : code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')) }} />
+                    <SafeHTML
+                        as="pre"
+                        className="px-4 py-3 font-mono text-xs leading-relaxed overflow-x-auto text-slate-300"
+                        html={isSql ? highlightSQL(code) : code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+                    />
                 </div>
             );
             continue;
@@ -1183,8 +1188,11 @@ const WikiPanel = ({ exercise }) => {
                             <div className="w-2 h-2 rounded-full bg-red-500/60" /><div className="w-2 h-2 rounded-full bg-yellow-500/60" /><div className="w-2 h-2 rounded-full bg-green-500/60" />
                             <span className="text-[9px] font-mono text-slate-600 ml-2 uppercase tracking-widest">sintaxis</span>
                         </div>
-                        <pre className="px-4 py-3 font-mono text-xs leading-relaxed overflow-x-auto text-slate-300"
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(highlightSQL(exercise.wiki_syntax || '')) }} />
+                        <SafeHTML
+                            as="pre"
+                            className="px-4 py-3 font-mono text-xs leading-relaxed overflow-x-auto text-slate-300"
+                            html={highlightSQL(exercise.wiki_syntax || '')}
+                        />
                     </div>
                 </div>
             )}
@@ -2538,7 +2546,7 @@ const StandardEditor = ({
                                     </button>
                                 ))}
                             </div>
-                            {activeTab === 'ejercicio' && <p className="text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(exercise.description || '') }} />}
+                            {activeTab === 'ejercicio' && <SafeHTML as="p" className="text-slate-300 text-sm leading-relaxed" html={exercise.description || ''} />}
                             {activeTab === 'resultado-esp' && (exercise.expected_result ? <div className="space-y-2"><p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">Esto es lo que debe devolver tu consulta correcta:</p><ResultTable result={exercise.expected_result} accent="blue" /></div> : <p className="text-slate-600 font-mono text-xs">No hay resultado esperado disponible.</p>)}
                         </div>
 
@@ -3001,7 +3009,7 @@ const PathEditor = ({
                                     );
                                 })()}
                                 <h2 className="text-xl font-black text-white mb-1.5">{exercise.title}</h2>
-                                <p className="text-slate-400 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(exercise.description || '') }} />
+                                <SafeHTML as="p" className="text-slate-400 text-sm leading-relaxed" html={exercise.description || ''} />
 
                                 {/* Tablas disponibles para free_query */}
                                 {exercise.exercise_type === 'free_query' && exercise.dataset_name && (() => {

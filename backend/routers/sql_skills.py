@@ -329,12 +329,19 @@ def get_dataset_schema(
         conn.executescript(dataset.schema_sql)
         cursor = conn.cursor()
         
-        # Obtener tablas
+        # Obtener tablas — la lista proviene de sqlite_master (fuente confiable)
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
         tables = [row[0] for row in cursor.fetchall()]
-        
+
         schema = []
         for table in tables:
+            # Re-verificar que el nombre de la tabla realmente existe en sqlite_master
+            # antes de interpolarlo en la consulta PRAGMA, para evitar inyección.
+            cursor.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
+            )
+            if not cursor.fetchone():
+                continue
             cursor.execute(f"PRAGMA table_info({table})")
             columns = [
                 {

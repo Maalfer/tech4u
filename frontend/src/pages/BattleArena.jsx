@@ -8,6 +8,7 @@ import {
 import Sidebar from '../components/Sidebar';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../constants/api';
 
 // ─── WhatsApp share icon ───────────────────────────────────────────────────────
 const WhatsAppIcon = ({ size = 16 }) => (
@@ -120,7 +121,7 @@ export default function BattleArena() {
     // ── Connect WebSocket ─────────────────────────────────────────────────────
     const connectWS = useCallback((code) => {
         cleanup();
-        const wsBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/^http/, 'ws');
+        const wsBase = API_BASE.replace(/^http/, 'ws');
         // NOTE: WebSocket connections to the same origin will include httpOnly cookies automatically.
         // The backend should verify authentication using the cookie instead of a query parameter.
         // If backend still requires token param, it will need a one-time ticket from /ws-ticket endpoint.

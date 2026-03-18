@@ -161,6 +161,9 @@ const SEOCiberseguridadAsir = lazy(() => import('./pages/SEOCiberseguridadAsir')
 // Changelog
 const ChangelogPage = lazy(() => import('./pages/ChangelogPage'));
 
+// FAQ
+const FAQPage = lazy(() => import('./pages/FAQPage'));
+
 
 // ── Global Ctrl+K Search Provider ─────────────────────────────────────────────
 function GlobalSearch() {
@@ -203,6 +206,7 @@ export default function App() {
               <Route path="/sql-practice-asir" element={<SEOSqlAsir />} />
               <Route path="/ciberseguridad-asir" element={<SEOCiberseguridadAsir />} />
               <Route path="/novedades" element={<ChangelogPage />} />
+              <Route path="/faq" element={<FAQPage />} />
               <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
               <Route path="/resources" element={<PremiumRoute><Resources /></PremiumRoute>} />
               <Route path="/tests" element={<PremiumRoute module="tests"><TestCenter /></PremiumRoute>} />

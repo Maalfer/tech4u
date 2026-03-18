@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import logoImg from '../assets/tech4u_logo.png';
+import { API_BASE } from '../constants/api';
 
 // Convert a youtube URL to embed URL
 function getYoutubeEmbedUrl(url) {
@@ -211,7 +212,7 @@ export default function CoursePlayer() {
                                 {activeLesson.video_file_path ? (
                                     <video
                                         key={activeLesson.id}
-                                        src={`http://localhost:8000${activeLesson.video_file_path}`}
+                                        src={`${API_BASE}${activeLesson.video_file_path}`}
                                         className="w-full h-full object-contain"
                                         controls
                                         autoPlay

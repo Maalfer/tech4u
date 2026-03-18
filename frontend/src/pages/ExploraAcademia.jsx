@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import { useSEO } from '../hooks/useSEO';
 import Sidebar from '../components/Sidebar';
 import logo from '../assets/tech4u_logo.png';
 import {
@@ -381,6 +382,12 @@ export default function ExploraAcademia() {
     const { user } = useAuth();
     const [scrollPct, setScrollPct] = useState(0);
     const [activeSection, setActiveSection] = useState('secciones');
+
+    useSEO({
+        title: 'Explora la Academia · Tech4U Academy',
+        description: 'Descubre todas las funcionalidades de Tech4U Academy: laboratorios Linux, SQL Skills Path, NetLabs de redes, Battle Arena, sistema de niveles y certificaciones. La plataforma premium para ASIR y SMR.',
+        path: '/explora',
+    });
 
     // Scroll-reveal — runs once on mount only
     useEffect(() => {

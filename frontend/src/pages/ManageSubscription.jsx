@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     CreditCard, CheckCircle, XCircle, RefreshCw, Calendar,
@@ -78,15 +78,18 @@ export default function ManageSubscription() {
     const [error, setError] = useState(null)
     const [cancelling, setCancelling] = useState(false)
     const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+    // Guard against state updates after the component has unmounted
+    const mountedRef = useRef(true)
+    useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
 
     const fetchData = useCallback(async () => {
         try {
             const res = await api.get('/subscriptions/my')
-            setData(res.data)
+            if (mountedRef.current) setData(res.data)
         } catch {
-            setError('No se pudo cargar la información de tu suscripción.')
+            if (mountedRef.current) setError('No se pudo cargar la información de tu suscripción.')
         } finally {
-            setLoading(false)
+            if (mountedRef.current) setLoading(false)
         }
     }, [])
 
@@ -96,11 +99,11 @@ export default function ManageSubscription() {
         setToggling(true)
         try {
             const res = await api.post('/subscriptions/toggle-auto-renew')
-            setData(d => ({ ...d, auto_renew: res.data.auto_renew }))
+            if (mountedRef.current) setData(d => ({ ...d, auto_renew: res.data.auto_renew }))
         } catch {
-            setError('No se pudo cambiar la configuración de aviso.')
+            if (mountedRef.current) setError('No se pudo cambiar la configuración de aviso.')
         } finally {
-            setToggling(false)
+            if (mountedRef.current) setToggling(false)
         }
     }
 
@@ -110,11 +113,11 @@ export default function ManageSubscription() {
         try {
             await api.post('/subscriptions/cancel')
             await fetchData()
-            setShowCancelConfirm(false)
+            if (mountedRef.current) setShowCancelConfirm(false)
         } catch (err) {
-            setError(err.response?.data?.detail || 'Error al cancelar la suscripción.')
+            if (mountedRef.current) setError(err.response?.data?.detail || 'Error al cancelar la suscripción.')
         } finally {
-            setCancelling(false)
+            if (mountedRef.current) setCancelling(false)
         }
     }
 

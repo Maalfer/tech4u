@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import Sidebar from '../components/Sidebar';
+import SafeHTML from '../components/SafeHTML';
 import logoImg from '../assets/tech4u_logo.png';
 import { WIN_SCENARIOS as WIN_SCENARIOS_RAW, WIN_MODULES as WIN_MODULES_RAW } from '../data/winServerScenarios';
 
@@ -116,9 +117,9 @@ function MD({ children, compact = false }) {
           {items.map((item, ii) => (
             <li key={ii} className="flex items-start gap-2 text-xs text-slate-400">
               <span className="text-violet-400 mt-0.5 font-bold flex-shrink-0">›</span>
-              <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item
+              <SafeHTML as="span" html={item
                 .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-200">$1</strong>')
-                .replace(/`(.*?)`/g, '<code class="text-violet-300 bg-violet-900/30 px-1 py-0.5 rounded text-[10px]">$1</code>')) }} />
+                .replace(/`(.*?)`/g, '<code class="text-violet-300 bg-violet-900/30 px-1 py-0.5 rounded text-[10px]">$1</code>')} />
             </li>
           ))}
         </ul>
@@ -135,8 +136,10 @@ function MD({ children, compact = false }) {
           return `<a href="${safeUrl}" class="text-violet-400 hover:underline" target="_blank" rel="noopener noreferrer">${text}</a>`;
         });
       elements.push(
-        <p key={i} className="text-xs text-slate-400 leading-relaxed my-1"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(safeHtml) }}
+        <SafeHTML
+          key={i}
+          html={safeHtml}
+          className="text-xs text-slate-400 leading-relaxed my-1"
         />
       );
     }

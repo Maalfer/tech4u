@@ -62,8 +62,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -1524,13 +1524,47 @@ def fix_linux_fundamentals_duplicate():
 async def startup():
     # ── Validación de variables de entorno críticas ──────────────────────────
     REQUIRED_ENV_VARS = ["SECRET_KEY", "DATABASE_URL"]
+    
+    _env = os.getenv("ENVIRONMENT", "development")
+    if _env == "production":
+        # En producción, Stripe es obligatorio
+        REQUIRED_ENV_VARS.append("STRIPE_SECRET_KEY")
+
     missing = [v for v in REQUIRED_ENV_VARS if not os.getenv(v)]
     if missing:
         raise RuntimeError(
             f"🚨 STARTUP FAILED — Variables de entorno requeridas no configuradas: {', '.join(missing)}\n"
             f"   Crea el archivo .env con estos valores antes de arrancar el servidor."
         )
-    logger.info("✅ Validación de entorno OK — todas las variables requeridas están presentes.")
+
+    # 🛡️ SECURITY FIX: Enforce non-default/weak SECRET_KEY in production
+    if _env == "production":
+        secret = os.getenv("SECRET_KEY", "")
+        if len(secret) < 32 or secret in ["change-me", "your-super-secret-key"]:
+            raise RuntimeError(
+                "🚨 STARTUP FAILED — El SECRET_KEY es demasiado débil o usa un valor por defecto.\n"
+                "   En producción, debe ser una cadena aleatoria de al menos 32 caracteres (ej: openssl rand -hex 32)."
+            )
+
+    # ── Advertencias de producción ────────────────────────────────────────────
+    if _env == "production":
+        _warnings = []
+        if not os.getenv("PAYPAL_CLIENT_ID") or os.getenv("PAYPAL_MODE", "sandbox") == "sandbox":
+            _warnings.append("⚠️  PAYPAL_MODE=sandbox — los pagos con PayPal son simulados")
+        if not os.getenv("RESEND_API_KEY"):
+            _warnings.append("⚠️  RESEND_API_KEY vacío — los emails transaccionales no se enviarán")
+        if not os.getenv("SENTRY_DSN"):
+            _warnings.append("⚠️  SENTRY_DSN vacío — los errores de producción no se monitorean")
+        if os.getenv("COOKIE_SECURE", "false").lower() != "true":
+            _warnings.append("⚠️  COOKIE_SECURE=false en producción — las cookies no son seguras sobre HTTP")
+        if os.getenv("ALLOWED_ORIGINS", "").startswith("http://localhost"):
+            _warnings.append("⚠️  ALLOWED_ORIGINS apunta a localhost — el CORS bloqueará el dominio real")
+        for w in _warnings:
+            logger.warning(w)
+        if _warnings:
+            logger.warning("   Revisa tu .env antes de recibir usuarios reales.")
+
+    logger.info(f"✅ Entorno '{_env}' validado — configuraciones críticas presentes.")
 
     # Crear tablas nuevas que no existan en BD (seguro: no modifica tablas existentes)
     from database import create_tables

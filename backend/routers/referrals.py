@@ -275,7 +275,9 @@ def get_my_referral_stats(
 
 
 @router.post("/referrals/generate-code")
+@limiter.limit("5/minute")
 def generate_my_referral_code(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):

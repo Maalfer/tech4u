@@ -20,6 +20,9 @@ Allow: /aviso-legal
 Allow: /privacidad
 Allow: /terminos
 Allow: /cookies
+Allow: /faq
+Allow: /novedades
+Allow: /para-centros
 
 # ── Private / auth-required — block crawlers ─────────────
 Disallow: /api/

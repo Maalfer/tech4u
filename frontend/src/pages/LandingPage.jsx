@@ -257,9 +257,9 @@ export default function LandingPage() {
     const LANDING_FAQS = [
         { question: '¿Qué es Tech4U Academy?', answer: 'Tech4U Academy es una plataforma de formación interactiva para estudiantes de ASIR y SMR. Incluye teoría, laboratorios de Linux, editor SQL, tests de examen y gamificación con XP y rankings.' },
         { question: '¿Necesito conocimientos previos para empezar?', answer: 'No. Tech4U está diseñada para acompañar al alumno desde el principio del ciclo. El contenido está organizado de forma progresiva por asignatura y nivel.' },
-        { question: '¿Puedo probar Tech4U Academy de forma gratuita?', answer: 'Sí. La primera lección de cada asignatura es completamente gratuita sin necesidad de cuenta. Además puedes explorar la plataforma antes de suscribirte.' },
+        { question: '¿Puedo probar Tech4U Academy de forma gratuita?', answer: 'Puedes registrarte y explorar el catálogo completo de la plataforma. El acceso a laboratorios, lecciones, tests y ejercicios requiere suscripción Premium.' },
         { question: '¿Qué incluye la suscripción Premium?', answer: 'La suscripción Premium da acceso a todo el temario, laboratorios de Linux, SQL Skills, NetLabs de redes, flashcards, simulacros de examen y el ranking ASIR.' },
-        { question: '¿Cuánto cuesta Tech4U Academy?', answer: 'Desde 9,99€/mes (plan mensual), 24,99€/trimestre o 89,99€/año. Todos los planes incluyen acceso completo sin permanencia.' },
+        { question: '¿Cuánto cuesta Tech4U Academy?', answer: 'Desde 9,99€/mes (plan mensual), 24,99€/trimestre o 79,99€/año. Todos los planes incluyen acceso completo sin permanencia.' },
         { question: '¿Tech4U Academy sirve también para SMR?', answer: 'Sí. Aunque el contenido está orientado principalmente a ASIR, muchas asignaturas son compartidas con SMR.' },
     ]
 
@@ -938,7 +938,7 @@ export default function LandingPage() {
                             <div>
                                 <p style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '18px' }}>Acceso rápido</p>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                    {[['Explorar plataforma', '/explora'], ['Ver tarifas', '/planes'], ['Crear cuenta gratis', '/login?tab=register'], ['Iniciar sesión', '/login']].map(([l, h]) => (
+                                    {[['Explorar plataforma', '/explora'], ['Ver tarifas', '/planes'], ['Preguntas frecuentes', '/faq'], ['Crear cuenta gratis', '/login?tab=register'], ['Iniciar sesión', '/login']].map(([l, h]) => (
                                         <Link key={l} to={h}
                                             style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '12px', color: 'rgba(255,255,255,0.3)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }}
                                             onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
@@ -963,7 +963,7 @@ export default function LandingPage() {
                                     info@tech4uacademy.es
                                 </a>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {[['Política de Privacidad', '/privacidad'], ['Política de Cookies', '/cookies'], ['Condiciones de Venta', '/terminos']].map(([l, h]) => (
+                                    {[['Política de Privacidad', '/privacidad'], ['Política de Cookies', '/cookies'], ['Condiciones de Venta', '/terminos'], ['Preguntas Frecuentes', '/faq']].map(([l, h]) => (
                                         <Link key={l} to={h}
                                             style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '11px', fontWeight: 700, color: '#00ff64', textDecoration: 'none', opacity: 0.7, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', gap: '5px' }}
                                             onMouseEnter={e => e.currentTarget.style.opacity = '1'}

@@ -52,7 +52,10 @@ def get_all_courses(current_user: User = Depends(get_current_user), db: Session 
     """
     Obtiene todos los cursos (no-shop) con el progreso del usuario calculado.
     """
-    courses = db.query(VideoCourse).filter(VideoCourse.is_shop_course == False).all()
+    courses = db.query(VideoCourse).filter(
+        VideoCourse.is_shop_course == False,
+        VideoCourse.is_active == True
+    ).all()
 
     # Single bulk query for all course progress instead of N+1
     progress_counts = db.query(

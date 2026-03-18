@@ -22,6 +22,7 @@ const SUBJECTS = [
     { key: 'Sistemas Operativos',      label: 'Sistemas Operativos',     Icon: Monitor,   accent: '#22c55e', accentRgb: '34,197,94',   topics: ['Linux', 'Windows', 'Bash'] },
     { key: 'Fundamentos de Hardware',  label: 'Fundamentos de Hardware', Icon: Cpu,       accent: '#f97316', accentRgb: '249,115,22',  topics: ['CPU', 'RAM', 'Buses', 'CPD'] },
     { key: 'Lenguaje de Marcas',       label: 'Lenguaje de Marcas',      Icon: Code2,     accent: '#06b6d4', accentRgb: '6,182,212',   topics: ['HTML5', 'XML', 'CSS'] },
+    { key: 'Ciberseguridad',           label: 'Ciberseguridad',          Icon: Shield,    accent: '#ef4444', accentRgb: '239,68,68',   topics: ['Malware', 'Forense', 'Redes'] },
 ]
 
 const MODES = [
@@ -67,7 +68,7 @@ function TestCenterHero({ level, rankName, currentXP, nextLevelXP }) {
                         </div>
                         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.03]">
                             <FlaskConical size={10} className="text-emerald-400" />
-                            <span className="text-[10px] font-mono text-slate-500">6 asignaturas · 3 modos</span>
+                            <span className="text-[10px] font-mono text-slate-500">7 asignaturas · 3 modos</span>
                         </div>
                     </div>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.03]">
@@ -307,11 +308,25 @@ export default function TestCenter() {
             api.get('/dashboard/stats').then(r => setStats(r.data)).catch(() => {})
             const score = res.data?.score ?? null
             trackEvent('test_completed', selectedSubject?.key, 'test', { mode, score, total: answers.length })
-        } catch {
+        } catch (err) {
             setResults(null)
             trackEvent('test_abandoned', selectedSubject?.key, 'test', { mode })
+            // Extract the real error from the backend (e.g. 429 cooldown message)
+            const apiMsg = err?.response?.data?.detail
+            const status = err?.response?.status
+            if (status === 429) {
+                setError(apiMsg || 'Debes esperar unos minutos antes de realizar otro test.')
+            } else if (status === 400) {
+                setError(apiMsg || 'Error al procesar las respuestas. Comprueba tu conexión.')
+            } else {
+                setError(apiMsg || 'Error de servidor al enviar el test. Inténtalo de nuevo.')
+            }
+            // Go back to detail screen so the student can see the error and retry
+            setPhase('detail')
+            return
         }
-        finally { setLoading(false); setPhase('results') }
+        finally { setLoading(false) }
+        setPhase('results')
     }
 
     const handleReset = () => {

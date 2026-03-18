@@ -120,7 +120,7 @@ export const schemaOrganization = () => ({
         itemListElement: [
             { '@type': 'Offer', name: 'Plan Mensual', price: '9.99', priceCurrency: 'EUR', url: `${BASE_URL}/planes` },
             { '@type': 'Offer', name: 'Plan Trimestral', price: '24.99', priceCurrency: 'EUR', url: `${BASE_URL}/planes` },
-            { '@type': 'Offer', name: 'Plan Anual', price: '89.99', priceCurrency: 'EUR', url: `${BASE_URL}/planes` },
+            { '@type': 'Offer', name: 'Plan Anual', price: '79.99', priceCurrency: 'EUR', url: `${BASE_URL}/planes` },
         ],
     },
 });

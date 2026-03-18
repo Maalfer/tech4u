@@ -397,6 +397,34 @@
   color: #fff;
 }
 
+/* Tipo warning */
+.toast-card.warning::before {
+  background: #f59e0b;
+}
+
+/* Barra de progreso de tiempo restante */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  transform-origin: left;
+  animation: toast-progress-shrink linear forwards;
+}
+
+.toast-card.success    .toast-progress { background: rgba(198, 255, 51, 0.35); }
+.toast-card.error      .toast-progress { background: rgba(239, 68, 68, 0.35); }
+.toast-card.info       .toast-progress { background: rgba(59, 130, 246, 0.35); }
+.toast-card.warning    .toast-progress { background: rgba(245, 158, 11, 0.35); }
+.toast-card.achievement_unlocked .toast-progress { background: rgba(255, 215, 0, 0.35); }
+
+@keyframes toast-progress-shrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
 @keyframes toast-slide-in {
   from {
     transform: translateX(100%) scale(0.9);

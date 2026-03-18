@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import logoImg from '../assets/tech4u_logo.png';
+import { API_BASE } from '../constants/api';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function formatBytes(bytes) {
@@ -274,7 +275,7 @@ export default function CertificacionPlayer() {
                                 {activeLesson.video_file_path ? (
                                     <video
                                         key={activeLesson.id}
-                                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${activeLesson.video_file_path}`}
+                                        src={`${API_BASE}${activeLesson.video_file_path}`}
                                         className="w-full h-full object-contain"
                                         controls
                                         autoPlay
@@ -320,7 +321,7 @@ export default function CertificacionPlayer() {
                                                 <div className="space-y-2">
                                                     {activeLesson.materials.map(mat => (
                                                         <a key={mat.id}
-                                                            href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${mat.file_path}`}
+                                                            href={`${API_BASE}${mat.file_path}`}
                                                             target="_blank" rel="noreferrer"
                                                             className="flex items-center gap-2.5 px-3 py-2 bg-white/5 hover:bg-orange-500/10 rounded-lg transition-colors group">
                                                             <span className="w-6 h-6 bg-black rounded flex items-center justify-center flex-shrink-0 text-slate-400 group-hover:text-orange-400">

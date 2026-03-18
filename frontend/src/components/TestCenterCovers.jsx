@@ -639,6 +639,152 @@ export function CoverLenguajeMarcas() {
     );
 }
 
+// ─── 7. CIBERSEGURIDAD ── Red #ef4444 ────────────────────────────────────────
+export function CoverCiberseguridad() {
+    return (
+        <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"
+            width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="cs-bg" x1="0" y1="0" x2="0.3" y2="1">
+                    <stop offset="0%" stopColor="#0e0000" />
+                    <stop offset="100%" stopColor="#080000" />
+                </linearGradient>
+                <radialGradient id="cs-g1" cx="35%" cy="25%" r="55%">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+                </radialGradient>
+                <radialGradient id="cs-g2" cx="75%" cy="72%" r="40%">
+                    <stop offset="0%" stopColor="#dc2626" stopOpacity="0.1" />
+                    <stop offset="100%" stopColor="#dc2626" stopOpacity="0" />
+                </radialGradient>
+                <pattern id="cs-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+                    <path d="M 28 0 L 0 0 0 28" fill="none" stroke="rgba(239,68,68,0.09)" strokeWidth="0.5" />
+                </pattern>
+                <pattern id="cs-scan" width="1" height="4" patternUnits="userSpaceOnUse">
+                    <rect y="2" width="1" height="2" fill="rgba(0,0,0,0.2)" />
+                </pattern>
+                <filter id="cs-gf"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                <linearGradient id="cs-tb" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="transparent" />
+                    <stop offset="40%" stopColor="#ef4444" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="transparent" />
+                </linearGradient>
+            </defs>
+
+            <rect width="400" height="500" fill="url(#cs-bg)" />
+            <rect width="400" height="500" fill="url(#cs-grid)" />
+            <rect width="400" height="500" fill="url(#cs-g1)" />
+            <rect width="400" height="500" fill="url(#cs-g2)" />
+
+            {/* Faint hex stream decoration */}
+            <text x="18" y="195" fontFamily="monospace" fontSize="7.5" fill="rgba(239,68,68,0.07)" letterSpacing="1.5">4d5a900003000000040000ffff000000b8000000000000004000000000000000</text>
+            <text x="18" y="205" fontFamily="monospace" fontSize="7.5" fill="rgba(239,68,68,0.05)" letterSpacing="1.5">000000000000000000000000000000000000000000000000000000000000e800</text>
+
+            {/* Outer shield */}
+            <path d="M200 36 L268 64 L268 122 Q268 170 200 196 Q132 170 132 122 L132 64 Z"
+                fill="rgba(239,68,68,0.05)" stroke="rgba(239,68,68,0.25)" strokeWidth="1.5" />
+            {/* Inner shield */}
+            <path d="M200 52 L252 74 L252 118 Q252 158 200 178 Q148 158 148 118 L148 74 Z"
+                fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.18)" strokeWidth="1" />
+
+            {/* Lock shackle */}
+            <path d="M194 122 L194 111 Q194 102 200 102 Q206 102 206 111 L206 122"
+                fill="none" stroke="rgba(239,68,68,0.75)" strokeWidth="2.2" strokeLinecap="round" />
+            {/* Lock body */}
+            <rect x="187" y="122" width="26" height="22" rx="4"
+                fill="rgba(239,68,68,0.28)" stroke="rgba(239,68,68,0.75)" strokeWidth="1.3" />
+            {/* Keyhole */}
+            <circle cx="200" cy="130" r="3.8" fill="rgba(8,0,0,0.9)" />
+            <rect x="198.5" y="131" width="3" height="6" rx="1.2" fill="rgba(8,0,0,0.9)" />
+
+            {/* Shield label */}
+            <text x="200" y="164" fontFamily="monospace" fontSize="8" fill="rgba(239,68,68,0.8)"
+                textAnchor="middle" fontWeight="bold" letterSpacing="3">CIBERSEGURIDAD</text>
+
+            {/* Alert badges flanking shield */}
+            <rect x="32" y="78" width="48" height="15" rx="7.5"
+                fill="rgba(239,68,68,0.12)" stroke="rgba(239,68,68,0.35)" strokeWidth="0.8" />
+            <text x="56" y="89" fontFamily="monospace" fontSize="7" fill="#ef4444"
+                textAnchor="middle" fontWeight="bold">⚠ ALERT</text>
+            <rect x="320" y="78" width="48" height="15" rx="7.5"
+                fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.25)" strokeWidth="0.8" />
+            <text x="344" y="89" fontFamily="monospace" fontSize="7" fill="rgba(239,68,68,0.7)"
+                textAnchor="middle">CVE-2024</text>
+
+            {/* Topic tags row */}
+            {['Malware','Forense','Cifrado','Redes'].map((tag, i) => (
+                <g key={tag}>
+                    <rect x={25 + i*90} y="198" width={tag.length*6.5+10} height="13" rx="6.5"
+                        fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.2)" strokeWidth="0.7" />
+                    <text x={30 + i*90} y="208" fontFamily="monospace" fontSize="7.5"
+                        fill="rgba(239,68,68,0.65)">{tag}</text>
+                </g>
+            ))}
+
+            {/* nmap terminal window */}
+            <rect x="25" y="220" width="350" height="168" rx="10"
+                fill="rgba(10,0,0,0.93)" stroke="rgba(239,68,68,0.28)" strokeWidth="1.2" />
+            <rect x="25" y="220" width="350" height="21" rx="10" fill="rgba(239,68,68,0.12)" />
+            <rect x="25" y="230" width="350" height="11" fill="rgba(239,68,68,0.12)" />
+            <circle cx="43" cy="231" r="4.5" fill="#ef4444" opacity="0.8" />
+            <circle cx="58" cy="231" r="4.5" fill="#fbbf24" opacity="0.8" />
+            <circle cx="73" cy="231" r="4.5" fill="#22c55e" opacity="0.8" />
+            <text x="95" y="234" fontFamily="monospace" fontSize="8.5" fill="rgba(255,255,255,0.3)">security-audit · nmap · snort</text>
+
+            <text x="40" y="264" fontFamily="monospace" fontSize="9.5" fill="#ef4444" filter="url(#cs-gf)">$ nmap -sV --script vuln 10.0.0.1</text>
+            <text x="40" y="279" fontFamily="monospace" fontSize="8.5" fill="rgba(255,255,255,0.3)">Starting Nmap 7.94 · vuln scan</text>
+            {[
+                {port:'22/tcp',  st:'open',     svc:'OpenSSH 8.9p1',   c:'#22c55e'},
+                {port:'80/tcp',  st:'open',     svc:'nginx 1.24.0',    c:'#22c55e'},
+                {port:'443/tcp', st:'open',     svc:'TLS 1.3 · HTTPS', c:'#22c55e'},
+                {port:'3389/tcp',st:'filtered', svc:'ms-wbt-server',   c:'#fbbf24'},
+                {port:'4444/tcp',st:'open',     svc:'!! SHELL ALERT',  c:'#ef4444'},
+            ].map((r, i) => (
+                <g key={i}>
+                    <text x="40"  y={297 + i*16} fontFamily="monospace" fontSize="8" fill="rgba(255,255,255,0.5)">{r.port}</text>
+                    <text x="118" y={297 + i*16} fontFamily="monospace" fontSize="8" fill={r.c}>{r.st}</text>
+                    <text x="195" y={297 + i*16} fontFamily="monospace" fontSize="8" fill="rgba(255,255,255,0.4)">{r.svc}</text>
+                </g>
+            ))}
+            <text x="40" y="380" fontFamily="monospace" fontSize="8" fill="rgba(239,68,68,0.6)" filter="url(#cs-gf)">5 hosts · 1 critical: port 4444 exposed</text>
+
+            {/* Firewall rules panel */}
+            <rect x="25" y="398" width="168" height="86" rx="8"
+                fill="rgba(0,0,0,0.5)" stroke="rgba(239,68,68,0.18)" strokeWidth="1" />
+            <text x="40" y="416" fontFamily="monospace" fontSize="8.5" fill="rgba(239,68,68,0.7)" fontWeight="bold">FIREWALL · iptables</text>
+            {[
+                {r:'ACCEPT  tcp  dpt:22',    c:'rgba(255,255,255,0.45)'},
+                {r:'ACCEPT  tcp  dpt:443',   c:'rgba(255,255,255,0.45)'},
+                {r:'DROP    tcp  dpt:4444',  c:'#ef4444bb'},
+                {r:'DROP    all  0.0.0.0/0', c:'#ef4444aa'},
+            ].map((rule, i) => (
+                <text key={i} x="40" y={433 + i*14} fontFamily="monospace" fontSize="7.5" fill={rule.c}>{rule.r}</text>
+            ))}
+
+            {/* Threat matrix panel */}
+            <rect x="207" y="398" width="168" height="86" rx="8"
+                fill="rgba(239,68,68,0.06)" stroke="rgba(239,68,68,0.2)" strokeWidth="1" />
+            <text x="222" y="416" fontFamily="monospace" fontSize="8.5" fill="rgba(239,68,68,0.7)" fontWeight="bold">THREAT MATRIX</text>
+            {[
+                {label:'Malware',  val:78, c:'#ef4444'},
+                {label:'Phishing', val:55, c:'#f97316'},
+                {label:'Intrusión',val:32, c:'#fbbf24'},
+                {label:'DDoS',     val:14, c:'#22c55e'},
+            ].map((t, i) => (
+                <g key={t.label}>
+                    <text x="222" y={433 + i*14} fontFamily="monospace" fontSize="7.5" fill="rgba(255,255,255,0.5)">{t.label}</text>
+                    <rect x="282" y={425 + i*14} width="68" height="7" rx="3.5" fill="rgba(255,255,255,0.05)" />
+                    <rect x="282" y={425 + i*14} width={68*t.val/100} height="7" rx="3.5" fill={t.c} opacity="0.7" />
+                    <text x="357" y={432 + i*14} fontFamily="monospace" fontSize="7" fill="rgba(255,255,255,0.35)">{t.val}%</text>
+                </g>
+            ))}
+
+            <rect width="400" height="500" fill="url(#cs-scan)" opacity="0.5" style={{pointerEvents:'none'}} />
+            <rect width="400" height="3" fill="url(#cs-tb)" opacity="0.9" />
+        </svg>
+    );
+}
+
 // ─── LOOKUP MAP ───────────────────────────────────────────────────────────────
 const COVER_MAP = {
     'general':                   CoverExamenGeneral,
@@ -647,6 +793,7 @@ const COVER_MAP = {
     'Sistemas Operativos':       CoverSistemasOperativos,
     'Fundamentos de Hardware':   CoverFundamentosHardware,
     'Lenguaje de Marcas':        CoverLenguajeMarcas,
+    'Ciberseguridad':            CoverCiberseguridad,
 };
 
 export function SubjectCoverComponent({ subjectKey }) {

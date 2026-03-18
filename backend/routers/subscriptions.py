@@ -287,7 +287,7 @@ def create_checkout_session(
     if not stripe.api_key:
         raise HTTPException(
             status_code=503,
-            detail="Stripe no está configurado. Añade STRIPE_SECRET_KEY al .env.",
+            detail="El servicio de pagos no está disponible en este momento.",
         )
 
     try:
@@ -317,7 +317,12 @@ def create_checkout_session(
         )
         return {"url": session.url}
     except stripe.StripeError as e:
-        raise HTTPException(status_code=502, detail=f"Error de Stripe: {str(e)}")
+        # SEC-08 FIX: loggear internamente, exponer mensaje genérico en producción
+        logger.error(f"Stripe checkout session error: {str(e)}")
+        detail = f"Error de Stripe: {str(e)}"
+        if os.getenv("ENVIRONMENT", "development") == "production":
+            detail = "El servicio de pagos ha devuelto un error. Inténtalo de nuevo o contacta con soporte."
+        raise HTTPException(status_code=502, detail=detail)
 
 
 @router.post("/docente/create-checkout-session")
@@ -339,7 +344,7 @@ def create_docente_checkout_session(
     if not stripe.api_key:
         raise HTTPException(
             status_code=503,
-            detail="Stripe no está configurado. Añade STRIPE_SECRET_KEY al .env.",
+            detail="El servicio de pagos no está disponible en este momento.",
         )
 
     plan = DOCENTE_PLANS[plan_key]
@@ -372,7 +377,12 @@ def create_docente_checkout_session(
         )
         return {"url": session.url}
     except stripe.StripeError as e:
-        raise HTTPException(status_code=502, detail=f"Error de Stripe: {str(e)}")
+        # SEC-08 FIX: loggear internamente, exponer mensaje genérico en producción
+        logger.error(f"Stripe docente checkout error: {str(e)}")
+        detail = f"Error de Stripe: {str(e)}"
+        if os.getenv("ENVIRONMENT", "development") == "production":
+            detail = "Error al procesar el pago con Stripe. Inténtalo de nuevo."
+        raise HTTPException(status_code=502, detail=detail)
 
 
 @router.get("/docente/verify-session")
@@ -391,7 +401,11 @@ def verify_docente_session(
     try:
         session_obj = stripe.checkout.Session.retrieve(session_id)
     except stripe.StripeError as e:
-        raise HTTPException(status_code=502, detail=f"Error de Stripe: {str(e)}")
+        logger.error(f"Stripe session retrieve error: {str(e)}")
+        detail = f"Error de Stripe: {str(e)}"
+        if os.getenv("ENVIRONMENT", "development") == "production":
+            detail = "No se pudo verificar la sesión con Stripe."
+        raise HTTPException(status_code=502, detail=detail)
 
     if session_obj.payment_status != "paid":
         return {"success": False}
@@ -585,7 +599,11 @@ def verify_session(
     try:
         session_obj = stripe.checkout.Session.retrieve(session_id)
     except stripe.StripeError as e:
-        raise HTTPException(status_code=502, detail=f"Error de Stripe: {str(e)}")
+        logger.error(f"Stripe session retrieve error (fallback): {str(e)}")
+        detail = f"Error de Stripe: {str(e)}"
+        if os.getenv("ENVIRONMENT", "development") == "production":
+            detail = "Error al verificar el estado del pago."
+        raise HTTPException(status_code=502, detail=detail)
 
     if session_obj.payment_status == "paid":
         # ── SEC-01 FIX: verificar que la sesión pertenece al usuario autenticado ──

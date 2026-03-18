@@ -13,6 +13,7 @@ import TerminalComponent from '../components/TerminalComponent';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import DOMPurify from 'dompurify';
+import SafeHTML from '../components/SafeHTML';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const DIFF_COLOR = {
@@ -256,9 +257,10 @@ export default function LabDetail() {
                                                     <Info className="w-3.5 h-3.5 text-neon" /> Teoría / Conceptos
                                                 </h4>
                                                 <div className="text-[11px] font-mono text-slate-400 leading-relaxed bg-white/[0.03] rounded-xl p-4 border border-white/[0.05]">
-                                                    <div dangerouslySetInnerHTML={{
-                                                        __html: DOMPurify.sanitize((lab.description || 'Sin descripción.').replace(/\n/g, '<br/>'))
-                                                    }} />
+                                                    <SafeHTML
+                                                        html={lab.description || 'Sin descripción.'}
+                                                        className="text-[11px] text-slate-300 leading-relaxed font-mono space-y-4"
+                                                    />
                                                 </div>
                                             </section>
 
@@ -268,9 +270,10 @@ export default function LabDetail() {
                                                         <Zap className="w-3.5 h-3.5 text-neon" /> Guía Paso a Paso
                                                     </h4>
                                                     <div className="text-[11px] font-mono text-slate-400 leading-relaxed bg-neon/[0.03] rounded-xl p-4 border border-neon/[0.08]">
-                                                        <div dangerouslySetInnerHTML={{
-                                                            __html: DOMPurify.sanitize(lab.step_by_step_guide.replace(/\n/g, '<br/>'))
-                                                        }} />
+                                                        <SafeHTML
+                                                            html={lab.step_by_step_guide}
+                                                            className="text-[11px] text-slate-300 leading-relaxed font-mono space-y-4"
+                                                        />
                                                     </div>
                                                 </section>
                                             )}
@@ -361,9 +364,10 @@ export default function LabDetail() {
                                             </div>
                                             {lab.step_by_step_guide ? (
                                                 <div className="text-[11px] font-mono text-slate-400 leading-relaxed bg-white/[0.03] rounded-xl p-4 border border-white/[0.05]">
-                                                    <div dangerouslySetInnerHTML={{
-                                                        __html: DOMPurify.sanitize(lab.step_by_step_guide.replace(/\n/g, '<br/>'))
-                                                    }} />
+                                                    <SafeHTML
+                                                        html={lab.step_by_step_guide}
+                                                        className="text-xs text-slate-400 leading-relaxed space-y-3"
+                                                    />
                                                 </div>
                                             ) : (
                                                 <p className="text-[10px] text-slate-600 font-mono italic text-center py-8">

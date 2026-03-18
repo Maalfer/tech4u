@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { fireAchievementConfetti } from '../utils/confetti';
+import { API_BASE } from '../constants/api';
 
 const NotificationContext = createContext();
 
@@ -17,6 +18,8 @@ export const NotificationProvider = ({ children }) => {
     const retryCount   = useRef(0);
     const retryTimeout = useRef(null);
     const wsRef        = useRef(null);
+    // Track all auto-dismiss timers so we can clear them on unmount
+    const dismissTimers = useRef([]);
 
     const addNotification = useCallback((notif) => {
         const id = Date.now();
@@ -24,11 +27,13 @@ export const NotificationProvider = ({ children }) => {
         const duration = notif.type === 'achievement_unlocked' ? 8000 : 5000;
         // 🎉 Fire confetti on achievement unlock
         if (notif.type === 'achievement_unlocked') {
-            setTimeout(() => fireAchievementConfetti(), 300);
+            const t0 = setTimeout(() => fireAchievementConfetti(), 300);
+            dismissTimers.current.push(t0);
         }
-        setTimeout(() => {
+        const t1 = setTimeout(() => {
             setNotifications((prev) => prev.filter((n) => n.id !== id));
         }, duration);
+        dismissTimers.current.push(t1);
     }, []);
 
     const removeNotification = useCallback((id) => {
@@ -38,7 +43,7 @@ export const NotificationProvider = ({ children }) => {
     useEffect(() => {
         if (!user?.id) return;
 
-        const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+        const apiBase = API_BASE.replace(/\/$/, '');
         const wsUrl   = apiBase.replace(/^http/, 'ws') + `/ws/${user.id}`;
 
         let cancelled = false; // prevent actions after cleanup
@@ -92,6 +97,9 @@ export const NotificationProvider = ({ children }) => {
         return () => {
             cancelled = true;
             clearTimeout(retryTimeout.current);
+            // Clear all pending auto-dismiss timers to avoid state updates after unmount
+            dismissTimers.current.forEach(clearTimeout);
+            dismissTimers.current = [];
             const ws = wsRef.current;
             if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
                 ws.close(1000, 'Component unmounted');
@@ -110,17 +118,25 @@ export const NotificationProvider = ({ children }) => {
             {children}
             {/* Toast Container */}
             <div className="toast-container">
-                {notifications.map((n) => (
-                    <div key={n.id} className={`toast-card ${n.type}`}>
-                        <div className="toast-icon">{n.icon || '🔔'}</div>
-                        <div className="toast-content">
-                            <h4>{n.title}</h4>
-                            <p>{n.description}</p>
-                            {n.xp_bonus && <span className="xp-tag">+{n.xp_bonus} XP</span>}
+                {notifications.map((n) => {
+                    const duration = n.type === 'achievement_unlocked' ? 8000 : 5000;
+                    return (
+                        <div key={n.id} className={`toast-card ${n.type}`}>
+                            {/* Barra de progreso de tiempo restante */}
+                            <div
+                                className="toast-progress"
+                                style={{ animationDuration: `${duration}ms` }}
+                            />
+                            <div className="toast-icon">{n.icon || '🔔'}</div>
+                            <div className="toast-content">
+                                <h4>{n.title}</h4>
+                                <p>{n.description}</p>
+                                {n.xp_bonus && <span className="xp-tag">+{n.xp_bonus} XP</span>}
+                            </div>
+                            <button className="toast-close" onClick={() => removeNotification(n.id)}>&times;</button>
                         </div>
-                        <button className="toast-close" onClick={() => removeNotification(n.id)}>&times;</button>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </NotificationContext.Provider>
     );

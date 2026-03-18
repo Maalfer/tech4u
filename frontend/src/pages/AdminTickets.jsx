@@ -28,7 +28,47 @@ export default function AdminTickets() {
     const [filter, setFilter] = useState('')
     const [replyDrafts, setReplyDrafts] = useState({}) // { ticketId: draft }
     const [selectedUser, setSelectedUser] = useState(null)
+    const [selectedUserId, setSelectedUserId] = useState(null)
+    const [toast, setToast] = useState(null) // { message, type: 'success' | 'error' }
+    const [draftSaveIndicator, setDraftSaveIndicator] = useState({}) // { ticketId: boolean }
+    const [confirmingTicketId, setConfirmingTicketId] = useState(null) // for inline confirmation
     const navigate = useNavigate()
+
+    // Load drafts from localStorage on mount
+    useEffect(() => {
+        const savedDrafts = {}
+        tickets.forEach(ticket => {
+            const saved = localStorage.getItem(`ticket_draft_${ticket.id}`)
+            if (saved) {
+                savedDrafts[ticket.id] = saved
+            }
+        })
+        if (Object.keys(savedDrafts).length > 0) {
+            setReplyDrafts(savedDrafts)
+        }
+    }, [])
+
+    // Show toast message
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type })
+        setTimeout(() => setToast(null), 3500)
+    }
+
+    // Save draft to localStorage and show indicator
+    const saveDraftToLocalStorage = (ticketId, content) => {
+        if (content.trim()) {
+            localStorage.setItem(`ticket_draft_${ticketId}`, content)
+            setDraftSaveIndicator(prev => ({ ...prev, [ticketId]: true }))
+            setTimeout(() => {
+                setDraftSaveIndicator(prev => ({ ...prev, [ticketId]: false }))
+            }, 2000)
+        }
+    }
+
+    // Clear draft from localStorage
+    const clearDraftFromLocalStorage = (ticketId) => {
+        localStorage.removeItem(`ticket_draft_${ticketId}`)
+    }
 
     const fetchTickets = async () => {
         setLoading(true)
@@ -57,31 +97,56 @@ export default function AdminTickets() {
                 delete newDrafts[ticketId];
                 return newDrafts;
             });
+            clearDraftFromLocalStorage(ticketId);
+            showToast('✅ Mensaje enviado correctamente', 'success');
             fetchTickets();
         } catch (err) {
-            alert("Error al enviar el mensaje.");
+            showToast('Error al enviar el mensaje.', 'error');
             if (import.meta.env.DEV) console.error(err);
         }
     }
 
     const handleResolve = async (ticketId) => {
-        if (!confirm("¿Seguro que deseas marcar este ticket como resuelto? No se podrán enviar más correos en este hilo.")) return;
-
         try {
             await api.patch(`/admin/users/tickets/${ticketId}/status`, {
                 status: 'resuelto'
             });
+            setConfirmingTicketId(null);
+            showToast('✅ Ticket marcado como resuelto', 'success');
             fetchTickets();
         } catch (err) {
-            alert("Error al intentar cerrar el ticket.");
+            showToast('Error al intentar cerrar el ticket.', 'error');
             if (import.meta.env.DEV) console.error(err);
         }
     };
 
+    const handleExtendSubscription = async () => {
+        if (!selectedUserId) {
+            showToast('Error: Usuario no identificado', 'error');
+            return;
+        }
+
+        try {
+            const subscriptionType = selectedUser.subscription_type === 'free' ? 'monthly' : selectedUser.subscription_type;
+            await api.patch(`/admin/users/${selectedUserId}/subscription`, {
+                subscription_type: subscriptionType
+            });
+            showToast('✅ Suscripción extendida', 'success');
+            fetchTickets(); // Refresh to update user info
+        } catch (err) {
+            showToast('Error al extender la suscripción', 'error');
+            if (import.meta.env.DEV) console.error(err);
+        }
+    }
+
+    // Normalize text for accent-insensitive search
+    const normalize = (str) => str?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') ?? ''
+    const filterNorm = normalize(filter)
+
     const filteredTickets = tickets.filter(t =>
-        t.subject.toLowerCase().includes(filter.toLowerCase()) ||
-        t.description.toLowerCase().includes(filter.toLowerCase()) ||
-        (t.user_info && t.user_info.nombre.toLowerCase().includes(filter.toLowerCase()))
+        normalize(t.subject).includes(filterNorm) ||
+        normalize(t.description).includes(filterNorm) ||
+        normalize(t.user_info?.nombre).includes(filterNorm)
     )
 
     const pendientes = filteredTickets.filter(t => t.status === 'pendiente');
@@ -93,6 +158,17 @@ export default function AdminTickets() {
 
             <main className="flex-1 ml-0 md:ml-64 p-8 pt-16 md:pt-8 relative">
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 blur-[100px] -z-10" />
+
+                {/* Toast Notification */}
+                {toast && (
+                    <div className={`fixed top-6 right-6 px-6 py-4 rounded-2xl font-mono text-sm font-bold uppercase tracking-wider z-[110] animate-in fade-in slide-in-from-top-2 ${
+                        toast.type === 'success'
+                            ? 'bg-green-500/20 border border-green-500/50 text-green-300'
+                            : 'bg-red-500/20 border border-red-500/50 text-red-300'
+                    }`}>
+                        {toast.message}
+                    </div>
+                )}
 
                 <PageHeader
                     title={<>Terminal <span className="text-white">de Soporte</span></>}
@@ -178,17 +254,40 @@ export default function AdminTickets() {
                                                 Estado: Pendiente
                                             </span>
                                             <button
-                                                onClick={() => setSelectedUser(t.user_info)}
+                                                onClick={() => {
+                                                    setSelectedUser(t.user_info)
+                                                    setSelectedUserId(t.user_id)
+                                                }}
                                                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white/5 border border-white/5 text-slate-300 text-[9px] font-bold uppercase rounded-xl hover:text-white hover:bg-white/10 transition-all shadow-sm"
                                             >
                                                 <ExternalLink className="w-3 h-3" /> Analizar Perfil
                                             </button>
-                                            <button
-                                                onClick={() => handleResolve(t.id)}
-                                                className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-orange-500/50 text-orange-400 text-[9px] font-black uppercase rounded-xl hover:bg-orange-500/10 transition-all"
-                                            >
-                                                <CheckCircle className="w-3.5 h-3.5" /> Marcar como Resuelto
-                                            </button>
+                                            {confirmingTicketId === t.id ? (
+                                                <div className="w-full bg-black/40 border border-orange-500/30 rounded-xl p-3 flex flex-col gap-2">
+                                                    <p className="text-[9px] font-mono text-orange-400 font-bold">¿Confirmar cierre?</p>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleResolve(t.id)}
+                                                            className="flex-1 px-3 py-2 bg-orange-500 text-black text-[9px] font-bold uppercase rounded-lg hover:bg-orange-600 transition-all"
+                                                        >
+                                                            Sí
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setConfirmingTicketId(null)}
+                                                            className="flex-1 px-3 py-2 bg-white/10 text-slate-300 text-[9px] font-bold uppercase rounded-lg hover:bg-white/20 transition-all"
+                                                        >
+                                                            No
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setConfirmingTicketId(t.id)}
+                                                    className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-orange-500/50 text-orange-400 text-[9px] font-black uppercase rounded-xl hover:bg-orange-500/10 transition-all"
+                                                >
+                                                    <CheckCircle className="w-3.5 h-3.5" /> Marcar como Resuelto
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
@@ -219,13 +318,23 @@ export default function AdminTickets() {
                                         </div>
 
                                         <div className="flex items-end gap-3">
-                                            <textarea
-                                                className="flex-1 bg-black/60 border border-white/10 rounded-2xl p-4 text-xs font-mono text-white placeholder:text-slate-700 focus:border-orange-500/50 outline-none transition-all resize-none min-h-[60px]"
-                                                placeholder="Responde en el hilo a este alumno..."
-                                                value={replyDrafts[t.id] || ''}
-                                                onChange={(e) => setReplyDrafts(prev => ({ ...prev, [t.id]: e.target.value }))}
-                                                rows="2"
-                                            />
+                                            <div className="flex-1 flex flex-col gap-2">
+                                                <textarea
+                                                    className="w-full bg-black/60 border border-white/10 rounded-2xl p-4 text-xs font-mono text-white placeholder:text-slate-700 focus:border-orange-500/50 outline-none transition-all resize-none min-h-[60px]"
+                                                    placeholder="Responde en el hilo a este alumno..."
+                                                    value={replyDrafts[t.id] || ''}
+                                                    onChange={(e) => {
+                                                        setReplyDrafts(prev => ({ ...prev, [t.id]: e.target.value }))
+                                                        saveDraftToLocalStorage(t.id, e.target.value)
+                                                    }}
+                                                    rows="2"
+                                                />
+                                                {draftSaveIndicator[t.id] && (
+                                                    <p className="text-[9px] font-mono text-green-400/60 animate-fade-out">
+                                                        Draft guardado
+                                                    </p>
+                                                )}
+                                            </div>
                                             <button
                                                 onClick={() => handleSendMessage(t.id)}
                                                 disabled={!replyDrafts[t.id]?.trim()}
@@ -314,7 +423,10 @@ export default function AdminTickets() {
                                 </div>
                             </div>
                             <button
-                                onClick={() => setSelectedUser(null)}
+                                onClick={() => {
+                                    setSelectedUser(null)
+                                    setSelectedUserId(null)
+                                }}
                                 className="p-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl transition-colors"
                             >
                                 <X className="w-5 h-5" />
@@ -357,8 +469,15 @@ export default function AdminTickets() {
 
                         <div className="flex gap-4">
                             <button
+                                onClick={handleExtendSubscription}
+                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-black uppercase rounded-2xl hover:bg-yellow-500/20 transition-all"
+                            >
+                                <Crown className="w-4 h-4" /> Extender Suscripción (+30 días)
+                            </button>
+                            <button
                                 onClick={() => {
                                     setSelectedUser(null);
+                                    setSelectedUserId(null);
                                     navigate('/gestion-usuarios', { state: { searchEmail: selectedUser.email } })
                                 }}
                                 className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-black uppercase rounded-2xl hover:bg-orange-500 hover:text-black transition-all"

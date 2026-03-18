@@ -783,5 +783,21 @@ class OAuthAccount(Base):
     __table_args__ = (UniqueConstraint('provider', 'provider_user_id', name='uq_oauth_provider_uid'),)
 
 
+# --- AUDIT LOG ADMIN ---
+
+class AdminAuditLog(Base):
+    """Registro de acciones administrativas para auditoría y cumplimiento."""
+    __tablename__ = "admin_audit_logs"
+    id               = Column(Integer, primary_key=True, index=True)
+    admin_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    admin_name       = Column(String, nullable=False)
+    action           = Column(String, nullable=False, index=True)  # role_change | password_reset | subscription_change | user_delete
+    target_user_id   = Column(Integer, nullable=True, index=True)
+    target_user_name = Column(String, nullable=True)
+    old_value        = Column(String, nullable=True)
+    new_value        = Column(String, nullable=True)
+    timestamp        = Column(DateTime, default=datetime.utcnow, index=True)
+
+
 def create_tables():
     Base.metadata.create_all(bind=engine)

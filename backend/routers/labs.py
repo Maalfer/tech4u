@@ -60,22 +60,23 @@ class ValidationEngine:
 
         elif v_type == "directory_created" or v_type == "file_created":
             target_dir = v_extra if v_extra else "/home/student"
-            res = container.exec_run(f"ls -a {target_dir}", user="root")
+            # Use list form to avoid shell injection via user-controlled paths
+            res = container.exec_run(["ls", "-a", target_dir], user="root")
             ls_out = res.output.decode().strip().split()
             if v_value in ls_out:
                 return True, "¡Correcto!"
             return False, f"No se encontró '{v_value}' en {target_dir}."
 
         elif v_type == "file_exists_in_directory":
-            # v_value is the path to check
-            res = container.exec_run(f"ls {v_value}", user="root")
+            # v_value is the path to check — use list form to avoid shell injection
+            res = container.exec_run(["ls", v_value], user="root")
             if res.exit_code == 0:
                 return True, "¡Correcto!"
             return False, f"El archivo o directorio '{v_value}' no existe."
 
         elif v_type == "permission_set":
-            # v_value: "600", v_extra: "secret.txt" (path)
-            res = container.exec_run(f"stat -c %a {v_extra}", user="root")
+            # v_value: "600", v_extra: "secret.txt" (path) — use list form to avoid shell injection
+            res = container.exec_run(["stat", "-c", "%a", v_extra], user="root")
             perms = res.output.decode().strip()
             if perms == v_value:
                 return True, "¡Correcto!"
@@ -316,8 +317,47 @@ def validate_challenge(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Valida un reto específico dentro de un laboratorio (TEMPORALMENTE DESACTIVADO)."""
-    return {"success": True, "message": "Validation system temporarily disabled."}
+    """Valida un reto específico dentro de un laboratorio usando el ValidationEngine."""
+    challenge = db.query(Challenge).filter(Challenge.id == req.challenge_id, Challenge.lab_id == lab_id).first()
+    if not challenge:
+        raise HTTPException(status_code=404, detail="Reto no encontrado.")
+
+    # Only validate if not already completed (idempotency/performance)
+    existing = db.query(UserChallengeCompletion).filter(
+        UserChallengeCompletion.user_id == current_user.id,
+        UserChallengeCompletion.challenge_id == challenge.id
+    ).first()
+    if existing:
+        return {"success": True, "message": "Reto ya completado anteriormente."}
+
+    # Get active container for user
+    containers = docker_launcher.get_active_containers_for_user(current_user.id)
+    if not containers:
+        raise HTTPException(status_code=400, detail="Debes iniciar el laboratorio primero.")
+    
+    container = containers[0]
+    
+    # Run validation
+    success, message = ValidationEngine.validate(
+        v_type=challenge.validation_type,
+        v_value=challenge.validation_value,
+        student_input=req.student_input,
+        v_extra=challenge.validation_extra,
+        container=container
+    )
+    
+    if success:
+        # Save completion
+        completion = UserChallengeCompletion(
+            user_id=current_user.id,
+            lab_id=lab_id,
+            challenge_id=challenge.id,
+            xp_reward=challenge.xp
+        )
+        db.add(completion)
+        db.commit()
+        
+    return {"success": success, "message": message}
 
 @router.post("/{lab_id}/complete", response_model=LabCompleteResponse)
 def complete_lab(
@@ -326,24 +366,42 @@ def complete_lab(
     db: Session = Depends(get_db)
 ):
     """
-    Finaliza el lab (VALIDACIÓN BYPASSED).
+    Finaliza el lab verificando que todos los retos han sido completados.
     """
-    # Get Lab info
     lab = db.query(Lab).filter(Lab.id == lab_id).first()
     if not lab:
         raise HTTPException(status_code=404, detail="Lab no encontrado")
 
-    # 4. Terminal Labs NO dan XP — son ejercicios prácticos de refuerzo,
-    #    no actividades de evaluación. El XP se gana en Exámenes y Skill Labs.
-    xp_gained = 0
-    leveled_up = False  # add_xp no se llama, nivel no cambia
+    # SECURITY FIX: Ensure ALL challenges for this lab are completed by the user
+    total_challenges = db.query(Challenge).filter(Challenge.lab_id == lab_id).count()
+    completed_count = db.query(UserChallengeCompletion).filter(
+        UserChallengeCompletion.user_id == current_user.id,
+        UserChallengeCompletion.lab_id == lab_id
+    ).count()
 
-    completion = UserLabCompletion(
-        user_id=current_user.id,
-        lab_id=lab.id,
-        xp_gained=xp_gained
-    )
-    db.add(completion)
+    if completed_count < total_challenges:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"No has completado todos los retos ({completed_count}/{total_challenges})."
+        )
+
+    # Check for duplicate completion
+    existing = db.query(UserLabCompletion).filter(
+        UserLabCompletion.user_id == current_user.id,
+        UserLabCompletion.lab_id == lab.id
+    ).first()
+    
+    if existing:
+        return LabCompleteResponse(
+            success=True,
+            message=f"¡Ya habías completado '{lab.title}'!",
+            xp_gained=0,
+            leveled_up=False,
+            new_level=current_user.level
+        )
+
+    xp_gained = 0 # Terminal labs don't give extra completion XP (challenges already do)
+    leveled_up = False
     db.commit()
 
     # Liberar el container Docker para evitar lag al iniciar el siguiente lab
@@ -479,6 +537,34 @@ async def start_lab_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_module_access("terminal_skills"))
 ):
+    """Inicia un contenedor de laboratorio con validación de progresión."""
+    # 🛡️ SECURITY FIX: Enforce lab progression bypass prevention
+    # Verify if it's one of the first 2 unlocked labs or if previous lab is completed
+    lab = db.query(Lab).filter(Lab.id == lab_id).first()
+    if not lab:
+        raise HTTPException(status_code=404, detail="Lab not found")
+
+    # Freemium check: labs 0 & 1 are free, others require completion or subscription
+    all_labs_in_module = db.query(Lab).filter(
+        Lab.module_id == lab.module_id,
+        Lab.is_active == True
+    ).order_by(Lab.order_index, Lab.id).all()
+    
+    lab_ids = [l.id for l in all_labs_in_module]
+    try:
+        lab_index = lab_ids.index(lab.id)
+        if lab_index > 1: # Not a freemium lab
+            # Must have completed previous lab
+            prev_id = lab_ids[lab_index - 1]
+            completed = db.query(UserLabCompletion).filter(
+                UserLabCompletion.user_id == current_user.id,
+                UserLabCompletion.lab_id == prev_id
+            ).first()
+            if not completed:
+                raise HTTPException(status_code=403, detail="Debes completar el laboratorio anterior primero.")
+    except ValueError:
+        pass # Lab not found in planned modules
+
     # Enforce limit: 1 lab per user
     active_containers = docker_launcher.get_active_containers_for_user(current_user.id)
     if len(active_containers) >= 1:
@@ -627,7 +713,7 @@ def delete_module(module_id: int, _: User = Depends(require_developer), db: Sess
 
 # --- INITIAL SEEDING ---
 @router.post("/seed")
-def seed_labs(db: Session = Depends(get_db)):
+def seed_labs(_: User = Depends(require_developer), db: Session = Depends(get_db)):
     """(Admin) Inicializa laboratorios de ejemplo."""
     base_labs = [
         {

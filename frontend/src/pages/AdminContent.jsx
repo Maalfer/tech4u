@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Database, ChevronRight, ArrowLeft,
     Trash2, Edit3, Plus, Search, FileText, UploadCloud, Eye, EyeOff,
-    Wifi, Monitor, Cpu, FileCode, Shield, Check, AlertCircle
+    Wifi, Monitor, Cpu, FileCode, Shield, Check, AlertCircle,
+    ChevronLeft, ChevronsLeft, ChevronsRight
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
@@ -19,6 +20,8 @@ const SUBJECT_STYLES = {
 
 const DEFAULT_STYLE = { icon: Database, color: 'from-slate-600/20 to-slate-900/10 border-slate-500/30 hover:border-slate-400/60', iconColor: 'text-slate-400', badge: 'bg-slate-500/10 text-slate-400 border-slate-500/30' };
 
+const PAGE_SIZE = 50;
+
 export default function AdminContent() {
     const [activeTab, setActiveTab] = useState('questions');
     const [selectedSubject, setSelectedSubject] = useState(null);
@@ -27,6 +30,13 @@ export default function AdminContent() {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [status, setStatus] = useState({ msg: '', type: '' });
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
+
+    // Inline delete confirmation
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     const [showModal, setShowModal] = useState(false);
     const [showBulkModal, setShowBulkModal] = useState(false);
@@ -38,18 +48,26 @@ export default function AdminContent() {
         setTimeout(() => setStatus({ msg: '', type: '' }), 4000);
     };
 
-    const fetchContent = async () => {
+    const fetchContent = async (page = currentPage) => {
         if (!selectedSubject) return;
         setLoading(true);
         try {
             if (activeTab === 'questions') {
-                const res = await api.get('/admin/questions', { params: { subject: selectedSubject } });
-                // Res is paginated: { items, total_count, ... }
+                const res = await api.get('/admin/questions', {
+                    params: {
+                        subject: selectedSubject,
+                        limit: PAGE_SIZE,
+                        offset: page * PAGE_SIZE,
+                    }
+                });
+                // Res is paginated: { items, total_count, limit, offset }
                 setQuestions(res.data.items || []);
+                setTotalCount(res.data.total_count ?? 0);
             } else {
                 const res = await api.get(`/resources/subject/${selectedSubject}`);
                 // Resources might be a direct array
                 setResources(Array.isArray(res.data) ? res.data : (res.data.items || []));
+                setTotalCount(Array.isArray(res.data) ? res.data.length : (res.data.total_count ?? 0));
             }
         } catch (err) {
             showStatus("Error al sincronizar sector", "error");
@@ -60,7 +78,20 @@ export default function AdminContent() {
         }
     };
 
-    useEffect(() => { fetchContent(); }, [selectedSubject, activeTab]);
+    // Reset page + data when subject or tab changes
+    useEffect(() => {
+        setCurrentPage(0);
+        setSearchTerm('');
+        setDeleteConfirm(null);
+        if (selectedSubject) fetchContent(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedSubject, activeTab]);
+
+    // Re-fetch when page changes (subject already selected)
+    useEffect(() => {
+        if (selectedSubject) fetchContent(currentPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentPage]);
 
     const handleOpenModal = (item = null) => {
         setIsEditing(!!item);
@@ -89,7 +120,7 @@ export default function AdminContent() {
             }
             setShowModal(false);
             showStatus(`Registro ${isEditing ? 'actualizado' : 'inyectado'} con éxito`);
-            fetchContent();
+            fetchContent(currentPage);
         } catch (err) {
             showStatus("Error en la operación del mainframe", "error");
         }
@@ -138,7 +169,8 @@ export default function AdminContent() {
                 const res = await api.post('/admin/questions/bulk', payload);
                 showStatus(`${res.data.imported_count} preguntas inyectadas.`);
                 setShowBulkModal(false);
-                fetchContent();
+                setCurrentPage(0);
+                fetchContent(0);
             } catch (err) {
                 showStatus("Error crítico parseando el archivo", "error");
             } finally {
@@ -157,13 +189,17 @@ export default function AdminContent() {
         } catch { showStatus('Error al cambiar estado', 'error') }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("¿Confirmas la purga de este registro?")) return;
+    const handleDelete = (id) => {
+        setDeleteConfirm(id);
+    };
+
+    const confirmDelete = async (id) => {
         try {
             const path = activeTab === 'questions' ? `/admin/questions/${id}` : `/admin/resources/${id}`;
             await api.delete(path);
             showStatus('Registro purgado');
-            fetchContent();
+            setDeleteConfirm(null);
+            fetchContent(currentPage);
         } catch (err) {
             showStatus("Error al eliminar", "error");
         }
@@ -284,9 +320,26 @@ export default function AdminContent() {
                                     />
                                 </div>
                                 {activeTab === 'questions' && (
-                                    <button onClick={() => setShowBulkModal(true)} className="px-4 py-2 border border-neon/30 text-neon rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-neon/10 transition-colors">
-                                        <UploadCloud className="w-4 h-4" /> Importar
-                                    </button>
+                                    <>
+                                        <button onClick={() => setShowBulkModal(true)} className="px-4 py-2 border border-neon/30 text-neon rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-neon/10 transition-colors">
+                                            <UploadCloud className="w-4 h-4" /> Importar
+                                        </button>
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    const res = await api.post('/admin/questions/normalize')
+                                                    showStatus(`✓ ${res.data.message}`)
+                                                    fetchContent(currentPage)
+                                                } catch {
+                                                    showStatus('Error al normalizar preguntas', 'error')
+                                                }
+                                            }}
+                                            className="px-4 py-2 border border-amber-500/30 text-amber-400 rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-amber-500/10 transition-colors"
+                                            title="Normaliza mayúsculas en respuestas correctas y devuelve reporte de calidad"
+                                        >
+                                            <AlertCircle className="w-4 h-4" /> Auditar BD
+                                        </button>
+                                    </>
                                 )}
                                 <button onClick={() => handleOpenModal()} className="px-6 py-2 bg-neon text-black rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_30px_rgba(198,255,51,0.2)]">
                                     <Plus className="w-4 h-4" /> Nuevo
@@ -300,8 +353,10 @@ export default function AdminContent() {
                                 {/* Stats bar */}
                                 <div className="flex items-center gap-4 px-1 mb-2">
                                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                                        {filteredList.length} pregunta{filteredList.length !== 1 ? 's' : ''}
-                                        {searchTerm && ' encontradas'}
+                                        {searchTerm
+                                            ? `${filteredList.length} encontradas`
+                                            : `${currentPage * PAGE_SIZE + 1}–${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} de ${totalCount} pregunta${totalCount !== 1 ? 's' : ''}`
+                                        }
                                     </span>
                                     <div className="flex gap-3 ml-auto">
                                         {['easy','medium','hard'].map(d => {
@@ -333,6 +388,8 @@ export default function AdminContent() {
                                                 hard: 'bg-red-500/10 text-red-400 border-red-500/20',
                                             }
                                             const diffLabels = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' }
+                                            // Normalise to lowercase so both 'A' and 'a' match
+                                            const correctKey = item.correct_answer?.toLowerCase() ?? '';
                                             const opts = [
                                                 { key: 'a', text: item.option_a },
                                                 { key: 'b', text: item.option_b },
@@ -360,13 +417,30 @@ export default function AdminContent() {
                                                             >
                                                                 <Edit3 className="w-3.5 h-3.5" />
                                                             </button>
-                                                            <button
-                                                                onClick={() => handleDelete(item.id)}
-                                                                className="p-2 bg-red-500/5 border border-red-500/10 rounded-xl text-slate-500 hover:text-red-400 transition-all"
-                                                                title="Eliminar"
-                                                            >
-                                                                <Trash2 className="w-3.5 h-3.5" />
-                                                            </button>
+                                                            {deleteConfirm === item.id ? (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <button
+                                                                        onClick={() => confirmDelete(item.id)}
+                                                                        className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[9px] font-black uppercase transition-all"
+                                                                    >
+                                                                        Purgar
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => setDeleteConfirm(null)}
+                                                                        className="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-[9px] font-black uppercase transition-all"
+                                                                    >
+                                                                        No
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => handleDelete(item.id)}
+                                                                    className="p-2 bg-red-500/5 border border-red-500/10 rounded-xl text-slate-500 hover:text-red-400 transition-all"
+                                                                    title="Eliminar"
+                                                                >
+                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </div>
 
@@ -378,7 +452,7 @@ export default function AdminContent() {
                                                     {/* Options grid */}
                                                     <div className="grid grid-cols-2 gap-2">
                                                         {opts.map(({ key, text }) => {
-                                                            const isCorrect = item.correct_answer === key
+                                                            const isCorrect = correctKey === key
                                                             return (
                                                                 <div
                                                                     key={key}
@@ -408,6 +482,64 @@ export default function AdminContent() {
                                                 </div>
                                             )
                                         })}
+                                    </div>
+                                )}
+                                {/* ── Pagination controls ────────────────────── */}
+                                {!searchTerm && totalCount > PAGE_SIZE && (
+                                    <div className="flex items-center justify-between mt-4 px-1">
+                                        <span className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+                                            Página {currentPage + 1} / {Math.ceil(totalCount / PAGE_SIZE)}
+                                        </span>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setCurrentPage(0)}
+                                                disabled={currentPage === 0}
+                                                className="p-2 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-neon disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Primera página"
+                                            >
+                                                <ChevronsLeft className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                                                disabled={currentPage === 0}
+                                                className="p-2 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-neon disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Página anterior"
+                                            >
+                                                <ChevronLeft className="w-4 h-4" />
+                                            </button>
+                                            {/* Page number pills */}
+                                            {Array.from({ length: Math.ceil(totalCount / PAGE_SIZE) }, (_, i) => i)
+                                                .filter(i => Math.abs(i - currentPage) <= 2)
+                                                .map(i => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => setCurrentPage(i)}
+                                                        className={`w-8 h-8 rounded-xl text-[10px] font-black transition-all border ${
+                                                            i === currentPage
+                                                                ? 'bg-neon text-black border-neon'
+                                                                : 'bg-white/5 border-white/5 text-slate-400 hover:text-neon hover:border-neon/20'
+                                                        }`}
+                                                    >
+                                                        {i + 1}
+                                                    </button>
+                                                ))}
+                                            <button
+                                                onClick={() => setCurrentPage(p => Math.min(Math.ceil(totalCount / PAGE_SIZE) - 1, p + 1))}
+                                                disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE) - 1}
+                                                className="p-2 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-neon disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Página siguiente"
+                                            >
+                                                <ChevronRight className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => setCurrentPage(Math.ceil(totalCount / PAGE_SIZE) - 1)}
+                                                disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE) - 1}
+                                                className="p-2 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-neon disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Última página"
+                                            >
+                                                <ChevronsRight className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </>
@@ -449,7 +581,14 @@ export default function AdminContent() {
                                                             {item.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                         </button>
                                                         <button onClick={() => handleOpenModal(item)} className="p-2.5 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-neon hover:border-neon/20 transition-all"><Edit3 className="w-4 h-4" /></button>
-                                                        <button onClick={() => handleDelete(item.id)} className="p-2.5 bg-red-500/5 border border-red-500/10 rounded-xl text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                                        {deleteConfirm === item.id ? (
+                                                            <>
+                                                                <button onClick={() => confirmDelete(item.id)} className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[9px] font-black uppercase transition-all">Purgar</button>
+                                                                <button onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-[9px] font-black uppercase transition-all">No</button>
+                                                            </>
+                                                        ) : (
+                                                            <button onClick={() => handleDelete(item.id)} className="p-2.5 bg-red-500/5 border border-red-500/10 rounded-xl text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

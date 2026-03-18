@@ -4,8 +4,11 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 import hashlib
 import io
+import logging
 import os
 import tempfile
+
+logger = logging.getLogger(__name__)
 
 from database import get_db, User, UserSQLProgress, SQLExercise
 from auth import get_current_user
@@ -31,16 +34,42 @@ def is_user_eligible_for_sql_certificate(db: Session, user: User) -> bool:
     Check if user is eligible for SQL certificate.
 
     Criteria:
-    - User is NOT free tier (has an active subscription), OR
-    - User is admin/developer role
+    - User must have an active subscription (not free tier)
+    - User must have completed ALL exercises that belong to a SQL level (the Skills Path)
+    - OR user is admin/developer role (bypass for testing/grading)
     """
-    if user.subscription_type != "free":
-        return True
-
+    # Admins/developers bypass all checks
     if user.role in ["admin", "developer"]:
         return True
 
-    return False
+    # Must have an active paid subscription
+    if user.subscription_type == "free":
+        return False
+
+    # Count path exercises: only those assigned to a level (level_id IS NOT NULL)
+    total_path_exercises = (
+        db.query(SQLExercise)
+        .filter(SQLExercise.level_id.isnot(None))
+        .count()
+    )
+
+    # No exercises defined yet — cannot award certificate
+    if total_path_exercises == 0:
+        return False
+
+    # Count exercises the user has actually completed within the path
+    completed_count = (
+        db.query(UserSQLProgress)
+        .join(SQLExercise, UserSQLProgress.exercise_id == SQLExercise.id)
+        .filter(
+            UserSQLProgress.user_id == user.id,
+            UserSQLProgress.completed == True,  # noqa: E712
+            SQLExercise.level_id.isnot(None),
+        )
+        .count()
+    )
+
+    return completed_count >= total_path_exercises
 
 def generate_certificate_id(user_id: int, date: datetime) -> str:
     """Generate a unique certificate ID based on user_id and date."""
@@ -132,7 +161,9 @@ def get_sql_certificate(
     Generate and return a PDF certificate for SQL Skills Path.
 
     Requirements:
-    - User must be subscribed (not free tier) OR admin/developer
+    - User must have an active paid subscription (not free tier)
+    - User must have completed ALL exercises belonging to an SQL level (the Skills Path)
+    - Admin/developer role bypasses the above checks
     - Returns a PDF file if available, otherwise returns JSON with certificate data
     """
 
@@ -140,7 +171,7 @@ def get_sql_certificate(
     if not is_user_eligible_for_sql_certificate(db, current_user):
         raise HTTPException(
             status_code=403,
-            detail="You must have an active subscription to download certificates"
+            detail="Debes completar todos los ejercicios del SQL Skills Path y tener una suscripción activa para descargar el certificado."
         )
 
     # Generate certificate ID
@@ -159,7 +190,7 @@ def get_sql_certificate(
                 filename=f"certificate_sql_{current_user.id}_{today.strftime('%Y%m%d')}.pdf"
             )
         except Exception as e:
-            print(f"Error generating PDF: {e}")
+            logger.error(f"Error generating PDF: {e}", exc_info=True)
             # Fall through to JSON response
 
     # Fallback: return JSON with certificate data

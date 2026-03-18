@@ -1,18 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from typing import List
+from typing import List, Optional
 from database import get_db, User, Ticket, Question, Announcement, QuestionSuggestion, TicketMessage
 from auth import require_admin, require_developer, hash_password
 from schemas import (
-    UserOut, UserRoleUpdate, UserPasswordUpdate, 
+    UserOut, UserRoleUpdate, UserPasswordUpdate,
     UserSubscriptionUpdate, TicketOut, AdminDashboardStats,
     AdminUserCreate, TicketMessageCreate, TicketMessageOut, TicketUserInfoOut,
     TicketUpdate, AdminPasswordReset, AdminProfileUpdate, AdminSetShields,
     AdminModifyXP, AdminSetStreak, AnnouncementCreate, PaginatedUserOut
 )
 from utils.pagination import paginate_query
-from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/admin/users", tags=["Admin Users"])
@@ -65,11 +64,28 @@ def get_admin_dashboard_stats(
 def list_users(
     limit: int = 50,
     offset: int = 0,
+    search: Optional[str] = None,
+    role: Optional[str] = None,
+    subscription: Optional[str] = None,
     _: User = Depends(require_developer),
     db: Session = Depends(get_db),
 ):
-    """(Admin) Devuelve usuarios registrados con paginación."""
-    query = db.query(User).order_by(User.id.desc())
+    """(Admin) Devuelve usuarios registrados con paginación y filtros opcionales."""
+    from sqlalchemy import or_
+    query = db.query(User)
+    if search:
+        term = f"%{search.lower()}%"
+        query = query.filter(
+            or_(
+                func.lower(User.nombre).like(term),
+                func.lower(User.email).like(term),
+            )
+        )
+    if role:
+        query = query.filter(User.role == role)
+    if subscription:
+        query = query.filter(User.subscription_type == subscription)
+    query = query.order_by(User.id.desc())
     return paginate_query(query, limit, offset)
 
 @router.patch("/{user_id}/subscription", response_model=UserOut)
@@ -80,12 +96,20 @@ def update_subscription(
     db: Session = Depends(get_db),
 ):
     """(Admin) Cambia el plan de suscripción y calcula la fecha de fin."""
+    _VALID_SUBSCRIPTION_TYPES = {"free", "monthly", "quarterly", "annual", "lifetime"}
+    if data.subscription_type not in _VALID_SUBSCRIPTION_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tipo de suscripción inválido. Valores permitidos: {', '.join(sorted(_VALID_SUBSCRIPTION_TYPES))}"
+        )
+
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-        
+
+    old_sub = user.subscription_type
     user.subscription_type = data.subscription_type
-    
+
     now = datetime.utcnow()
     if data.subscription_type == "lifetime":
         user.subscription_end = None
@@ -96,11 +120,26 @@ def update_subscription(
     elif data.subscription_type == "annual":
         user.subscription_end = now + timedelta(days=365)
         user.streak_protections = 4 # 🛡️ Shield bonus
-    else: 
+    else:
         user.subscription_end = None
-        
+
     db.commit()
     db.refresh(user)
+    try:
+        from database import AdminAuditLog
+        log = AdminAuditLog(
+            admin_id=_.id,
+            admin_name="admin",
+            action="subscription_change",
+            target_user_id=user.id,
+            target_user_name=user.nombre,
+            old_value=old_sub,
+            new_value=data.subscription_type,
+        )
+        db.add(log)
+        db.commit()
+    except Exception:
+        pass
     return user
 
 # --- GESTIÓN DE TICKETS ---
@@ -241,16 +280,35 @@ def update_role(
     if data.role not in ["admin", "developer", "docente", "alumno"]:
         raise HTTPException(status_code=400, detail="Rol inválido")
     
-    current_admin = _ # Renaming for clarity from dependency
+    current_admin = _  # Renaming for clarity from dependency
     if data.role in ["admin", "developer"] and current_admin.role != "admin":
         raise HTTPException(status_code=403, detail="Solo un administrador puede asignar roles de gestión críticos.")
-    
+
+    if user_id == current_admin.id:
+        raise HTTPException(status_code=400, detail="No puedes modificar tu propio rol.")
+
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    old_role = user.role
     user.role = data.role
     db.commit()
     db.refresh(user)
+    try:
+        from database import AdminAuditLog
+        log = AdminAuditLog(
+            admin_id=current_admin.id,
+            admin_name=current_admin.nombre,
+            action="role_change",
+            target_user_id=user.id,
+            target_user_name=user.nombre,
+            old_value=old_role,
+            new_value=data.role,
+        )
+        db.add(log)
+        db.commit()
+    except Exception:
+        pass
     return user
 
 @router.post("/", response_model=UserOut)
@@ -308,6 +366,22 @@ def reset_password_admin(
     user.token_version = (user.token_version or 0) + 1
     db.commit()
     db.refresh(user)
+    try:
+        current_admin_user = db.query(User).filter(User.id == _.id).first()
+        from database import AdminAuditLog
+        log = AdminAuditLog(
+            admin_id=_.id,
+            admin_name=current_admin_user.nombre if current_admin_user else "unknown",
+            action="password_reset",
+            target_user_id=user.id,
+            target_user_name=user.nombre,
+            old_value="[redacted]",
+            new_value="[redacted]",
+        )
+        db.add(log)
+        db.commit()
+    except Exception:
+        pass
     return user
 
 @router.put("/{user_id}/profile", response_model=UserOut)
@@ -427,25 +501,10 @@ def modify_user_xp(
     #   Niveles 16-19: 4000 XP/nivel  (total máx: 40 000 XP)
     # data.xp se interpreta como XP TOTAL ganado por el alumno.
     # ─────────────────────────────────────────────────────────────────
-    def _xp_per_level(lvl: int) -> int:
-        if lvl <= 5:  return 800
-        if lvl <= 10: return 1500
-        if lvl <= 15: return 2500
-        if lvl <= 19: return 4000
-        return 99999
-
-    remaining = max(0, data.xp)
-    computed_level = 1
-    while computed_level < 20:
-        needed = _xp_per_level(computed_level)
-        if remaining >= needed:
-            remaining -= needed
-            computed_level += 1
-        else:
-            break
-
-    user.level = min(computed_level, 20)
-    user.xp    = remaining if user.level < 20 else 0
+    from utils.xp import compute_level_from_total_xp
+    computed_level, remaining = compute_level_from_total_xp(data.xp)
+    user.level = computed_level
+    user.xp    = remaining
 
     db.commit()
     db.refresh(user)
@@ -577,9 +636,41 @@ def reset_user_referrals(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
+
     user.pending_10p_discounts = 0
     user.free_months_accumulated = 0
     # No reseteamos referral_reward_count para mantener el historial, pero limpiamos premios
     db.commit()
     return {"message": "Premios de referido reseteados correctamente"}
+
+
+# ── Audit Log ──────────────────────────────────────────────────────────────────
+
+@router.get("/audit-log")
+def get_audit_log(
+    limit: int = 100,
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """(Admin) Returns the last N admin audit log entries."""
+    from database import AdminAuditLog
+    entries = (
+        db.query(AdminAuditLog)
+        .order_by(AdminAuditLog.timestamp.desc())
+        .limit(min(limit, 500))
+        .all()
+    )
+    return [
+        {
+            "id": e.id,
+            "admin_id": e.admin_id,
+            "admin_name": e.admin_name,
+            "action": e.action,
+            "target_user_id": e.target_user_id,
+            "target_user_name": e.target_user_name,
+            "old_value": e.old_value,
+            "new_value": e.new_value,
+            "timestamp": e.timestamp.isoformat(),
+        }
+        for e in entries
+    ]

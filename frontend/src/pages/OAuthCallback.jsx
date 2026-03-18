@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useUserStore from '../store/userStore';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE } from '../constants/api';
 
 const ERROR_MESSAGES = {
   no_email:              'Tu cuenta de Google no tiene email verificado.',

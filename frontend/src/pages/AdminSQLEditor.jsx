@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import Sidebar from '../components/Sidebar';
+import SafeHTML from '../components/SafeHTML';
 import api from '../services/api';
 
 const DIFF_OPTIONS = ['basico', 'intermedio', 'avanzado'];
@@ -723,8 +724,7 @@ export default function AdminSQLEditor() {
                                             <div className="px-5 pb-4 pt-2 border-t border-white/5 grid grid-cols-2 gap-4">
                                                 <div>
                                                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-600 mb-1">Descripción</p>
-                                                    <p className="text-slate-400 text-xs font-mono"
-                                                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ex.description) }} />
+                                                    <SafeHTML html={ex.description} className="text-slate-400 text-xs font-mono" />
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-600 mb-1">Solución SQL</p>

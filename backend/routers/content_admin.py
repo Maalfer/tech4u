@@ -13,14 +13,16 @@ router = APIRouter(prefix="/admin", tags=["Admin Content"])
 @router.get("/questions", response_model=PaginatedQuestionOut)
 def list_questions(
     subject: Optional[str] = None,
-    limit: int = 50,
+    limit: int = 100,
     offset: int = 0,
     _: User = Depends(require_management),
     db: Session = Depends(get_db),
 ):
     """
-    (Admin/Docente) Devuelve preguntas con paginación. 
+    (Admin/Docente) Devuelve preguntas con paginación.
+    Límite por defecto 100; el cliente puede subir hasta 500.
     """
+    limit = min(limit, 500)  # cap to avoid accidental overload
     query = db.query(Question).order_by(Question.id.desc())
     if subject:
         query = query.filter(Question.subject == subject)
@@ -33,10 +35,13 @@ def create_question(
     db: Session = Depends(get_db),
 ):
     """(Admin/Docente) Crea una nueva pregunta directamente en el banco."""
-    q = Question(**data.dict())
+    q_data = data.dict()
+    if q_data.get("correct_answer"):
+        q_data["correct_answer"] = q_data["correct_answer"].lower()
+    q = Question(**q_data)
     if hasattr(q, 'approved'):
         q.approved = True
-        
+
     db.add(q)
     db.commit()
     db.refresh(q)
@@ -51,7 +56,10 @@ def create_questions_bulk(
     """(Admin/Docente) Importa un lote de preguntas desde CSV o JSON."""
     count = 0
     for q_data in data:
-        q = Question(**q_data.dict())
+        q_dict = q_data.dict()
+        if q_dict.get("correct_answer"):
+            q_dict["correct_answer"] = q_dict["correct_answer"].lower()
+        q = Question(**q_dict)
         if hasattr(q, 'approved'):
             q.approved = True
         db.add(q)
@@ -59,6 +67,91 @@ def create_questions_bulk(
     
     db.commit()
     return {"message": "Importación completada", "imported_count": count}
+
+@router.post("/questions/normalize")
+def normalize_questions(
+    _: User = Depends(require_management),
+    db: Session = Depends(get_db),
+):
+    """
+    (Admin) One-shot maintenance: normalises all correct_answer values to lowercase,
+    removes leading/trailing whitespace from text/options, and returns a quality report.
+    Safe to run multiple times (idempotent).
+    """
+    all_questions = db.query(Question).all()
+
+    fixed_case = 0
+    bad_answer_ids = []
+    null_answer_ids = []
+    empty_field_ids = []
+
+    for q in all_questions:
+        changed = False
+
+        # --- Normalize correct_answer ---
+        if q.correct_answer is None:
+            null_answer_ids.append(q.id)
+        else:
+            norm = q.correct_answer.strip().lower()
+            if norm != q.correct_answer:
+                q.correct_answer = norm
+                changed = True
+                fixed_case += 1
+            if norm not in ('a', 'b', 'c', 'd'):
+                bad_answer_ids.append(q.id)
+
+        # --- Strip whitespace from text / options ---
+        for field in ('text', 'option_a', 'option_b', 'option_c', 'option_d', 'explanation'):
+            val = getattr(q, field, None)
+            if val is not None and val != val.strip():
+                setattr(q, field, val.strip())
+                changed = True
+
+        # --- Check for empty mandatory fields ---
+        for field in ('text', 'option_a', 'option_b', 'option_c', 'option_d'):
+            val = getattr(q, field, None)
+            if not val:
+                empty_field_ids.append(q.id)
+                break
+
+    db.commit()
+
+    return {
+        "total_questions": len(all_questions),
+        "fixed_case_count": fixed_case,
+        "still_bad_answer_ids": bad_answer_ids,
+        "null_answer_ids": null_answer_ids,
+        "empty_field_question_ids": list(set(empty_field_ids)),
+        "message": (
+            f"Normalización completada. "
+            f"{fixed_case} respuesta(s) convertida(s) a minúscula. "
+            f"{len(bad_answer_ids)} pregunta(s) con respuesta inválida (revisar manualmente). "
+            f"{len(null_answer_ids)} pregunta(s) sin respuesta (revisar manualmente)."
+        ),
+    }
+
+
+@router.put("/questions/{question_id}", response_model=QuestionOut)
+def update_question(
+    question_id: int,
+    data: QuestionCreate,
+    _: User = Depends(require_management),
+    db: Session = Depends(get_db),
+):
+    """(Admin/Docente) Actualiza una pregunta existente en el banco."""
+    q = db.query(Question).filter(Question.id == question_id).first()
+    if not q:
+        raise HTTPException(status_code=404, detail="Pregunta no encontrada")
+    update_data = data.dict()
+    # Normalise correct_answer to lowercase so display always matches
+    if "correct_answer" in update_data and update_data["correct_answer"]:
+        update_data["correct_answer"] = update_data["correct_answer"].lower()
+    for field, value in update_data.items():
+        setattr(q, field, value)
+    db.commit()
+    db.refresh(q)
+    return q
+
 
 @router.delete("/questions/{question_id}")
 def delete_question(

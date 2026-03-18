@@ -43,9 +43,7 @@ export default function SubscriptionPage() {
             window.location.href = res.data.url;
         } catch (err) {
             const detail = err.response?.data?.detail;
-            setError(detail?.includes('STRIPE_SECRET_KEY')
-                ? '⚠️ El servidor no tiene la clave de Stripe configurada.'
-                : detail || 'Error al crear la sesión de pago. Inténtalo de nuevo.');
+            setError(detail || 'Error al crear la sesión de pago. Inténtalo de nuevo.');
         } finally {
             setLoadingPlan(null);
         }

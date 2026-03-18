@@ -1,4 +1,5 @@
 import sys
+import os
 from sqlalchemy.orm import Session
 from database import SessionLocal, User, Base, engine
 from auth import hash_password
@@ -9,19 +10,31 @@ def test_db():
 
 def create_users():
     db = SessionLocal()
+    is_prod = os.getenv("ENVIRONMENT", "development") == "production"
+    
+    # REQUIRE environment variable in production, allow default ONLY in dev
+    default_pass = os.getenv("DEFAULT_USER_PASSWORD")
+    if not default_pass:
+        if is_prod:
+            log_err = "🚨 ERROR: DEFAULT_USER_PASSWORD must be set in production!"
+            print(log_err)
+            raise RuntimeError(log_err)
+        default_pass = "cambiame123"
+        print("⚠️  AVISO: Usando password por defecto 'cambiame123' para desarrollo.")
+
     try:
         users_to_create = [
             {
                 "email": "admin@tech4u.es",
                 "nombre": "Administrador Principal",
-                "password": "tech4u2026",
+                "password": os.getenv("ADMIN_PASSWORD", default_pass),
                 "role": "admin",
                 "subscription_type": "annual"
             },
             {
                 "email": "alumno1@tech4u.es",
                 "nombre": "Alumno Prueba FP",
-                "password": "tech4u2026",
+                "password": default_pass,
                 "role": "alumno",
                 "subscription_type": "free"
             }
@@ -47,7 +60,7 @@ def create_users():
                 last_login=datetime.utcnow()
             )
             db.add(new_user)
-            print(f"✅ Añadido nuevo usuario {u_data['email']} ({u_data['role']}) con pass '{u_data['password']}'")
+            print(f"✅ Añadido nuevo usuario {u_data['email']} ({u_data['role']})")
         
         db.commit()
         print("🎉 Script completado con éxito.")

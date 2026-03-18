@@ -67,12 +67,23 @@ def get_questions(
     current_user: User = Depends(require_module_access("tests")),
 ):
     from sqlalchemy import func
-    query = db.query(Question).filter(Question.approved == True)
+    # Only serve questions that are approved AND have a valid lowercase correct_answer.
+    # This shields students from any bad/uppercase data in the DB.
+    VALID_ANSWERS = ['a', 'b', 'c', 'd']
+    query = db.query(Question).filter(
+        Question.approved == True,
+        Question.correct_answer.in_(VALID_ANSWERS),
+        Question.text != '',
+        Question.option_a != '',
+        Question.option_b != '',
+        Question.option_c != '',
+        Question.option_d != '',
+    )
     if subject and subject.lower() != "general":
         query = query.filter(Question.subject == subject)
     if difficulty:
         query = query.filter(Question.difficulty == difficulty)
-    
+
     # Shuffle results
     questions = query.order_by(func.random()).limit(limit).all()
     return questions
@@ -93,10 +104,20 @@ def get_failed_questions(
     # para evitar cargas innecesarias cuando hay muchos errores acumulados.
     safe_limit = min(limit, 200)
 
+    VALID_ANSWERS = ['a', 'b', 'c', 'd']
     query = (
         db.query(Question)
         .join(UserError, Question.id == UserError.question_id)
-        .filter(UserError.user_id == current_user.id)
+        .filter(
+            UserError.user_id == current_user.id,
+            Question.approved == True,
+            Question.correct_answer.in_(VALID_ANSWERS),
+            Question.text != '',
+            Question.option_a != '',
+            Question.option_b != '',
+            Question.option_c != '',
+            Question.option_d != '',
+        )
     )
 
     if subject:
@@ -178,20 +199,26 @@ async def submit_test(
         # ==============================================
         # ACTUALIZACIÓN DE PROGRESO LECTIVO
         # ==============================================
+        # Use only questions that were actually found in the DB
+        processed_count = len(detailed_results)
+
+        if processed_count == 0:
+            raise HTTPException(status_code=400, detail="Ninguna pregunta válida encontrada en el envío.")
+
         progress = db.query(UserProgress).filter(
             UserProgress.user_id == current_user.id,
             UserProgress.subject == payload.subject,
         ).first()
 
         if progress:
-            progress.total_answered += len(payload.answers)
+            progress.total_answered += processed_count
             progress.correct_answers += correct_count
             progress.time_invested_minutes += total_time / 60
         else:
             db.add(UserProgress(
                 user_id=current_user.id,
                 subject=payload.subject,
-                total_answered=len(payload.answers),
+                total_answered=processed_count,
                 correct_answers=correct_count,
                 time_invested_minutes=total_time / 60,
             ))
@@ -199,8 +226,8 @@ async def submit_test(
         # ==============================================
         # ACTUALIZACIÓN DE GAMIFICACIÓN (RPG)
         # ==============================================
-        wrong_count = len(payload.answers) - correct_count
-        total_questions = len(payload.answers)
+        wrong_count = processed_count - correct_count
+        total_questions = processed_count
         accuracy = (correct_count / total_questions * 100) if total_questions > 0 else 0
         
         # ── Sistema de XP v2 ──────────────────────────────────────────
@@ -260,7 +287,7 @@ async def submit_test(
             user_id=current_user.id,
             subject=payload.subject,
             mode=payload.test_mode or "normal",
-            total=total_questions,
+            total=processed_count,
             correct=correct_count,
             accuracy=accuracy,
             xp_gained=gained_xp,
@@ -281,6 +308,33 @@ async def submit_test(
         # Final commit for the core test result (Progress, Session, Achievements)
         db.commit()
         db.refresh(current_user)
+
+        # ── Pruning: keep only the last 100 sessions per user ────────────
+        # Prevents unbounded table growth on the VPS.
+        try:
+            _MAX_SESSIONS_PER_USER = 100
+            total_sessions = db.query(TestSession).filter(
+                TestSession.user_id == current_user.id
+            ).count()
+            if total_sessions > _MAX_SESSIONS_PER_USER:
+                # Find the ID threshold: the 100th most recent session
+                cutoff_row = (
+                    db.query(TestSession.id)
+                    .filter(TestSession.user_id == current_user.id)
+                    .order_by(TestSession.completed_at.desc())
+                    .offset(_MAX_SESSIONS_PER_USER - 1)
+                    .limit(1)
+                    .scalar()
+                )
+                if cutoff_row is not None:
+                    db.query(TestSession).filter(
+                        TestSession.user_id == current_user.id,
+                        TestSession.id < cutoff_row,
+                    ).delete(synchronize_session=False)
+                    db.commit()
+        except Exception as prune_err:
+            db.rollback()
+            logger.warning(f"No se pudieron limpiar sesiones antiguas: {str(prune_err)}")
 
         # ── Item Drop (Isolated transition) ──────────────────
         item_drop = None
@@ -311,7 +365,7 @@ async def submit_test(
             item_drop = None
 
         return {
-            "total": int(total_questions),
+            "total": int(processed_count),
             "correct": int(correct_count),
             "accuracy": float(accuracy),
             "xp_gained": int(gained_xp),
@@ -321,6 +375,10 @@ async def submit_test(
             "item_drop": item_drop,
         }
 
+    except HTTPException:
+        # Re-raise HTTP exceptions (like 400, 429) to be handled by FastAPI
+        db.rollback()
+        raise
     except Exception as e:
         import traceback
         db.rollback()
