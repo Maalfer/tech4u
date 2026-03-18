@@ -227,7 +227,7 @@ export default function ManageSubscription() {
                                                     Escalar Plan
                                                 </button>
                                                 <a
-                                                    href="mailto:soporte@tech4u.es"
+                                                    href="mailto:info@tech4uacademy.es"
                                                     className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-slate-500 hover:text-slate-300 font-black uppercase text-xs transition-all tracking-wider group"
                                                 >
                                                     <ExternalLink className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />

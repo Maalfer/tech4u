@@ -29,8 +29,10 @@ def validate_password_strength(password: str) -> tuple[bool, str]:
         return False, "La contraseña debe contener al menos un carácter especial: !@#$%^&*(),.?\":{}|<>_-"
     return True, ""
 
-def generate_referral_code(length=6):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+def generate_referral_code(length=8):
+    # SEC-14 FIX: usar secrets en lugar de random (criptográficamente seguro)
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -87,11 +89,15 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
                 raise HTTPException(status_code=400, detail="No puedes usar tu propio código de referido")
 
         if referrer and referrer.id != user.id:
-            # Obtener IP del registro para anti-fraude
-            forwarded_for = request.headers.get("X-Forwarded-For")
-            ip = forwarded_for.split(",")[0].strip() if forwarded_for else (
-                request.client.host if request.client else "unknown"
-            )
+            # SEC-04 FIX: obtener IP solo desde proxies confiables
+            import os as _os
+            _trusted_proxies = {ip.strip() for ip in _os.getenv("TRUSTED_PROXY_IPS", "").split(",") if ip.strip()}
+            _connection_ip = request.client.host if request.client else "unknown"
+            if _trusted_proxies and _connection_ip in _trusted_proxies:
+                _ff = request.headers.get("X-Forwarded-For", "")
+                ip = _ff.split(",")[0].strip() if _ff else _connection_ip
+            else:
+                ip = _connection_ip
 
             # Verificar límite de IP: máx. 3 registros hacia el mismo referidor en 24h
             from datetime import timedelta
@@ -114,7 +120,8 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
                 user.referred_by_id = referrer.id
                 db.commit()
 
-    token = create_access_token({"sub": str(user.id)})
+    # SEC-05: incluir token_version en el payload del JWT
+    token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
 
     # Set httpOnly authentication cookie with tech4u_token name
     import os
@@ -128,21 +135,9 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
         cookie_domain = None
         samesite = "Lax"
 
-    # Set the httpOnly cookie for authentication
+    # SEC-12 FIX: solo emitir la cookie actual (tech4u_token), eliminar cookie legacy
     response.set_cookie(
         key="tech4u_token",
-        value=token,
-        httponly=True,
-        secure=secure_cookie,
-        samesite=samesite,
-        domain=cookie_domain,
-        path="/",
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    )
-
-    # Also keep access_token for backward compatibility during migration
-    response.set_cookie(
-        key="access_token",
         value=token,
         httponly=True,
         secure=secure_cookie,
@@ -197,7 +192,8 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
     db.commit()
     db.refresh(user)
 
-    token = create_access_token({"sub": str(user.id)})
+    # SEC-05: incluir token_version en el payload del JWT
+    token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
 
     # Set httpOnly authentication cookie with tech4u_token name
     import os
@@ -211,7 +207,7 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
         cookie_domain = None
         samesite = "Lax"
 
-    # Set the httpOnly cookie for authentication
+    # SEC-12 FIX: solo emitir cookie actual, sin cookie legacy access_token
     response.set_cookie(
         key="tech4u_token",
         value=token,
@@ -220,19 +216,7 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
         samesite=samesite,
         domain=cookie_domain,
         path="/",
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60  # Convert minutes to seconds
-    )
-
-    # Also keep access_token for backward compatibility during migration
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        secure=secure_cookie,
-        samesite=samesite,
-        domain=cookie_domain,
-        path="/",
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
     return TokenResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
@@ -315,6 +299,9 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
     user.password_hash = hash_password(data.new_password)
     user.reset_token = None
     user.reset_token_expiry = None
+    # SEC-11 FIX: invalidar todos los tokens JWT activos incrementando token_version.
+    # Cualquier token emitido antes de este momento queda automáticamente inválido.
+    user.token_version = (user.token_version or 0) + 1
     db.commit()
     return {"detail": "Contraseña actualizada correctamente. Ya puedes iniciar sesión."}
 
@@ -339,7 +326,8 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    new_token = create_access_token({"sub": str(user.id)})
+    # SEC-05: incluir token_version en el payload del token renovado
+    new_token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
 
     env = os.getenv("ENVIRONMENT", "development")
     secure_cookie = os.getenv("COOKIE_SECURE", "False").lower() == "true"
@@ -351,19 +339,9 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
         cookie_domain = None
         samesite = "Lax"
 
-    # Set both cookies for consistency
+    # SEC-12 FIX: solo emitir cookie actual
     response.set_cookie(
         key="tech4u_token",
-        value=new_token,
-        httponly=True,
-        secure=secure_cookie,
-        samesite=samesite,
-        domain=cookie_domain,
-        path="/",
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    )
-    response.set_cookie(
-        key="access_token",
         value=new_token,
         httponly=True,
         secure=secure_cookie,
@@ -401,3 +379,283 @@ def complete_onboarding(
     db.refresh(current_user)
 
     return UserOut.model_validate(current_user)
+
+
+# ── Mi Aprendizaje ───────────────────────────────────────────────────────────
+
+@router.get("/learning-summary")
+def get_learning_summary(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Resumen completo del aprendizaje del usuario para el panel 'Mi Aprendizaje'.
+    Incluye: cursos de suscripción, cursos de shop, tests y labs.
+    """
+    from database import (
+        VideoCourse, VideoLesson, LessonProgress,
+        UserCoursePurchase, TestSession, UserLabCompletion,
+        Lab, SkillPath, Module
+    )
+
+    uid = current_user.id
+
+    # ── 1. Cursos de suscripción (eJPTv2 y similares) ─────────────────────
+    sub_courses = (
+        db.query(VideoCourse)
+        .filter(VideoCourse.is_active == True, VideoCourse.is_shop_course == False)
+        .all()
+    )
+
+    subscription_courses_data = []
+    for course in sub_courses:
+        total_lessons = len([l for l in course.lessons if not l.is_quiz])
+        quiz_count = len([l for l in course.lessons if l.is_quiz])
+        all_lesson_ids = [l.id for l in course.lessons]
+
+        completed_ids = set(
+            p.lesson_id for p in db.query(LessonProgress)
+            .filter(
+                LessonProgress.user_id == uid,
+                LessonProgress.lesson_id.in_(all_lesson_ids)
+            ).all()
+        )
+        completed_count = len(completed_ids)
+        pct = round((completed_count / total_lessons * 100) if total_lessons > 0 else 0)
+
+        last_progress = (
+            db.query(LessonProgress)
+            .filter(
+                LessonProgress.user_id == uid,
+                LessonProgress.lesson_id.in_(all_lesson_ids)
+            )
+            .order_by(LessonProgress.completed_at.desc())
+            .first()
+        )
+        last_accessed = last_progress.completed_at.isoformat() if last_progress else None
+
+        subscription_courses_data.append({
+            "id": course.id,
+            "title": course.title,
+            "slug": course.slug,
+            "description": course.description,
+            "total_lessons": total_lessons,
+            "quiz_count": quiz_count,
+            "completed_lessons": completed_count,
+            "progress_pct": pct,
+            "last_accessed": last_accessed,
+            "started": completed_count > 0,
+            "completed": pct == 100,
+        })
+
+    # ── 2. Cursos de tienda (comprados) ────────────────────────────────────
+    purchases = (
+        db.query(UserCoursePurchase)
+        .filter(UserCoursePurchase.user_id == uid)
+        .all()
+    )
+
+    shop_courses_data = []
+    for purchase in purchases:
+        course = db.query(VideoCourse).filter(VideoCourse.id == purchase.course_id).first()
+        if not course:
+            continue
+        total_lessons = len([l for l in course.lessons if not l.is_quiz])
+        all_lesson_ids = [l.id for l in course.lessons]
+        completed_count = db.query(LessonProgress).filter(
+            LessonProgress.user_id == uid,
+            LessonProgress.lesson_id.in_(all_lesson_ids)
+        ).count()
+        pct = round((completed_count / total_lessons * 100) if total_lessons > 0 else 0)
+
+        shop_courses_data.append({
+            "id": course.id,
+            "title": course.title,
+            "slug": course.slug,
+            "total_lessons": total_lessons,
+            "completed_lessons": completed_count,
+            "progress_pct": pct,
+            "purchased_at": purchase.purchased_at.isoformat(),
+            "completed": pct == 100,
+        })
+
+    # ── 3. Historial de tests ───────────────────────────────────────────────
+    test_sessions = (
+        db.query(TestSession)
+        .filter(TestSession.user_id == uid)
+        .order_by(TestSession.completed_at.desc())
+        .limit(10)
+        .all()
+    )
+    test_data = [
+        {
+            "id": s.id,
+            "subject": s.subject,
+            "mode": s.mode,
+            "total": s.total,
+            "correct": s.correct,
+            "accuracy": s.accuracy,
+            "xp_gained": s.xp_gained,
+            "completed_at": s.completed_at.isoformat() if s.completed_at else None,
+        }
+        for s in test_sessions
+    ]
+
+    total_tests = db.query(TestSession).filter(TestSession.user_id == uid).count()
+    avg_accuracy = 0.0
+    if total_tests > 0:
+        acc_rows = db.query(TestSession.accuracy).filter(TestSession.user_id == uid).all()
+        avg_accuracy = round(sum(r[0] or 0 for r in acc_rows) / total_tests, 1)
+
+    # ── 4. Labs completados ─────────────────────────────────────────────────
+    lab_completions = (
+        db.query(UserLabCompletion)
+        .filter(UserLabCompletion.user_id == uid)
+        .order_by(UserLabCompletion.completed_at.desc())
+        .all()
+    )
+    total_labs_completed = len(lab_completions)
+    total_labs = db.query(Lab).filter(Lab.is_active == True).count()
+
+    # ── 5. SkillPaths progreso ──────────────────────────────────────────────
+    paths = db.query(SkillPath).filter(SkillPath.is_active == True).all()
+    completed_lab_ids = set(c.lab_id for c in lab_completions)
+
+    skill_paths_data = []
+    for path in paths:
+        all_labs = [
+            lab for mod in path.modules
+            for lab in mod.labs
+            if lab.is_active
+        ]
+        total = len(all_labs)
+        done = len([l for l in all_labs if l.id in completed_lab_ids])
+        pct = round((done / total * 100) if total > 0 else 0)
+        if total > 0:
+            skill_paths_data.append({
+                "id": path.id,
+                "title": path.title,
+                "difficulty": path.difficulty,
+                "total_labs": total,
+                "completed_labs": done,
+                "progress_pct": pct,
+                "started": done > 0,
+            })
+
+    # ── 6. Estadísticas globales ────────────────────────────────────────────
+    stats = {
+        "xp": current_user.xp,
+        "level": current_user.level,
+        "streak": current_user.streak_count,
+        "subscription_type": current_user.subscription_type,
+        "total_tests": total_tests,
+        "avg_accuracy": avg_accuracy,
+        "labs_completed": total_labs_completed,
+        "total_labs": total_labs,
+    }
+
+    return {
+        "stats": stats,
+        "subscription_courses": subscription_courses_data,
+        "shop_courses": shop_courses_data,
+        "recent_tests": test_data,
+        "skill_paths": skill_paths_data,
+    }
+
+
+# ── Email de aviso de racha ────────────────────────────────────────────────────
+@router.post("/send-streak-warning")
+def send_streak_warning_email(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Triggered automatically when the user logs in and is at risk of losing their streak.
+    Also callable from the scheduler/cron to proactively warn before midnight.
+    """
+    if not current_user.email:
+        raise HTTPException(status_code=400, detail="Usuario sin email")
+
+    if (current_user.streak_count or 0) < 2:
+        return {"sent": False, "reason": "streak_too_short"}
+
+    now = datetime.utcnow()
+    if current_user.last_login:
+        hours_since = (now - current_user.last_login).total_seconds() / 3600
+        if hours_since < 18:
+            return {"sent": False, "reason": "too_soon"}
+
+    sent = mailer.send_streak_warning(
+        to=current_user.email,
+        nombre=current_user.nombre or current_user.email,
+        streak_days=current_user.streak_count or 0,
+    )
+    return {"sent": sent}
+
+
+# ── Informe semanal de progreso ───────────────────────────────────────────────
+@router.post("/send-weekly-digest")
+def send_weekly_digest_email(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Sends the weekly progress digest to the current user.
+    Normally called by a scheduled task (every Monday 09:00).
+    Also accessible by the user themselves or admin for testing.
+    """
+    from database import TestSession, UserLabCompletion
+
+    if not current_user.email:
+        raise HTTPException(status_code=400, detail="Usuario sin email")
+
+    now = datetime.utcnow()
+    week_ago = now - timedelta(days=7)
+
+    # XP gained in last 7 days — approximate via test sessions
+    recent_tests = (
+        db.query(TestSession)
+        .filter(
+            TestSession.user_id == current_user.id,
+            TestSession.created_at >= week_ago,
+        )
+        .all()
+    )
+    tests_done = len(recent_tests)
+    xp_from_tests = sum(t.xp_gained or 0 for t in recent_tests)
+    accuracies = [t.accuracy for t in recent_tests if t.accuracy is not None]
+    avg_accuracy = sum(accuracies) / len(accuracies) if accuracies else 0.0
+
+    # Top subject this week
+    subject_counts: dict = {}
+    for t in recent_tests:
+        subj = getattr(t, "subject", None) or ""
+        if subj:
+            subject_counts[subj] = subject_counts.get(subj, 0) + 1
+    top_subject = max(subject_counts, key=subject_counts.get) if subject_counts else ""
+
+    # Labs completed in last 7 days
+    labs_done = (
+        db.query(UserLabCompletion)
+        .filter(
+            UserLabCompletion.user_id == current_user.id,
+            UserLabCompletion.completed_at >= week_ago,
+        )
+        .count()
+    )
+
+    # Total XP gained (rough: xp from tests + labs * 150)
+    xp_gained = xp_from_tests + labs_done * 150
+
+    sent = mailer.send_weekly_digest(
+        to=current_user.email,
+        nombre=current_user.nombre or current_user.email,
+        xp_gained=xp_gained,
+        tests_done=tests_done,
+        labs_done=labs_done,
+        streak_days=current_user.streak_count or 0,
+        level=current_user.level or 1,
+        accuracy=avg_accuracy,
+        top_subject=top_subject,
+    )
+    return {"sent": sent, "xp_gained": xp_gained, "tests_done": tests_done, "labs_done": labs_done}

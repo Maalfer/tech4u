@@ -129,7 +129,7 @@ function drawCertificate(canvas, { studentName, moduleName, moduleIcon, completi
 
   ctx.font = '10px monospace';
   ctx.fillStyle = 'rgba(255,255,255,0.12)';
-  ctx.fillText('tech4u.academy  ·  Certificado verificable  ·  Formación profesional TI', W / 2, 422);
+  ctx.fillText('tech4uacademy.es  ·  Certificado verificable  ·  Formación profesional TI', W / 2, 422);
 }
 
 export default function WinCertificate({ isOpen, onClose, moduleName, moduleIcon, xp, studentName }) {

@@ -4,7 +4,7 @@ export default function AvisoLegalPage() {
     return (
         <LegalLayout
             title="Aviso Legal"
-            subtitle="Información legal sobre el titular y condiciones de uso del sitio web tech4u.academy, en cumplimiento de la Ley 34/2002, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE)."
+            subtitle="Información legal sobre el titular y condiciones de uso del sitio web tech4uacademy.es, en cumplimiento de la Ley 34/2002, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE)."
             lastUpdated="Enero 2026"
         >
             <h2>1. Datos del Titular del Sitio Web</h2>
@@ -14,9 +14,9 @@ export default function AvisoLegalPage() {
             </p>
             <div className="callout">
                 <p><strong>Denominación:</strong> Tech4U Academy</p>
-                <p><strong>Titular:</strong> [NOMBRE DEL TITULAR]</p>
-                <p><strong>NIF/CIF:</strong> [NIF/CIF]</p>
-                <p><strong>Correo electrónico:</strong> <a href="mailto:info@tech4u.academy">info@tech4u.academy</a></p>
+                <p><strong>Titular:</strong> Alberto Hidalgo Moreno</p>
+                <p><strong>NIF/CIF:</strong> 04856664F</p>
+                <p><strong>Correo electrónico:</strong> <a href="mailto:info@tech4uacademy.es">info@tech4uacademy.es</a></p>
                 <p><strong>Actividad:</strong> Plataforma educativa online para ciclos formativos de Informática</p>
                 <p><strong>Ámbito:</strong> España y Unión Europea</p>
             </div>
@@ -25,7 +25,7 @@ export default function AvisoLegalPage() {
 
             <h2>2. Objeto y Ámbito de Aplicación</h2>
             <p>
-                El presente Aviso Legal regula el acceso, navegación y uso del sitio web <strong>tech4u.academy</strong>
+                El presente Aviso Legal regula el acceso, navegación y uso del sitio web <strong>tech4uacademy.es</strong>
                 y sus subdominios. El simple acceso al sitio web atribuye la condición de usuario e implica la aceptación
                 plena de las condiciones aquí establecidas.
             </p>
@@ -136,7 +136,7 @@ export default function AvisoLegalPage() {
                 <p>
                     Para cualquier consulta legal o reclamación relacionada con el sitio web:
                 </p>
-                <p><a href="mailto:info@tech4u.academy">info@tech4u.academy</a></p>
+                <p><a href="mailto:info@tech4uacademy.es">info@tech4uacademy.es</a></p>
             </div>
         </LegalLayout>
     )

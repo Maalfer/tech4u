@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
-from database import get_db, User, Coupon, UserCoursePurchase
+from database import get_db, User, Coupon, UserCoursePurchase, UserCouponUsage
 from auth import get_current_user
 from dotenv import load_dotenv
 import logging
@@ -111,18 +111,30 @@ def toggle_auto_renew(
 
 
 @router.get("/validate-coupon")
-def validate_coupon(code: str, plan: str = "monthly", current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def validate_coupon(request: Request, code: str, plan: str = "monthly", current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Valida un cupón y devuelve el porcentaje si es válido."""
-    c = db.query(Coupon).filter(Coupon.code == code.upper(), Coupon.is_active == True).first()
+    # with_for_update() bloquea la fila hasta que termine la transacción
+    # — evita que dos requests simultáneos pasen la misma validación
+    c = db.query(Coupon).filter(
+        Coupon.code == code.upper(), Coupon.is_active == True
+    ).with_for_update().first()
     if not c:
         raise HTTPException(status_code=404, detail="Cupón inválido o inactivo.")
 
-    if c.current_uses >= c.max_uses:
+    # SEC-03 FIX: comprobar cupo real = usos confirmados + usos reservados pendientes
+    if c.max_uses is not None and (c.current_uses + (c.pending_uses or 0)) >= c.max_uses:
         c.is_active = False
         db.commit()
         raise HTTPException(status_code=400, detail="El cupón ha superado el límite de usos.")
 
-    # TODO: Add per-user coupon usage tracking table to prevent same user using coupon twice
+    # Verificar si este usuario ya usó este cupón anteriormente
+    already_used = db.query(UserCouponUsage).filter(
+        UserCouponUsage.user_id == current_user.id,
+        UserCouponUsage.coupon_id == c.id
+    ).first()
+    if already_used:
+        raise HTTPException(status_code=400, detail="Ya has utilizado este cupón anteriormente.")
 
     # Verificar expiración
     if c.expires_at and c.expires_at < datetime.utcnow():
@@ -193,7 +205,11 @@ def create_checkout_session(
         if (current_user.pending_10p_discounts or 0) > 0:
             if coupon_code:
                 raise HTTPException(status_code=400, detail="El descuento de referido no es acumulable con otros cupones.")
-            
+
+            # SEC-06 FIX: reservar el descuento de forma atómica al crear la sesión,
+            # no esperar al webhook. El webhook solo hace max(0, val-1) de forma idempotente.
+            current_user.pending_10p_discounts -= 1
+
             discount = int(0.10 * final_amount)
             final_amount = max(0, final_amount - discount)
             reward_used_type = "referral_10p"
@@ -202,18 +218,49 @@ def create_checkout_session(
 
     # 3. Cupón Estándar (si no se usó descuento de referido)
     if coupon_code and not reward_used_type:
-        c = db.query(Coupon).filter(Coupon.code == coupon_code.upper(), Coupon.is_active == True).first()
-        if not c or c.current_uses >= c.max_uses:
+        c = db.query(Coupon).filter(
+            Coupon.code == coupon_code.upper(), Coupon.is_active == True
+        ).with_for_update().first()
+
+        # SEC-03 FIX: verificar cupo usando current_uses + pending_uses
+        if not c:
             raise HTTPException(status_code=400, detail="Cupón inválido o agotado.")
-        
-        # Restricción de usuario único
+        if c.max_uses is not None and (c.current_uses + (c.pending_uses or 0)) >= c.max_uses:
+            raise HTTPException(status_code=400, detail="Cupón inválido o agotado.")
+
+        # Verificar que este usuario no haya usado ya el cupón
+        already_used = db.query(UserCouponUsage).filter(
+            UserCouponUsage.user_id == current_user.id,
+            UserCouponUsage.coupon_id == c.id
+        ).first()
+        if already_used:
+            raise HTTPException(status_code=400, detail="Ya has utilizado este cupón anteriormente.")
+
+        # Verificar expiración
+        if c.expires_at and c.expires_at < datetime.utcnow():
+            c.is_active = False
+            db.commit()
+            raise HTTPException(status_code=400, detail="Este cupón ha expirado.")
+
+        # Restricción de usuario único (cupón nominal)
         if c.assigned_to_id and c.assigned_to_id != current_user.id:
             raise HTTPException(status_code=403, detail="Este cupón no te pertenece.")
 
-        # Restricción de plan: >15% solo mensual y trimestral
+        # Restricción de plan aplicable
+        applicable = getattr(c, 'applicable_plans', 'all') or 'all'
+        if applicable != 'all' and applicable != plan:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Este cupón solo es válido para el plan {applicable}."
+            )
+
+        # Restricción legacy: >15% solo mensual y trimestral
         if c.discount_percent > 15 and plan == "annual":
             raise HTTPException(status_code=400, detail="Cupones superiores al 15% solo válidos para planes mensuales y trimestrales.")
-        
+
+        # SEC-03 FIX: reservar uso atómicamente (dentro del mismo lock with_for_update)
+        c.pending_uses = (c.pending_uses or 0) + 1
+
         applied_coupon = c
         discount = int((c.discount_percent / 100.0) * final_amount)
         final_amount = max(0, final_amount - discount)
@@ -225,9 +272,15 @@ def create_checkout_session(
         current_user.subscription_end = datetime.utcnow() + timedelta(days=selected["days"])
         current_user.months_subscribed = (current_user.months_subscribed or 0) + 1
         applied_coupon.current_uses += 1
-        if applied_coupon.current_uses >= applied_coupon.max_uses:
+        # SEC-03 FIX: liberar la reserva pendiente al confirmar uso directo (sin Stripe)
+        applied_coupon.pending_uses = max(0, (applied_coupon.pending_uses or 0) - 1)
+        if applied_coupon.max_uses is not None and applied_coupon.current_uses >= applied_coupon.max_uses:
             applied_coupon.is_active = False
+        # Registrar uso por usuario para evitar reuso
+        db.add(UserCouponUsage(user_id=current_user.id, coupon_id=applied_coupon.id))
         db.commit()
+        # Confirmar referido si el usuario fue referido (sin Stripe no hay webhook)
+        confirm_referral_on_payment(db, current_user)
         url_success = f"{FRONTEND_URL}/suscripcion/exito?session_id=free_bypass_{applied_coupon.code}"
         return {"url": url_success}
 
@@ -342,6 +395,17 @@ def verify_docente_session(
 
     if session_obj.payment_status != "paid":
         return {"success": False}
+
+    # ── SEC-07 FIX: verificar que la sesión docente pertenece al usuario autenticado ──
+    session_user_id = (
+        session_obj.get("client_reference_id")
+        or session_obj.get("metadata", {}).get("user_id")
+    )
+    if not session_user_id or str(session_user_id) != str(current_user.id):
+        raise HTTPException(
+            status_code=403,
+            detail="Esta sesión de pago docente no pertenece a tu cuenta."
+        )
 
     metadata = session_obj.get("metadata", {})
     if metadata.get("type") != "docente_license":
@@ -462,13 +526,24 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             if coupon_code:
                 coupon = db.query(Coupon).filter(Coupon.code == coupon_code).first()
                 if coupon:
-                    coupon.current_uses += 1
-                    if coupon.current_uses >= coupon.max_uses:
-                        coupon.is_active = False
+                    # Idempotencia: el webhook puede dispararse más de una vez —
+                    # solo registrar uso si aún no existe el registro para este usuario/cupón
+                    already_recorded = db.query(UserCouponUsage).filter(
+                        UserCouponUsage.user_id == user.id,
+                        UserCouponUsage.coupon_id == coupon.id
+                    ).first()
+                    if not already_recorded:
+                        coupon.current_uses += 1
+                        # SEC-03 FIX: liberar la reserva pendiente al confirmar el pago
+                        coupon.pending_uses = max(0, (coupon.pending_uses or 0) - 1)
+                        if coupon.max_uses is not None and coupon.current_uses >= coupon.max_uses:
+                            coupon.is_active = False
+                        db.add(UserCouponUsage(user_id=user.id, coupon_id=coupon.id))
 
+            # SEC-06 FIX: pending_10p_discounts ya se decrementó al crear la sesión.
+            # El webhook NO vuelve a decrementar para evitar doble consumo.
+            # reward_used se guarda en metadata solo para auditoría.
             reward_used = metadata.get("reward_used")
-            if reward_used == "referral_10p":
-                user.pending_10p_discounts = max(0, (user.pending_10p_discounts or 0) - 1)
 
             # Bonus shields on subscription activation
             bonus_shields = 2 if plan == "quarterly" else (4 if plan == "annual" else 0)
@@ -513,6 +588,17 @@ def verify_session(
         raise HTTPException(status_code=502, detail=f"Error de Stripe: {str(e)}")
 
     if session_obj.payment_status == "paid":
+        # ── SEC-01 FIX: verificar que la sesión pertenece al usuario autenticado ──
+        session_user_id = (
+            session_obj.get("client_reference_id")
+            or session_obj.get("metadata", {}).get("user_id")
+        )
+        if not session_user_id or str(session_user_id) != str(current_user.id):
+            raise HTTPException(
+                status_code=403,
+                detail="Esta sesión de pago no pertenece a tu cuenta."
+            )
+
         plan = session_obj.metadata.get("plan", "monthly")
         plan_info = PLANS.get(plan, PLANS["monthly"])
 
@@ -529,16 +615,23 @@ def verify_session(
             coupon_code = session_obj.metadata.get("coupon_code", "")
             if coupon_code:
                 coupon = db.query(Coupon).filter(Coupon.code == coupon_code).first()
-                # Evitar doble conteo si el webhook ya pasó pero el tipo sigue siendo free (raro pero posible)
                 if coupon:
-                    coupon.current_uses += 1
-                    if coupon.current_uses >= coupon.max_uses:
-                        coupon.is_active = False
-            
-            # PROCESAR RECOMPENSA REFERIDO (Fallback)
+                    # Idempotencia: solo registrar si el webhook no lo hizo ya
+                    already_recorded = db.query(UserCouponUsage).filter(
+                        UserCouponUsage.user_id == current_user.id,
+                        UserCouponUsage.coupon_id == coupon.id
+                    ).first()
+                    if not already_recorded:
+                        coupon.current_uses += 1
+                        # SEC-03 FIX: liberar reserva pendiente también en el fallback
+                        coupon.pending_uses = max(0, (coupon.pending_uses or 0) - 1)
+                        if coupon.max_uses is not None and coupon.current_uses >= coupon.max_uses:
+                            coupon.is_active = False
+                        db.add(UserCouponUsage(user_id=current_user.id, coupon_id=coupon.id))
+
+            # SEC-06 FIX: pending_10p_discounts ya se decrementó al crear la sesión.
+            # No volver a decrementar aquí (evitar doble consumo).
             reward_used = session_obj.metadata.get("reward_used")
-            if reward_used == "referral_10p":
-                current_user.pending_10p_discounts = max(0, (current_user.pending_10p_discounts or 0) - 1)
 
             # Bonus shields on subscription activation (Fallback)
             bonus_shields = 2 if plan == "quarterly" else (4 if plan == "annual" else 0)
@@ -547,6 +640,8 @@ def verify_session(
 
             db.commit()
             db.refresh(current_user)
+            # Confirmar referido si el webhook no llegó a tiempo
+            confirm_referral_on_payment(db, current_user)
 
         return {
             "success": True,

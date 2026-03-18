@@ -175,7 +175,7 @@ export default function SubscriptionPlans() {
                             ¿Sois un grupo o instituto? <strong className="text-neon mx-1">Planes para centros educativos →</strong>
                         </button>
                         <a
-                            href="mailto:info@tech4u.academy?subject=Consulta%20Grupo%20Academia"
+                            href="mailto:info@tech4uacademy.es?subject=Consulta%20Grupo%20Academia"
                             className="inline-flex items-center gap-2 px-8 py-3.5 bg-neon text-black font-black uppercase tracking-widest text-xs rounded-xl hover:shadow-[0_0_30px_rgba(198,255,51,0.4)] transition-all"
                         >
                             <MessageCircle className="w-4 h-4" /> Contactar con Soporte

@@ -14,6 +14,7 @@ import AnnouncementPopup from '../components/AnnouncementPopup'
 import StreakCounter from '../components/StreakCounter'
 import ProgressBar from '../components/ProgressBar'
 import PageHeader from '../components/PageHeader'
+import ResumeWidget from '../components/ResumeWidget'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
@@ -320,6 +321,9 @@ export default function Dashboard() {
                             style={{ background: 'linear-gradient(90deg, transparent, rgba(198,255,51,0.3), transparent)' }} />
                     </div>
                 )}
+
+                {/* ── Continuar donde lo dejaste (usuarios con actividad) ── */}
+                {!showWelcome && <ResumeWidget />}
 
                 {/* Reward Alert */}
                 {hasPendingRewards && (

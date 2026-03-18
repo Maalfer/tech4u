@@ -59,7 +59,7 @@ def generate_certificate_pdf(user: User, certificate_id: str) -> bytes:
     - Student name
     - Date issued
     - Certificate ID
-    - Footer with tech4u.academy
+    - Footer with tech4uacademy.es
     """
 
     if not HAS_REPORTLAB:
@@ -113,7 +113,7 @@ def generate_certificate_pdf(user: User, certificate_id: str) -> bytes:
     # --- Footer ---
     c.setFont("Helvetica", 10)
     c.setFillColor(HexColor("#999999"))
-    c.drawString(width / 2 - 80, 50, "tech4u.academy")
+    c.drawString(width / 2 - 80, 50, "tech4uacademy.es")
 
     c.save()
     pdf_buffer.seek(0)
@@ -172,7 +172,7 @@ def get_sql_certificate(
             "issued_date": today.isoformat(),
             "certificate_id": certificate_id,
             "academy": "Tech4U Academy",
-            "website": "tech4u.academy",
+            "website": "tech4uacademy.es",
         },
         "message": "PDF generation not available, here is your certificate data",
     })

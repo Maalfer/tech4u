@@ -73,7 +73,7 @@ export default function MiReferral() {
 
     const copyCode = () => {
         if (!stats?.referral_code) return;
-        const link = `https://tech4u.academy/?ref=${stats.referral_code}`;
+        const link = `https://tech4uacademy.es/?ref=${stats.referral_code}`;
         navigator.clipboard.writeText(link).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2500);
@@ -85,7 +85,7 @@ export default function MiReferral() {
 
     const shareWhatsApp = () => {
         if (!stats?.referral_code) return;
-        const link = `https://tech4u.academy/?ref=${stats.referral_code}`;
+        const link = `https://tech4uacademy.es/?ref=${stats.referral_code}`;
         const text = encodeURIComponent(
             `🚀 Únete a Tech4U Academy y domina la FP de ASIR con labs reales de Linux, SQL, redes y ciberseguridad.\n\nUsa mi enlace y obtendrás un 10% de descuento en tu primera suscripción:\n${link}`
         );
@@ -96,7 +96,7 @@ export default function MiReferral() {
     };
 
     const referralLink = stats?.referral_code
-        ? `tech4u.academy/?ref=${stats.referral_code}`
+        ? `tech4uacademy.es/?ref=${stats.referral_code}`
         : null;
 
     // Progress to next free month

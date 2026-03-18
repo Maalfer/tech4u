@@ -272,7 +272,7 @@ export default function BattleArena() {
     };
 
     const shareWhatsApp = () => {
-        const text = encodeURIComponent(`⚔️ ¡Te reto a una batalla en Tech4U Academy! Código de sala: *${roomCode}*\nEntra en tech4u.academy → Battle Arena y úsalo. ¡Te espero!`);
+        const text = encodeURIComponent(`⚔️ ¡Te reto a una batalla en Tech4U Academy! Código de sala: *${roomCode}*\nEntra en tech4uacademy.es → Battle Arena y úsalo. ¡Te espero!`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
     };
 

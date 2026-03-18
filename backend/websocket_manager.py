@@ -1,9 +1,12 @@
 from typing import List, Dict
 import json
+import logging
 import os
 import asyncio
 from fastapi import WebSocket
 import redis.asyncio as redis
+
+logger = logging.getLogger(__name__)
 
 class ConnectionManager:
     def __init__(self):
@@ -25,7 +28,7 @@ class ConnectionManager:
                 self.redis = redis.from_url(self.redis_url, decode_responses=True)
                 self.pubsub_task = asyncio.create_task(self._listen_to_redis())
             except Exception as e:
-                print(f"Redis connection error: {e}")
+                logger.error(f"Redis connection error: {e}")
 
     def disconnect(self, user_id: int, websocket: WebSocket):
         if user_id in self.active_connections:

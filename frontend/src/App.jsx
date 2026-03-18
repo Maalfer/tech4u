@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
@@ -8,6 +8,7 @@ import PremiumRoute from './components/PremiumRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import CookieBanner from './components/CookieBanner';
+import SearchModal from './components/SearchModal';
 import { useAuth } from './context/AuthContext';
 import { trackEvent } from './utils/analytics';
 import useUserStore from './store/userStore';
@@ -73,6 +74,7 @@ const ResourceViewer = lazy(() => import('./pages/ResourceViewer'));
 const Flashcards = lazy(() => import('./pages/Flashcards'));
 const Cybersecurity = lazy(() => import('./pages/Cybersecurity'));
 const MyCourses = lazy(() => import('./pages/MyCourses'));
+const MiAprendizaje = lazy(() => import('./pages/MiAprendizaje'));
 const LabsPage = lazy(() => import('./pages/LabsPage'));
 const LabDetail = lazy(() => import('./pages/LabDetail'));
 const SQLSkillsPage = lazy(() => import('./pages/SQLSkillsPage'));
@@ -160,6 +162,22 @@ const SEOCiberseguridadAsir = lazy(() => import('./pages/SEOCiberseguridadAsir')
 const ChangelogPage = lazy(() => import('./pages/ChangelogPage'));
 
 
+// ── Global Ctrl+K Search Provider ─────────────────────────────────────────────
+function GlobalSearch() {
+  const [searchOpen, setSearchOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(o => !o);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+  return <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -170,6 +188,7 @@ export default function App() {
               <PageViewTracker />
               <PWAInstallPrompt />
               <CookieBanner />
+              <GlobalSearch />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
               <Route path="/" element={<LandingPage />} />
@@ -220,6 +239,7 @@ export default function App() {
               <Route path="/watch/:id" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
               <Route path="/certificacion/:slug" element={<PremiumRoute><CertificacionPlayer /></PremiumRoute>} />
               <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
+              <Route path="/mi-aprendizaje" element={<ProtectedRoute><MiAprendizaje /></ProtectedRoute>} />
               <Route path="/video-courses" element={<PremiumRoute><VideoCoursesList /></PremiumRoute>} />
               <Route path="/video-courses/:id" element={<PremiumRoute><VideoCourseDetail /></PremiumRoute>} />
 

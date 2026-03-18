@@ -15,6 +15,9 @@ Flujo:
 
 import os
 import hashlib
+import ipaddress
+import secrets
+import string
 from datetime import datetime, timedelta
 from typing import Optional, List
 
@@ -34,11 +37,54 @@ router = APIRouter(tags=["Referrals"])
 # ─────────────────────────────────────────────────────────
 
 def _get_client_ip(request: Request) -> str:
-    """Extrae la IP real del cliente (compatible con proxies)."""
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    """
+    Extrae la IP real del cliente de forma segura.
+
+    SEC-04 FIX: X-Forwarded-For solo se acepta si la conexión llega de una IP o
+    rango CIDR de proxy confiable configurado en TRUSTED_PROXY_IPS (variable de
+    entorno, separadas por comas). Soporta tanto IPs exactas como rangos CIDR
+    (ej: 173.245.48.0/20 para Cloudflare).
+
+    Si no hay proxy confiable configurado, se usa directamente la IP de la conexión
+    TCP, que no puede ser falsificada por el cliente.
+
+    Ejemplos de TRUSTED_PROXY_IPS:
+      - Solo nginx local:  127.0.0.1,::1
+      - Cloudflare:        173.245.48.0/20,103.21.244.0/22,...
+    """
+    trusted_entries = [
+        e.strip()
+        for e in os.getenv("TRUSTED_PROXY_IPS", "").split(",")
+        if e.strip()
+    ]
+
+    connection_ip = request.client.host if request.client else "unknown"
+
+    if trusted_entries and connection_ip != "unknown":
+        try:
+            conn_addr = ipaddress.ip_address(connection_ip)
+            for entry in trusted_entries:
+                try:
+                    if "/" in entry:
+                        # Rango CIDR (ej. rangos de Cloudflare: 173.245.48.0/20)
+                        if conn_addr in ipaddress.ip_network(entry, strict=False):
+                            forwarded_for = request.headers.get("X-Forwarded-For", "")
+                            if forwarded_for:
+                                return forwarded_for.split(",")[0].strip()
+                            break
+                    else:
+                        # IP exacta (ej. nginx en la misma máquina: 127.0.0.1)
+                        if connection_ip == entry:
+                            forwarded_for = request.headers.get("X-Forwarded-For", "")
+                            if forwarded_for:
+                                return forwarded_for.split(",")[0].strip()
+                            break
+                except ValueError:
+                    continue  # Entrada malformada en TRUSTED_PROXY_IPS — se ignora
+        except ValueError:
+            pass  # connection_ip no es una IP válida
+
+    return connection_ip
 
 
 def _count_recent_registrations_from_ip(db: Session, ip: str, referrer_id: int, hours: int = 24) -> int:
@@ -240,16 +286,16 @@ def generate_my_referral_code(
     if current_user.referral_code:
         return {"referral_code": current_user.referral_code}
 
+    # SEC-14 FIX: usar secrets para el sufijo en lugar de MD5(id+email) predecible
     base = f"T4U{current_user.nombre[:4].upper().replace(' ', '')}"
-    suffix = hashlib.md5(f"{current_user.id}{current_user.email}".encode()).hexdigest()[:4].upper()
+    _alphabet = string.ascii_uppercase + string.digits
+    suffix = ''.join(secrets.choice(_alphabet) for _ in range(6))
     code = f"{base}{suffix}"
 
-    # Garantizar unicidad
-    attempts = 0
+    # Garantizar unicidad con sufijos seguros adicionales si colisión
     while db.query(User).filter(User.referral_code == code).first():
-        suffix = hashlib.md5(f"{current_user.id}{current_user.email}{attempts}".encode()).hexdigest()[:4].upper()
+        suffix = ''.join(secrets.choice(_alphabet) for _ in range(6))
         code = f"{base}{suffix}"
-        attempts += 1
 
     current_user.referral_code = code
     db.commit()
@@ -465,7 +511,11 @@ def admin_flag_fraud(
     if was_confirmed:
         referrer = db.query(User).filter(User.id == referral.referrer_id).first()
         if referrer:
-            referrer.referral_reward_count = max(0, (referrer.referral_reward_count or 0) - 1)
+            current_count = referrer.referral_reward_count or 0
+            # Si este referido era el que disparó un hito (10º, 20º, 30º...), revertir el mes gratis
+            if current_count > 0 and current_count % 10 == 0:
+                referrer.free_months_accumulated = max(0, (referrer.free_months_accumulated or 0) - 1)
+            referrer.referral_reward_count = max(0, current_count - 1)
             referrer.pending_10p_discounts = max(0, (referrer.pending_10p_discounts or 0) - 1)
 
     db.commit()

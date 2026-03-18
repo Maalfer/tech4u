@@ -8,7 +8,7 @@ from sqlalchemy import or_
 from websocket_manager import manager
 from database import get_db, Lab, User, SkillPath, Module, TheorySubject, TheoryPost, Challenge
 from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements, subscriptions, video_courses, coupons_admin, leaderboard, support, skill_labs, paypal, achievements, labs, teoria, sql_skills, battle, certificates
-from routers import referrals, analytics, oauth, flashcard_spaced
+from routers import referrals, analytics, oauth, flashcard_spaced, search
 
 from docker_client import docker_launcher
 from auth import decode_token, get_current_user
@@ -99,17 +99,35 @@ async def security_middleware(request: Request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-    # CSP: permissive enough for the SPA but blocks framing and unknown scripts
+
+    # SEC-10 FIX: Strict-Transport-Security — fuerza HTTPS en el navegador
+    # max-age=31536000 (1 año). Solo activar si el servidor usa HTTPS en producción.
+    if os.getenv("ENVIRONMENT", "development") == "production":
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains; preload"
+        )
+
+    # SEC-09 FIX: CSP reforzada — eliminados unsafe-inline y unsafe-eval donde es posible.
+    # unsafe-inline en script-src se mantiene para el SDK de PayPal que lo requiere,
+    # pero se ha eliminado unsafe-eval (no es necesario en producción).
+    # Si el frontend se migra a nonces/hashes, eliminar también unsafe-inline.
+    _paypal_mode = os.getenv("PAYPAL_MODE", "sandbox")
+    _paypal_domains = "https://www.paypal.com https://www.paypalobjects.com"
+    if _paypal_mode != "live":
+        # Solo incluir sandbox.paypal.com en entornos que no sean producción live
+        _paypal_domains += " https://www.sandbox.paypal.com"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com; "
+        f"script-src 'self' 'unsafe-inline' {_paypal_domains}; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com data:; "
         "img-src 'self' data: blob: https:; "
         "media-src 'self' blob: https:; "
         "connect-src 'self' wss: ws: https:; "
-        "frame-src https://www.paypal.com https://www.sandbox.paypal.com; "
-        "frame-ancestors 'none';"
+        f"frame-src {_paypal_domains}; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self'; "
+        f"form-action 'self' {_paypal_domains};"
     )
     return response
 
@@ -1529,6 +1547,10 @@ async def startup():
             "CREATE INDEX IF NOT EXISTS ix_users_reset_token ON users (reset_token);",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS ciclo VARCHAR;",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE;",
+            # SEC-05 FIX: token_version para revocación de JWT sin blacklist
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS token_version INTEGER DEFAULT 0;",
+            # SEC-03 FIX: pending_uses para reserva atómica de cupones
+            "ALTER TABLE coupons ADD COLUMN IF NOT EXISTS pending_uses INTEGER DEFAULT 0;",
             # eJPTv2 video course migrations
             "ALTER TABLE video_courses ADD COLUMN IF NOT EXISTS slug VARCHAR UNIQUE;",
             "CREATE INDEX IF NOT EXISTS ix_video_courses_slug ON video_courses (slug);",
@@ -1550,16 +1572,26 @@ async def startup():
         from sqlalchemy import text, inspect as sa_inspect
         with engine.connect() as conn:
             inspector = sa_inspect(engine)
-            existing_cols = [c["name"] for c in inspector.get_columns("users")]
+            existing_user_cols = [c["name"] for c in inspector.get_columns("users")]
+            try:
+                existing_coupon_cols = [c["name"] for c in inspector.get_columns("coupons")]
+            except Exception:
+                existing_coupon_cols = []
         _safe_columns = []
-        if "reset_token" not in existing_cols:
+        if "reset_token" not in existing_user_cols:
             _safe_columns.append("ALTER TABLE users ADD COLUMN reset_token VARCHAR;")
-        if "reset_token_expiry" not in existing_cols:
+        if "reset_token_expiry" not in existing_user_cols:
             _safe_columns.append("ALTER TABLE users ADD COLUMN reset_token_expiry DATETIME;")
-        if "ciclo" not in existing_cols:
+        if "ciclo" not in existing_user_cols:
             _safe_columns.append("ALTER TABLE users ADD COLUMN ciclo VARCHAR;")
-        if "onboarding_completed" not in existing_cols:
+        if "onboarding_completed" not in existing_user_cols:
             _safe_columns.append("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT 0;")
+        # SEC-05 FIX: token_version para revocación de JWT
+        if "token_version" not in existing_user_cols:
+            _safe_columns.append("ALTER TABLE users ADD COLUMN token_version INTEGER DEFAULT 0;")
+        # SEC-03 FIX: pending_uses para reserva atómica de cupones
+        if "pending_uses" not in existing_coupon_cols:
+            _safe_columns.append("ALTER TABLE coupons ADD COLUMN pending_uses INTEGER DEFAULT 0;")
 
     if _safe_columns:
         from sqlalchemy import text
@@ -1640,6 +1672,7 @@ app.include_router(achievements.router)
 app.include_router(labs.router)
 app.include_router(teoria.router)
 app.include_router(referrals.router)
+app.include_router(search.router)
 app.include_router(sql_skills.router)
 app.include_router(battle.router)
 app.include_router(certificates.router)

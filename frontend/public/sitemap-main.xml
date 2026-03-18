@@ -3,87 +3,126 @@
 
   <!-- ── Homepage ─────────────────────────────────────── -->
   <url>
-    <loc>https://tech4u.academy/</loc>
+    <loc>https://tech4uacademy.es/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- ── Pricing ──────────────────────────────────────── -->
   <url>
-    <loc>https://tech4u.academy/planes</loc>
+    <loc>https://tech4uacademy.es/planes</loc>
     <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- ── Ciberseguridad (video course hub) ─────────────── -->
+  <url>
+    <loc>https://tech4uacademy.es/ciberseguridad</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <!-- ── Explore ──────────────────────────────────────── -->
   <url>
-    <loc>https://tech4u.academy/explora</loc>
+    <loc>https://tech4uacademy.es/explora</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>
-
-  <!-- ── SEO Landing Pages ────────────────────────────── -->
-  <url>
-    <loc>https://tech4u.academy/linux-terminal-exercises</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://tech4u.academy/sql-practice</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://tech4u.academy/ciberseguridad-labs</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://tech4u.academy/redes-informaticas</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
   </url>
 
   <!-- ── Theory index ─────────────────────────────────── -->
   <url>
-    <loc>https://tech4u.academy/teoria</loc>
+    <loc>https://tech4uacademy.es/teoria</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tech4u.academy/teoria/redes</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tech4u.academy/teoria/sistemas-operativos</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tech4u.academy/teoria/bases-de-datos</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tech4u.academy/teoria/hardware</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tech4u.academy/teoria/lenguaje-de-marcas</loc>
+    <loc>https://tech4uacademy.es/teoria/redes</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/teoria/sistemas-operativos</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/teoria/bases-de-datos</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/teoria/hardware</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/teoria/lenguaje-de-marcas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ── SEO Landing Pages — General ─────────────────── -->
+  <url>
+    <loc>https://tech4uacademy.es/linux-terminal-exercises</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/sql-practice</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/ciberseguridad-labs</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/redes-informaticas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- ── SEO Landing Pages — ASIR ─────────────────────── -->
+  <url>
+    <loc>https://tech4uacademy.es/plataforma-asir</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/labs-linux-asir</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/sql-practice-asir</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/ciberseguridad-asir</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
   </url>
 
   <!-- ── Legal ────────────────────────────────────────── -->
   <url>
-    <loc>https://tech4u.academy/aviso-legal</loc>
+    <loc>https://tech4uacademy.es/aviso-legal</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://tech4u.academy/privacidad</loc>
+    <loc>https://tech4uacademy.es/privacidad</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/terminos</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://tech4uacademy.es/cookies</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
     Trophy, Skull, RefreshCw, ArrowRight, Info,
     CheckCircle, XCircle, Star, Gift, Zap,
-    Shield, Flame, ChevronDown, ChevronUp
+    Shield, Flame, ChevronDown, ChevronUp, Share2, Copy, Check
 } from 'lucide-react'
 import { fireConfetti, firePerfectScore } from '../utils/confetti'
 
@@ -72,9 +72,29 @@ export default function TestResults({ results, selectedSubject, mode, onReset, o
     const navigate = useNavigate()
     const [visible, setVisible] = useState(false)
     const [showReview, setShowReview] = useState(false)
+    const [copied, setCopied] = useState(false)
 
     const passed = (results?.accuracy ?? 0) >= 50
     const wrong = (results?.total ?? 0) - (results?.correct ?? 0)
+
+    const shareResult = () => {
+        const subject = selectedSubject?.label || 'Examen General'
+        const accuracy = (results?.accuracy ?? 0).toFixed(0)
+        const correct = results?.correct ?? 0
+        const total = results?.total ?? 0
+        const xp = results?.xp_gained ?? 0
+        const emoji = accuracy >= 70 ? '🔥' : accuracy >= 50 ? '💪' : '📚'
+        const text = `${emoji} Acabo de hacer un test de ${subject} en Tech4U Academy: ${accuracy}% de precisión (${correct}/${total}) ${xp > 0 ? `+${xp} XP` : ''}. ¡Preparando mi FP de Informática! 🚀 tech4uacademy.es`
+
+        if (navigator.share) {
+            navigator.share({ text, url: 'https://tech4uacademy.es' }).catch(() => {})
+        } else {
+            navigator.clipboard.writeText(text).then(() => {
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2500)
+            })
+        }
+    }
 
     useEffect(() => {
         const t = setTimeout(() => setVisible(true), 80)
@@ -274,6 +294,15 @@ export default function TestResults({ results, selectedSubject, mode, onReset, o
 
                         {/* Action buttons */}
                         <div className="flex gap-3 justify-center flex-wrap">
+                            {/* Share result */}
+                            <button
+                                onClick={shareResult}
+                                className="flex items-center gap-2 px-5 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-lime-400/30 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-lime-400"
+                                title="Compartir resultado"
+                            >
+                                {copied ? <Check className="w-4 h-4 text-lime-400" /> : <Share2 className="w-4 h-4" />}
+                                {copied ? 'Copiado' : 'Compartir'}
+                            </button>
                             <button
                                 onClick={onReset}
                                 className="flex items-center gap-2 px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-300 hover:text-white"

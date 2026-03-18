@@ -34,7 +34,7 @@ from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
 
 from database import OAuthAccount, User, get_db
-from auth import create_access_token
+from auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from limiter import limiter
 
 log = logging.getLogger(__name__)
@@ -239,16 +239,34 @@ def _login_or_create_user(
 
     # ── Emitir JWT interno ─────────────────────────────────────────────────────
     try:
-        jwt = create_access_token(data={"sub": str(user.id)})
+        # SEC-05: incluir token_version para soportar revocación de sesión
+        jwt = create_access_token(data={"sub": str(user.id), "ver": user.token_version or 0})
     except Exception:
         log.exception(
             "oauth:jwt_error provider=%s user_id=%d", provider, user.id
         )
         return RedirectResponse(f"{FRONTEND_URL}/login?error=token_failed")
 
-    dest = RedirectResponse(
-        f"{FRONTEND_URL}/oauth/callback?token={jwt}&provider={provider}"
+    # Redirigir al frontend — el token viaja en httpOnly cookies (igual que el login normal)
+    dest = RedirectResponse(f"{FRONTEND_URL}/oauth/callback?provider={provider}")
+
+    # Configuración de cookie igual que en auth.py login
+    secure_cookie = IS_PROD
+    cookie_domain = ".tech4uacademy.es" if IS_PROD else None
+    samesite = "Lax"
+
+    dest.set_cookie(
+        key="tech4u_token",
+        value=jwt,
+        httponly=True,
+        secure=secure_cookie,
+        samesite=samesite,
+        domain=cookie_domain,
+        path="/",
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
+    # SEC-12 FIX: eliminada cookie legacy access_token del flujo OAuth
+
     _clear_state_cookie(dest)
     return dest
 

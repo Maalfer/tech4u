@@ -36,6 +36,7 @@ import {
     BarChart2,
     Menu,
     X as XIcon,
+    Search,
 } from 'lucide-react';
 import api from '../services/api';
 import logoImg from '../assets/tech4u_logo.png';
@@ -100,6 +101,7 @@ export default function Sidebar() {
     // --- ALUMNO SPECIFIC GROUPS ---
     const studentStatsGroup = [
         { icon: Compass, iconColor: 'text-sky-400', iconBg: 'bg-sky-500/10', label: 'Explora', path: '/explora' },
+        { icon: BookOpen, iconColor: 'text-orange-400', iconBg: 'bg-orange-500/10', label: 'Mi Aprendizaje', path: '/mi-aprendizaje' },
         { icon: UserCircle, iconColor: 'text-purple-400', iconBg: 'bg-purple-500/10', label: 'Mi Personaje', path: '/personaje' },
         { icon: CreditCard, iconColor: 'text-amber-400', iconBg: 'bg-amber-500/10', label: 'Mi Suscripción', path: '/suscripcion/gestionar' },
         { icon: BarChart3, iconColor: 'text-blue-400', iconBg: 'bg-blue-500/10', label: 'Test Stats', path: '/test-stats' },
@@ -212,6 +214,25 @@ export default function Sidebar() {
                     <NavIcon icon={dashboardItem.icon} color={dashboardItem.iconColor} bg={dashboardItem.iconBg} />
                     {dashboardItem.label}
                 </NavLink>
+
+                {/* BÚSQUEDA GLOBAL — Ctrl+K */}
+                <button
+                    onClick={() => {
+                        const ev = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true });
+                        window.dispatchEvent(ev);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border border-white/8 bg-white/3 hover:bg-white/6 hover:border-lime-400/30 transition-all duration-200 group mt-1"
+                >
+                    <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-slate-500/10">
+                        <Search className="w-4 h-4 text-slate-500 group-hover:text-lime-400 transition-colors" />
+                    </div>
+                    <span className="flex-1 text-left text-[12px] font-mono text-slate-500 group-hover:text-slate-300 transition-colors">
+                        Buscar...
+                    </span>
+                    <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-mono text-slate-600 group-hover:text-slate-400 transition-colors">
+                        Ctrl K
+                    </kbd>
+                </button>
 
                 {/* SUSCRIPCIÓN ALERT — solo alumnos sin plan */}
                 {user.role === 'alumno' && (user.subscription_type === 'free' || !user.subscription_type) && (

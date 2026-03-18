@@ -20,7 +20,7 @@ export default function AdminCoupons() {
         max_uses: 1,
         description: '',
         expiry_date: '',
-        plan_applicable: 'all',
+        applicable_plans: 'all',
         assigned_to_email: '',
         is_active: true
     });
@@ -58,7 +58,7 @@ export default function AdminCoupons() {
                 max_uses: formData.max_uses,
                 description: formData.description || null,
                 expiry_date: formData.expiry_date || null,
-                plan_applicable: formData.plan_applicable,
+                applicable_plans: formData.applicable_plans,
                 assigned_to_email: formData.assigned_to_email || null,
                 is_active: formData.is_active
             });
@@ -70,7 +70,7 @@ export default function AdminCoupons() {
                 max_uses: 1,
                 description: '',
                 expiry_date: '',
-                plan_applicable: 'all',
+                applicable_plans: 'all',
                 assigned_to_email: '',
                 is_active: true
             });
@@ -111,20 +111,16 @@ export default function AdminCoupons() {
         setGroupProgress({ current: 0, total: emails.length });
 
         try {
-            for (let i = 0; i < emails.length; i++) {
-                const code = `${groupFormData.prefix}_${String(i + 1).padStart(3, '0')}`;
-                await api.post('/admin/coupons', {
-                    code: code.toUpperCase(),
-                    discount_percent: groupFormData.discount,
-                    max_uses: 1,
-                    description: `Cupón grupo: ${groupFormData.groupName}`,
-                    assigned_to_email: emails[i],
-                    is_active: true
-                });
-                setGroupProgress({ current: i + 1, total: emails.length });
-            }
+            // Una sola llamada al endpoint bulk — genera códigos con sufijo aleatorio criptográfico
+            const res = await api.post('/admin/coupons/bulk', {
+                code_prefix: groupFormData.prefix.toUpperCase().replace(/\s+/g, ''),
+                discount_percent: groupFormData.discount,
+                group_name: groupFormData.groupName,
+                emails: emails,
+            });
+            setGroupProgress({ current: emails.length, total: emails.length });
             showNotification(
-                `✅ ${emails.length} cupones generados para el grupo ${groupFormData.groupName}`,
+                `✅ ${res.data.length} cupones generados para el grupo ${groupFormData.groupName}`,
                 'success'
             );
             setGroupFormData({ groupName: '', discount: 10, prefix: '', emails: '' });
@@ -132,7 +128,7 @@ export default function AdminCoupons() {
             setActiveTab('list');
             fetchCoupons();
         } catch (err) {
-            showNotification('Error al generar cupones del grupo', 'error');
+            showNotification(err.response?.data?.detail || 'Error al generar cupones del grupo', 'error');
             setGroupProgress(null);
         }
     };
@@ -255,7 +251,7 @@ export default function AdminCoupons() {
                                             </td>
                                             <td className="p-4 text-center">
                                                 <span className="text-[9px] text-slate-400 font-mono">
-                                                    {c.plan_applicable === 'all' ? 'Todos' : c.plan_applicable === 'monthly' ? 'Mensual' : c.plan_applicable === 'quarterly' ? 'Trimestral' : 'Anual'}
+                                                    {c.applicable_plans === 'all' ? 'Todos' : c.applicable_plans === 'monthly' ? 'Mensual' : c.applicable_plans === 'quarterly' ? 'Trimestral' : 'Anual'}
                                                 </span>
                                             </td>
                                             <td className="p-4 text-center">
@@ -472,8 +468,8 @@ export default function AdminCoupons() {
                                     <label className="block text-[10px] text-slate-400 font-mono uppercase mb-1">Plan Aplicable</label>
                                     <select
                                         className="w-full bg-black border border-slate-700 rounded-lg px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon"
-                                        value={formData.plan_applicable}
-                                        onChange={e => setFormData({ ...formData, plan_applicable: e.target.value })}
+                                        value={formData.applicable_plans}
+                                        onChange={e => setFormData({ ...formData, applicable_plans: e.target.value })}
                                     >
                                         <option value="all">Todos los planes</option>
                                         <option value="monthly">Solo Mensual</option>

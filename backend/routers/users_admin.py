@@ -304,6 +304,8 @@ def reset_password_admin(
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
         
     user.password_hash = hash_password(data.password)
+    # SEC-11 FIX: invalidar tokens activos del usuario al cambiar su contraseña desde admin
+    user.token_version = (user.token_version or 0) + 1
     db.commit()
     db.refresh(user)
     return user

@@ -802,6 +802,7 @@ def admin_recompute_expected(exercise_id: int, db: Session = Depends(get_db), _:
     try:
         ex.expected_result = _compute_expected(dataset.schema_sql, dataset.seed_sql, ex.solution_sql)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Error al recomputar expected del ejercicio {exercise_id}: {e}")
+        raise HTTPException(status_code=400, detail="La solución SQL del ejercicio no es válida. Revisa la query.")
     db.commit()
     return {"ok": True}

@@ -51,9 +51,11 @@ def _get_access_token() -> str:
         timeout=10,
     )
     if resp.status_code != 200:
+        # SEC-08 FIX: loggear el detalle interno, exponer solo mensaje genérico
+        logger.error(f"PayPal auth error: status={resp.status_code} body={resp.text}")
         raise HTTPException(
             status_code=502,
-            detail=f"PayPal auth error: {resp.status_code} — {resp.text}"
+            detail="Error de comunicación con PayPal. Inténtalo de nuevo o contacta con soporte."
         )
     return resp.json()["access_token"]
 
@@ -153,9 +155,11 @@ def create_paypal_order(
     )
 
     if resp.status_code not in (200, 201):
+        # SEC-08 FIX: loggear internamente, exponer mensaje genérico
+        logger.error(f"PayPal create-order error: status={resp.status_code} body={resp.text}")
         raise HTTPException(
             status_code=502,
-            detail=f"PayPal create-order error {resp.status_code}: {resp.text}"
+            detail="Error al crear el pedido en PayPal. Inténtalo de nuevo."
         )
 
     data = resp.json()
@@ -212,11 +216,13 @@ def capture_paypal_order(
     )
 
     if resp.status_code not in (200, 201):
+        # SEC-08 FIX: loggear internamente, exponer mensaje genérico
+        logger.error(f"PayPal capture error: order_id={order_id} status={resp.status_code} body={resp.text}")
         order_rec.status = "FAILED"
         db.commit()
         raise HTTPException(
             status_code=502,
-            detail=f"Error al capturar el pago en PayPal: {resp.text}"
+            detail="Error al capturar el pago. Inténtalo de nuevo o contacta con soporte."
         )
 
     capture_data = resp.json()
@@ -241,8 +247,20 @@ def capture_paypal_order(
                     f"con el esperado ({expected_amount}€)"
                 ),
             )
-    except (KeyError, IndexError, TypeError, ValueError):
-        pass  # unexpected PayPal response shape — proceed but don't block
+    except (KeyError, IndexError, TypeError, ValueError) as parse_err:
+        # SEC-02 FIX: si no podemos verificar el importe, NO activar la suscripción.
+        # Loggeamos para diagnóstico y devolvemos error al cliente.
+        logger.error(
+            f"PayPal capture: no se pudo verificar el importe capturado "
+            f"para order_id={order_id}, user_id={current_user.id}. "
+            f"Error de parsing: {parse_err}. Respuesta PayPal: {capture_data}"
+        )
+        order_rec.status = "FAILED"
+        db.commit()
+        raise HTTPException(
+            status_code=502,
+            detail="Error al verificar el importe del pago. Contacta con soporte."
+        )
 
     # 4. Activate subscription
     order_rec.status                = "CAPTURED"

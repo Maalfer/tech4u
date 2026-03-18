@@ -822,7 +822,7 @@ export default function LandingPage() {
                             <a href={import.meta.env.VITE_EDU_APP || 'http://localhost:5174'} style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', padding: '12px 24px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', transition: 'all 0.2s' }}>
                                 Portal Docente
                             </a>
-                            <a href="mailto:info@tech4u.academy" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#000', textDecoration: 'none', padding: '12px 24px', background: '#00ff64', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <a href="mailto:info@tech4uacademy.es" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#000', textDecoration: 'none', padding: '12px 24px', background: '#00ff64', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <MessageCircle style={{ width: '13px', height: '13px' }} /> Contactar
                             </a>
                         </div>
@@ -955,12 +955,12 @@ export default function LandingPage() {
                                 <p style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '12px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.7, marginBottom: '14px' }}>
                                     ¿Dudas o sugerencias? Escríbenos directamente.
                                 </p>
-                                <a href="mailto:info@tech4u.academy"
+                                <a href="mailto:info@tech4uacademy.es"
                                     style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '12px', color: 'rgba(0,255,100,0.75)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '24px', transition: 'color 0.2s' }}
                                     onMouseEnter={e => e.currentTarget.style.color = '#00ff64'}
                                     onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,255,100,0.75)'}>
                                     <Mail style={{ width: '12px', height: '12px' }} />
-                                    info@tech4u.academy
+                                    info@tech4uacademy.es
                                 </a>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     {[['Política de Privacidad', '/privacidad'], ['Política de Cookies', '/cookies'], ['Condiciones de Venta', '/terminos']].map(([l, h]) => (

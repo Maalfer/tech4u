@@ -44,6 +44,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
+    # SEC-05: el campo 'ver' (token_version) permite invalidar tokens sin lista negra
+    # Se incluye en el payload; get_current_user lo verifica contra la BD
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def decode_token(token: str) -> dict:
@@ -85,6 +87,19 @@ def get_current_user(
     user = db.query(User).filter(User.id == int(user_id)).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # SEC-05 FIX: validar token_version para permitir revocación inmediata de sesiones.
+    # Si el admin o el propio usuario cambia la contraseña, token_version se incrementa
+    # y todos los tokens anteriores quedan automáticamente invalidados.
+    token_ver = payload.get("ver", 0)
+    db_ver = user.token_version or 0
+    if int(token_ver) != int(db_ver):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sesión revocada. Por favor, inicia sesión de nuevo.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     return user
 
 def get_optional_user(
@@ -108,7 +123,15 @@ def get_optional_user(
         user_id = payload.get("sub")
         if user_id is None:
             return None
-        return db.query(User).filter(User.id == int(user_id)).first()
+        user = db.query(User).filter(User.id == int(user_id)).first()
+        if not user:
+            return None
+        # SEC-05 FIX: validar token_version también en rutas opcionales
+        token_ver = payload.get("ver", 0)
+        db_ver = user.token_version or 0
+        if int(token_ver) != int(db_ver):
+            return None
+        return user
     except Exception:
         return None
 

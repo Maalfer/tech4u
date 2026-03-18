@@ -78,7 +78,8 @@ class UserSubscriptionUpdate(BaseModel):
 
 
 class AdminPasswordReset(BaseModel):
-    password: str = Field(..., min_length=6)
+    # SEC-13 FIX: contraseñas admin con el mismo estándar que usuarios normales (≥12 chars)
+    password: str = Field(..., min_length=12)
 
 
 class AdminProfileUpdate(BaseModel):

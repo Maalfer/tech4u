@@ -200,7 +200,7 @@ export default function ParaCentros() {
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-4">
                         <a
-                            href="mailto:info@tech4u.academy?subject=Consulta%20Planes%20Centros"
+                            href="mailto:info@tech4uacademy.es?subject=Consulta%20Planes%20Centros"
                             className="flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-neon text-black font-black uppercase tracking-wider text-sm hover:shadow-[0_0_30px_rgba(198,255,51,0.4)] transition-all"
                         >
                             <Mail className="w-4 h-4" />
@@ -347,7 +347,7 @@ export default function ParaCentros() {
 
                     <p className="text-center text-[11px] font-mono text-slate-600 mt-6">
                         ¿Necesitas más de 100 licencias o un acuerdo personalizado?{' '}
-                        <a href="mailto:info@tech4u.academy?subject=Acuerdo%20Personalizado" className="text-neon hover:underline">Contáctanos →</a>
+                        <a href="mailto:info@tech4uacademy.es?subject=Acuerdo%20Personalizado" className="text-neon hover:underline">Contáctanos →</a>
                     </p>
                 </section>
 
@@ -374,7 +374,7 @@ export default function ParaCentros() {
                             Escríbenos y te preparamos una demo personalizada para tu centro en menos de 24 horas. Sin compromisos.
                         </p>
                         <a
-                            href="mailto:info@tech4u.academy?subject=Demo%20Tech4U%20Para%20Centros"
+                            href="mailto:info@tech4uacademy.es?subject=Demo%20Tech4U%20Para%20Centros"
                             className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl bg-neon text-black font-black uppercase tracking-widest text-sm hover:shadow-[0_0_40px_rgba(198,255,51,0.4)] transition-all"
                         >
                             <Mail className="w-5 h-5" />
@@ -385,7 +385,7 @@ export default function ParaCentros() {
 
                 {/* Footer */}
                 <footer className="border-t border-white/5 px-8 py-8 flex items-center justify-between max-w-6xl mx-auto">
-                    <span className="text-[11px] font-mono text-slate-600">© {new Date().getFullYear()} Tech4U Academy · info@tech4u.academy</span>
+                    <span className="text-[11px] font-mono text-slate-600">© {new Date().getFullYear()} Tech4U Academy · info@tech4uacademy.es</span>
                     <div className="flex gap-4">
                         <button onClick={() => navigate('/privacidad')} className="text-[10px] font-mono text-slate-700 hover:text-slate-400 transition-colors">Privacidad</button>
                         <button onClick={() => navigate('/terminos')} className="text-[10px] font-mono text-slate-700 hover:text-slate-400 transition-colors">Términos</button>

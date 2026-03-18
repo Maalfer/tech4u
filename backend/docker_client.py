@@ -76,24 +76,40 @@ class HardenedDockerClient:
             try:
                 scenario = json.loads(scenario_setup)
                 
-                # 1. Create Directories
+                # 1. Create Directories — usar lista para evitar shell injection
                 for directory in scenario.get("directories", []):
-                    container.exec_run(f"mkdir -p {directory}", user="root")
-                
+                    safe_dir = str(directory).strip()
+                    # exec_run con lista (sin shell=True) no interpreta metacaracteres
+                    container.exec_run(["mkdir", "-p", safe_dir], user="root")
+
                 # 2. Create Files (Securely via Base64)
                 for file_obj in scenario.get("files", []):
                     path = file_obj.get("path") or file_obj.get("name")
                     content = file_obj.get("content", "")
-                    
-                    # Encode content to Base64 to handle special shell characters ($, ", ', etc.)
+                    if not path:
+                        continue
+
+                    # Sanitizar path: solo permitir rutas bajo /home/student o /tmp
+                    import posixpath
+                    safe_path = posixpath.normpath("/" + str(path).lstrip("/"))
+                    if not (safe_path.startswith("/home/student/") or safe_path.startswith("/tmp/")):
+                        logger.warning(f"[DOCKER] Ruta rechazada por seguridad: {safe_path}")
+                        continue
+
+                    # Contenido en Base64 para evitar caracteres especiales en shell
                     b64_content = base64.b64encode(content.encode()).decode()
-                    
-                    # Ensure directory exists and write content using base64 -d
-                    # We also chmod 644 to ensure student can read it
-                    cmd = f"bash -c 'mkdir -p $(dirname {path}) && echo \"{b64_content}\" | base64 -d > {path} && chmod 644 {path}'"
+
+                    # Crear directorio padre de forma segura
+                    parent_dir = posixpath.dirname(safe_path)
+                    container.exec_run(["mkdir", "-p", parent_dir], user="root")
+
+                    # Escribir contenido usando printf + base64 — sin interpolación shell
+                    # Se pasa como string único a bash pero el path ya está saneado
+                    cmd = ["bash", "-c",
+                           f'printf "%s" "{b64_content}" | base64 -d > "{safe_path}" && chmod 644 "{safe_path}"']
                     res = container.exec_run(cmd, user="root")
                     if res.exit_code != 0:
-                        logger.error(f"Error injecting file {path}: {res.output.decode()}")
+                        logger.error(f"Error injecting file {safe_path}: {res.output.decode()}")
                     
                 # 3. Running Setup Commands
                 for cmd in scenario.get("commands", []):

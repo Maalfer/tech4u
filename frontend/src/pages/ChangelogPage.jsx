@@ -296,7 +296,7 @@ export default function ChangelogPage() {
                         ¿Tienes alguna sugerencia para la plataforma?
                     </p>
                     <a
-                        href="mailto:feedback@tech4u.academy"
+                        href="mailto:info@tech4uacademy.es"
                         style={{
                             display: 'inline-flex',
                             alignItems: 'center',

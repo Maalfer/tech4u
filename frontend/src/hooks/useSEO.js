@@ -10,7 +10,7 @@
 import { useEffect } from 'react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-export const BASE_URL = 'https://tech4u.academy';
+export const BASE_URL = 'https://tech4uacademy.es';
 export const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 export const SITE_NAME = 'Tech4U Academy';
 export const DEFAULT_DESCRIPTION =
@@ -112,7 +112,7 @@ export const schemaOrganization = () => ({
     url: BASE_URL,
     logo: `${BASE_URL}/favicon.svg`,
     description: DEFAULT_DESCRIPTION,
-    contactPoint: { '@type': 'ContactPoint', email: 'info@tech4u.academy', availableLanguage: 'Spanish' },
+    contactPoint: { '@type': 'ContactPoint', email: 'info@tech4uacademy.es', availableLanguage: 'Spanish' },
     sameAs: ['https://www.instagram.com/tech4uacademy', 'https://discord.gg/tech4u'],
     hasOfferCatalog: {
         '@type': 'OfferCatalog',

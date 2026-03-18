@@ -12,7 +12,20 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tech4u.db")
 # Only SQLite needs check_same_thread: False
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+# ── Connection pool (producción PostgreSQL) ───────────────────────────────────
+# pool_size: conexiones persistentes abiertas
+# max_overflow: conexiones extra permitidas bajo carga puntual
+# pool_pre_ping: verifica conexión antes de usarla (evita "connection closed" tras idle)
+# pool_recycle: renueva conexiones cada 30 min (evita timeout del servidor)
+IS_POSTGRES = DATABASE_URL.startswith("postgresql")
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    pool_size=10          if IS_POSTGRES else 5,
+    max_overflow=20       if IS_POSTGRES else 0,
+    pool_pre_ping=True,
+    pool_recycle=1800,    # 30 minutos
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -51,6 +64,9 @@ class User(Base):
     # Password Reset
     reset_token = Column(String, nullable=True, index=True)
     reset_token_expiry = Column(DateTime, nullable=True)
+    # SEC-05 FIX: versión de token para revocación inmediata de sesiones
+    # Al incrementar este valor, todos los tokens anteriores quedan invalidados
+    token_version = Column(Integer, default=0, nullable=False)
 
     # Onboarding
     ciclo = Column(String, nullable=True)           # 'ASIR' | 'DAM' | 'DAW' | 'SMR'
@@ -311,6 +327,9 @@ class Coupon(Base):
     discount_percent = Column(Float, nullable=False)
     max_uses = Column(Integer, default=1)
     current_uses = Column(Integer, default=0)
+    # SEC-03 FIX: reserva atómica de usos pendientes de confirmación por Stripe
+    # current_uses + pending_uses >= max_uses → cupo agotado
+    pending_uses = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
     assigned_to_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Lock to one user
     # Nuevos campos
@@ -318,6 +337,17 @@ class Coupon(Base):
     expires_at = Column(DateTime, nullable=True)               # Expiración opcional
     applicable_plans = Column(String, default="all")           # "all" | "monthly" | "quarterly" | "annual"
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class UserCouponUsage(Base):
+    """Registra qué usuario ha usado qué cupón — evita reusos fraudulentos."""
+    __tablename__ = "user_coupon_usage"
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    coupon_id  = Column(Integer, ForeignKey("coupons.id"), nullable=False, index=True)
+    used_at    = Column(DateTime, default=datetime.utcnow)
+    __table_args__ = (
+        UniqueConstraint("user_id", "coupon_id", name="uq_user_coupon"),
+    )
 
 class AnnouncementRead(Base):
     """Tracks which users have read which announcements (for unread popup)."""

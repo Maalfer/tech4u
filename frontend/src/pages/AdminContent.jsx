@@ -2,19 +2,19 @@ import React, { useState, useEffect } from 'react';
 import {
     Database, ChevronRight, ArrowLeft,
     Trash2, Edit3, Plus, Search, FileText, UploadCloud, Eye, EyeOff,
-    Wifi, Monitor, Cpu, FileCode, Shield, Check, AlertCircle, Sparkles
+    Wifi, Monitor, Cpu, FileCode, Shield, Check, AlertCircle
 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
 import PageHeader from '../components/PageHeader';
 
 const SUBJECT_STYLES = {
-    'Bases de Datos': { icon: Database, color: 'from-blue-600/20 to-blue-900/10 border-blue-500/30 hover:border-blue-400/60', iconColor: 'text-blue-400', badge: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-    'Redes': { icon: Wifi, color: 'from-purple-600/20 to-purple-900/10 border-purple-500/30 hover:border-purple-400/60', iconColor: 'text-purple-400', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
-    'Sistemas Operativos': { icon: Monitor, color: 'from-orange-600/20 to-orange-900/10 border-orange-500/30 hover:border-orange-400/60', iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
-    'Ciberseguridad': { icon: Shield, color: 'from-red-600/20 to-red-900/10 border-red-500/30 hover:border-red-400/60', iconColor: 'text-red-400', badge: 'bg-red-500/10 text-red-400 border-red-500/30' },
-    'Fundamentos de Hardware': { icon: Cpu, color: 'from-yellow-600/20 to-yellow-900/10 border-yellow-500/30 hover:border-yellow-400/60', iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
-    'Lenguaje de Marcas': { icon: FileCode, color: 'from-cyan-600/20 to-cyan-900/10 border-cyan-500/30 hover:border-cyan-400/60', iconColor: 'text-cyan-400', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
+    'Bases de Datos':          { icon: Database, accentRgb: '59,130,246',  iconColor: 'text-blue-400',   badge: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+    'Redes':                   { icon: Wifi,     accentRgb: '139,92,246',  iconColor: 'text-purple-400', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
+    'Sistemas Operativos':     { icon: Monitor,  accentRgb: '249,115,22',  iconColor: 'text-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/30' },
+    'Ciberseguridad':          { icon: Shield,   accentRgb: '239,68,68',   iconColor: 'text-red-400',    badge: 'bg-red-500/10 text-red-400 border-red-500/30' },
+    'Fundamentos de Hardware': { icon: Cpu,      accentRgb: '234,179,8',   iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
+    'Lenguaje de Marcas':      { icon: FileCode, accentRgb: '6,182,212',   iconColor: 'text-cyan-400',   badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
 };
 
 const DEFAULT_STYLE = { icon: Database, color: 'from-slate-600/20 to-slate-900/10 border-slate-500/30 hover:border-slate-400/60', iconColor: 'text-slate-400', badge: 'bg-slate-500/10 text-slate-400 border-slate-500/30' };
@@ -211,29 +211,57 @@ export default function AdminContent() {
                 </PageHeader>
 
                 {!selectedSubject ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-5 duration-500 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in slide-in-from-bottom-5 duration-500 max-w-3xl mx-auto">
                         {Object.entries(SUBJECT_STYLES).map(([name, style]) => {
                             const Icon = style.icon;
                             return (
-                                <div
+                                <button
                                     key={name}
                                     onClick={() => setSelectedSubject(name)}
-                                    className={`group glass rounded-[2rem] p-8 border-2 bg-gradient-to-br ${style.color} text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] cursor-pointer relative overflow-hidden`}
+                                    className="group relative flex items-center gap-4 p-5 rounded-2xl text-left transition-all duration-200 hover:-translate-y-px cursor-pointer overflow-hidden w-full"
+                                    style={{
+                                        background: `radial-gradient(ellipse at 0% 50%, rgba(${style.accentRgb},0.07) 0%, transparent 65%), rgba(255,255,255,0.02)`,
+                                        border: `1px solid rgba(${style.accentRgb},0.16)`,
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.borderColor = `rgba(${style.accentRgb},0.44)`
+                                        e.currentTarget.style.boxShadow = `0 4px 30px rgba(${style.accentRgb},0.12)`
+                                        e.currentTarget.style.background = `radial-gradient(ellipse at 0% 50%, rgba(${style.accentRgb},0.12) 0%, transparent 65%), rgba(255,255,255,0.03)`
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.borderColor = `rgba(${style.accentRgb},0.16)`
+                                        e.currentTarget.style.boxShadow = 'none'
+                                        e.currentTarget.style.background = `radial-gradient(ellipse at 0% 50%, rgba(${style.accentRgb},0.07) 0%, transparent 65%), rgba(255,255,255,0.02)`
+                                    }}
                                 >
-                                    <div className="flex items-center gap-6 mb-6">
-                                        <div className="flex-shrink-0">
-                                            <Icon className={`w-12 h-12 ${style.iconColor} group-hover:scale-110 transition-transform duration-300`} />
-                                        </div>
-                                        <h3 className="text-xl font-black uppercase italic text-white leading-tight">
+                                    {/* Top accent line */}
+                                    <div className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                        style={{ background: `linear-gradient(90deg, transparent, rgba(${style.accentRgb},0.9), transparent)` }} />
+
+                                    {/* Icon badge */}
+                                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
+                                        style={{
+                                            background: `rgba(${style.accentRgb},0.10)`,
+                                            border: `1px solid rgba(${style.accentRgb},0.28)`,
+                                            boxShadow: `0 0 18px rgba(${style.accentRgb},0.10)`,
+                                        }}
+                                    >
+                                        <Icon className={`w-5 h-5 ${style.iconColor}`} />
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-black text-white text-sm uppercase tracking-tight leading-tight">
                                             {name}
                                         </h3>
+                                        <p className={`text-[9px] font-mono mt-1.5 opacity-50 ${style.iconColor}`}>
+                                            Banco de preguntas
+                                        </p>
                                     </div>
-                                    <div className="flex items-center justify-between mt-8">
-                                        <div className="flex items-center gap-2 text-[10px] font-mono text-neon uppercase tracking-widest font-bold group-hover:translate-x-1 transition-transform">
-                                            ACCEDER AL SECTOR <Sparkles size={14} />
-                                        </div>
-                                    </div>
-                                </div>
+
+                                    {/* Arrow CTA */}
+                                    <ChevronRight className={`w-4 h-4 ${style.iconColor} opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0 flex-shrink-0`} />
+                                </button>
                             );
                         })}
                     </div>

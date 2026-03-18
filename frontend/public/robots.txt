@@ -4,15 +4,21 @@ User-agent: *
 Allow: /$
 Allow: /explora
 Allow: /planes
+Allow: /ciberseguridad
 Allow: /teoria
 Allow: /teoria/
 Allow: /linux-terminal-exercises
 Allow: /sql-practice
 Allow: /ciberseguridad-labs
+Allow: /ciberseguridad-asir
 Allow: /redes-informaticas
+Allow: /plataforma-asir
+Allow: /labs-linux-asir
+Allow: /sql-practice-asir
 Allow: /login
 Allow: /aviso-legal
 Allow: /privacidad
+Allow: /terminos
 Allow: /cookies
 
 # ── Private / auth-required — block crawlers ─────────────
@@ -25,6 +31,7 @@ Disallow: /mundo
 Disallow: /mundo-virtual
 Disallow: /shop
 Disallow: /my-courses
+Disallow: /mi-aprendizaje
 Disallow: /leaderboard
 Disallow: /test-stats
 Disallow: /watch/
@@ -33,10 +40,9 @@ Disallow: /netlab/
 Disallow: /resources
 Disallow: /recursos/
 Disallow: /admin-dashboard
-Disallow: /gestion-usuarios
-Disallow: /gestion-contenido
 Disallow: /admin/
+Disallow: /certificacion/
+Disallow: /oauth/
 
 # ── Sitemap ───────────────────────────────────────────────
-Sitemap: https://tech4u.academy/sitemap.xml
-Sitemap: https://tech4u.academy/sitemap-teoria.xml
+Sitemap: https://tech4uacademy.es/sitemap.xml

@@ -1,7 +1,7 @@
 export function redirectUser(user) {
     // Admins and developers always go straight to admin panel — skip onboarding
     if (user.role === 'admin' || user.role === 'developer') {
-        window.location.href = '/admin';
+        window.location.href = '/admin-dashboard';
         return;
     }
     // Docentes go to dashboard directly — no onboarding needed

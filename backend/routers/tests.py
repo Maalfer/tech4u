@@ -211,8 +211,12 @@ async def submit_test(
         #   Base: max(0, aciertos × 6 - fallos × 2)
         # Resto de modos (errors, etc.): 0 XP
         # ─────────────────────────────────────────────────────────────
-        gained_xp = 0
+        # Validar test_mode server-side: solo valores permitidos
+        _VALID_MODES = {"exam", "normal", "practice", "errors", ""}
         mode = (payload.test_mode or "").lower()
+        if mode not in _VALID_MODES:
+            raise HTTPException(status_code=400, detail="Modo de test no válido.")
+        gained_xp = 0
 
         # ── Prevención de Farméo (XP Anti-Farming) ──────────────────────────
         # Global cooldown: user cannot submit ANY test within 3 minutes of last test
