@@ -75,8 +75,14 @@ def get_plan_perks(user: User) -> dict:
     # Sin suscripción activa o expirada → free
     if not user.subscription_type or user.subscription_type == "free":
         return PLAN_PERKS["free"]
-    if user.subscription_end and user.subscription_end < datetime.utcnow():
-        return PLAN_PERKS["free"]
+        
+    if user.subscription_end:
+        now = datetime.utcnow()
+        if user.subscription_end.tzinfo is not None:
+            import pytz
+            now = datetime.now(pytz.utc)
+        if user.subscription_end < now:
+            return PLAN_PERKS["free"]
 
     return PLAN_PERKS.get(user.subscription_type, PLAN_PERKS["free"])
 
