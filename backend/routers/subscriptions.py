@@ -1,6 +1,8 @@
 import stripe
 import os
-from fastapi import APIRouter, Depends, HTTPException, Request
+from services import email_service
+from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
+import logging
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
@@ -470,8 +472,40 @@ def verify_docente_session(
     }
 
 
+@router.post("/test/email")
+async def test_email(
+    email: str,
+    template: str,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user)
+):
+    """Endpoint para probar el envío de emails manualmente."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Solo administradores pueden probar emails.")
+    
+    # Mock user object for templates
+    class MockUser:
+        def __init__(self, nombre, email):
+            self.nombre = nombre
+            self.email = email
+    
+    mock_user = MockUser(current_user.nombre or "Usuario Test", email)
+    
+    if template == "welcome":
+        email_service.send_welcome_email(mock_user, background_tasks)
+    elif template == "subscription_active":
+        email_service.send_subscription_active_email(mock_user, "Premium Mensual", "20/04/2026", background_tasks)
+    elif template == "subscription_cancelled":
+        email_service.send_subscription_cancelled_email(mock_user, background_tasks)
+    elif template == "payment_failed":
+        email_service.send_payment_failed_email(mock_user, background_tasks)
+    else:
+        raise HTTPException(status_code=400, detail="Plantilla no reconocida.")
+    
+    return {"status": "Email encolado", "template": template, "to": email}
+
 @router.post("/webhook")
-async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
+async def stripe_webhook(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Endpoint que Stripe llama cuando un pago se completa.
     Actualiza subscription_type y subscription_end del usuario en la BD.
@@ -487,6 +521,11 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Payload inválido")
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Firma de webhook inválida")
+
+    # Idempotencia: Verificar si el evento ya fue procesado
+    # En producción deberías guardar event["id"] en una tabla 'processed_stripe_events'
+    # db.query(ProcessedEvent).filter(ProcessedEvent.stripe_id == event["id"]).first(): return {"status": "already_processed"}
+    logger.info(f"STRIPE WEBHOOK: Recibido evento {event['type']} (id: {event['id']})")
 
     if event["type"] == "checkout.session.completed":
         session_obj = event["data"]["object"]
@@ -582,6 +621,35 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             # ── CONFIRMAR REFERIDO (si el usuario tiene uno pendiente) ──
             # Esto otorga automáticamente la recompensa al referidor.
             confirm_referral_on_payment(db, user)
+
+            # ── ENVIAR EMAIL DE ACTIVACIÓN ──
+            try:
+                plan_label = PLAN_LABELS.get(user.subscription_type, "Premium")
+                end_str = user.subscription_end.strftime("%d/%m/%Y") if user.subscription_end else ""
+                email_service.send_subscription_active_email(user, plan_label, end_str, background_tasks)
+            except Exception as e:
+                logger.error(f"Error enviando email de suscripción activa: {e}")
+
+    elif event["type"] == "customer.subscription.deleted":
+        # Evento: El cliente cancela o se acaba el periodo y no renueva
+        sub_obj = event["data"]["object"]
+        # Buscar usuario por stripe_customer_id (si lo guardas) o email
+        # Aquí asumimos que buscamos por el email que viene en el objeto si está disponible
+        # o vinculamos via client_reference_id en metadata si lo usamos en subs de stripe
+        stripe_email = sub_obj.get("customer_email")
+        if stripe_email:
+            user = db.query(User).filter(User.email == stripe_email).first()
+            if user:
+                email_service.send_subscription_cancelled_email(user, background_tasks)
+
+    elif event["type"] == "invoice.payment_failed":
+        # Evento: Fallo en el cargo recurrente o primer cargo
+        invoice_obj = event["data"]["object"]
+        stripe_email = invoice_obj.get("customer_email")
+        if stripe_email:
+            user = db.query(User).filter(User.email == stripe_email).first()
+            if user:
+                email_service.send_payment_failed_email(user, background_tasks)
 
     return {"status": "ok"}
 

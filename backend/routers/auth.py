@@ -10,6 +10,8 @@ import random
 import string
 import re
 import emails as mailer
+from services import email_service
+from fastapi import BackgroundTasks
 from limiter import limiter
 import logging
 import redis
@@ -46,7 +48,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
 @limiter.limit("3/minute")
-def register(request: Request, response: Response, data: UserRegister, db: Session = Depends(get_db)):
+def register(request: Request, response: Response, data: UserRegister, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
@@ -154,9 +156,9 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
 
     # Send emails (non-blocking)
     try:
-        mailer.send_welcome(user.email, user.nombre)
+        email_service.send_welcome_email(user, background_tasks)
     except Exception as e:
-        logger.warning(f"Failed to send welcome email to {user.email}: {e}")
+        logger.warning(f"Failed to queue welcome email to {user.email}: {e}")
     db.refresh(user)
     return TokenResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
 
@@ -317,7 +319,7 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
         frontend_url = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
         reset_url = f"{frontend_url}/reset-password?token={token}"
         try:
-            mailer.send_password_reset(user.email, user.nombre, reset_url)
+            email_service.send_password_reset_email(user, reset_url)
         except Exception as e:
             logger.warning(f"Failed to send password reset email to {user.email}: {e}")
     return {"detail": "Si ese email existe, recibirás un enlace en breve."}

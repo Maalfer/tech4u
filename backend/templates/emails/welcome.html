@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0D0D0D; color: #fff; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #111; border: 1px solid #1a1a1a; border-radius: 16px; overflow: hidden; }
+        .header { padding: 32px; text-align: center; background-color: #0D0D0D; border-bottom: 1px solid #1a1a1a; }
+        .logo { font-size: 24px; font-weight: 900; color: #C6FF33; letter-spacing: -1px; }
+        .content { padding: 40px 32px; }
+        h1 { font-size: 24px; font-weight: 900; margin: 0 0 20px; color: #fff; text-transform: uppercase; }
+        p { font-size: 16px; color: #aaa; line-height: 1.6; margin: 0 0 20px; }
+        .cta-button { display: inline-block; padding: 16px 32px; background-color: #C6FF33; color: #0D0D0D; font-weight: 900; text-decoration: none; border-radius: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer { padding: 24px; border-top: 1px solid #1a1a1a; text-align: center; color: #444; font-size: 12px; }
+        .footer a { color: #C6FF33; text-decoration: none; }
+        .features { background: #0D0D0D; border: 1px solid #222; border-radius: 12px; padding: 20px; margin: 30px 0; }
+        .feature-item { margin: 8px 0; font-size: 14px; color: #ccc; }
+        .feature-icon { color: #C6FF33; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="logo">TECH4U ACADEMY</span>
+        </div>
+        <div class="content">
+            <h1>¡Hola {{ user.nombre }}!</h1>
+            <p>Bienvenido a <strong>Tech4U Academy</strong>, la plataforma definitiva para dominar la informática práctica.</p>
+            <p>Ya tienes acceso a las mejores herramientas para potenciar tu carrera:</p>
+            <div class="features">
+                <div class="feature-item"><span class="feature-icon">▸</span><strong>Terminal Skills:</strong> Laboratorios Linux interactivos.</div>
+                <div class="feature-item"><span class="feature-icon">▸</span><strong>SQL Skills:</strong> Práctica real con bases de datos.</div>
+                <div class="feature-item"><span class="feature-icon">▸</span><strong>Test Center:</strong> Simulacros de examen para FP.</div>
+            </div>
+            <p>Empieza ahora y completa tu primer laboratorio en menos de 2 minutos.</p>
+            <a href="https://tech4uacademy.es/dashboard" class="cta-button">Ir al Dashboard</a>
+        </div>
+        <div class="footer">
+            Tech4U Academy · <a href="https://tech4uacademy.es">tech4uacademy.es</a>
+        </div>
+    </div>
+</body>
+</html>
