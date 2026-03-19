@@ -112,12 +112,13 @@ export const PLAN_DATA = [
 ];
 
 // ─── Single plan card ─────────────────────────────────────────────────────────
-function PlanCard({ plan, onSelectPlan, renderActions, compact, discount = 0 }) {
+function PlanCard({ plan, onSelectPlan, renderActions, compact, discount = 0, applicablePlans = 'all' }) {
     const Icon = plan.icon;
 
     // Calculate discounted price if applicable
     const numericPrice = parseFloat(plan.rawPrice);
-    const hasDiscount = discount > 0 && discount <= 100;
+    const planApplicable = applicablePlans === 'all' || applicablePlans === plan.id;
+    const hasDiscount = discount > 0 && discount <= 100 && planApplicable;
     const finalPrice = hasDiscount 
         ? (numericPrice * (1 - discount / 100)).toFixed(2)
         : plan.price;
@@ -318,7 +319,7 @@ function PlanCard({ plan, onSelectPlan, renderActions, compact, discount = 0 }) 
 }
 
 // ─── Exported component ───────────────────────────────────────────────────────
-export default function PricingCards({ onSelectPlan, renderActions, compact = false, discount = 0 }) {
+export default function PricingCards({ onSelectPlan, renderActions, compact = false, discount = 0, applicablePlans = 'all' }) {
     return (
         <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 items-start pt-6 ${compact ? '' : 'lg:gap-8'}`}>
             {PLAN_DATA.map((plan) => (
@@ -329,6 +330,7 @@ export default function PricingCards({ onSelectPlan, renderActions, compact = fa
                     renderActions={renderActions}
                     compact={compact}
                     discount={discount}
+                    applicablePlans={applicablePlans}
                 />
             ))}
         </div>

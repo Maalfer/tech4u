@@ -18,10 +18,11 @@ export default function SubscriptionPage() {
 
     const [loadingPlan,         setLoadingPlan]         = useState(null);
     const [error,               setError]               = useState('');
-    const [couponInput,         setCouponInput]         = useState('');
-    const [couponStatus,        setCouponStatus]        = useState(null);
-    const [couponDiscount,      setCouponDiscount]      = useState(0);
-    const [validatingCoupon,    setValidatingCoupon]    = useState(false);
+    const [couponInput,           setCouponInput]           = useState('');
+    const [couponStatus,          setCouponStatus]          = useState(null);
+    const [couponDiscount,        setCouponDiscount]        = useState(0);
+    const [couponApplicablePlans, setCouponApplicablePlans] = useState('all');
+    const [validatingCoupon,      setValidatingCoupon]      = useState(false);
     const [useReferralDiscount, setUseReferralDiscount] = useState(false);
     const [useFreeMonth,        setUseFreeMonth]        = useState(false);
 
@@ -50,7 +51,7 @@ export default function SubscriptionPage() {
     };
 
     // ── Coupon validation ─────────────────────────────────────────────────────
-    const handleValidateCoupon = async (selectedPlan = 'monthly') => {
+    const handleValidateCoupon = async () => {
         if (!couponInput.trim()) return;
         setValidatingCoupon(true);
         setCouponStatus(null);
@@ -58,13 +59,15 @@ export default function SubscriptionPage() {
         setUseFreeMonth(false);
         setError('');
         try {
-            const res = await api.get(`/subscriptions/validate-coupon?code=${couponInput.trim().toUpperCase()}&plan=${selectedPlan}`);
+            const res = await api.get(`/subscriptions/validate-coupon?code=${couponInput.trim().toUpperCase()}`);
             setCouponDiscount(res.data.discount_percent);
+            setCouponApplicablePlans(res.data.applicable_plans || 'all');
             setCouponStatus('valid');
         } catch (err) {
             setCouponStatus('invalid');
             setCouponDiscount(0);
-            setError(err.response?.data?.detail || 'Cupón inválido para este plan.');
+            setCouponApplicablePlans('all');
+            setError(err.response?.data?.detail || 'Cupón inválido o agotado.');
         } finally {
             setValidatingCoupon(false);
         }
@@ -180,13 +183,13 @@ export default function SubscriptionPage() {
                                 type="text"
                                 placeholder="GRUPO-ASIR-100"
                                 value={couponInput}
-                                onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponStatus(null); }}
+                                onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponStatus(null); setCouponDiscount(0); setCouponApplicablePlans('all'); }}
                                 onKeyDown={e => e.key === 'Enter' && handleValidateCoupon()}
                                 disabled={useReferralDiscount || useFreeMonth}
                                 className="flex-1 bg-black border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-mono text-neon outline-none focus:border-neon uppercase placeholder:normal-case placeholder:text-slate-600 transition-colors disabled:opacity-50"
                             />
                             <button
-                                onClick={() => handleValidateCoupon('monthly')}
+                                onClick={() => handleValidateCoupon()}
                                 disabled={!couponInput.trim() || validatingCoupon}
                                 className="px-4 py-2.5 rounded-xl bg-neon/10 border border-neon/30 text-neon text-xs font-black uppercase hover:bg-neon hover:text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                             >
@@ -217,7 +220,7 @@ export default function SubscriptionPage() {
                                     <input type="checkbox" className="accent-neon w-4 h-4 rounded" checked={useFreeMonth}
                                         onChange={(e) => {
                                             setUseFreeMonth(e.target.checked);
-                                            if (e.target.checked) { setUseReferralDiscount(false); setCouponInput(''); setCouponStatus(null); setCouponDiscount(0); }
+                                            if (e.target.checked) { setUseReferralDiscount(false); setCouponInput(''); setCouponStatus(null); setCouponDiscount(0); setCouponApplicablePlans('all'); }
                                         }}
                                     />
                                     <span className="text-sm font-bold text-white uppercase flex items-center gap-2">
@@ -233,7 +236,7 @@ export default function SubscriptionPage() {
                                     <input type="checkbox" className="accent-neon w-4 h-4 rounded" checked={useReferralDiscount}
                                         onChange={(e) => {
                                             setUseReferralDiscount(e.target.checked);
-                                            if (e.target.checked) { setUseFreeMonth(false); setCouponInput(''); setCouponStatus(null); setCouponDiscount(0); }
+                                            if (e.target.checked) { setUseFreeMonth(false); setCouponInput(''); setCouponStatus(null); setCouponDiscount(0); setCouponApplicablePlans('all'); }
                                         }}
                                     />
                                     <span className="text-sm font-bold text-white uppercase flex items-center gap-2">
@@ -251,6 +254,7 @@ export default function SubscriptionPage() {
                     <PricingCards 
                         renderActions={renderActions} 
                         discount={useReferralDiscount ? 10 : couponDiscount}
+                        applicablePlans={useReferralDiscount ? 'all' : couponApplicablePlans}
                     />
                 </div>
 

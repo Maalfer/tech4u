@@ -338,6 +338,14 @@ class Coupon(Base):
     applicable_plans = Column(String, default="all")           # "all" | "monthly" | "quarterly" | "annual"
     created_at = Column(DateTime, default=datetime.utcnow)
 
+class ProcessedStripeEvent(Base):
+    """SEC: Idempotencia de webhooks de Stripe. Evita doble proceso si Stripe reintenta."""
+    __tablename__ = "processed_stripe_events"
+    id              = Column(Integer, primary_key=True, index=True)
+    stripe_event_id = Column(String, unique=True, index=True, nullable=False)
+    event_type      = Column(String, nullable=True)
+    processed_at    = Column(DateTime, default=datetime.utcnow)
+
 class UserCouponUsage(Base):
     """Registra qué usuario ha usado qué cupón — evita reusos fraudulentos."""
     __tablename__ = "user_coupon_usage"

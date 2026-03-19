@@ -6,13 +6,46 @@ import logging
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
-from database import get_db, User, Coupon, UserCoursePurchase, UserCouponUsage
+from database import get_db, User, Coupon, UserCoursePurchase, UserCouponUsage, ProcessedStripeEvent
 from auth import get_current_user
 from dotenv import load_dotenv
 import logging
 from limiter import limiter
 
 logger = logging.getLogger(__name__)
+
+# SEC: Brute-force protection for coupon validation
+# Tracks failed attempts per user/IP key. Resets on server restart.
+# For multi-worker deployments, migrate this to Redis.
+from collections import defaultdict
+import time as _time
+_coupon_fail_counts: dict = defaultdict(lambda: {"count": 0, "since": 0.0})
+_COUPON_MAX_FAILS  = 5    # block after N consecutive failures
+_COUPON_WINDOW_SEC = 600  # sliding window: 10 minutes
+
+def _check_coupon_brute_force(key: str):
+    entry = _coupon_fail_counts[key]
+    now = _time.time()
+    if now - entry["since"] > _COUPON_WINDOW_SEC:
+        entry["count"] = 0
+        entry["since"] = now
+    if entry["count"] >= _COUPON_MAX_FAILS:
+        raise HTTPException(
+            status_code=429,
+            detail="Demasiados intentos fallidos de cupón. Espera 10 minutos antes de intentarlo de nuevo."
+        )
+
+def _record_coupon_fail(key: str):
+    entry = _coupon_fail_counts[key]
+    now = _time.time()
+    if now - entry["since"] > _COUPON_WINDOW_SEC:
+        entry["count"] = 0
+        entry["since"] = now
+    entry["count"] += 1
+    logger.warning(f"[COUPON FAIL] key={key} count={entry['count']}")
+
+def _reset_coupon_fail(key: str):
+    _coupon_fail_counts.pop(key, None)
 
 # Importación circular segura (solo se usa dentro del webhook)
 from routers.referrals import confirm_referral_on_payment
@@ -113,21 +146,28 @@ def toggle_auto_renew(
 
 
 @router.get("/validate-coupon")
-@limiter.limit("10/minute")
-def validate_coupon(request: Request, code: str, plan: str = "monthly", current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Valida un cupón y devuelve el porcentaje si es válido."""
-    # with_for_update() bloquea la fila hasta que termine la transacción
-    # — evita que dos requests simultáneos pasen la misma validación
+@limiter.limit("5/minute")
+def validate_coupon(request: Request, code: str, plan: Optional[str] = None, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Valida un cupón y devuelve el porcentaje y planes aplicables.
+    Si se pasa `plan`, se valida restricción de plan específica.
+    Si no se pasa `plan`, se valida el cupón globalmente y se devuelve applicable_plans.
+    """
+    # SEC: Brute-force guard — block after 5 failed attempts in 10 min
+    bf_key = f"user:{current_user.id}"
+    _check_coupon_brute_force(bf_key)
+
     c = db.query(Coupon).filter(
         Coupon.code == code.upper(), Coupon.is_active == True
     ).with_for_update().first()
     if not c:
+        _record_coupon_fail(bf_key)
         raise HTTPException(status_code=404, detail="Cupón inválido o inactivo.")
 
     # SEC-03 FIX: comprobar cupo real = usos confirmados + usos reservados pendientes
     if c.max_uses is not None and (c.current_uses + (c.pending_uses or 0)) >= c.max_uses:
         c.is_active = False
         db.commit()
+        _record_coupon_fail(bf_key)
         raise HTTPException(status_code=400, detail="El cupón ha superado el límite de usos.")
 
     # Verificar si este usuario ya usó este cupón anteriormente
@@ -136,31 +176,43 @@ def validate_coupon(request: Request, code: str, plan: str = "monthly", current_
         UserCouponUsage.coupon_id == c.id
     ).first()
     if already_used:
+        _record_coupon_fail(bf_key)
         raise HTTPException(status_code=400, detail="Ya has utilizado este cupón anteriormente.")
 
     # Verificar expiración
     if c.expires_at and c.expires_at < datetime.utcnow():
         c.is_active = False
         db.commit()
+        _record_coupon_fail(bf_key)
         raise HTTPException(status_code=400, detail="Este cupón ha expirado.")
 
     # Restricción de usuario único
     if c.assigned_to_id and c.assigned_to_id != current_user.id:
+        _record_coupon_fail(bf_key)
         raise HTTPException(status_code=403, detail="Este cupón no te pertenece.")
 
-    # Restricción de plan aplicable
     applicable = getattr(c, 'applicable_plans', 'all') or 'all'
-    if applicable != 'all' and applicable != plan:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Este cupón solo es válido para el plan {applicable}."
-        )
 
-    # Restricción legacy: >15% solo mensual y trimestral
-    if c.discount_percent > 15 and plan == "annual":
-        raise HTTPException(status_code=400, detail="Cupones superiores al 15% solo válidos para planes mensuales y trimestrales.")
+    # Si se especifica un plan concreto, validar restricción de plan
+    if plan:
+        if applicable != 'all' and applicable != plan:
+            _record_coupon_fail(bf_key)
+            raise HTTPException(
+                status_code=400,
+                detail=f"Este cupón solo es válido para el plan {applicable}."
+            )
+        # Restricción legacy: >15% solo mensual y trimestral
+        if c.discount_percent > 15 and plan == "annual":
+            _record_coupon_fail(bf_key)
+            raise HTTPException(status_code=400, detail="Cupones superiores al 15% solo válidos para planes mensuales y trimestrales.")
 
-    return {"valid": True, "discount_percent": c.discount_percent}
+    # Coupon is valid — reset fail counter
+    _reset_coupon_fail(bf_key)
+    return {
+        "valid": True,
+        "discount_percent": c.discount_percent,
+        "applicable_plans": applicable,
+    }
 
 @router.post("/create-checkout-session")
 @limiter.limit("10/minute")
@@ -523,9 +575,18 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks, db
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Firma de webhook inválida")
 
-    # Idempotencia: Verificar si el evento ya fue procesado
-    # En producción deberías guardar event["id"] en una tabla 'processed_stripe_events'
-    # db.query(ProcessedEvent).filter(ProcessedEvent.stripe_id == event["id"]).first(): return {"status": "already_processed"}
+    # SEC: Idempotencia — evitar doble proceso si Stripe reintenta el mismo evento
+    already_processed = db.query(ProcessedStripeEvent).filter(
+        ProcessedStripeEvent.stripe_event_id == event["id"]
+    ).first()
+    if already_processed:
+        logger.info(f"STRIPE WEBHOOK: Evento ya procesado {event['id']}, ignorando reintento.")
+        return {"status": "already_processed"}
+
+    # Marcar como procesado ANTES de actuar (optimistic lock)
+    db.add(ProcessedStripeEvent(stripe_event_id=event["id"], event_type=event["type"]))
+    db.commit()
+
     logger.info(f"STRIPE WEBHOOK: Recibido evento {event['type']} (id: {event['id']})")
 
     if event["type"] == "checkout.session.completed":
