@@ -1616,7 +1616,7 @@ const RoadmapView = ({ onEnterLevel, onBack }) => {
 
     useEffect(() => {
         api.get('/sql/roadmap')
-            .then(r => setLevels(r.data))
+            .then(r => setLevels(Array.isArray(r.data) ? r.data : []))
             .catch(() => { })
             .finally(() => setLoading(false));
     }, []);
@@ -3348,9 +3348,9 @@ export default function SQLSkillsPage() {
                     api.get('/sql/progress'),
                     api.get('/sql/modes').catch(() => ({ data: [] })), // Fallback if not available
                 ]);
-                setDatasets(dsRes.data);
-                setProgress(progRes.data);
-                setModes(modesRes.data || []);
+                setDatasets(Array.isArray(dsRes.data) ? dsRes.data : []);
+                setProgress(progRes.data && typeof progRes.data === 'object' ? progRes.data : { total: 0, completed: 0 });
+                setModes(Array.isArray(modesRes.data) ? modesRes.data : []);
             } catch (e) {
                 if (import.meta.env.DEV) console.error('Error loading datasets', e);
             } finally {
@@ -3377,8 +3377,9 @@ export default function SQLSkillsPage() {
         setLoadingExercises(true);
         try {
             const res = await api.get(`/sql/exercises?dataset_id=${datasetId}`);
-            setExercises(res.data);
-            if (res.data.length) setSelectedId(res.data[0].id);
+            const exs = Array.isArray(res.data) ? res.data : [];
+            setExercises(exs);
+            if (exs.length) setSelectedId(exs[0].id);
         } catch (e) {
             if (import.meta.env.DEV) console.error('Error loading exercises', e);
         } finally {

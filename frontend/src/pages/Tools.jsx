@@ -262,7 +262,7 @@ export default function Tools() {
                             onClick={() => navigate(tool.path)}
                             className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-2"
                             style={{
-                                aspectRatio: '4/5',
+                                aspectRatio: '4/3',
                                 border: '1.5px solid rgba(255,255,255,0.08)',
                             }}
                             onMouseEnter={e => {

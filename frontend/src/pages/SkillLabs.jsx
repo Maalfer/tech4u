@@ -521,7 +521,7 @@ export default function SkillLabs() {
     useEffect(() => {
         api.get('/dashboard/stats').then(r => setStats(r.data)).catch(() => {})
         api.get('/skill-labs/status').then(r => setStatus(r.data)).catch(() => {})
-        api.get('/skill-labs/leaderboard').then(r => setLeaderboard(r.data)).catch(() => {})
+        api.get('/skill-labs/leaderboard').then(r => setLeaderboard(Array.isArray(r.data) ? r.data : [])).catch(() => {})
     }, [])
 
     const currentXP = stats?.current_xp || 0
@@ -598,7 +598,7 @@ export default function SkillLabs() {
             setResults({ ...s, ...res.data })
             // refresh status after submit
             api.get('/skill-labs/status').then(r => setStatus(r.data)).catch(() => {})
-            api.get('/skill-labs/leaderboard').then(r => setLeaderboard(r.data)).catch(() => {})
+            api.get('/skill-labs/leaderboard').then(r => setLeaderboard(Array.isArray(r.data) ? r.data : [])).catch(() => {})
         } catch {
             setResults(null)
         } finally {
