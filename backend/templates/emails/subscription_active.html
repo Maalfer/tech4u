@@ -1,41 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0D0D0D; color: #fff; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #111; border: 1px solid #1a1a1a; border-radius: 16px; overflow: hidden; }
-        .header { padding: 32px; text-align: center; background-color: #0D0D0D; border-bottom: 1px solid #1a1a1a; }
-        .logo { font-size: 24px; font-weight: 900; color: #C6FF33; letter-spacing: -1px; }
-        .content { padding: 40px 32px; }
-        h1 { font-size: 24px; font-weight: 900; margin: 0 0 20px; color: #C6FF33; text-transform: uppercase; }
-        p { font-size: 16px; color: #aaa; line-height: 1.6; margin: 0 0 20px; }
-        .cta-button { display: inline-block; padding: 16px 32px; background-color: #C6FF33; color: #0D0D0D; font-weight: 900; text-decoration: none; border-radius: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .footer { padding: 24px; border-top: 1px solid #1a1a1a; text-align: center; color: #444; font-size: 12px; }
-        .footer a { color: #C6FF33; text-decoration: none; }
-        .plan-box { background: #0D0D0D; border: 1px solid #222; border-radius: 12px; padding: 20px; margin: 30px 0; border-left: 4px solid #C6FF33; }
-        .tag { font-family: monospace; font-size: 11px; color: #C6FF33; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; display: block; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Suscripción activa · Tech4U Academy</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <span class="logo">TECH4U ACADEMY</span>
-        </div>
-        <div class="content">
-            <span class="tag">PAGO CONFIRMADO</span>
-            <h1>Suscripción Activa 🎉</h1>
-            <p>Hola {{ user.nombre }}, tu suscripción ha sido activada correctamente. Ahora tienes acceso premium ilimitado a toda la plataforma.</p>
-            <div class="plan-box">
-                <p style="margin: 0; color: #fff;"><strong>Plan:</strong> {{ plan_name }}</p>
-                <p style="margin: 5px 0 0; font-size: 14px; color: #666;">Fecha de vencimiento: {{ end_date }}</p>
-            </div>
-            <p>Gracias por confiar en Tech4U Academy para potenciar tu formación técnica.</p>
-            <a href="https://tech4uacademy.es/dashboard" class="cta-button">Empezar a Estudiar</a>
-        </div>
-        <div class="footer">
-            Tech4U Academy · <a href="https://tech4uacademy.es">tech4uacademy.es</a>
-        </div>
-    </div>
+<body style="margin:0; padding:0; background-color:#080e1a; font-family:'Segoe UI', Arial, sans-serif;">
+  <span style="display:none; font-size:1px; color:#080e1a; max-height:0; overflow:hidden;">Tu suscripción está activa. Acceso completo desbloqueado ✦</span>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#080e1a; padding: 40px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+        <tr><td align="center" style="padding-bottom: 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px 16px 0 0; border: 1px solid #14532d; border-bottom: none;">
+            <tr><td style="padding: 32px 40px 28px 40px; text-align:center;">
+              <div style="width:60px; height:3px; background: linear-gradient(90deg, #22c55e, #86efac); margin: 0 auto 28px auto; border-radius:2px;"></div>
+              <div style="margin-bottom: 8px;">
+                <img src="https://tech4uacademy.es/assets/tech4u_logo-DPEJ--cc.png" alt="Tech4U Academy" width="80" height="80" style="display:block; margin: 0 auto; filter: drop-shadow(0 0 16px rgba(34,197,94,0.4));" />
+              </div>
+              <span style="font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 3px; text-transform: uppercase;">Academy</span>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(160deg, #0f172a 0%, #111827 60%, #0a1f15 100%); border: 1px solid #14532d; border-top: none; border-bottom: none;">
+            <tr><td style="padding: 48px 48px 0 48px; text-align: center;">
+              <div style="width:72px; height:72px; background: rgba(34,197,94,0.1); border: 2px solid rgba(34,197,94,0.3); border-radius: 50%; margin: 0 auto 24px auto; line-height:72px; font-size:32px;">✅</div>
+              <div style="display:inline-block; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 100px; padding: 6px 16px; margin-bottom: 24px;">
+                <span style="font-size: 12px; color: #22c55e; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">✦ Pago confirmado</span>
+              </div>
+              <h1 style="margin: 0 0 16px 0; font-size: 34px; font-weight: 800; line-height: 1.2; color: #f8fafc; letter-spacing: -1px;">
+                ¡Suscripción activa,<br/>
+                <span style="background: linear-gradient(90deg, #22c55e 0%, #86efac 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ user.nombre }}</span>! 🎉
+              </h1>
+              <p style="margin: 0 auto; font-size: 16px; color: #94a3b8; line-height: 1.7; max-width: 440px;">
+                Tu pago se ha procesado correctamente. Tienes <strong style="color:#e2e8f0;">acceso completo</strong> a todos los cursos y simulacros de examen.
+              </p>
+            </td></tr>
+            <tr><td style="padding: 36px 48px;">
+              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, #14532d 30%, #22c55e 50%, #14532d 70%, transparent 100%);"></div>
+            </td></tr>
+            <tr><td style="padding: 0 40px 40px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: rgba(34,197,94,0.04); border: 1px solid rgba(34,197,94,0.12); border-radius: 12px;">
+                <tr><td style="padding: 24px 28px;">
+                  <div style="font-size: 11px; color: #22c55e; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;">Detalles de tu suscripción</div>
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
+                    <td style="font-size: 13px; color: #64748b;">Plan</td>
+                    <td style="font-size: 13px; color: #f1f5f9; font-weight: 600; text-align:right;">{{ plan_name }}</td>
+                  </tr></table>
+                  <div style="height:1px; background:#1e293b; margin-bottom:12px;"></div>
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
+                    <td style="font-size: 13px; color: #64748b;">Estado</td>
+                    <td style="text-align:right;"><span style="font-size:12px; background: rgba(34,197,94,0.15); color:#22c55e; font-weight:700; padding: 3px 10px; border-radius:100px;">● Activa</span></td>
+                  </tr></table>
+                  <div style="height:1px; background:#1e293b; margin-bottom:12px;"></div>
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+                    <td style="font-size: 13px; color: #64748b;">Acceso hasta</td>
+                    <td style="font-size: 13px; color: #f1f5f9; font-weight: 600; text-align:right;">{{ end_date }}</td>
+                  </tr></table>
+                </td></tr>
+              </table>
+            </td></tr>
+            <tr><td style="padding: 0 48px 48px 48px; text-align: center;">
+              <p style="margin: 0 0 28px 0; font-size: 15px; color: #64748b;">Todo está listo. Entra y empieza a aprender ahora.</p>
+              <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;"><tr>
+                <td style="border-radius: 10px; background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #86efac 100%); box-shadow: 0 8px 32px rgba(34,197,94,0.35);">
+                  <a href="https://tech4uacademy.es/dashboard" style="display: inline-block; padding: 16px 40px; font-size: 15px; font-weight: 700; color: #052e16; text-decoration: none; letter-spacing: 0.3px; border-radius: 10px;">Ir al dashboard &nbsp;→</a>
+                </td>
+              </tr></table>
+              <p style="margin: 20px 0 0 0; font-size: 12px; color: #334155;">O visita: <a href="https://tech4uacademy.es/dashboard" style="color:#22c55e; text-decoration:none;">tech4uacademy.es/dashboard</a></p>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: #060c17; border: 1px solid #14532d; border-top: none; border-radius: 0 0 16px 16px;">
+            <tr><td style="padding: 32px 48px; text-align: center;">
+              <p style="margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.7;">¿Necesitas ayuda con tu suscripción?<br/><a href="mailto:info@tech4uacademy.es" style="color:#22c55e; text-decoration:none; font-weight:600;">info@tech4uacademy.es</a></p>
+              <div style="height: 1px; background: #1e293b; margin: 20px 0;"></div>
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: #334155; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">Tech4U Academy</p>
+              <p style="margin: 0; font-size: 11px; color: #1e3a5f; line-height: 1.6;">Aprende haciendo · <a href="https://tech4uacademy.es" style="color:#1e3a5f; text-decoration:none;">tech4uacademy.es</a></p>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="height: 40px;"></td></tr>
+      </table>
+    </td></tr>
+  </table>
 </body>
 </html>
