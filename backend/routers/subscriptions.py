@@ -473,6 +473,7 @@ def verify_docente_session(
 
 
 @router.post("/test/email")
+@router.get("/test/email")
 async def test_email(
     email: str,
     template: str,
