@@ -49,21 +49,20 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Explicitly handle CORS for production and development
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-# Read allowed origins from environment or use defaults
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
-allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",")]
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "https://tech4uacademy.es,https://www.tech4uacademy.es,http://localhost:3000,http://localhost:5173")
+allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
 
-# Add frontend_url if not already in list
-if frontend_url not in allowed_origins:
+if frontend_url and frontend_url not in allowed_origins:
     allowed_origins.append(frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)

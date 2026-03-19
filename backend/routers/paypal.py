@@ -20,7 +20,7 @@ router = APIRouter(prefix="/paypal", tags=["PayPal"])
 PAYPAL_CLIENT_ID     = os.getenv("PAYPAL_CLIENT_ID", "")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "")
 PAYPAL_MODE          = os.getenv("PAYPAL_MODE", "sandbox")  # "sandbox" | "live"
-FRONTEND_URL         = os.getenv("FRONTEND_URL", "http://localhost:5173")
+FRONTEND_URL         = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
 
 PAYPAL_API_BASE = (
     "https://api-m.sandbox.paypal.com"

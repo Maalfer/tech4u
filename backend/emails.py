@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "Tech4U Academy <info@tech4uacademy.es>")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
 
 

@@ -14,7 +14,7 @@ from schemas import VideoCourseCreate, VideoCourseOut, VideoLessonCreate, VideoL
 from auth import get_current_user, require_management, require_subscription
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
 
 VIDEOS_DIR = "static/videos"
 MATERIALS_DIR = "static/materials"

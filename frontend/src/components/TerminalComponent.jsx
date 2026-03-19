@@ -78,11 +78,10 @@ const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to secure sandb
         term.write(welcomeMessage);
 
         // ── WebSocket connection ──────────────────────────────────────────
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host     = window.location.hostname === 'localhost'
-            ? 'localhost:8000'
-            : window.location.host;
-        const socket   = new WebSocket(`${protocol}//${host}${wsUrl}`);
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const wsProtocol = apiUrl.startsWith('https') ? 'wss:' : 'ws:';
+        const wsHost = apiUrl.replace(/^https?:\/\//, '').replace(/\/$/, '') || 'localhost:8000';
+        const socket = new WebSocket(`${wsProtocol}//${wsHost}${wsUrl}`);
         socket.binaryType = 'arraybuffer';
 
         socket.onopen = () => {

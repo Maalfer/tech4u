@@ -351,7 +351,7 @@ ALERT_EMAIL="${ALERT_EMAIL:-admin@ejemplo.com}"
 
 declare -A SERVICES=(
     ["web_principal"]="http://localhost:80"
-    ["api"]="http://localhost:8000/health"
+    ["api"]="https://tech4uacademy.es/health"
     ["docs"]="http://localhost:3000"
 )
 

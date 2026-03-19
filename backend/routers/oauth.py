@@ -51,8 +51,8 @@ if not SECRET_KEY:
         raise RuntimeError("🚨 production: SECRET_KEY NO CONFIGURADA en oauth.py. Deteniendo por seguridad.")
     log.error("SECRET_KEY no configurada en oauth.py. El sistema de firma de states fallará.")
 
-FRONTEND_URL         = os.getenv("FRONTEND_URL", "http://localhost:5173")
-BACKEND_URL          = os.getenv("BACKEND_URL", "http://localhost:8000")
+FRONTEND_URL         = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
+BACKEND_URL          = os.getenv("BACKEND_URL", "https://tech4uacademy.es")
 MS_TENANT            = os.getenv("MICROSOFT_TENANT_ID", "common")
 
 # secure=True solo en producción (HTTPS); False en desarrollo local

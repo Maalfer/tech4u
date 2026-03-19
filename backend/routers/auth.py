@@ -302,7 +302,7 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
         user.reset_token = token
         user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
         db.commit()
-        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        frontend_url = os.getenv("FRONTEND_URL", "https://tech4uacademy.es")
         reset_url = f"{frontend_url}/reset-password?token={token}"
         try:
             mailer.send_password_reset(user.email, user.nombre, reset_url)
