@@ -10,19 +10,19 @@ BACKEND_DIR = os.path.dirname(SCRIPTS_DIR)
 # Lista de scripts de seeding a ejecutar (rutas relativas al root del backend)
 SEED_SCRIPTS = [
     # --- THEORY / TEST QUESTIONS (Question table) ---
-    ("seed_new_questions.py", "Preguntas: Generales (Ciberseguridad, Progra, Marcas)"),
-    ("seed_hardware_questions.py", "Preguntas: Hardware (Fundamentos)"),
-    ("seed.py", "Preguntas: Demo (BBDD, Redes, SSOO)"),
+    ("scripts/seed_new_questions.py", "Preguntas: Generales (Ciberseguridad, Progra, Marcas)"),
+    ("scripts/seed_hardware_questions.py", "Preguntas: Hardware (Fundamentos)"),
+    ("scripts/seed.py", "Preguntas: Demo (BBDD, Redes, SSOO)"),
     ("scripts/seed_recent_qs.py", "Preguntas: Recientes (BBDD, Redes)"),
 
     # --- SQL EXERCISES (SQLExercise table) ---
-    ("seed_sql_skills.py", "SQL Dataset: Tienda + 36 Ejercicios"),
-    ("seed_pokemon.py", "SQL Dataset: Pokémon + 37 Ejercicios"),
-    ("seed_empresa_it.py", "SQL Dataset: Empresa IT + 30 Ejercicios"),
-    ("seed_sql_new_datasets.py", "SQL Datasets: HR, Ventas, Cine, Blog"),
-    ("seed_new_modes.py", "SQL Modos: Hueco, Bug, Orden, Inversa"),
-    ("seed_modes_extended.py", "SQL Expansión: +400 Ejercicios interactivos"),
-    ("seed_extra_exercises.py", "SQL Miscelánea: Ejercicios adicionales"),
+    ("scripts/seed_sql_skills.py", "SQL Dataset: Tienda + 36 Ejercicios"),
+    ("scripts/seed_pokemon.py", "SQL Dataset: Pokémon + 37 Ejercicios"),
+    ("scripts/seed_empresa_it.py", "SQL Dataset: Empresa IT + 30 Ejercicios"),
+    ("scripts/seed_sql_new_datasets.py", "SQL Datasets: HR, Ventas, Cine, Blog"),
+    ("scripts/seed_new_modes.py", "SQL Modos: Hueco, Bug, Orden, Inversa"),
+    ("scripts/seed_modes_extended.py", "SQL Expansión: +400 Ejercicios interactivos"),
+    ("scripts/seed_extra_exercises.py", "SQL Miscelánea: Ejercicios adicionales"),
 
     # --- SKILL LABS / DRAG & DROP (SkillLabExercise table) ---
     ("scripts/seed_usuarios_part1.py", "Labs: Linux (Usuarios y Grupos - P1)"),
@@ -48,14 +48,14 @@ SEED_SCRIPTS = [
     ("scripts/bulk_insert_skill_labs.py", "Labs: Carga Masiva (JSON)"),
 
     # --- THEORY GUIDES, ROADMAP & EXPANSION ---
-    ("seed_teoria_startup.py", "Teoría: Guías de Inicio"),
+    ("scripts/seed_teoria_startup.py", "Teoría: Guías de Inicio"),
     ("scripts/seed_teoria_all_guides.py", "Teoría: Todas las guías"),
     ("scripts/seed_teoria_ciberseguridad.py", "Teoría: Ciberseguridad (5 guías)"),
     ("scripts/seed_ejptv2_teoria.py", "Teoría: eJPTv2 (Preparación)"),
     ("scripts/seed_ejptv2_course.py", "Teoría: eJPTv2 (Curso)"),
     ("scripts/seed_teoria_acl_guide.py", "Teoría: Guías ACL"),
-    ("seed_roadmap_levels.py", "Roadmap: Niveles de Progreso SQL"),
-    ("seed_level1_premium.py", "Contenido: Premium Nivel 1"),
+    ("scripts/seed_roadmap_levels.py", "Roadmap: Niveles de Progreso SQL"),
+    ("scripts/seed_level1_premium.py", "Contenido: Premium Nivel 1"),
     ("scripts/expansion/seed_expansion_all.py", "EXPANSIÓN: +2000 preguntas Hardware, Redes, BBDD..."),
 ]
 
