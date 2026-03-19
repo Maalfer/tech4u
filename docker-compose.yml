@@ -59,6 +59,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://tech4uacademy.es
     container_name: tech4u-frontend
     restart: always
     depends_on:

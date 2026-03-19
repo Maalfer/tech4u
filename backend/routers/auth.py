@@ -162,7 +162,7 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
 
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("20/minute")
+@limiter.limit("5/minute")
 def login(request: Request, response: Response, data: UserLogin, db: Session = Depends(get_db)):
 
     # IP real (Cloudflare)

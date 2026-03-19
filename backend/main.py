@@ -68,6 +68,26 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 @app.middleware("http")
+async def antibot_middleware(request: Request, call_next):
+    """Rejects requests without User-Agent or known bot identifiers."""
+    user_agent = request.headers.get("user-agent", "")
+    
+    # 1. Reject empty User-Agent
+    if not user_agent:
+        return Response(content="User-Agent is required", status_code=403)
+    
+    # 2. Block common bot patterns (Go-http, python-requests, etc.)
+    blocked_patterns = [
+        "python-requests", "aiohttp", "httpx", "go-http-client", 
+        "curl", "wget", "headless", "selenium", "puppeteer",
+        "sqlmap", "nikto", "nmap"
+    ]
+    if any(pattern in user_agent.lower() for pattern in blocked_patterns):
+        return Response(content="Bot access denied", status_code=403)
+        
+    return await call_next(request)
+
+@app.middleware("http")
 async def security_middleware(request: Request, call_next):
     """Populates request.state.user_id for rate limiting purposes AND adds HTTP security headers."""
     request.state.user_id = None
