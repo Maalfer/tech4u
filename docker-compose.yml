@@ -1,0 +1,85 @@
+services:
+  # 🗄️ Base de datos (PostgreSQL)
+  db:
+    image: postgres:16-alpine
+    container_name: tech4u-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tech4u_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tech4u_admin_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-tech4u}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ⚡ Caché y Rate Limiting (Redis)
+  redis:
+    image: redis:7-alpine
+    container_name: tech4u-redis
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ⚙️ Backend (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tech4u-backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-tech4u_admin}:${POSTGRES_PASSWORD:-tech4u_admin_secret}@db:5432/${POSTGRES_DB:-tech4u}
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Acceso para lanzar laboratorios
+      - ./backend/static:/app/static               # Archivos estáticos
+    ports:
+      - "8000:8000"
+
+  # 🌐 Frontend (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tech4u-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+  # 🛠️ Imagen Base para Laboratorios (Tech4U Base)
+  # Este servicio asegura que la imagen tech4u-base:latest esté disponible localmente
+  sandbox-base:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.sandbox
+    image: tech4u-base:latest
+    # No necesita estar corriendo, solo construirse
+    # command: "true"
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: tech4u-network

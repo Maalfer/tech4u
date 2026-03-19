@@ -45,7 +45,23 @@ export default function LoginPage() {
                 }
             }
         } catch (err) {
-            setError(err.response?.data?.detail || 'Ha ocurrido un error. Inténtalo de nuevo.')
+            console.log(err)
+
+            const backendMsg = err.response?.data?.detail
+
+            if (backendMsg) {
+                if (backendMsg === "Credenciales incorrectas") {
+                    setError("Email o contraseña incorrectos")
+                } else {
+                    setError(backendMsg)
+                }
+            } else if (err.response?.status === 429) {
+                setError("Demasiados intentos. Intenta más tarde.")
+            } else if (err.request) {
+                setError("No se pudo conectar con el servidor")
+            } else {
+                setError("Error inesperado")
+            }
         }
     }
 
