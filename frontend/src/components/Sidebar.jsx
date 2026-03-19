@@ -130,7 +130,7 @@ export default function Sidebar() {
     // --- ADMIN GROUPS ---
     const menuItemsRest = [
         { icon: Compass, iconColor: 'text-sky-400', iconBg: 'bg-sky-500/10', label: 'Explora', path: '/explora' },
-        { icon: UserCircle, iconColor: 'text-purple-400', iconBg: 'bg-purple-500/10', label: 'Mi Personaje', path: '/admin/personaje' },
+        { icon: UserCircle, iconColor: 'text-purple-400', iconBg: 'bg-purple-500/10', label: 'Mi Personaje', path: '/gestion/personaje' },
         { icon: Swords, iconColor: 'text-rose-400', iconBg: 'bg-rose-500/10', label: '⚔️ Battle Arena', path: '/battle' },
         { icon: FlaskConical, iconColor: 'text-emerald-400', iconBg: 'bg-emerald-500/10', label: 'Test Center', path: '/tests' },
         { icon: Gamepad2, iconColor: 'text-indigo-400', iconBg: 'bg-indigo-500/10', label: 'Skill Labs', path: '/skill-labs' },
@@ -272,7 +272,7 @@ export default function Sidebar() {
                             </NavLink>
                         )}
 
-                        <NavLink to="/admin/tickets" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/tickets" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <div className="flex items-center gap-4">
                                 <NavIcon icon={Ticket} color="text-red-400" bg="bg-red-500/10" />
                                 <span>Incidencias Academia</span>
@@ -284,12 +284,12 @@ export default function Sidebar() {
                             )}
                         </NavLink>
 
-                        <NavLink to="/admin/referidos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/referidos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={TrendingUp} color="text-indigo-400" bg="bg-indigo-500/10" />
                             Ecosistema Referidos
                         </NavLink>
 
-                        <NavLink to="/admin/sugerencias" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/sugerencias" className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <div className="flex items-center gap-4">
                                 <NavIcon icon={Lightbulb} color="text-blue-400" bg="bg-blue-500/10" />
                                 <span>Propuestas Alumnos</span>
@@ -301,44 +301,44 @@ export default function Sidebar() {
                             )}
                         </NavLink>
 
-                        <NavLink to="/admin/noticias" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/noticias" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={Megaphone} color="text-sky-400" bg="bg-sky-500/10" />
                             Enviar Noticia
                         </NavLink>
 
                         {user.role === 'admin' && (
-                            <NavLink to="/admin/cupones" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                            <NavLink to="/gestion/cupones" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                                 <NavIcon icon={Tag} color="text-amber-400" bg="bg-amber-500/10" />
                                 Cupones Descuento
                             </NavLink>
                         )}
 
-                        <NavLink to="/admin/shop" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/shop" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={ShoppingBag} color="text-amber-400" bg="bg-amber-500/10" />
                             Academy Shop
                         </NavLink>
 
-                        <NavLink to="/admin/terminal-builder" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/terminal-builder" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={Terminal} color="text-[var(--color-neon)]" bg="bg-[var(--color-neon)]/10" />
                             Terminal Builder
                         </NavLink>
 
-                        <NavLink to="/admin/teoria" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/teoria" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={BookOpen} color="text-cyan-400" bg="bg-cyan-500/10" />
                             Teoría Admin
                         </NavLink>
 
-                        <NavLink to="/admin/cursos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/cursos" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={Video} color="text-orange-400" bg="bg-orange-500/10" />
                             Gestión Cursos
                         </NavLink>
 
-                        <NavLink to="/admin/sql-editor" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/sql-editor" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={BrainCircuit} color="text-blue-400" bg="bg-blue-500/10" />
                             SQL Editor
                         </NavLink>
 
-                        <NavLink to="/admin/analytics" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                        <NavLink to="/gestion/analytics" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 font-mono text-[13px] ${isActive ? 'bg-white/8 text-white border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
                             <NavIcon icon={BarChart2} color="text-violet-400" bg="bg-violet-500/10" />
                             Analytics
                         </NavLink>

@@ -149,7 +149,7 @@ export default function AdminModules() {
             <div className="flex items-center justify-between border-b border-white/5 pb-8">
                 <div className="flex items-center gap-6">
                     <button
-                        onClick={() => navigate('/admin/terminal-builder/paths')}
+                        onClick={() => navigate('/gestion/terminal-builder/paths')}
                         className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-slate-400 hover:text-white"
                     >
                         <ChevronLeft className="w-6 h-6" />
@@ -204,7 +204,7 @@ export default function AdminModules() {
                                 </div>
 
                                 <button
-                                    onClick={() => navigate(`/admin/terminal-builder/modules/${mod.id}/labs`)}
+                                    onClick={() => navigate(`/gestion/terminal-builder/modules/${mod.id}/labs`)}
                                     className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-neon/10 hover:border-neon/30 hover:text-neon transition-all text-slate-400 text-[10px] font-black uppercase tracking-widest"
                                 >
                                     <FlaskConical className="w-4 h-4" /> Labs

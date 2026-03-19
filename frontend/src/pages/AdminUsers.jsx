@@ -294,7 +294,7 @@ export default function AdminUsers() {
                                         </td>
                                         <td className="p-4 text-right">
                                             <Link
-                                                to={`/admin/users/${u.id}`}
+                                                to={`/gestion/users/${u.id}`}
                                                 className="inline-flex items-center gap-1.5 bg-neon/10 border border-neon/30 text-neon hover:bg-neon hover:text-black hover:shadow-[0_0_15px_rgba(57,255,20,0.4)] px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
                                             >
                                                 Gestionar

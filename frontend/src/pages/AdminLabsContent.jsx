@@ -556,7 +556,7 @@ export default function AdminLabsContent() {
                                         {editingLab && (
                                             <button
                                                 type="button"
-                                                onClick={() => navigate(`/admin/terminal-builder/labs/${editingLab.id}/challenges`)}
+                                                onClick={() => navigate(`/gestion/terminal-builder/labs/${editingLab.id}/challenges`)}
                                                 className="w-full bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-400 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                                             >
                                                 <Plus className="w-4 h-4" /> Configurar Retos Específicos

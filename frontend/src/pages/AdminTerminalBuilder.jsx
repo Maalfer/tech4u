@@ -36,13 +36,13 @@ export default function AdminTerminalBuilder() {
             <div className="sticky top-0 z-40 bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 px-8 py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="p-2 bg-neon/10 rounded-lg border border-neon/20 group cursor-pointer" onClick={() => navigate('/admin/terminal-builder')}>
+                        <div className="p-2 bg-neon/10 rounded-lg border border-neon/20 group cursor-pointer" onClick={() => navigate('/gestion/terminal-builder')}>
                             <Terminal className="w-5 h-5 text-neon transition-transform group-hover:scale-110" />
                         </div>
                         <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
                             <Link to="/admin-dashboard" className="hover:text-white transition-colors">Admin</Link>
                             <ChevronRight className="w-3 h-3 text-slate-700" />
-                            <Link to="/admin/terminal-builder" className="hover:text-white transition-colors">Terminal Builder</Link>
+                            <Link to="/gestion/terminal-builder" className="hover:text-white transition-colors">Terminal Builder</Link>
                             {pathSegments.length > 2 && (
                                 <>
                                     <ChevronRight className="w-3 h-3 text-slate-700" />
@@ -75,7 +75,7 @@ export default function AdminTerminalBuilder() {
                             </p>
                         </div>
                         <button
-                            onClick={() => navigate('/admin/terminal-builder/lab-generator')}
+                            onClick={() => navigate('/gestion/terminal-builder/lab-generator')}
                             className="flex items-center gap-2 bg-neon/10 text-neon border border-neon/30 px-6 py-3 rounded-xl font-black uppercase tracking-tighter hover:bg-neon hover:text-black transition-all shadow-[0_0_20px_rgba(198,255,51,0.1)] hover:shadow-[0_0_20px_rgba(198,255,51,0.4)]"
                         >
                             <Plus className="w-5 h-5" /> Lab Generator
@@ -89,7 +89,7 @@ export default function AdminTerminalBuilder() {
                         <Route path="/" element={
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                                 {/* Summary Cards to explain hierarchy */}
-                                <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem] hover:bg-white/[0.04] transition-all group cursor-pointer" onClick={() => navigate('/admin/terminal-builder/paths')}>
+                                <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem] hover:bg-white/[0.04] transition-all group cursor-pointer" onClick={() => navigate('/gestion/terminal-builder/paths')}>
                                     <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 border border-blue-500/20 group-hover:border-blue-500/40">
                                         <Globe className="w-6 h-6 text-blue-400" />
                                     </div>
@@ -97,7 +97,7 @@ export default function AdminTerminalBuilder() {
                                     <p className="text-xs text-slate-500 leading-relaxed">Rutas globales de especialización técnica. (Ej: Linux Fundamentals)</p>
                                 </div>
 
-                                <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem] hover:bg-white/[0.04] transition-all group cursor-pointer" onClick={() => navigate('/admin/terminal-builder/paths')}>
+                                <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem] hover:bg-white/[0.04] transition-all group cursor-pointer" onClick={() => navigate('/gestion/terminal-builder/paths')}>
                                     <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20 group-hover:border-purple-500/40">
                                         <Layers className="w-6 h-6 text-purple-400" />
                                     </div>
@@ -105,7 +105,7 @@ export default function AdminTerminalBuilder() {
                                     <p className="text-xs text-slate-500 leading-relaxed">Bloques temáticos estructurados dentro de una ruta.</p>
                                 </div>
 
-                                <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem] hover:bg-white/[0.04] transition-all group cursor-pointer" onClick={() => navigate('/admin/terminal-builder/paths')}>
+                                <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem] hover:bg-white/[0.04] transition-all group cursor-pointer" onClick={() => navigate('/gestion/terminal-builder/paths')}>
                                     <div className="w-12 h-12 bg-neon/10 rounded-2xl flex items-center justify-center mb-6 border border-neon/20 group-hover:border-neon/40">
                                         <FlaskConical className="w-6 h-6 text-neon" />
                                     </div>

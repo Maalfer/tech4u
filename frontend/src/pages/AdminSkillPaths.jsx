@@ -178,7 +178,7 @@ export default function AdminSkillPaths() {
                             </div>
 
                             <button
-                                onClick={() => navigate(`/admin/terminal-builder/paths/${path.id}/modules`)}
+                                onClick={() => navigate(`/gestion/terminal-builder/paths/${path.id}/modules`)}
                                 className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-400 transition-all text-slate-400 text-[10px] font-black uppercase tracking-widest"
                             >
                                 <Layers className="w-4 h-4" /> Módulos

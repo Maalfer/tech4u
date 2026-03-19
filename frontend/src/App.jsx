@@ -249,31 +249,31 @@ export default function App() {
 
               {/* ── Admin-only (usuarios + finanzas) ──────────────────────────────── */}
               <Route path="/gestion-usuarios" element={<RoleRoute allowedRoles={['admin']}><AdminUsers /></RoleRoute>} />
-              <Route path="/admin/users/:id" element={<RoleRoute allowedRoles={['admin']}><AdminUserDetail /></RoleRoute>} />
-              <Route path="/admin/cupones" element={<RoleRoute allowedRoles={['admin']}><AdminCoupons /></RoleRoute>} />
-              <Route path="/admin/referidos" element={<RoleRoute allowedRoles={['admin']}><AdminReferrals /></RoleRoute>} />
+              <Route path="/gestion/users/:id" element={<RoleRoute allowedRoles={['admin']}><AdminUserDetail /></RoleRoute>} />
+              <Route path="/gestion/cupones" element={<RoleRoute allowedRoles={['admin']}><AdminCoupons /></RoleRoute>} />
+              <Route path="/gestion/referidos" element={<RoleRoute allowedRoles={['admin']}><AdminReferrals /></RoleRoute>} />
 
               {/* ── Admin + Developer (técnico / operaciones) ─────────────────────── */}
-              <Route path="/admin/shop" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminAcademyShop /></RoleRoute>} />
+              <Route path="/gestion/shop" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminAcademyShop /></RoleRoute>} />
               <Route path="/admin-dashboard" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminDashboard /></RoleRoute>} />
-              <Route path="/admin/tickets" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminTickets /></RoleRoute>} />
-              <Route path="/admin/sugerencias" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminSuggestions /></RoleRoute>} />
-              <Route path="/admin/labs" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminLabs /></RoleRoute>} />
-              <Route path="/admin/terminal-builder/*" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminTerminalBuilder /></RoleRoute>} />
-              <Route path="/admin/sql-editor" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminSQLEditor /></RoleRoute>} />
-              <Route path="/admin/video-courses" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminVideoCourses /></RoleRoute>} />
-              <Route path="/admin/skill-paths" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminSkillPaths /></RoleRoute>} />
-              <Route path="/admin/skill-paths/:pathId/modules" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminModules /></RoleRoute>} />
-              <Route path="/admin/skill-paths/:pathId/modules/:moduleId/labs" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminLabsContent /></RoleRoute>} />
-              <Route path="/admin/labs/:labId/challenges" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminChallenges /></RoleRoute>} />
-              <Route path="/admin/lab-generator" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminLabGenerator /></RoleRoute>} />
+              <Route path="/gestion/tickets" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminTickets /></RoleRoute>} />
+              <Route path="/gestion/sugerencias" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminSuggestions /></RoleRoute>} />
+              <Route path="/gestion/labs" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminLabs /></RoleRoute>} />
+              <Route path="/gestion/terminal-builder/*" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminTerminalBuilder /></RoleRoute>} />
+              <Route path="/gestion/sql-editor" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminSQLEditor /></RoleRoute>} />
+              <Route path="/gestion/video-courses" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminVideoCourses /></RoleRoute>} />
+              <Route path="/gestion/skill-paths" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminSkillPaths /></RoleRoute>} />
+              <Route path="/gestion/skill-paths/:pathId/modules" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminModules /></RoleRoute>} />
+              <Route path="/gestion/skill-paths/:pathId/modules/:moduleId/labs" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminLabsContent /></RoleRoute>} />
+              <Route path="/gestion/labs/:labId/challenges" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminChallenges /></RoleRoute>} />
+              <Route path="/gestion/lab-generator" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminLabGenerator /></RoleRoute>} />
 
               {/* ── Admin + Developer + Docente (contenido editorial) ─────────────── */}
               <Route path="/gestion-contenido" element={<RoleRoute allowedRoles={['admin', 'developer', 'docente']}><AdminContent /></RoleRoute>} />
-              <Route path="/admin/noticias" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminBroadcast /></RoleRoute>} />
-              <Route path="/admin/teoria" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminTeoria /></RoleRoute>} />
-              <Route path="/admin/cursos" element={<RoleRoute allowedRoles={['admin', 'developer', 'docente']}><AdminCursos /></RoleRoute>} />
-              <Route path="/admin/analytics" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminAnalytics /></RoleRoute>} />
+              <Route path="/gestion/noticias" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminBroadcast /></RoleRoute>} />
+              <Route path="/gestion/teoria" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminTeoria /></RoleRoute>} />
+              <Route path="/gestion/cursos" element={<RoleRoute allowedRoles={['admin', 'developer', 'docente']}><AdminCursos /></RoleRoute>} />
+              <Route path="/gestion/analytics" element={<RoleRoute allowedRoles={['admin', 'developer']}><AdminAnalytics /></RoleRoute>} />
 
               {/* ── Otras rutas protegidas ────────────────────────────────────────── */}
               <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
@@ -297,7 +297,7 @@ export default function App() {
               <Route path="/netlab/cli/:id" element={<PremiumRoute module="netlabs"><NetLabCLI /></PremiumRoute>} />
               <Route path="/netlab/:id" element={<PremiumRoute module="netlabs"><NetDebugScenario /></PremiumRoute>} />
               
-              <Route path="/admin/personaje" element={<ProtectedRoute><AdminCharacterProfile /></ProtectedRoute>} />
+              <Route path="/gestion/personaje" element={<ProtectedRoute><AdminCharacterProfile /></ProtectedRoute>} />
               <Route path="/suscripcion" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
               <Route path="/suscripcion/exito" element={<ProtectedRoute><SubscriptionSuccess /></ProtectedRoute>} />
               <Route path="/suscripcion/paypal-retorno" element={<ProtectedRoute><PayPalReturnPage /></ProtectedRoute>} />

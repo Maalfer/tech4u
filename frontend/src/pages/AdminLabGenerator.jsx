@@ -174,7 +174,7 @@ export default function AdminLabGenerator() {
             addNotification({ title: '¡Magia!', description: 'Laboratorio generado correctamente. Configura los validadores ahora.', type: 'success' });
 
             // 2. Redirect to the labs view of that module to let admin see and edit the draft
-            navigate(`/admin/terminal-builder/modules/${moduleId}/labs`);
+            navigate(`/gestion/terminal-builder/modules/${moduleId}/labs`);
 
         } catch (err) {
             if (import.meta.env.DEV) console.error("Generator Error", err);
@@ -192,7 +192,7 @@ export default function AdminLabGenerator() {
             <div className="flex items-center justify-between border-b border-white/5 pb-8">
                 <div className="flex items-center gap-6">
                     <button
-                        onClick={() => navigate('/admin/terminal-builder')}
+                        onClick={() => navigate('/gestion/terminal-builder')}
                         className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-slate-400 hover:text-white"
                     >
                         <ChevronLeft className="w-6 h-6" />
@@ -331,7 +331,7 @@ export default function AdminLabGenerator() {
                     <div className="pt-6 flex justify-end gap-4 border-t border-white/5">
                         <button
                             type="button"
-                            onClick={() => navigate('/admin/terminal-builder')}
+                            onClick={() => navigate('/gestion/terminal-builder')}
                             className="px-6 py-3 font-black uppercase tracking-tighter text-slate-500 hover:text-white transition-colors"
                         >
                             Cancelar
