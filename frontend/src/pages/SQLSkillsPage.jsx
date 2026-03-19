@@ -2557,7 +2557,7 @@ const StandardEditor = ({
                             </div>
                         )}
 
-                        {(!user?.isPremium && exercise.order_num > 2) ? (
+                        {((user?.subscription_type === 'free' || !user?.subscription_type) && exercise.order_num > 2) ? (
                             <div className="glass rounded-2xl border border-blue-500/20 p-8 text-center bg-blue-500/5 mt-4">
                                 <div className="mx-auto w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-4">
                                     <Lock size={32} className="text-blue-400" />
@@ -3067,7 +3067,7 @@ const PathEditor = ({
 
                             {/* ── Editor SQL (tipo-específico) ── */}
                             <div className="px-6 pt-5 pb-4">
-                                {(!user?.isPremium && exercise.order_num > 2) ? (
+                                {((user?.subscription_type === 'free' || !user?.subscription_type) && exercise.order_num > 2) ? (
                                     <div className="glass rounded-2xl border border-blue-500/20 p-6 text-center bg-blue-500/5 my-4">
                                         <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-3">
                                             <Lock size={24} className="text-blue-400" />
