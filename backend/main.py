@@ -167,15 +167,18 @@ async def security_middleware(request: Request, call_next):
             "max-age=31536000; includeSubDomains; preload"
         )
 
-    # SEC-09 FIX: CSP reforzada — eliminados unsafe-inline y unsafe-eval donde es posible.
-    # unsafe-inline en script-src se mantiene para el SDK de PayPal que lo requiere,
-    # pero se ha eliminado unsafe-eval (no es necesario en producción).
-    # Si el frontend se migra a nonces/hashes, eliminar también unsafe-inline.
     response.headers["Content-Security-Policy"] = (
-        f"frame-src {_paypal_domains}; "
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com data:; "
+        "img-src 'self' data: blob: https:; "
+        "media-src 'self' blob: https:; "
+        "connect-src 'self' wss: ws: https:; "
+        "frame-src 'self'; "
         "frame-ancestors 'none'; "
         "base-uri 'self'; "
-        f"form-action 'self' {_paypal_domains};"
+        "form-action 'self';"
     )
     return response
 
