@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from websocket_manager import manager
 from database import get_db, Lab, User, SkillPath, Module, TheorySubject, TheoryPost, Challenge
-from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements, subscriptions, video_courses, coupons_admin, leaderboard, support, skill_labs, paypal, achievements, labs, teoria, sql_skills, battle, certificates
+from routers import auth, dashboard, tests, resources, users_admin, content_admin, announcements, subscriptions, video_courses, coupons_admin, leaderboard, support, skill_labs, achievements, labs, teoria, sql_skills, battle, certificates
 from routers import referrals, analytics, oauth, flashcard_spaced, search
 
 from docker_client import docker_launcher
@@ -171,19 +171,7 @@ async def security_middleware(request: Request, call_next):
     # unsafe-inline en script-src se mantiene para el SDK de PayPal que lo requiere,
     # pero se ha eliminado unsafe-eval (no es necesario en producción).
     # Si el frontend se migra a nonces/hashes, eliminar también unsafe-inline.
-    _paypal_mode = os.getenv("PAYPAL_MODE", "sandbox")
-    _paypal_domains = "https://www.paypal.com https://www.paypalobjects.com"
-    if _paypal_mode != "live":
-        # Solo incluir sandbox.paypal.com en entornos que no sean producción live
-        _paypal_domains += " https://www.sandbox.paypal.com"
     response.headers["Content-Security-Policy"] = (
-        "default-src 'self'; "
-        f"script-src 'self' 'unsafe-inline' {_paypal_domains}; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "font-src 'self' https://fonts.gstatic.com data:; "
-        "img-src 'self' data: blob: https:; "
-        "media-src 'self' blob: https:; "
-        "connect-src 'self' wss: ws: https:; "
         f"frame-src {_paypal_domains}; "
         "frame-ancestors 'none'; "
         "base-uri 'self'; "
@@ -1609,8 +1597,6 @@ async def startup():
     # ── Advertencias de producción ────────────────────────────────────────────
     if _env == "production":
         _warnings = []
-        if not os.getenv("PAYPAL_CLIENT_ID") or os.getenv("PAYPAL_MODE", "sandbox") == "sandbox":
-            _warnings.append("⚠️  PAYPAL_MODE=sandbox — los pagos con PayPal son simulados")
         if not os.getenv("RESEND_API_KEY"):
             _warnings.append("⚠️  RESEND_API_KEY vacío — los emails transaccionales no se enviarán")
         if not os.getenv("SENTRY_DSN"):
@@ -1761,7 +1747,7 @@ app.include_router(coupons_admin.router)
 app.include_router(leaderboard.router)
 app.include_router(support.router)
 app.include_router(skill_labs.router)
-app.include_router(paypal.router)
+    app.include_router(achievements.router)
 app.include_router(achievements.router)
 app.include_router(labs.router)
 app.include_router(teoria.router)
