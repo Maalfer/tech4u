@@ -34,6 +34,7 @@ SEED_SCRIPTS = [
     ("seed_teoria_all_guides.py", "Guías de Teoría (Todas)"),
     ("seed_roadmap_levels.py", "Niveles de Roadmap/Progreso"),
     ("seed_level1_premium.py", "Contenido Premium Nivel 1"),
+    ("scripts/expansion/seed_expansion_all.py", "EXPANSIÓN MASIVA (350+ items iniciales)"),
 ]
 
 def print_db_summary(db_path=None):

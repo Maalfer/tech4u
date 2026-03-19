@@ -16,6 +16,7 @@ const SUBJECT_STYLES = {
     'Ciberseguridad':          { icon: Shield,   accentRgb: '239,68,68',   iconColor: 'text-red-400',    badge: 'bg-red-500/10 text-red-400 border-red-500/30' },
     'Fundamentos de Hardware': { icon: Cpu,      accentRgb: '234,179,8',   iconColor: 'text-yellow-400', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
     'Lenguaje de Marcas':      { icon: FileCode, accentRgb: '6,182,212',   iconColor: 'text-cyan-400',   badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
+    'Programación':            { icon: FileCode, accentRgb: '16,185,129',  iconColor: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
 };
 
 const DEFAULT_STYLE = { icon: Database, color: 'from-slate-600/20 to-slate-900/10 border-slate-500/30 hover:border-slate-400/60', iconColor: 'text-slate-400', badge: 'bg-slate-500/10 text-slate-400 border-slate-500/30' };
