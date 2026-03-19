@@ -10,31 +10,53 @@ BACKEND_DIR = os.path.dirname(SCRIPTS_DIR)
 # Lista de scripts de seeding a ejecutar (rutas relativas al root del backend)
 SEED_SCRIPTS = [
     # --- THEORY / TEST QUESTIONS (Question table) ---
-    ("seed_new_questions.py", "Preguntas Generales (Ciberseguridad, Progra, Marcas)"),
-    ("seed_hardware_questions.py", "Preguntas de Hardware"),
-    ("scripts/seed_recent_qs.py", "Preguntas Recientes (Bases de Datos, Redes)"),
-    ("seed.py", "Preguntas Demo (Bases de Datos, Redes, SSOO)"),
+    ("seed_new_questions.py", "Preguntas: Generales (Ciberseguridad, Progra, Marcas)"),
+    ("seed_hardware_questions.py", "Preguntas: Hardware (Fundamentos)"),
+    ("seed.py", "Preguntas: Demo (BBDD, Redes, SSOO)"),
+    ("scripts/seed_recent_qs.py", "Preguntas: Recientes (BBDD, Redes)"),
 
-    # --- INTERACTIVE SQL EXERCISES (SQLExercise table) ---
-    ("seed_sql_skills.py", "Dataset SQL Tienda + 36 Ejercicios"),
-    ("seed_pokemon.py", "Project Pokémon - Dataset + 37 Ejercicios"),
-    ("seed_empresa_it.py", "Dataset SQL Empresa IT + 30 Ejercicios"),
-    ("seed_new_modes.py", "SQL: 4 Nuevos Modos (Hueco, Bug, Orden, Inversa)"),
-    ("seed_modes_extended.py", "SQL: Expansión Masiva (400 ejercicios extras)"),
-    ("seed_sql_new_datasets.py", "SQL: Datasets Adicionales (HR, Ventas, Cine, Blog)"),
+    # --- SQL EXERCISES (SQLExercise table) ---
+    ("seed_sql_skills.py", "SQL Dataset: Tienda + 36 Ejercicios"),
+    ("seed_pokemon.py", "SQL Dataset: Pokémon + 37 Ejercicios"),
+    ("seed_empresa_it.py", "SQL Dataset: Empresa IT + 30 Ejercicios"),
+    ("seed_sql_new_datasets.py", "SQL Datasets: HR, Ventas, Cine, Blog"),
+    ("seed_new_modes.py", "SQL Modos: Hueco, Bug, Orden, Inversa"),
+    ("seed_modes_extended.py", "SQL Expansión: +400 Ejercicios interactivos"),
+    ("seed_extra_exercises.py", "SQL Miscelánea: Ejercicios adicionales"),
 
     # --- SKILL LABS / DRAG & DROP (SkillLabExercise table) ---
-    ("scripts/seed_usuarios_part1.py", "Labs Linux: Usuarios y Grupos"),
-    ("scripts/seed_skill_labs_new_subjects.py", "Skill Labs: Nuevas Materias"),
-    ("scripts/seed_netlabs_acl_vlan.py", "Labs Redes: ACL y VLAN"),
-    ("scripts/bulk_insert_skill_labs.py", "Skill Labs: Carga Masiva (JSON)"),
+    ("scripts/seed_usuarios_part1.py", "Labs: Linux (Usuarios y Grupos - P1)"),
+    ("scripts/seed_usuarios_part2.py", "Labs: Linux (Usuarios y Grupos - P2)"),
+    ("scripts/seed_bash_part1.py", "Labs: Linux (Bash Scripting - P1)"),
+    ("scripts/seed_bash_part2.py", "Labs: Linux (Bash Scripting - P2)"),
+    ("scripts/seed_bash_part3.py", "Labs: Linux (Bash Scripting - P3)"),
+    ("scripts/seed_linux_fundamentals.py", "Labs: Linux (Fundamentos)"),
+    ("scripts/seed_linux_labs_new_paths.py", "Labs: Linux (Nuevas Rutas)"),
+    ("scripts/seed_netlabs_acl_vlan.py", "Labs: Redes (ACL y VLAN)"),
+    ("scripts/seed_netlabs_advanced.py", "Labs: Redes (Avanzado Full)"),
+    ("scripts/seed_netlabs_advanced_p1.py", "Labs: Redes (Avanzado - P1)"),
+    ("scripts/seed_netlabs_advanced_p2.py", "Labs: Redes (Avanzado - P2)"),
+    ("scripts/seed_netlabs_advanced_p3.py", "Labs: Redes (Avanzado - P3)"),
+    ("scripts/seed_storage.py", "Labs: Almacenamiento (Básico)"),
+    ("scripts/seed_storage_v2_part1.py", "Labs: Almacenamiento (V2 - P1)"),
+    ("scripts/seed_storage_v2_part2.py", "Labs: Almacenamiento (V2 - P2)"),
+    ("scripts/seed_storage_v2_part3.py", "Labs: Almacenamiento (V2 - P3)"),
+    ("scripts/seed_claude_labs_part1.py", "Labs: Especiales (Part 1)"),
+    ("scripts/seed_claude_labs_part2.py", "Labs: Especiales (Part 2)"),
+    ("scripts/seed_claude_labs_part3.py", "Labs: Especiales (Part 3)"),
+    ("scripts/seed_skill_labs_new_subjects.py", "Labs: Materias Varias"),
+    ("scripts/bulk_insert_skill_labs.py", "Labs: Carga Masiva (JSON)"),
 
-    # --- THEORY GUIDES & MISC ---
-    ("seed_teoria_startup.py", "Guías de Teoría (Startup)"),
-    ("seed_teoria_all_guides.py", "Guías de Teoría (Todas)"),
-    ("seed_roadmap_levels.py", "Niveles de Roadmap/Progreso"),
-    ("seed_level1_premium.py", "Contenido Premium Nivel 1"),
-    ("scripts/expansion/seed_expansion_all.py", "EXPANSIÓN MASIVA (350+ items iniciales)"),
+    # --- THEORY GUIDES, ROADMAP & EXPANSION ---
+    ("seed_teoria_startup.py", "Teoría: Guías de Inicio"),
+    ("scripts/seed_teoria_all_guides.py", "Teoría: Todas las guías"),
+    ("scripts/seed_teoria_ciberseguridad.py", "Teoría: Ciberseguridad (5 guías)"),
+    ("scripts/seed_ejptv2_teoria.py", "Teoría: eJPTv2 (Preparación)"),
+    ("scripts/seed_ejptv2_course.py", "Teoría: eJPTv2 (Curso)"),
+    ("scripts/seed_teoria_acl_guide.py", "Teoría: Guías ACL"),
+    ("seed_roadmap_levels.py", "Roadmap: Niveles de Progreso SQL"),
+    ("seed_level1_premium.py", "Contenido: Premium Nivel 1"),
+    ("scripts/expansion/seed_expansion_all.py", "EXPANSIÓN: +2000 preguntas Hardware, Redes, BBDD..."),
 ]
 
 def print_db_summary(db_path=None):
