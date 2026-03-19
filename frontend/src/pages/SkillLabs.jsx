@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Component } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     Hammer, AlertCircle, RefreshCw, ChevronRight, Trophy,
@@ -12,6 +12,44 @@ import PageHeader from '../components/PageHeader'
 import SkillEngine from '../components/SkillEngine'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
+
+// ─── Error Boundary ─────────────────────────────────────────────────────────────
+class SkillEngineErrorBoundary extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+    }
+    componentDidCatch(error, info) {
+        console.error('[SkillEngine crash]', error, info);
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="flex flex-col items-center justify-center py-20 gap-5 text-center">
+                    <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center">
+                        <span className="text-rose-400 text-2xl">⚠</span>
+                    </div>
+                    <div>
+                        <p className="font-mono text-sm text-slate-300 font-bold mb-1">Error en el laboratorio</p>
+                        <p className="font-mono text-xs text-slate-500">
+                            {this.state.error?.message || 'Error inesperado al cargar el ejercicio.'}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => { this.setState({ hasError: false, error: null }); this.props.onReset?.(); }}
+                        className="px-6 py-2 rounded-xl font-mono text-xs font-black uppercase tracking-widest text-white border border-fuchsia-500/30 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 transition-all"
+                    >
+                        Volver a asignaturas
+                    </button>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
 
 // ─── Subject config ────────────────────────────────────────────────────────────
 const SUBJECTS = [
@@ -866,7 +904,9 @@ export default function SkillLabs() {
                         <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] blur-[180px] rounded-full opacity-[0.05] pointer-events-none"
                             style={{ background: isExamMode ? '#ef4444' : isDailyChallenge ? '#f59e0b' : '#9333ea' }} />
                         <div className="relative z-10 w-full max-w-4xl">
-                            <SkillEngine exercises={exercises} onFinish={handleFinish} />
+                            <SkillEngineErrorBoundary onReset={handleReset}>
+                                <SkillEngine exercises={exercises} onFinish={handleFinish} />
+                            </SkillEngineErrorBoundary>
                         </div>
                     </div>
                 )}

@@ -3,8 +3,13 @@ import { CheckCircle2, XCircle, ArrowRight, Hammer, Zap, Shield } from 'lucide-r
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SkillEngine({ exercises, onFinish }) {
+    // Defensive: filter out any exercises with missing required fields
+    const safeExercises = (exercises || []).filter(
+        ex => ex && typeof ex.sentence === 'string' && Array.isArray(ex.pool) && Array.isArray(ex.answers)
+    );
+
     const [currentIndex, setCurrentIndex]   = useState(0);
-    const [stats, setStats]                 = useState({ total: exercises.length, correct: 0, mistakes: 0 });
+    const [stats, setStats]                 = useState({ total: safeExercises.length, correct: 0, mistakes: 0 });
     const [sentenceFragments, setSentenceFragments] = useState([]);
     const [droppedWords, setDroppedWords]   = useState([]);
     const [wordPool, setWordPool]           = useState([]);
@@ -14,7 +19,7 @@ export default function SkillEngine({ exercises, onFinish }) {
     const [shake, setShake]                 = useState(false);
     const feedbackRef = useRef(null);
 
-    const currentEx = exercises[currentIndex];
+    const currentEx = safeExercises[currentIndex];
 
     useEffect(() => {
         if (feedback === 'success' || feedback === 'failed') {
@@ -95,19 +100,34 @@ export default function SkillEngine({ exercises, onFinish }) {
     };
 
     const advance = () => {
-        if (currentIndex < exercises.length - 1) {
+        if (currentIndex < safeExercises.length - 1) {
             setCurrentIndex(i => i + 1);
         } else {
             onFinish(stats);
         }
     };
 
+    // Show an error if no valid exercises found
+    if (safeExercises.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center">
+                    <Hammer size={24} className="text-orange-400" />
+                </div>
+                <p className="font-mono text-sm text-slate-400 text-center">
+                    No hay ejercicios disponibles para esta combinación.<br />
+                    <span className="text-slate-500 text-xs">Prueba a seleccionar otra asignatura o dificultad.</span>
+                </p>
+            </div>
+        );
+    }
+
     if (!currentEx) return null;
 
     const allFilled   = droppedWords.every(w => w !== null);
     const isDone      = feedback === 'success' || feedback === 'failed';
-    const progress    = ((currentIndex) / exercises.length) * 100;
-    const isLastEx    = currentIndex === exercises.length - 1;
+    const progress    = ((currentIndex) / safeExercises.length) * 100;
+    const isLastEx    = currentIndex === safeExercises.length - 1;
 
     return (
         <motion.div

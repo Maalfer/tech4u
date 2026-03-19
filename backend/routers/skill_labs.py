@@ -103,15 +103,21 @@ def get_daily_count(user_id: int, db: Session) -> int:
 
 
 def build_exercise_payload(ex: SkillLabExercise) -> dict:
-    correct_arr = json.loads(ex.correct_answers)
-    distractor_arr = json.loads(ex.distractors)
+    try:
+        correct_arr = json.loads(ex.correct_answers) if ex.correct_answers else []
+    except (json.JSONDecodeError, TypeError):
+        correct_arr = []
+    try:
+        distractor_arr = json.loads(ex.distractors) if ex.distractors else []
+    except (json.JSONDecodeError, TypeError):
+        distractor_arr = []
     word_pool = correct_arr + distractor_arr
     random.shuffle(word_pool)
     return {
         "id": ex.id,
         "subject": ex.subject,
         "difficulty": ex.difficulty,
-        "sentence": ex.sentence_template,
+        "sentence": ex.sentence_template or "",
         "pool": word_pool,
         "answers": correct_arr,
         "explanation": ex.explanation,
