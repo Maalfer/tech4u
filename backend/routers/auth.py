@@ -18,7 +18,7 @@ import os
 logger = logging.getLogger(__name__)
 
 redis_client = redis.Redis(
-    host=os.getenv("REDIS_HOST", "tech4u-redis"),
+    host=os.getenv("REDIS_HOST", "redis"),
     port=6379,
     decode_responses=True
 )
