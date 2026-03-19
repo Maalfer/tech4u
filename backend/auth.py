@@ -86,7 +86,13 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Token inválido")
     user = db.query(User).filter(User.id == int(user_id)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        # Return 401 (not 404) so the frontend interceptor can detect a stale/invalid
+        # cookie (e.g. after a DB reset or account deletion) and redirect to /login.
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sesión inválida. Por favor, inicia sesión de nuevo.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     # SEC-05 FIX: validar token_version para permitir revocación inmediata de sesiones.
     # Si el admin o el propio usuario cambia la contraseña, token_version se incrementa
