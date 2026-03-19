@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>¡Salva tu racha! · Tech4U Academy</title>
+</head>
+<body style="margin:0; padding:0; background-color:#080e1a; font-family:'Segoe UI', Arial, sans-serif;">
+  <span style="display:none; font-size:1px; color:#080e1a; max-height:0; overflow:hidden;">Tu racha de {{ streak_days }} días está en peligro. ¡Entra ya! 🔥</span>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#080e1a; padding: 40px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+        <tr><td align="center" style="padding-bottom: 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px 16px 0 0; border: 1px solid #3b1515; border-bottom: none;">
+            <tr><td style="padding: 32px 40px 28px 40px; text-align:center;">
+              <div style="width:60px; height:3px; background: linear-gradient(90deg, #f97316, #fbbf24); margin: 0 auto 28px auto; border-radius:2px;"></div>
+              <div style="margin-bottom: 8px;">
+                <img src="https://tech4uacademy.es/assets/tech4u_logo-DPEJ--cc.png" alt="Tech4U Academy" width="80" height="80" style="display:block; margin: 0 auto; filter: drop-shadow(0 0 16px rgba(249,115,22,0.4));" />
+              </div>
+              <span style="font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 3px; text-transform: uppercase;">Academy</span>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(160deg, #0f172a 0%, #111827 60%, #1a0f08 100%); border: 1px solid #3b1515; border-top: none; border-bottom: none;">
+            <tr><td style="padding: 48px 48px 0 48px; text-align: center;">
+              <div style="width:72px; height:72px; background: rgba(249,115,22,0.1); border: 2px solid rgba(249,115,22,0.3); border-radius: 50%; margin: 0 auto 24px auto; line-height:72px; font-size:32px;">🔥</div>
+              <div style="display:inline-block; background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.25); border-radius: 100px; padding: 6px 16px; margin-bottom: 24px;">
+                <span style="font-size: 12px; color: #f97316; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">⚡ Racha en peligro</span>
+              </div>
+              <h1 style="margin: 0 0 16px 0; font-size: 34px; font-weight: 800; line-height: 1.2; color: #f8fafc; letter-spacing: -1px;">
+                ¡No pierdas tu racha,<br/>
+                <span style="background: linear-gradient(90deg, #f97316 0%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ user.nombre }}</span>!
+              </h1>
+              <p style="margin: 0 auto; font-size: 16px; color: #94a3b8; line-height: 1.7; max-width: 440px;">
+                Tu racha de <strong style="color:#f97316;">{{ streak_days }} días</strong> está a punto de perderse. Entra antes de medianoche para mantenerla activa.
+              </p>
+            </td></tr>
+            <tr><td style="padding: 36px 48px;">
+              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, #3b1515 30%, #f97316 50%, #3b1515 70%, transparent 100%);"></div>
+            </td></tr>
+            <tr><td style="padding: 0 48px 48px 48px; text-align: center;">
+              <p style="margin: 0 0 28px 0; font-size: 15px; color: #64748b;">Mantén el hábito y desbloquea logros exclusivos.</p>
+              <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;"><tr>
+                <td style="border-radius: 10px; background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fbbf24 100%); box-shadow: 0 8px 32px rgba(249,115,22,0.35);">
+                  <a href="https://tech4uacademy.es/dashboard" style="display: inline-block; padding: 16px 40px; font-size: 15px; font-weight: 700; color: #1c0a00; text-decoration: none; letter-spacing: 0.3px; border-radius: 10px;">Salvar mi racha 🔥</a>
+                </td>
+              </tr></table>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: #060c17; border: 1px solid #3b1515; border-top: none; border-radius: 0 0 16px 16px;">
+            <tr><td style="padding: 32px 48px; text-align: center;">
+              <p style="margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.7;">Si no quieres recibir recordatorios de racha,<br/>puedes ajustarlo en tu perfil de usuario.</p>
+              <div style="height: 1px; background: #1e293b; margin: 20px 0;"></div>
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: #334155; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">Tech4U Academy</p>
+              <p style="margin: 0; font-size: 11px; color: #1e3a5f; line-height: 1.6;">Aprende haciendo · <a href="https://tech4uacademy.es" style="color:#1e3a5f; text-decoration:none;">tech4uacademy.es</a></p>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="height: 40px;"></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

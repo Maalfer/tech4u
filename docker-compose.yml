@@ -52,6 +52,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Acceso para lanzar laboratorios
       - ./backend/static:/app/static               # Archivos estáticos
+      - ./backend/templates:/app/templates         # Plantillas de email (Jinja2)
+      - ./backend/services:/app/services           # Lógica de negocio (email_service, etc.)
+      - ./backend/utils:/app/utils                 # Utilidades (email base, etc.)
     ports:
       - "8000:8000"
     # Healthcheck uses Python (curl/wget blocked by antibot middleware)

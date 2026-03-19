@@ -9,7 +9,6 @@ import secrets
 import random
 import string
 import re
-import emails as mailer
 from services import email_service
 from fastapi import BackgroundTasks
 from limiter import limiter
@@ -630,7 +629,7 @@ def send_streak_warning_email(
         if hours_since < 18:
             return {"sent": False, "reason": "too_soon"}
 
-    sent = mailer.send_streak_warning(
+    sent = email_service.send_streak_warning_email(
         to=current_user.email,
         nombre=current_user.nombre or current_user.email,
         streak_days=current_user.streak_count or 0,
@@ -692,7 +691,7 @@ def send_weekly_digest_email(
     # Total XP gained (rough: xp from tests + labs * 150)
     xp_gained = xp_from_tests + labs_done * 150
 
-    sent = mailer.send_weekly_digest(
+    sent = email_service.send_weekly_digest_email(
         to=current_user.email,
         nombre=current_user.nombre or current_user.email,
         xp_gained=xp_gained,

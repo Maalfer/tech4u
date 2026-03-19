@@ -52,3 +52,41 @@ def send_password_reset_email(user, reset_url: str, background_tasks: Optional[B
     subject = "Restablecer tu contraseña — Tech4U Academy"
     html = render_template("password_reset.html", user=user, reset_url=reset_url)
     send_email(user.email, subject, html, background_tasks)
+
+def send_streak_warning_email(user, streak_days: int, background_tasks: Optional[BackgroundTasks] = None):
+    """Envía un recordatorio para no perder la racha."""
+    subject = f"🔥 Tu racha de {streak_days} días está en peligro — Tech4U"
+    html = render_template("streak_warning.html", user=user, streak_days=streak_days)
+    send_email(user.email, subject, html, background_tasks)
+
+def send_weekly_digest_email(
+    user,
+    xp_gained: int,
+    tests_done: int,
+    labs_done: int,
+    streak_days: int,
+    accuracy: float,
+    background_tasks: Optional[BackgroundTasks] = None
+):
+    """Envía un resumen semanal de actividad."""
+    if xp_gained >= 500:
+        mood_msg = "¡Semana brutal! Estás en racha total."
+    elif xp_gained >= 200:
+        mood_msg = "Buena semana. Sigue construyendo el hábito."
+    elif xp_gained > 0:
+        mood_msg = "Algo es algo. Esta semana podemos apuntar más alto."
+    else:
+        mood_msg = "Esta semana no te vimos por aquí. ¡Te echamos de menos!"
+
+    subject = f"🚀 Tu resumen semanal en Tech4U — +{xp_gained} XP"
+    html = render_template(
+        "weekly_digest.html",
+        user=user,
+        xp_gained=xp_gained,
+        tests_done=tests_done,
+        labs_done=labs_done,
+        streak_days=streak_days,
+        accuracy=int(accuracy),
+        mood_msg=mood_msg
+    )
+    send_email(user.email, subject, html, background_tasks)

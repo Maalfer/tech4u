@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tu resumen semanal · Tech4U Academy</title>
+</head>
+<body style="margin:0; padding:0; background-color:#080e1a; font-family:'Segoe UI', Arial, sans-serif;">
+  <span style="display:none; font-size:1px; color:#080e1a; max-height:0; overflow:hidden;">Semana brutal: has ganado {{ xp_gained }} XP. Mira tus estadísticas ✦</span>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#080e1a; padding: 40px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+        <tr><td align="center" style="padding-bottom: 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px 16px 0 0; border: 1px solid #1e3a5f; border-bottom: none;">
+            <tr><td style="padding: 32px 40px 28px 40px; text-align:center;">
+              <div style="width:60px; height:3px; background: linear-gradient(90deg, #38bdf8, #818cf8); margin: 0 auto 28px auto; border-radius:2px;"></div>
+              <div style="margin-bottom: 8px;">
+                <img src="https://tech4uacademy.es/assets/tech4u_logo-DPEJ--cc.png" alt="Tech4U Academy" width="80" height="80" style="display:block; margin: 0 auto; filter: drop-shadow(0 0 16px rgba(56,189,248,0.4));" />
+              </div>
+              <span style="font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 3px; text-transform: uppercase;">Academy</span>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(160deg, #0f172a 0%, #111827 60%, #0f1f35 100%); border: 1px solid #1e3a5f; border-top: none; border-bottom: none;">
+            <tr><td style="padding: 48px 48px 0 48px; text-align: center;">
+              <div style="display:inline-block; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.25); border-radius: 100px; padding: 6px 16px; margin-bottom: 24px;">
+                <span style="font-size: 12px; color: #38bdf8; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">✦ Resumen semanal</span>
+              </div>
+              <h1 style="margin: 0 0 16px 0; font-size: 34px; font-weight: 800; line-height: 1.2; color: #f8fafc; letter-spacing: -1px;">
+                ¡Gran semana,<br/>
+                <span style="background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ user.nombre }}</span>! 🚀
+              </h1>
+              <p style="margin: 0 auto; font-size: 16px; color: #94a3b8; line-height: 1.7; max-width: 440px;">
+                {{ mood_msg }} Aquí tienes el desglose de tu actividad en los últimos 7 días.
+              </p>
+            </td></tr>
+            
+            <!-- Stats Grid -->
+            <tr><td style="padding: 40px 40px 20px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="48%" style="background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.15); border-radius: 12px; padding: 24px 16px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #38bdf8; margin-bottom: 4px;">+{{ xp_gained }} XP</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px;">Puntos ganados</div>
+                  </td>
+                  <td width="4%"></td>
+                  <td width="48%" style="background: rgba(129,140,248,0.05); border: 1px solid rgba(129,140,248,0.15); border-radius: 12px; padding: 24px 16px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #818cf8; margin-bottom: 4px;">🔥 {{ streak_days }}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px;">Días de racha</div>
+                  </td>
+                </tr>
+                <tr><td style="height: 16px;" colspan="3"></td></tr>
+                <tr>
+                  <td width="48%" style="background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.15); border-radius: 12px; padding: 24px 16px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #22c55e; margin-bottom: 4px;">{{ tests_done }}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px;">Tests realizados</div>
+                  </td>
+                  <td width="4%"></td>
+                  <td width="48%" style="background: rgba(249,115,22,0.05); border: 1px solid rgba(249,115,22,0.15); border-radius: 12px; padding: 24px 16px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #f97316; margin-bottom: 4px;">{{ accuracy }}%</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px;">Precisión media</div>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+
+            <tr><td style="padding: 0 48px 48px 48px; text-align: center;">
+              <p style="margin: 0 0 28px 0; font-size: 15px; color: #64748b;">Vas por muy buen camino. ¡Sigue así!</p>
+              <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;"><tr>
+                <td style="border-radius: 10px; background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 50%, #7dd3fc 100%); box-shadow: 0 8px 32px rgba(56,189,248,0.35);">
+                  <a href="https://tech4uacademy.es/dashboard" style="display: inline-block; padding: 16px 40px; font-size: 15px; font-weight: 700; color: #0c1929; text-decoration: none; letter-spacing: 0.3px; border-radius: 10px;">Continuar aprendiendo &nbsp;→</a>
+                </td>
+              </tr></table>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: #060c17; border: 1px solid #1e3a5f; border-top: none; border-radius: 0 0 16px 16px;">
+            <tr><td style="padding: 32px 48px; text-align: center;">
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: #334155; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">Tech4U Academy</p>
+              <p style="margin: 0; font-size: 11px; color: #1e3a5f; line-height: 1.6;">Aprende haciendo · <a href="https://tech4uacademy.es" style="color:#1e3a5f; text-decoration:none;">tech4uacademy.es</a></p>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="height: 40px;"></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
