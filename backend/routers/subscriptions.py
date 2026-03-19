@@ -552,8 +552,12 @@ async def test_email(
         email_service.send_subscription_cancelled_email(mock_user, background_tasks)
     elif template == "payment_failed":
         email_service.send_payment_failed_email(mock_user, background_tasks)
+    elif template == "streak_warning":
+        email_service.send_streak_warning_email(mock_user, 15, background_tasks)
+    elif template == "weekly_digest":
+        email_service.send_weekly_digest_email(mock_user, 540, 3, 1, 15, 85.0, background_tasks)
     else:
-        raise HTTPException(status_code=400, detail="Plantilla no reconocida.")
+        raise HTTPException(status_code=400, detail=f"Plantilla '{template}' no reconocida.")
     
     return {"status": "Email encolado", "template": template, "to": email}
 
