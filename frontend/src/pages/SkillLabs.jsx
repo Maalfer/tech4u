@@ -119,6 +119,50 @@ const SUBJECTS = [
         topics: ['HTML5', 'XML', 'CSS', 'JSON', 'DTD/XSD'],
         dbKey: 'programacion',
     },
+    {
+        key: 'Ciberseguridad',
+        label: 'Ciberseguridad',
+        shortLabel: 'Ciber',
+        icon: Shield,
+        accent: '#f43f5e',
+        accentRgb: '244,63,94',
+        desc: 'Pentesting, criptografía, red teaming, OWASP',
+        topics: ['Nmap', 'Metasploit', 'Burp Suite', 'Cifrado'],
+        dbKey: 'ciberseguridad',
+    },
+    {
+        key: 'PowerShell',
+        label: 'PowerShell',
+        shortLabel: 'PWSH',
+        icon: Terminal,
+        accent: '#3b82f6',
+        accentRgb: '59,130,246',
+        desc: 'Automatización, AD, scripting, administración Windows',
+        topics: ['Cmdlets', 'Active Directory', 'Pipelines', 'Scripts'],
+        dbKey: 'powershell',
+    },
+    {
+        key: 'Git',
+        label: 'Git / GitHub',
+        shortLabel: 'Git',
+        icon: Layers,
+        accent: '#f97316',
+        accentRgb: '249,115,22',
+        desc: 'Control de versiones, flujo de trabajo colaborativo',
+        topics: ['Commits', 'Branches', 'Merge', 'Pull Requests'],
+        dbKey: 'git',
+    },
+    {
+        key: 'Python',
+        label: 'Python',
+        shortLabel: 'Python',
+        icon: Code2,
+        accent: '#fbbf24',
+        accentRgb: '251,191,36',
+        desc: 'Sintaxis, estructuras de datos, scripting, librerías',
+        topics: ['Listas', 'Funciones', 'POO', 'Módulos'],
+        dbKey: 'python',
+    },
 ]
 
 const PLAN_LABELS = {
@@ -598,7 +642,7 @@ export default function SkillLabs() {
             } else {
                 const res = await api.get('/skill-labs/exercises', {
                     params: {
-                        subject: selectedSubject?.key,
+                        subject: selectedSubject?.dbKey,
                         difficulty: selectedDifficulty,
                         limit: 10,
                     },
@@ -625,7 +669,7 @@ export default function SkillLabs() {
         setLoading(true)
         try {
             const res = await api.post('/skill-labs/submit', {
-                subject:           selectedSubject?.key || 'General',
+                subject:           selectedSubject?.dbKey || 'general',
                 total_exercises:   s.total,
                 correct_exercises: s.correct,
                 failed_attempts:   s.mistakes,

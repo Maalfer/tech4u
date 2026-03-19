@@ -137,7 +137,10 @@ def get_status(db: Session = Depends(get_db), current_user: User = Depends(requi
     )
 
     # Maestría por subject (% de aciertos en últimas 20 sesiones por tema)
-    subjects = ["redes", "base_de_datos", "sistemas_operativos", "programacion", "seguridad", "hardware"]
+    subjects = [
+        "redes", "base_de_datos", "sistemas_operativos", "programacion", 
+        "hardware", "ciberseguridad", "powershell", "git", "python"
+    ]
     mastery = {}
     for subj in subjects:
         sessions = (
@@ -326,7 +329,10 @@ def get_exam_mode(db: Session = Depends(get_db), current_user: User = Depends(ge
     if not perks["exam_mode"]:
         raise HTTPException(status_code=403, detail="El modo examen requiere una suscripción anual.")
 
-    subjects = ["redes", "base_de_datos", "sistemas_operativos", "programacion", "seguridad", "hardware"]
+    subjects = [
+        "redes", "base_de_datos", "sistemas_operativos", "programacion", 
+        "hardware", "ciberseguridad", "powershell", "git", "python"
+    ]
     exercises = []
 
     for subj in subjects:

@@ -264,7 +264,7 @@ def run():
                 "explanation": "Log4Shell es RCE crítico en Apache Log4j 2.x. Permite inyección JNDI en logs. Parcheado en 2.15.0+."
             }
         ]
-        add_exercises(db, "Ciberseguridad", ciberseguridad_exercises)
+        add_exercises(db, "ciberseguridad", ciberseguridad_exercises)
 
         # ────────────────────────────────────────────────────────────────
         # SUBJECT 2: POWERSHELL (28 ejercicios)
@@ -460,7 +460,7 @@ def run():
                 "explanation": "Add-ADGroupMember -Identity 'Grupo' -Members usuario1,usuario2 añade miembros."
             }
         ]
-        add_exercises(db, "PowerShell", powershell_exercises)
+        add_exercises(db, "powershell", powershell_exercises)
 
         # ────────────────────────────────────────────────────────────────
         # SUBJECT 3: GIT (28 ejercicios)
@@ -642,7 +642,7 @@ def run():
                 "explanation": "git blame archivo muestra autor y commit de cada línea. Útil para auditoría."
             }
         ]
-        add_exercises(db, "Git", git_exercises)
+        add_exercises(db, "git", git_exercises)
 
         # ────────────────────────────────────────────────────────────────
         # SUBJECT 4: PYTHON (29 ejercicios)
@@ -845,7 +845,7 @@ def run():
                 "explanation": "from collections import Counter, defaultdict, deque, namedtuple."
             }
         ]
-        add_exercises(db, "Python", python_exercises)
+        add_exercises(db, "python", python_exercises)
 
         print("\n✓ Seed completado: 4 nuevos subjects con 113 ejercicios totales")
 
