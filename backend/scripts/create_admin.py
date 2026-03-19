@@ -31,12 +31,14 @@ parser = argparse.ArgumentParser(description="Crear o actualizar un usuario admi
 parser.add_argument("--email", help="Email del administrador")
 parser.add_argument("--password", help="Contraseña del administrador")
 parser.add_argument("--nombre", help="Nombre del administrador")
+parser.add_argument("--role", default="admin", help="Rol del usuario (default: admin)")
 args, unknown = parser.parse_known_args()
 
 # Prioridad: Argumentos CLI > Variables de Entorno
 ADMIN_EMAIL    = args.email or os.environ.get("ADMIN_EMAIL")
 ADMIN_NOMBRE   = args.nombre or os.environ.get("ADMIN_NOMBRE")
 ADMIN_PASSWORD = args.password or os.environ.get("ADMIN_PASSWORD")
+ADMIN_ROLE     = args.role or os.environ.get("ADMIN_ROLE", "admin")
 
 if not all([ADMIN_EMAIL, ADMIN_NOMBRE, ADMIN_PASSWORD]):
     print("❌ Faltan parámetros requeridos.")
@@ -63,20 +65,20 @@ try:
     existing = db.query(User).filter(User.email == ADMIN_EMAIL).first()
 
     if existing:
-        print(f"🔄 Usuario '{ADMIN_EMAIL}' ya existe — actualizando nombre, contraseña y rol...")
+        print(f"🔄 Usuario '{ADMIN_EMAIL}' ya existe — actualizando nombre, contraseña y rol ({ADMIN_ROLE})...")
         existing.nombre        = ADMIN_NOMBRE
         existing.password_hash = hash_password(ADMIN_PASSWORD)
-        existing.role          = "admin"
+        existing.role          = ADMIN_ROLE
         existing.subscription_type = "annual"
         db.commit()
-        print(f"✅ Admin actualizado correctamente (id={existing.id})")
+        print(f"✅ Usuario actualizado correctamente (id={existing.id}, rol={ADMIN_ROLE})")
     else:
-        print(f"🚀 Creando nuevo admin '{ADMIN_EMAIL}'...")
+        print(f"🚀 Creando nuevo usuario con rol '{ADMIN_ROLE}' para '{ADMIN_EMAIL}'...")
         user = User(
             nombre             = ADMIN_NOMBRE,
             email              = ADMIN_EMAIL,
             password_hash      = hash_password(ADMIN_PASSWORD),
-            role               = "admin",
+            role               = ADMIN_ROLE,
             subscription_type  = "annual",
             streak_count       = 0,
             xp                 = 0,
@@ -89,7 +91,7 @@ try:
         db.add(user)
         db.commit()
         db.refresh(user)
-        print(f"✅ Admin creado correctamente (id={user.id}, email={user.email})")
+        print(f"✅ Usuario creado correctamente (id={user.id}, email={user.email}, rol={ADMIN_ROLE})")
 
 except KeyError as e:
     print(f"❌ Variable de entorno requerida no definida: {e}")
