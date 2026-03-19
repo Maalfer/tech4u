@@ -9,4 +9,9 @@ if __name__ == "__main__":
         port=int(os.getenv("PORT", "8000")),
         reload=is_dev,          # True solo en desarrollo; False en producción
         workers=1 if is_dev else int(os.getenv("WORKERS", "2")),
+        # CRITICAL: trust X-Forwarded-Proto from nginx so FastAPI generates
+        # correct https:// redirect URLs (e.g. redirect_slashes 307 redirects).
+        # Without this, all redirects use http:// → mixed content errors.
+        proxy_headers=True,
+        forwarded_allow_ips="*",  # nginx is the only upstream, always trusted
     )
