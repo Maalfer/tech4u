@@ -28,6 +28,45 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+
+        // CRITICAL: Prevent the Service Worker from intercepting backend/API navigation.
+        // Without this, the SW returns cached index.html for /oauth/google/login,
+        // /auth/login, etc. — the browser never reaches Nginx and OAuth breaks.
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [
+          /^\/oauth\//,           // Google & Microsoft OAuth flows
+          /^\/auth\//,            // Login, register, password reset
+          /^\/api\//,             // API calls with /api/ prefix
+          /^\/analytics\//,
+          /^\/paypal\//,
+          /^\/subscriptions\//,
+          /^\/video_courses\//,
+          /^\/tests\//,
+          /^\/resources\//,
+          /^\/users_admin\//,
+          /^\/content_admin\//,
+          /^\/announcements\//,
+          /^\/coupons_admin\//,
+          /^\/leaderboard\//,
+          /^\/support\//,
+          /^\/skill_labs\//,
+          /^\/achievements\//,
+          /^\/labs\//,
+          /^\/teoria\//,
+          /^\/sql_skills\//,
+          /^\/battle\//,
+          /^\/certificates\//,
+          /^\/referrals\//,
+          /^\/flashcard_spaced\//,
+          /^\/search\//,
+          /^\/dashboard\//,
+          /^\/health$/,
+          /^\/docs/,
+          /^\/openapi\.json$/,
+          /^\/redoc/,
+          /^\/ws\//,
+        ],
+
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
