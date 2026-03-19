@@ -40,8 +40,12 @@ export default defineConfig({
         // /auth/login, etc. — the browser never reaches Nginx and OAuth breaks.
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [
-          /^\/oauth\//,           // Google & Microsoft OAuth flows
+          // Backend OAuth endpoints (Google/Microsoft) — must reach nginx → backend
+          // NOTE: /oauth/callback is a React SPA route and is intentionally NOT here.
+          // The backend redirects to /oauth/callback after OAuth completes, and React handles it.
+          /^\/oauth\/(google|microsoft)\//,
           /^\/auth\//,            // Login, register, password reset
+          /^\/admin\//,           // Backend admin API routes (/admin/users/*, etc.)
           /^\/api\//,             // API calls with /api/ prefix
           /^\/analytics\//,
           /^\/paypal\//,
