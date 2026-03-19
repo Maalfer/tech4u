@@ -17,6 +17,7 @@ import os
 import sys
 import secrets
 import string
+import argparse
 from datetime import datetime
 
 # Añadir el directorio raíz del backend al path para poder importar database/auth
@@ -26,9 +27,22 @@ from database import SessionLocal, User
 from auth import hash_password
 
 # ── Parámetros ────────────────────────────────────────────────────────────────
-ADMIN_EMAIL    = os.environ["ADMIN_EMAIL"]      # Falla si no está definida
-ADMIN_NOMBRE   = os.environ["ADMIN_NOMBRE"]
-ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+parser = argparse.ArgumentParser(description="Crear o actualizar un usuario administrador.")
+parser.add_argument("--email", help="Email del administrador")
+parser.add_argument("--password", help="Contraseña del administrador")
+parser.add_argument("--nombre", help="Nombre del administrador")
+args, unknown = parser.parse_known_args()
+
+# Prioridad: Argumentos CLI > Variables de Entorno
+ADMIN_EMAIL    = args.email or os.environ.get("ADMIN_EMAIL")
+ADMIN_NOMBRE   = args.nombre or os.environ.get("ADMIN_NOMBRE")
+ADMIN_PASSWORD = args.password or os.environ.get("ADMIN_PASSWORD")
+
+if not all([ADMIN_EMAIL, ADMIN_NOMBRE, ADMIN_PASSWORD]):
+    print("❌ Faltan parámetros requeridos.")
+    print("   Usa argumentos: --email ... --password ... --nombre ...")
+    print("   O variables: ADMIN_EMAIL, ADMIN_NOMBRE, ADMIN_PASSWORD")
+    sys.exit(1)
 
 if len(ADMIN_PASSWORD) < 8:
     print("❌ La contraseña es demasiado corta (mínimo 8 caracteres)")
