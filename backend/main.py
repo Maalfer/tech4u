@@ -1709,7 +1709,7 @@ async def startup():
     seed_vm_labs()
     # Seed: Teoría Ciberseguridad (5 guías: OWASP, Kali, Cripto, Firewall, Forense)
     # Seed: eJPTv2 - Junior Penetration Tester (7 módulos completos)
-    from seed_teoria_startup import seed_ciberseguridad_teoria, seed_ejptv2_teoria
+    from scripts.seed_teoria_startup import seed_ciberseguridad_teoria, seed_ejptv2_teoria
     seed_ciberseguridad_teoria()
     seed_ejptv2_teoria()
     # Start background cleanup task
