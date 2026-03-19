@@ -28,8 +28,13 @@ def is_subscription_active(user: Optional[User]) -> bool:
     if sub == "free":
         return False
         
-    if user.subscription_end and user.subscription_end < datetime.utcnow():
-        return False
+    if user.subscription_end:
+        now = datetime.utcnow()
+        if user.subscription_end.tzinfo is not None:
+            from datetime import timezone
+            now = datetime.now(timezone.utc)
+        if user.subscription_end < now:
+            return False
         
     return True
 
