@@ -283,7 +283,7 @@ def _results_match(actual: dict, expected_json: str) -> bool:
 @router.get("/datasets")
 def get_datasets(
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_module_access("sql_skills"))
+    current_user: User = Depends(get_current_user)
 ):
     datasets = db.query(SQLDataset).all()
 
@@ -366,7 +366,7 @@ def get_exercises(
     dataset_id: Optional[int] = None,
     exercise_type: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_module_access("sql_skills"))
+    current_user: User = Depends(get_current_user)
 ):
     q = db.query(SQLExercise).filter(SQLExercise.is_active == True)
     if dataset_id:
