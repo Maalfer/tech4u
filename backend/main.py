@@ -40,6 +40,7 @@ if SENTRY_DSN:
         integrations=[FastApiIntegration(), SqlalchemyIntegration()],
         traces_sample_rate=0.1,
         environment=os.getenv("ENVIRONMENT", "production"),
+        debug=True,
     )
 
 app = FastAPI(
