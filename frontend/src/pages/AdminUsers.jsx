@@ -82,7 +82,7 @@ export default function AdminUsers() {
             if (role) params.append('role', role)
             if (subscription) params.append('subscription', subscription)
 
-            const res = await api.get(`/admin/users?${params.toString()}`)
+            const res = await api.get(`/admin/users/?${params.toString()}`)
             const data = res.data
             setUsers(Array.isArray(data) ? data : (data.items ?? []))
             setTotalCount(data.total_count ?? (Array.isArray(data) ? data.length : 0))
