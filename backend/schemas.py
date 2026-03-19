@@ -18,7 +18,7 @@ class AdminUserCreate(BaseModel):
     nombre: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
     password: str = Field(..., min_length=6)
-    role: str = Field("alumno", pattern="^(admin|developer|alumno)$")
+    role: str = Field("alumno", pattern="^(admin|developer|alumno|docente)$")
     subscription_type: str = "free"
 
 
