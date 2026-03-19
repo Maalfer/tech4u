@@ -107,11 +107,21 @@ export const NotificationProvider = ({ children }) => {
         };
     }, [user?.id, addNotification]);
 
+    const showNotification = useCallback((title, description, type = 'info', icon = null) => {
+        // Soporte para firma clásica showNotification(mensaje, tipo)
+        if (typeof title === 'string' && (description === 'success' || description === 'error' || description === 'info' || description === 'warning')) {
+            addNotification({ title: title, description: '', type: description, icon });
+        } else {
+            addNotification({ title, description, type, icon });
+        }
+    }, [addNotification]);
+
     const contextValue = useMemo(() => ({
         notifications,
         addNotification,
         removeNotification,
-    }), [notifications, addNotification, removeNotification]);
+        showNotification,
+    }), [notifications, addNotification, removeNotification, showNotification]);
 
     return (
         <NotificationContext.Provider value={contextValue}>

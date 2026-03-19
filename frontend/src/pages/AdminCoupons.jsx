@@ -57,7 +57,7 @@ export default function AdminCoupons() {
                 discount_percent: formData.discount_percent,
                 max_uses: formData.max_uses,
                 description: formData.description || null,
-                expiry_date: formData.expiry_date || null,
+                expires_at: formData.expiry_date || null,
                 applicable_plans: formData.applicable_plans,
                 assigned_to_email: formData.assigned_to_email || null,
                 is_active: formData.is_active
@@ -120,6 +120,7 @@ export default function AdminCoupons() {
             });
             setGroupProgress({ current: emails.length, total: emails.length });
             showNotification(
+                'Éxito',
                 `✅ ${res.data.length} cupones generados para el grupo ${groupFormData.groupName}`,
                 'success'
             );
