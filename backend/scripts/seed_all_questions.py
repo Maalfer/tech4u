@@ -23,7 +23,41 @@ SEED_SCRIPTS = [
     ("seed_teoria_startup.py", "Guías de Teoría"),
     ("seed_level1_premium.py", "Contenido Premium Nivel 1"),
     ("seed_pokemon.py", "Proyecto Pokemon (Dataset)"),
+    ("seed_modes_extended.py", "Modos Interactivos SQL (400 ejercicios)"),
+    ("seed_new_modes.py", "Nuevos Modos SQL"),
 ]
+
+def print_db_summary(db_path=None):
+    """Muestra un resumen de todos los contenidos en la base de datos."""
+    print("\n" + "="*80)
+    print("📊 RESUMEN DE CONTENIDOS (TOTAL ACUMULADO)")
+    print("="*80)
+    try:
+        from database import SessionLocal, Question, SkillLabExercise
+        db = SessionLocal()
+        
+        q_count = db.query(Question).count()
+        print(f"  📝 Preguntas de Test (Question): {q_count}")
+        
+        try:
+            from database import SQLExercise
+            s_count = db.query(SQLExercise).count()
+            print(f"  💻 Ejercicios SQL (SQLExercise): {s_count}")
+        except: s_count = 0
+            
+        try:
+            from database import SkillLabExercise
+            l_count = db.query(SkillLabExercise).count()
+            print(f"  🧪 Skill Labs (SkillLabExercise): {l_count}")
+        except: l_count = 0
+
+        total = q_count + s_count + l_count
+        print("-" * 40)
+        print(f"  🚀 TOTAL EJERCICIOS: {total}")
+        print("="*80 + "\n")
+        db.close()
+    except Exception as e:
+        print(f"  ⚠ No se pudo generar el resumen: {e}")
 
 def run_seeds():
     python_exe = sys.executable
@@ -73,7 +107,11 @@ def run_seeds():
     print(f"  ❌ Fallidos: {total_failed}")
     print(f"  📊 Total intentados: {len(SEED_SCRIPTS)}")
     print("="*80 + "\n")
-    print("Si el recuento de 'Question' sigue por debajo de 1000, los archivos JSON faltantes son necesarios.")
+    
+    # Mostrar resumen final
+    print_db_summary()
+    
+    print("Si el recuento total sigue por debajo de 1000, los archivos JSON faltantes son necesarios.")
 
 if __name__ == "__main__":
     run_seeds()
