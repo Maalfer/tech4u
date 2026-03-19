@@ -9,22 +9,31 @@ BACKEND_DIR = os.path.dirname(SCRIPTS_DIR)
 
 # Lista de scripts de seeding a ejecutar (rutas relativas al root del backend)
 SEED_SCRIPTS = [
+    # --- THEORY / TEST QUESTIONS (Question table) ---
     ("seed_new_questions.py", "Preguntas Generales (Ciberseguridad, Progra, Marcas)"),
     ("seed_hardware_questions.py", "Preguntas de Hardware"),
     ("scripts/seed_recent_qs.py", "Preguntas Recientes (Bases de Datos, Redes)"),
-    ("seed_sql_new_datasets.py", "Ejercicios SQL (Nuevos Datasets)"),
-    ("seed_sql_skills.py", "Ejercicios SQL (Skills)"),
-    ("seed_empresa_it.py", "Dataset SQL Empresa IT"),
-    ("seed_extra_exercises.py", "Ejercicios Extra"),
-    ("seed_roadmap_levels.py", "Niveles de Roadmap"),
-    ("scripts/seed_skill_labs_new_subjects.py", "Skill Labs (Nuevas Materias)"),
-    ("scripts/seed_linux_fundamentals.py", "Fundamentos de Linux (Labs)"),
-    ("scripts/seed_bash_part1.py", "Bash Scripting - Parte 1"),
-    ("seed_teoria_startup.py", "Guías de Teoría"),
+    ("seed.py", "Preguntas Demo (Bases de Datos, Redes, SSOO)"),
+
+    # --- INTERACTIVE SQL EXERCISES (SQLExercise table) ---
+    ("seed_sql_skills.py", "Dataset SQL Tienda + 36 Ejercicios"),
+    ("seed_pokemon.py", "Project Pokémon - Dataset + 37 Ejercicios"),
+    ("seed_empresa_it.py", "Dataset SQL Empresa IT + 30 Ejercicios"),
+    ("seed_new_modes.py", "SQL: 4 Nuevos Modos (Hueco, Bug, Orden, Inversa)"),
+    ("seed_modes_extended.py", "SQL: Expansión Masiva (400 ejercicios extras)"),
+    ("seed_sql_new_datasets.py", "SQL: Datasets Adicionales (HR, Ventas, Cine, Blog)"),
+
+    # --- SKILL LABS / DRAG & DROP (SkillLabExercise table) ---
+    ("scripts/seed_usuarios_part1.py", "Labs Linux: Usuarios y Grupos"),
+    ("scripts/seed_skill_labs_new_subjects.py", "Skill Labs: Nuevas Materias"),
+    ("scripts/seed_netlabs_acl_vlan.py", "Labs Redes: ACL y VLAN"),
+    ("scripts/bulk_insert_skill_labs.py", "Skill Labs: Carga Masiva (JSON)"),
+
+    # --- THEORY GUIDES & MISC ---
+    ("seed_teoria_startup.py", "Guías de Teoría (Startup)"),
+    ("seed_teoria_all_guides.py", "Guías de Teoría (Todas)"),
+    ("seed_roadmap_levels.py", "Niveles de Roadmap/Progreso"),
     ("seed_level1_premium.py", "Contenido Premium Nivel 1"),
-    ("seed_pokemon.py", "Proyecto Pokemon (Dataset)"),
-    ("seed_modes_extended.py", "Modos Interactivos SQL (400 ejercicios)"),
-    ("seed_new_modes.py", "Nuevos Modos SQL"),
 ]
 
 def print_db_summary(db_path=None):
@@ -33,7 +42,11 @@ def print_db_summary(db_path=None):
     print("📊 RESUMEN DE CONTENIDOS (TOTAL ACUMULADO)")
     print("="*80)
     try:
-        from database import SessionLocal, Question, SkillLabExercise
+        # Añadir el root del backend al path para importar database
+        if BACKEND_DIR not in sys.path:
+            sys.path.insert(0, BACKEND_DIR)
+            
+        from database import SessionLocal, Question
         db = SessionLocal()
         
         q_count = db.query(Question).count()
