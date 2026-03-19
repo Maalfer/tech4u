@@ -20,10 +20,16 @@ RUN npm run build
 FROM nginx:stable-alpine AS production-stage
 
 # Copiar configuración personalizada de Nginx
+# nginx.conf  → server block (incluido en http{} via conf.d/)
+# nginx_rate_limit.conf → zonas de rate limiting (también en http{} via conf.d/)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx_rate_limit.conf /etc/nginx/conf.d/rate_limit.conf
 
 # Copiar los archivos compilados del build-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# Validar configuración de Nginx en tiempo de build
+RUN nginx -t
 
 EXPOSE 80
 

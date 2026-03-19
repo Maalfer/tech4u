@@ -48,11 +48,20 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-tech4u_admin}:${POSTGRES_PASSWORD:-tech4u_admin_secret}@db:5432/${POSTGRES_DB:-tech4u}
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=production
+      - WORKERS=2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Acceso para lanzar laboratorios
       - ./backend/static:/app/static               # Archivos estáticos
     ports:
       - "8000:8000"
+    # Healthcheck uses Python (curl/wget blocked by antibot middleware)
+    # start_period gives enough time for DB migrations on first boot
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request, sys; r = urllib.request.urlopen('http://localhost:8000/health', timeout=5); sys.exit(0 if r.status == 200 else 1)"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   # 🌐 Frontend (React + Nginx)
   frontend:
@@ -64,7 +73,8 @@ services:
     container_name: tech4u-frontend
     restart: always
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy   # ← waits until backend is truly ready
     ports:
       - "80:80"
 

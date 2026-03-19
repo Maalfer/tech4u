@@ -1,5 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status, Request
 from starlette.websockets import WebSocketState
+from starlette.responses import Response  # CRITICAL: needed by antibot_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -67,29 +68,69 @@ app.add_middleware(
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+def _is_docker_internal_ip(ip: str) -> bool:
+    """Returns True if the IP belongs to Docker's internal bridge networks."""
+    import ipaddress
+    try:
+        addr = ipaddress.ip_address(ip)
+        # Docker default bridge: 172.16.0.0/12, loopback: 127.x.x.x, IPv6 loopback
+        internal_nets = [
+            ipaddress.ip_network("172.16.0.0/12"),
+            ipaddress.ip_network("127.0.0.0/8"),
+            ipaddress.ip_network("10.0.0.0/8"),
+            ipaddress.ip_network("192.168.0.0/16"),
+        ]
+        return any(addr in net for net in internal_nets)
+    except ValueError:
+        return ip in ("::1", "localhost")
+
+
 @app.middleware("http")
 async def antibot_middleware(request: Request, call_next):
-    """Rejects requests without User-Agent or known bot identifiers."""
+    """Rejects requests without User-Agent or known bot identifiers.
+    Bypasses internal Docker health checks and the /health endpoint.
+    """
+    # Bypass: /health endpoint always passes (Docker healthcheck needs this)
+    if request.url.path in ("/health", "/docs", "/openapi.json", "/redoc"):
+        return await call_next(request)
+
+    # Bypass: requests from Docker internal network (healthchecks, internal services)
+    client_ip = request.client.host if request.client else ""
+    if _is_docker_internal_ip(client_ip):
+        return await call_next(request)
+
     user_agent = request.headers.get("user-agent", "")
-    
+
     # 1. Reject empty User-Agent
     if not user_agent:
         return Response(content="User-Agent is required", status_code=403)
-    
-    # 2. Block common bot patterns (Go-http, python-requests, etc.)
+
+    # 2. Block known attack/scraping tools — NOT curl/wget (needed for health checks via nginx)
     blocked_patterns = [
-        "python-requests", "aiohttp", "httpx", "go-http-client", 
-        "curl", "wget", "headless", "selenium", "puppeteer",
-        "sqlmap", "nikto", "nmap"
+        "python-requests", "aiohttp", "go-http-client",
+        "headless", "selenium", "puppeteer",
+        "sqlmap", "nikto", "nmap", "masscan", "zgrab",
     ]
     if any(pattern in user_agent.lower() for pattern in blocked_patterns):
         return Response(content="Bot access denied", status_code=403)
-        
+
     return await call_next(request)
 
 @app.middleware("http")
 async def security_middleware(request: Request, call_next):
-    """Populates request.state.user_id for rate limiting purposes AND adds HTTP security headers."""
+    """Populates request.state.user_id for rate limiting purposes AND adds HTTP security headers.
+    Also extracts real client IP from Cloudflare CF-Connecting-IP header.
+    """
+    # ── Cloudflare Real IP ───────────────────────────────────────────────────
+    # When behind Cloudflare, the real client IP is in CF-Connecting-IP.
+    # Store it so rate limiters and logs get the actual user IP.
+    cf_ip = request.headers.get("CF-Connecting-IP")
+    if cf_ip:
+        # Patch the request scope so get_remote_address() sees the real IP
+        request.state.real_ip = cf_ip
+    else:
+        request.state.real_ip = request.client.host if request.client else "unknown"
+
     request.state.user_id = None
     token = None
 
