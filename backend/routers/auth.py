@@ -12,8 +12,16 @@ import re
 import emails as mailer
 from limiter import limiter
 import logging
+import redis
+import os
 
 logger = logging.getLogger(__name__)
+
+redis_client = redis.Redis(
+    host=os.getenv("REDIS_HOST", "tech4u-redis"),
+    port=6379,
+    decode_responses=True
+)
 
 def validate_password_strength(password: str) -> tuple[bool, str]:
     """Validates password strength and returns (is_valid, error_message)."""
@@ -90,8 +98,7 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
 
         if referrer and referrer.id != user.id:
             # SEC-04 FIX: obtener IP solo desde proxies confiables
-            import os as _os
-            _trusted_proxies = {ip.strip() for ip in _os.getenv("TRUSTED_PROXY_IPS", "").split(",") if ip.strip()}
+            _trusted_proxies = {ip.strip() for ip in os.getenv("TRUSTED_PROXY_IPS", "").split(",") if ip.strip()}
             _connection_ip = request.client.host if request.client else "unknown"
             if _trusted_proxies and _connection_ip in _trusted_proxies:
                 _ff = request.headers.get("X-Forwarded-For", "")
@@ -100,7 +107,6 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
                 ip = _connection_ip
 
             # Verificar límite de IP: máx. 3 registros hacia el mismo referidor en 24h
-            from datetime import timedelta
             cutoff = now - timedelta(hours=24)
             ip_count = db.query(Referral).filter(
                 Referral.referrer_id == referrer.id,
@@ -124,7 +130,6 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
     token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
 
     # Set httpOnly authentication cookie with tech4u_token name
-    import os
     env = os.getenv("ENVIRONMENT", "development")
     secure_cookie = os.getenv("COOKIE_SECURE", "False").lower() == "true"
 
@@ -157,34 +162,62 @@ def register(request: Request, response: Response, data: UserRegister, db: Sessi
 
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("5/minute")
+@limiter.limit("20/minute")
 def login(request: Request, response: Response, data: UserLogin, db: Session = Depends(get_db)):
-    # Case-insensitive lookup
+
+    # IP real (Cloudflare)
+    client_ip = request.headers.get("CF-Connecting-IP") or request.client.host
+
+    # Bloqueo Redis
+    block_key = f"block:{client_ip}"
+    if redis_client.exists(block_key):
+        raise HTTPException(status_code=403, detail="Demasiados intentos. Intenta más tarde.")
+
+    # Detección de bots
+    user_agent = request.headers.get("user-agent", "").lower()
+    blocked_agents = ["curl", "python", "requests", "wget", "bot", "scanner"]
+
+    if any(agent in user_agent for agent in blocked_agents):
+        raise HTTPException(status_code=403, detail="Acceso no permitido")
+
+    # Buscar usuario
     user = db.query(User).filter(User.email.ilike(data.email)).first()
 
-    if not user:
+    # Login incorrecto → Redis
+    if not user or not verify_password(data.password, user.password_hash):
+
+        attempts_key = f"attempts:{client_ip}"
+        attempts = redis_client.incr(attempts_key)
+
+        if attempts == 1:
+            redis_client.expire(attempts_key, 300)
+
+        # Bloqueo progresivo
+        if attempts >= 20:
+            redis_client.setex(block_key, 86400, "1")
+        elif attempts >= 10:
+            redis_client.setex(block_key, 3600, "1")
+        elif attempts >= 5:
+            redis_client.setex(block_key, 300, "1")
+
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
 
-    if not verify_password(data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+    # Login correcto → limpiar intentos
+    redis_client.delete(f"attempts:{client_ip}")
 
     now = datetime.utcnow()
 
-    # Streak logic: if last login was yesterday → increment, if same day → keep, else → reset
+    # Streak
     if user.last_login:
         delta = (now.date() - user.last_login.date()).days
         if delta == 1:
             user.streak_count += 1
         elif delta > 1:
-            # Check for streak protections (Anti-loss shield)
             if (user.streak_protections or 0) > 0:
                 user.streak_protections -= 1
-                # Streak is preserved, delta is ignored
             else:
-                # Reset streak and apply XP penalty
                 user.streak_count = 1
-                user.remove_xp(100) # Penalización de 100 XP
-        # delta == 0 → same day, keep streak
+                user.remove_xp(100)
     else:
         user.streak_count = 1
 
@@ -192,11 +225,9 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
     db.commit()
     db.refresh(user)
 
-    # SEC-05: incluir token_version en el payload del JWT
+    # Token
     token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
 
-    # Set httpOnly authentication cookie with tech4u_token name
-    import os
     env = os.getenv("ENVIRONMENT", "development")
     secure_cookie = os.getenv("COOKIE_SECURE", "False").lower() == "true"
 
@@ -207,7 +238,6 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
         cookie_domain = None
         samesite = "Lax"
 
-    # SEC-12 FIX: solo emitir cookie actual, sin cookie legacy access_token
     response.set_cookie(
         key="tech4u_token",
         value=token,
@@ -219,12 +249,15 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
-    return TokenResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        user=UserOut.model_validate(user)
+    )
 
 
 @router.post("/logout")
 def logout(response: Response):
-    import os
     env = os.getenv("ENVIRONMENT", "development")
     cookie_domain = ".tech4uacademy.es" if env == "production" else None
 
@@ -263,7 +296,6 @@ class ResetPasswordRequest(BaseModel):
 @limiter.limit("3/minute")
 def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Sends a password-reset email if the account exists. Always returns 200 to avoid email enumeration."""
-    import os
     user = db.query(User).filter(User.email.ilike(data.email)).first()
     if user:
         token = secrets.token_urlsafe(32)
@@ -311,7 +343,6 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
 @router.post("/refresh", response_model=TokenResponse)
 def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
     """Issues a fresh token if the current one is valid (silent refresh for long sessions)."""
-    import os
     # Try tech4u_token first, fall back to access_token for backward compatibility
     token = request.cookies.get("tech4u_token") or request.cookies.get("access_token")
     if not token:
