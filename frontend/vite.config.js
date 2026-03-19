@@ -29,6 +29,12 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
 
+        // CRITICAL: Force the new SW to activate immediately on deploy without waiting
+        // for all browser tabs to close. Without this, the old SW stays in control
+        // even after a new version is deployed — breaking OAuth and other fixes.
+        skipWaiting: true,
+        clientsClaim: true,
+
         // CRITICAL: Prevent the Service Worker from intercepting backend/API navigation.
         // Without this, the SW returns cached index.html for /oauth/google/login,
         // /auth/login, etc. — the browser never reaches Nginx and OAuth breaks.

@@ -173,9 +173,16 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
     if redis_client.exists(block_key):
         raise HTTPException(status_code=403, detail="Demasiados intentos. Intenta más tarde.")
 
-    # Detección de bots
+    # Detección de bots — segunda línea de defensa específica para el endpoint de login.
+    # main.py antibot_middleware ya bloquea: python-requests, aiohttp, go-http-client,
+    # headless, selenium, puppeteer, sqlmap, nikto, nmap, masscan, zgrab.
+    # Aquí solo añadimos patrones que antibot no cubre y que son claramente ilegítimos en login:
+    # - "wget": herramienta de descarga, no debería hacer login
+    # - "bot": UAs de bots genéricos (Googlebot, etc. no hacen login)
+    # - "scanner": herramientas de escaneo de seguridad
+    # NO bloqueamos "curl" (herramienta legítima de desarrollo) ni "python" (demasiado amplio).
     user_agent = request.headers.get("user-agent", "").lower()
-    blocked_agents = ["curl", "python", "requests", "wget", "bot", "scanner"]
+    blocked_agents = ["wget", "bot", "scanner"]
 
     if any(agent in user_agent for agent in blocked_agents):
         raise HTTPException(status_code=403, detail="Acceso no permitido")
@@ -195,10 +202,15 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
         # Bloqueo progresivo
         if attempts >= 20:
             redis_client.setex(block_key, 86400, "1")
+            logger.warning(f"SECURITY: IP {client_ip} bloqueada 24h por {attempts} intentos fallidos de login (email: {data.email.lower()})")
         elif attempts >= 10:
             redis_client.setex(block_key, 3600, "1")
+            logger.warning(f"SECURITY: IP {client_ip} bloqueada 1h — {attempts} intentos fallidos (email: {data.email.lower()})")
         elif attempts >= 5:
             redis_client.setex(block_key, 300, "1")
+            logger.warning(f"SECURITY: IP {client_ip} bloqueada 5min — {attempts} intentos fallidos (email: {data.email.lower()})")
+        else:
+            logger.info(f"SECURITY: Intento de login fallido #{attempts} desde {client_ip} (email: {data.email.lower()})")
 
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
 

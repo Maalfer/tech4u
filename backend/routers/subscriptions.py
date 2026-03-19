@@ -318,11 +318,15 @@ def create_checkout_session(
         return {"url": session.url}
     except stripe.StripeError as e:
         # SEC-08 FIX: loggear internamente, exponer mensaje genérico en producción
+        # IMPORTANT: Do NOT use status_code=502 here — Cloudflare intercepts 502 responses
+        # from origin servers and replaces the body with its own HTML error page,
+        # breaking the frontend's ability to show a meaningful error message.
+        # Use 400 (auth/config errors) or 503 (transient Stripe outage) instead.
         logger.error(f"Stripe checkout session error: {str(e)}")
         detail = f"Error de Stripe: {str(e)}"
         if os.getenv("ENVIRONMENT", "development") == "production":
             detail = "El servicio de pagos ha devuelto un error. Inténtalo de nuevo o contacta con soporte."
-        raise HTTPException(status_code=502, detail=detail)
+        raise HTTPException(status_code=400, detail=detail)
 
 
 @router.post("/docente/create-checkout-session")
@@ -378,11 +382,12 @@ def create_docente_checkout_session(
         return {"url": session.url}
     except stripe.StripeError as e:
         # SEC-08 FIX: loggear internamente, exponer mensaje genérico en producción
+        # Use 400 not 502 — Cloudflare intercepts 502 from origin and replaces with HTML
         logger.error(f"Stripe docente checkout error: {str(e)}")
         detail = f"Error de Stripe: {str(e)}"
         if os.getenv("ENVIRONMENT", "development") == "production":
             detail = "Error al procesar el pago con Stripe. Inténtalo de nuevo."
-        raise HTTPException(status_code=502, detail=detail)
+        raise HTTPException(status_code=400, detail=detail)
 
 
 @router.get("/docente/verify-session")
@@ -405,7 +410,7 @@ def verify_docente_session(
         detail = f"Error de Stripe: {str(e)}"
         if os.getenv("ENVIRONMENT", "development") == "production":
             detail = "No se pudo verificar la sesión con Stripe."
-        raise HTTPException(status_code=502, detail=detail)
+        raise HTTPException(status_code=400, detail=detail)
 
     if session_obj.payment_status != "paid":
         return {"success": False}
@@ -603,7 +608,7 @@ def verify_session(
         detail = f"Error de Stripe: {str(e)}"
         if os.getenv("ENVIRONMENT", "development") == "production":
             detail = "Error al verificar el estado del pago."
-        raise HTTPException(status_code=502, detail=detail)
+        raise HTTPException(status_code=400, detail=detail)
 
     if session_obj.payment_status == "paid":
         # ── SEC-01 FIX: verificar que la sesión pertenece al usuario autenticado ──
