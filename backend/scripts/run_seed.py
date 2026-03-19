@@ -37,6 +37,7 @@ from seed.seed_storage   import run as run_storage
 from seed.seed_netlabs   import run as run_netlabs
 from seed.seed_theory    import run as run_theory
 from seed.seed_questions import run as run_questions
+from seed.seed_coupons   import run as run_coupons
 
 # ── Seed registry: (key, label, function) ──────────────────────────────────
 SEEDS = [
@@ -46,6 +47,7 @@ SEEDS = [
     ("netlabs",   "🌐  NetLabs",           run_netlabs),
     ("theory",    "📚  Teoría",            run_theory),
     ("questions", "❓  Questions & Tests", run_questions),
+    ("coupons",   "🎟️  Coupons",           run_coupons),
 ]
 
 # ── Runner ──────────────────────────────────────────────────────────────────

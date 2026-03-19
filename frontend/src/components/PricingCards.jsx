@@ -112,8 +112,17 @@ export const PLAN_DATA = [
 ];
 
 // ─── Single plan card ─────────────────────────────────────────────────────────
-function PlanCard({ plan, onSelectPlan, renderActions, compact }) {
+function PlanCard({ plan, onSelectPlan, renderActions, compact, discount = 0 }) {
     const Icon = plan.icon;
+
+    // Calculate discounted price if applicable
+    const numericPrice = parseFloat(plan.rawPrice);
+    const hasDiscount = discount > 0 && discount <= 100;
+    const finalPrice = hasDiscount 
+        ? (numericPrice * (1 - discount / 100)).toFixed(2)
+        : plan.price;
+
+    const displayPrice = hasDiscount ? finalPrice.replace('.', ',') : plan.price;
 
     return (
         /* Outer wrapper — provides space for the badge above + pulse ring */
@@ -198,12 +207,17 @@ function PlanCard({ plan, onSelectPlan, renderActions, compact }) {
 
             {/* ── Price ── */}
             <div className="mb-6">
-                <div className="flex items-end gap-1.5">
+                <div className="flex items-end gap-1.5 text-white">
+                    {hasDiscount && (
+                        <span className="text-slate-500 font-mono text-sm line-through mb-1.5 mr-1">
+                            {plan.price}€
+                        </span>
+                    )}
                     <span
                         className={`font-black font-mono leading-none ${compact ? 'text-4xl' : 'text-5xl'} ${plan.highlight ? 'text-neon drop-shadow-[0_0_20px_var(--neon-alpha-50)]' : plan.id === 'annual' ? 'text-violet-300' : 'text-white'}`}
                     >
-                        {plan.price.split(',')[0]}
-                        <span className={compact ? 'text-2xl' : 'text-3xl'}>,{plan.price.split(',')[1]}</span>
+                        {displayPrice.split(',')[0]}
+                        <span className={compact ? 'text-2xl' : 'text-3xl'}>,{displayPrice.split(',')[1]}</span>
                     </span>
                     <span className="text-slate-500 font-mono text-xs mb-1.5">{plan.priceSuffix}</span>
                 </div>
@@ -304,7 +318,7 @@ function PlanCard({ plan, onSelectPlan, renderActions, compact }) {
 }
 
 // ─── Exported component ───────────────────────────────────────────────────────
-export default function PricingCards({ onSelectPlan, renderActions, compact = false }) {
+export default function PricingCards({ onSelectPlan, renderActions, compact = false, discount = 0 }) {
     return (
         <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 items-start pt-6 ${compact ? '' : 'lg:gap-8'}`}>
             {PLAN_DATA.map((plan) => (
@@ -314,6 +328,7 @@ export default function PricingCards({ onSelectPlan, renderActions, compact = fa
                     onSelectPlan={onSelectPlan}
                     renderActions={renderActions}
                     compact={compact}
+                    discount={discount}
                 />
             ))}
         </div>

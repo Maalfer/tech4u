@@ -248,7 +248,10 @@ export default function SubscriptionPage() {
 
                 {/* ── Pricing cards with payment actions ── */}
                 <div className="max-w-5xl pt-4 pb-4">
-                    <PricingCards renderActions={renderActions} />
+                    <PricingCards 
+                        renderActions={renderActions} 
+                        discount={useReferralDiscount ? 10 : couponDiscount}
+                    />
                 </div>
 
                 {/* ── Trust badges ── */}

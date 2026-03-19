@@ -209,9 +209,8 @@ def create_checkout_session(
             # SEC-06 FIX: reservar el descuento de forma atómica al crear la sesión,
             # no esperar al webhook. El webhook solo hace max(0, val-1) de forma idempotente.
             current_user.pending_10p_discounts -= 1
-
-            discount = int(0.10 * final_amount)
-            final_amount = max(0, final_amount - discount)
+            discount = int(0.10 * int(selected["amount"]))
+            final_amount = max(0, int(selected["amount"]) - discount)
             reward_used_type = "referral_10p"
         else:
             raise HTTPException(status_code=400, detail="No tienes descuentos de referido pendientes.")
@@ -261,9 +260,10 @@ def create_checkout_session(
         # SEC-03 FIX: reservar uso atómicamente (dentro del mismo lock with_for_update)
         c.pending_uses = (c.pending_uses or 0) + 1
 
+        # Applied coupon (calculated earlier)
+        discount = int((c.discount_percent / 100.0) * int(selected["amount"]))
+        final_amount = max(0, int(selected["amount"]) - discount)
         applied_coupon = c
-        discount = int((c.discount_percent / 100.0) * final_amount)
-        final_amount = max(0, final_amount - discount)
 
     # 🚀 EXCEPCIÓN: Si el descuento es del 100% via CUPÓN
     if final_amount == 0 and applied_coupon:
@@ -281,6 +281,7 @@ def create_checkout_session(
         db.commit()
         # Confirmar referido si el usuario fue referido (sin Stripe no hay webhook)
         confirm_referral_on_payment(db, current_user)
+        logger.info(f"PAYMENT_BYPASS: User {current_user.id} accessed plan {plan} via 100% coupon {applied_coupon.code}")
         url_success = f"{FRONTEND_URL}/suscripcion/exito?session_id=free_bypass_{applied_coupon.code}"
         return {"url": url_success}
 
@@ -322,10 +323,17 @@ def create_checkout_session(
         # from origin servers and replaces the body with its own HTML error page,
         # breaking the frontend's ability to show a meaningful error message.
         # Use 400 (auth/config errors) or 503 (transient Stripe outage) instead.
-        logger.error(f"Stripe checkout session error: {str(e)}")
+        logger.error(f"STRIPE_SESSION_ERROR: {str(e)} | User: {current_user.id} | Plan: {plan} | Amount: {final_amount}")
         detail = f"Error de Stripe: {str(e)}"
+        
+        # En producción somos más cautos con el mensaje, pero loggeamos todo
         if os.getenv("ENVIRONMENT", "development") == "production":
-            detail = "El servicio de pagos ha devuelto un error. Inténtalo de nuevo o contacta con soporte."
+            # Si el error es de configuración o autenticación, es crítico
+            if "api_key" in str(e).lower() or "authentication" in str(e).lower():
+                detail = "Error de configuración en el servidor de pagos. Por favor, contacta con soporte."
+            else:
+                detail = "El servicio de pagos ha devuelto un error. Inténtalo de nuevo o contacta con soporte."
+        
         raise HTTPException(status_code=400, detail=detail)
 
 
