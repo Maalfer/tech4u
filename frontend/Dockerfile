@@ -28,8 +28,9 @@ COPY nginx_rate_limit.conf /etc/nginx/conf.d/rate_limit.conf
 # Copiar los archivos compilados del build-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# Validar configuración de Nginx en tiempo de build
-RUN nginx -t
+# NOTA: No se puede ejecutar "nginx -t" aquí porque el upstream "backend"
+# solo existe en la red de Docker Compose (runtime), no durante el build.
+# Nginx validará la config al arrancar el contenedor.
 
 EXPOSE 80
 
