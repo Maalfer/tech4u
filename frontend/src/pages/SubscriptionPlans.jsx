@@ -2,8 +2,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
-    Shield, Zap, Lock, Star, ArrowRight,
-    MessageCircle, Rocket, Terminal, CheckCircle, Users, TrendingUp
+    Shield, Zap, Lock, Star, ArrowRight, Target,
+    MessageCircle, Rocket, Terminal, CheckCircle, Users, TrendingUp, Cpu
 } from 'lucide-react';
 import PricingCards from '../components/PricingCards';
 import logoImg from '../assets/tech4u_logo.png';
@@ -13,11 +13,23 @@ export default function SubscriptionPlans() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Testimonials for social proof
-    const testimonials = [
-        { text: 'Suspendía Redes todos los exámenes. Dos semanas con Tech4U y saqué un 8.', author: 'Carlos M.', role: 'ASIR 2024' },
-        { text: 'Los labs de SQL son brutales. El dataset del Hospital me lo sé de memoria.', author: 'Lucía P.', role: 'DAM' },
-        { text: 'Nunca entendí las ACLs de Cisco hasta que las practiqué aquí.', author: 'Álvaro R.', role: 'ASIR' },
+    // Content pillars instead of testimonials for a new academy
+    const pillars = [
+        { 
+            title: 'Enfoque ASIR/DAM', 
+            text: 'Contenido diseñado específicamente para el currículo de FP, sin paja, directo a lo que cae en los exámenes.',
+            icon: Target 
+        },
+        { 
+            title: 'Laboratorios Reales', 
+            text: 'Acceso a entornos Linux y SQL desde el navegador. Rompe cosas y aprende en escenarios reales.',
+            icon: Terminal
+        },
+        { 
+            title: 'Evolución Constante', 
+            text: 'Añadimos nuevos laboratorios y retos cada semana basándonos en las tecnologías más demandadas.',
+            icon: Cpu
+        },
     ];
 
     useSEO({
@@ -95,31 +107,30 @@ export default function SubscriptionPlans() {
                 </div>
 
                 {/* ── Social proof with testimonials ── */}
+                {/* ── Value Pillars ── */}
                 <div className="max-w-5xl mx-auto mb-10">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        {testimonials.map((testimonial, idx) => (
-                            <div key={idx} className="px-5 py-4 rounded-2xl border border-white/10 bg-white/[0.02] hover:border-neon/20 hover:bg-white/[0.035] transition-all">
-                                <p className="text-slate-300 font-mono text-xs leading-relaxed mb-3">"{testimonial.text}"</p>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-white font-bold text-xs">{testimonial.author}</p>
-                                        <p className="text-slate-500 text-[10px]">{testimonial.role}</p>
-                                    </div>
+                        {pillars.map((pillar, idx) => (
+                            <div key={idx} className="px-5 py-6 rounded-2xl border border-white/10 bg-white/[0.02] hover:border-neon/20 hover:bg-white/[0.035] transition-all group">
+                                <div className="p-2.5 rounded-xl bg-neon/5 border border-neon/10 w-fit mb-4 group-hover:bg-neon/10 transition-colors">
+                                    <pillar.icon className="w-5 h-5 text-neon" />
                                 </div>
+                                <h3 className="text-white font-black font-mono text-sm uppercase tracking-wider mb-2">{pillar.title}</h3>
+                                <p className="text-slate-400 font-mono text-xs leading-relaxed">{pillar.text}</p>
                             </div>
                         ))}
                     </div>
                     <div className="flex flex-wrap items-center justify-center gap-4">
                         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.07]">
-                            <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
+                            <MessageCircle className="w-3.5 h-3.5 text-sky-400" />
                             <span className="text-[11px] font-mono text-slate-300">
-                                <strong className="text-white">+18</strong> nuevos este mes
+                                Acceso a la <strong className="text-white">Comunidad Privada</strong>
                             </span>
                         </div>
-                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
-                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                            <span className="text-[11px] font-mono text-amber-300">
-                                <strong>4.9/5</strong> valoración media de los alumnos
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20">
+                            <Rocket className="w-3.5 h-3.5 text-neon" />
+                            <span className="text-[11px] font-mono text-neon">
+                                <strong>Nuevos Retos</strong> cada lunes
                             </span>
                         </div>
                     </div>
