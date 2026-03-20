@@ -568,6 +568,20 @@ export default function LandingPage() {
                     </div>
                 </div>
 
+                {/* ── COUPON MARQUEE ── */}
+                <div style={{ borderBottom: '1px solid rgba(0,255,100,0.15)', background: 'linear-gradient(90deg, rgba(0,255,100,0.05) 0%, rgba(0,255,100,0.1) 50%, rgba(0,255,100,0.05) 100%)', overflow: 'hidden', padding: '10px 0' }}>
+                    <div className="marquee-track" style={{ animationDuration: '40s' }}>
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '40px', paddingRight: '40px' }}>
+                                <span className="t4-heading" style={{ fontSize: '14px', color: '#00ff64', letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                                    BIENVENIDOS100 • 15% DE DESCUENTO PARA LOS 100 PRIMEROS ALUMNOS • <span style={{ color: '#fff', opacity: 0.6 }}>¡QUEDAN POCAS PLAZAS!</span>
+                                </span>
+                                <Tag style={{ width: '16px', height: '16px', color: '#00ff64', opacity: 0.8 }} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 {/* ── BENTO FEATURES ── */}
                 <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '100px 24px 80px' }}>
                     <div style={{ marginBottom: '56px' }}>
@@ -692,19 +706,19 @@ export default function LandingPage() {
                             {/* LEFT COLUMN */}
                             <div>
                                 <h2 className="t4-heading" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)', marginBottom: '20px', color: '#fff' }}>
-                                    <span className="t4-neon-grad">Trae a un amigo,</span><br />
+                                    <span className="t4-neon-grad">Trae a 10 amigos,</span><br />
                                     <span style={{ color: 'rgba(255,255,255,0.9)' }}>gana 1 mes gratis</span>
                                 </h2>
                                 <p style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px', color: 'rgba(255,255,255,0.5)', marginBottom: '32px', lineHeight: 1.7 }}>
-                                    Cada amigo que se suscriba gracias a ti te regala un mes de suscripción. Sin límite.
+                                    Por cada amigo que se suscriba con tu código de referido te activa 1 cupón de 10% de descuento. Si acumulas 10, tendrás 1 mes 100% gratis.
                                 </p>
 
                                 {/* Steps */}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '36px' }}>
                                     {[
                                         { num: '1', label: 'Comparte tu link', desc: 'Copia tu código único desde tu dashboard' },
-                                        { num: '2', label: 'Tu amigo se suscribe', desc: 'Usa el link y elige su plan' },
-                                        { num: '3', label: 'Tú ganas 1 mes gratis', desc: 'Se acredita automáticamente en tu cuenta' },
+                                        { num: '2', label: 'Tu amigo se suscribe', desc: 'Recibes un cupón de 10% de descuento automático' },
+                                        { num: '3', label: 'Gana 1 mes gratis', desc: 'Al acumular 10 amigos suscritos con éxito' },
                                     ].map(({ num, label, desc }) => (
                                         <div key={num} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                                             <div style={{
@@ -724,7 +738,7 @@ export default function LandingPage() {
                                 </div>
 
                                 <p className="t4-mono" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, letterSpacing: '0.05em' }}>
-                                    Válido para planes de pago. El mes gratuito se acredita automáticamente.
+                                    Válido para planes de pago. Los cupones se generan automáticamente en tu panel.
                                 </p>
                             </div>
 
