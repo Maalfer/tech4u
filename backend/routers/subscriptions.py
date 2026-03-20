@@ -129,7 +129,7 @@ def get_my_subscription(
         "is_active": is_active,
         "subscription_start": current_user.subscription_start.isoformat() if current_user.subscription_start else None,
         "subscription_end": current_user.subscription_end.isoformat() if current_user.subscription_end else None,
-        "auto_renew": current_user.auto_renew if current_user.auto_renew is not None else True,
+        "auto_renew": current_user.auto_renew if current_user.auto_renew is not None else False,
         "months_subscribed": current_user.months_subscribed or 0,
     }
 
@@ -139,8 +139,10 @@ def toggle_auto_renew(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Activa o desactiva la renovación automática de la suscripción."""
-    current_user.auto_renew = not (current_user.auto_renew if current_user.auto_renew is not None else True)
+    """Activa o desactiva el aviso de expiración por email. 
+    NOTA: Tech4U no realiza cargos automáticos, todos los planes son de pago único.
+    """
+    current_user.auto_renew = not (current_user.auto_renew if current_user.auto_renew is not None else False)
     db.commit()
     return {"auto_renew": current_user.auto_renew}
 
@@ -822,8 +824,8 @@ def cancel_subscription(
     db: Session = Depends(get_db),
 ):
     """
-    Marca la suscripción como no renovable (auto_renew=False).
-    No realiza ningún cargo ni cancela nada en Stripe — los planes son pagos únicos.
+    Desactiva el aviso de expiración (auto_renew=False).
+    Tech4U no realiza cargos recurrentes (Stripe mode='payment').
     El usuario mantiene el acceso hasta la fecha de finalización actual.
     """
     if current_user.subscription_type == "free":

@@ -341,12 +341,12 @@ export default function ManageSubscription() {
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="text-sm font-black text-white uppercase tracking-wide mb-0.5">
-                                                Aviso de Renovación
+                                                Aviso de Expiración
                                             </h3>
                                             <p className="text-[11px] font-mono text-slate-500 leading-relaxed">
                                                 {data.auto_renew
-                                                    ? 'Recibirás un email cuando tu plan esté próximo a expirar. Sin cargos automáticos.'
-                                                    : `Sin avisos activos. Tu acceso finaliza el ${formatDate(data.subscription_end)}.`}
+                                                    ? 'Recibirás un email recordatorio antes de que expire tu acceso. Tech4U no realiza cobros automáticos.'
+                                                    : `Sin avisos activos. Tu acceso de pago único de 30 días finalizará el ${formatDate(data.subscription_end)}.`}
                                             </p>
                                         </div>
                                     </div>
@@ -379,11 +379,11 @@ export default function ManageSubscription() {
                                             <XCircle className="w-4.5 h-4.5 text-red-500/50" />
                                         </div>
                                         <div className="min-w-0">
-                                            <h3 className="text-sm font-black text-red-400/70 uppercase tracking-wide mb-0.5">
-                                                Cancelar Suscripción
+                                            <h3 className="text-sm font-black text-slate-500 uppercase tracking-wide mb-0.5">
+                                                Finalizar Acceso Anticipadamente
                                             </h3>
                                             <p className="text-[11px] font-mono text-slate-600 leading-relaxed">
-                                                Mantendrás el acceso hasta el {formatDate(data.subscription_end)}. No se realizará ningún cargo futuro.
+                                                Tu acceso es de pago único y expirará el {formatDate(data.subscription_end)}. No hay cobros recurrentes que cancelar.
                                             </p>
                                         </div>
                                     </div>
@@ -400,9 +400,9 @@ export default function ManageSubscription() {
                                             <button
                                                 onClick={handleCancelSubscription}
                                                 disabled={cancelling}
-                                                className="px-4 py-2 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-red-700 transition-all disabled:opacity-60"
+                                                className="px-4 py-2 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase hover:bg-slate-700 transition-all disabled:opacity-60"
                                             >
-                                                {cancelling ? 'Procesando...' : 'Sí, cancelar'}
+                                                {cancelling ? 'Procesando...' : 'Confirmar'}
                                             </button>
                                             <button
                                                 onClick={() => setShowCancelConfirm(false)}

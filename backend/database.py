@@ -43,7 +43,7 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     subscription_start = Column(DateTime, nullable=True)
     subscription_end = Column(DateTime, nullable=True)
-    auto_renew = Column(Boolean, default=True)
+    auto_renew = Column(Boolean, default=False)
     role = Column(String, default="alumno") 
     xp = Column(Integer, default=0)
     level = Column(Integer, default=1)
