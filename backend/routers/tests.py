@@ -120,7 +120,7 @@ def get_failed_questions(
         )
     )
 
-    if subject:
+    if subject and subject.lower() != "general":
         query = query.filter(Question.subject == subject)
 
     questions = query.order_by(func.random()).limit(safe_limit).all()

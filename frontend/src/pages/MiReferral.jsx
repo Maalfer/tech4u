@@ -206,13 +206,6 @@ export default function MiReferral() {
                                             <WhatsAppIcon size={16} />
                                             Compartir en WhatsApp
                                         </button>
-                                        <button
-                                            onClick={loadStats}
-                                            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white font-black text-xs uppercase tracking-wider transition-all hover:bg-white/10"
-                                        >
-                                            <RefreshCw className="w-3.5 h-3.5" />
-                                            Actualizar
-                                        </button>
                                     </div>
                                 </>
                             ) : (

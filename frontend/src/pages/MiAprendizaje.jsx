@@ -392,11 +392,11 @@ function EmptyState() {
       </div>
       <h3 className="text-lg font-bold text-white mb-2">Tu camino empieza aquí</h3>
       <p className="text-slate-500 text-sm max-w-xs mb-8 leading-relaxed">
-        Empieza el curso de eJPTv2, completa labs o realiza tu primer test para ver tu progreso aquí.
+        Explora la academia, completa labs o realiza tu primer test para ver tu progreso aquí.
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
-        <Link to="/ciberseguridad" className="inline-flex items-center gap-2 bg-lime-500 hover:bg-lime-400 text-black font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors">
-          <Shield size={14} /> Curso eJPTv2
+        <Link to="/explora" className="inline-flex items-center gap-2 bg-lime-500 hover:bg-lime-400 text-black font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors">
+          <BookOpen size={14} /> Explorar Cursos
         </Link>
         <Link to="/labs" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors border border-white/10">
           <FlaskConical size={14} /> Skill Labs
@@ -640,8 +640,8 @@ export default function MiAprendizaje() {
                     <div className="py-16 text-center">
                       <Lock size={24} className="text-slate-700 mx-auto mb-3" />
                       <p className="text-sm text-slate-600">No tienes cursos activos todavía.</p>
-                      <Link to="/ciberseguridad" className="text-xs text-lime-400 hover:text-lime-300 mt-2 inline-block transition-colors">
-                        Ver curso eJPTv2 →
+                      <Link to="/explora" className="text-xs text-lime-400 hover:text-lime-300 mt-2 inline-block transition-colors">
+                        Explorar academia →
                       </Link>
                     </div>
                   )}

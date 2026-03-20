@@ -640,7 +640,7 @@ export default function Dashboard() {
                         </div>
                         <span className="text-5xl font-black font-mono text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] ml-auto relative z-10">{stats?.total_errors || 0}</span>
                         <button
-                            onClick={() => navigate('/tests')}
+                            onClick={() => navigate('/tests', { state: { autoStart: 'errors' } })}
                             className="px-5 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-[10px] font-black uppercase tracking-wide hover:bg-red-500 hover:text-white transition-all relative z-10 flex-shrink-0"
                         >
                             Repasar ahora

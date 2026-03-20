@@ -232,7 +232,7 @@ export default function App() {
 
               <Route path="/courses" element={<PremiumRoute><Courses /></PremiumRoute>} />
               <Route path="/flashcards" element={<PremiumRoute><Flashcards /></PremiumRoute>} />
-              <Route path="/ciberseguridad" element={<PremiumRoute><Cybersecurity /></PremiumRoute>} />
+              <Route path="/ciberseguridad" element={<PremiumRoute module="ciberseguridad"><Cybersecurity /></PremiumRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/explora" element={<ExploraAcademia />} />
               <Route path="/personaje" element={<ProtectedRoute><CharacterProfile /></ProtectedRoute>} />
@@ -241,7 +241,7 @@ export default function App() {
               <Route path="/shop/:id" element={<ProtectedRoute><ShopCourseDetail /></ProtectedRoute>} />
               <Route path="/noticias" element={<ProtectedRoute><NewsFeed /></ProtectedRoute>} />
               <Route path="/watch/:id" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
-              <Route path="/certificacion/:slug" element={<PremiumRoute><CertificacionPlayer /></PremiumRoute>} />
+              <Route path="/certificacion/:slug" element={<PremiumRoute module="ciberseguridad"><CertificacionPlayer /></PremiumRoute>} />
               <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
               <Route path="/mi-aprendizaje" element={<ProtectedRoute><MiAprendizaje /></ProtectedRoute>} />
               <Route path="/video-courses" element={<PremiumRoute><VideoCoursesList /></PremiumRoute>} />

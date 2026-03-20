@@ -71,7 +71,7 @@ const THEME = {
     },
 }
 
-export default function TestEngine({ questions = [], mode = 'normal', onFinish, timeLimit = null }) {
+export default function TestEngine({ questions = [], mode = 'normal', onFinish, timeLimit = null, onQuit }) {
     const navigate = useNavigate()
     const [current,      setCurrent]      = useState(0)
     const [answers,      setAnswers]      = useState({})
@@ -446,7 +446,7 @@ export default function TestEngine({ questions = [], mode = 'normal', onFinish, 
                                     className="flex-1 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-slate-400 text-[11px] font-black uppercase tracking-widest hover:bg-white/[0.08] transition-all">
                                     Continuar
                                 </button>
-                                <button onClick={() => navigate('/tests')}
+                                <button onClick={onQuit || (() => navigate('/tests'))}
                                     className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-[11px] font-black uppercase tracking-widest transition-all">
                                     Salir
                                 </button>

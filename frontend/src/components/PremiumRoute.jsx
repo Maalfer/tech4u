@@ -10,6 +10,7 @@ const MODULE_LABELS = {
     theory: 'Teoría',
     skill_labs: 'Skill Labs',
     tests: 'Test Center',
+    ciberseguridad: 'Ciberseguridad',
 };
 
 // Shown when a student's group has NOT enabled this module

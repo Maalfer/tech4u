@@ -451,6 +451,19 @@ def get_learning_summary(
         .all()
     )
 
+    # SEC-FIX: Filter courses based on group enabled modules
+    if current_user.group_info:
+        enabled = current_user.group_info.get("enabled_modules", [])
+        # We assume courses with 'ejpt' or 'cyber' in slug belong to ciberseguridad module
+        sub_courses = [
+            c for c in sub_courses 
+            if "ciberseguridad" in enabled or not (
+                "ejpt" in (c.slug or "").lower() or 
+                "cyber" in (c.slug or "").lower() or 
+                "ciberseguridad" in (c.slug or "").lower()
+            )
+        ]
+
     subscription_courses_data = []
     for course in sub_courses:
         total_lessons = len([l for l in course.lessons if not l.is_quiz])

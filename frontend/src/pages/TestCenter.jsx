@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
     AlertCircle, Zap, ChevronRight, ChevronLeft,
     BookOpen, ClipboardList, Bug, Target, Clock, Shield, Flame, Trophy,
@@ -228,6 +228,7 @@ function SubjectCard({ sub, onClick }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function TestCenter() {
     const navigate = useNavigate()
+    const location = useLocation()
     const { user }  = useAuth()
 
     const [phase,           setPhase]           = useState('subjects')
@@ -241,8 +242,33 @@ export default function TestCenter() {
     const [stats,           setStats]           = useState(null)
 
     useEffect(() => {
-        api.get('/dashboard/stats').then(r => setStats(r.data)).catch(() => {})
-    }, [])
+        api.get('/dashboard/stats').then(r => {
+            setStats(r.data);
+            // Handle autoStart from location state
+            if (location.state?.autoStart === 'errors' && r.data.total_errors > 0) {
+                const startAutoErrors = async () => {
+                    setLoading(true);
+                    try {
+                        const res = await api.get('/tests/failed', { params: { limit: 200 } });
+                        if (res.data.length > 0) {
+                            setQuestions(res.data);
+                            setMode('errors');
+                            setSelectedSubject(SUBJECTS.find(s => s.key === 'general'));
+                            setPhase('running');
+                            trackEvent('test_started', 'general', 'test', { mode: 'errors', auto: true });
+                        }
+                    } catch (err) {
+                        console.error("Error in autoStart:", err);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+                startAutoErrors();
+                // Clear state so it doesn't re-trigger on navigation
+                window.history.replaceState({}, document.title);
+            }
+        }).catch(() => {})
+    }, [location.state])
 
     const currentXP  = stats?.current_xp   || 0
     const nextLevelXP = stats?.next_level_xp || 1000
@@ -699,6 +725,7 @@ export default function TestCenter() {
                             style={{ background: mode === 'exam' ? '#ef4444' : '#22c55e' }} />
                         <div className="relative z-10 w-full">
                             <TestEngine questions={questions} mode={mode} onFinish={handleFinish}
+                                onQuit={() => setPhase('subjects')}
                                 timeLimit={MODES.find(m => m.key === mode)?.time} />
                         </div>
                     </div>

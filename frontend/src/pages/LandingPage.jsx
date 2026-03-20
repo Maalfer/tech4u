@@ -513,10 +513,10 @@ export default function LandingPage() {
 
                         {/* Headline */}
                         <h1 className="t4-heading anim-1" style={{ fontSize: 'clamp(52px, 5.5vw, 80px)', marginBottom: '20px' }}>
-                            <span className="t4-grad" style={{ display: 'block' }}>Conviértete en un</span>
-                            <span className="t4-neon-grad" style={{ display: 'block' }}>SysAdmin</span>
+                            <span className="t4-grad" style={{ display: 'block' }}>Accede a la</span>
+                            <span className="t4-neon-grad" style={{ display: 'block' }}>Academia</span>
                             <span style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: '75%', fontWeight: 700 }}>
-                                Entrenando como en un RPG
+                                y aprueba tu FP a la primera
                             </span>
                         </h1>
 
