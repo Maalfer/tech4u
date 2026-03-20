@@ -57,12 +57,24 @@ const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to secure sandb
         term.loadAddon(fitAddon);
         term.open(containerRef.current);
 
+        // ── socketRef — lets safeFit send resize before socket.onopen ─────
+        // The ref is assigned right after the socket is created below.
+        const socketRef = { current: null };
+
         // ── safe fit helper ───────────────────────────────────────────────
         const safeFit = () => {
             if (disposed) return;
             if (!containerRef.current) return;
             if (containerRef.current.offsetWidth === 0 || containerRef.current.offsetHeight === 0) return;
-            try { fitAddon.fit(); } catch (_) {}
+            try {
+                fitAddon.fit();
+                // Notify backend of new terminal dimensions so the PTY and
+                // docker exec's inner TTY track the xterm.js canvas size.
+                const s = socketRef.current;
+                if (s && s.readyState === WebSocket.OPEN) {
+                    s.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+                }
+            } catch (_) {}
         };
 
         // Initial fit: defer 50ms so flex layout has settled.
@@ -83,12 +95,13 @@ const TerminalComponent = ({ wsUrl, welcomeMessage = "Connecting to secure sandb
         const wsHost = apiUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
         const socket = new WebSocket(`${wsProtocol}//${wsHost}${wsUrl}`);
         socket.binaryType = 'arraybuffer';
+        socketRef.current = socket;
 
         socket.onopen = () => {
             term.write('\x1b[32mConexión establecida con éxito.\x1b[0m\r\n');
             // Auto-focus so the user can type immediately
             term.focus();
-            // Refit now that socket is open (container might have shifted)
+            // Refit and send initial dimensions to backend
             safeFit();
         };
 

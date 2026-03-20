@@ -23,6 +23,9 @@ import os
 import pty
 import subprocess
 import select
+import struct
+import fcntl
+import termios
 import datetime
 import logging
 
@@ -1809,6 +1812,12 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
         # 1. Open a PTY pair
         master_fd, slave_fd = pty.openpty()
 
+        # Set a sensible default terminal size (80×24) so bash renders correctly.
+        # Docker containers don't have a controlling terminal, so pty.openpty()
+        # would otherwise inherit 0×0 which breaks readline / prompt rendering.
+        _default_winsize = struct.pack("HHHH", 24, 80, 0, 0)
+        fcntl.ioctl(master_fd, termios.TIOCSWINSZ, _default_winsize)
+
         # 2. Start interactive bash via docker exec -it on the container name
         container_name = container.name
         process = subprocess.Popen(
@@ -1816,20 +1825,35 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
             stdin=slave_fd,
             stdout=slave_fd,
             stderr=slave_fd,
-            close_fds=True
+            close_fds=True,
+            env={**os.environ, "TERM": "xterm-256color"},
         )
         # The slave end is owned by the child process — close in parent
         os.close(slave_fd)
         slave_fd = None
 
-        # 3. WebSocket → PTY input
+        # 3. WebSocket → PTY input (binary = terminal data; text = control JSON)
         async def websocket_to_pty():
             try:
                 while True:
-                    data = await websocket.receive_bytes()
+                    msg = await websocket.receive()
                     if process.poll() is not None:
                         break
-                    os.write(master_fd, data)
+                    raw_bytes = msg.get("bytes")
+                    raw_text  = msg.get("text")
+                    if raw_bytes:
+                        os.write(master_fd, raw_bytes)
+                    elif raw_text:
+                        # Control message — currently only "resize"
+                        try:
+                            ctrl = json.loads(raw_text)
+                            if ctrl.get("type") == "resize":
+                                cols = max(1, int(ctrl.get("cols", 80)))
+                                rows = max(1, int(ctrl.get("rows", 24)))
+                                winsize = struct.pack("HHHH", rows, cols, 0, 0)
+                                fcntl.ioctl(master_fd, termios.TIOCSWINSZ, winsize)
+                        except (json.JSONDecodeError, ValueError, OSError):
+                            pass
             except (WebSocketDisconnect, RuntimeError):
                 pass
             except Exception as e:
