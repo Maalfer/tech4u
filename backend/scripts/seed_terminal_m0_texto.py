@@ -725,6 +725,7 @@ apropos <tema>            # Sinónimo de man -k
             existing_c = db.query(Challenge).filter(Challenge.lab_id == lab.id, Challenge.title == c_data["title"]).first()
             if not existing_c:
                 challenge = Challenge(
+                    id=f"term_{lab.id}_c{idx}",
                     lab_id=lab.id,
                     title=c_data["title"],
                     description=c_data.get("description", ""),
@@ -2094,6 +2095,7 @@ cat archivo.txt | tr 'a-z' 'A-Z'   # Con pipe
             existing_c = db.query(Challenge).filter(Challenge.lab_id == lab.id, Challenge.title == c_data["title"]).first()
             if not existing_c:
                 challenge = Challenge(
+                    id=f"term_{lab.id}_c{idx}",
                     lab_id=lab.id,
                     title=c_data["title"],
                     description=c_data.get("description", ""),
