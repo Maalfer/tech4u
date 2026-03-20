@@ -59,6 +59,7 @@ class PaginatedUserOut(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str
     user: UserOut
 

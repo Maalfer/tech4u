@@ -30,6 +30,30 @@ services:
       timeout: 5s
       retries: 5
 
+  # 🔒 Docker Socket Proxy (Security Hardening)
+  # Este servicio actúa como cortafuegos para el daemon de Docker.
+  # El backend ya no tiene acceso total al host, solo puede gestionar contenedores de labs.
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: tech4u-docker-proxy
+    restart: always
+    environment:
+      - CONTAINERS=1   # Consultar/Listar contenedores
+      - POST=1         # Crear/Arrancar/Parar (necesario para labs)
+      - EXEC=1         # Necesario para inyectar escenario en labs
+      - AUTH=0
+      - SECRETS=0
+      - NETWORKS=0
+      - NODES=0
+      - SERVICES=0
+      - SWARM=0
+      - TASKS=0
+      - VOLUMES=0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - tech4u-network
+
   # ⚙️ Backend (FastAPI)
   backend:
     build:
@@ -47,10 +71,11 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-tech4u_admin}:${POSTGRES_PASSWORD:-tech4u_admin_secret}@db:5432/${POSTGRES_DB:-tech4u}
       - REDIS_URL=redis://redis:6379/0
+      - DOCKER_URL=tcp://docker-proxy:2375
       - ENVIRONMENT=production
       - WORKERS=2
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock  # Acceso para lanzar laboratorios
+      # - /var/run/docker.sock:/var/run/docker.sock  # ELIMINADO: ahora usa el proxy tcp://docker-proxy:2375
       - ./backend/static:/app/static               # Archivos estáticos
       - ./backend/templates:/app/templates         # Plantillas de email (Jinja2)
       - ./backend/services:/app/services           # Lógica de negocio (email_service, etc.)

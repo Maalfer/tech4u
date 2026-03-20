@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from database import get_db, User, Referral
 from schemas import UserRegister, UserLogin, TokenResponse, UserOut
-from auth import decode_token, get_current_user, hash_password, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from auth import decode_token, get_current_user, hash_password, verify_password, create_access_token, create_refresh_token, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from pydantic import BaseModel
 import secrets
 import random
@@ -128,29 +128,42 @@ def register(request: Request, response: Response, data: UserRegister, backgroun
                 db.commit()
 
     # SEC-05: incluir token_version en el payload del JWT
-    token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
+    access_token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
+    refresh_token = create_refresh_token({"sub": str(user.id), "ver": user.token_version or 0})
 
-    # Set httpOnly authentication cookie with tech4u_token name
+    # Set httpOnly authentication cookies
     env = os.getenv("ENVIRONMENT", "development")
     secure_cookie = os.getenv("COOKIE_SECURE", "False").lower() == "true"
 
     if env == "production":
         cookie_domain = ".tech4uacademy.es"
-        samesite = "Lax"
+        samesite_access = "Lax"
+        samesite_refresh = "Strict"
     else:
         cookie_domain = None
-        samesite = "Lax"
+        samesite_access = "Lax"
+        samesite_refresh = "Lax"
 
-    # SEC-12 FIX: solo emitir la cookie actual (tech4u_token), eliminar cookie legacy
     response.set_cookie(
         key="tech4u_token",
-        value=token,
+        value=access_token,
         httponly=True,
         secure=secure_cookie,
-        samesite=samesite,
+        samesite=samesite_access,
         domain=cookie_domain,
         path="/",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+
+    response.set_cookie(
+        key="tech4u_refresh",
+        value=refresh_token,
+        httponly=True,
+        secure=secure_cookie,
+        samesite=samesite_refresh,
+        domain=cookie_domain,
+        path="/",
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
     )
 
     # Send emails (non-blocking)
@@ -159,7 +172,12 @@ def register(request: Request, response: Response, data: UserRegister, backgroun
     except Exception as e:
         logger.warning(f"Failed to queue welcome email to {user.email}: {e}")
     db.refresh(user)
-    return TokenResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
+    return TokenResponse(
+        access_token=access_token, 
+        refresh_token=refresh_token,
+        token_type="bearer", 
+        user=UserOut.model_validate(user)
+    )
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -238,32 +256,47 @@ def login(request: Request, response: Response, data: UserLogin, db: Session = D
     db.commit()
     db.refresh(user)
 
-    # Token
-    token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
+    # Tokens
+    access_token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
+    refresh_token = create_refresh_token({"sub": str(user.id), "ver": user.token_version or 0})
 
     env = os.getenv("ENVIRONMENT", "development")
     secure_cookie = os.getenv("COOKIE_SECURE", "False").lower() == "true"
 
     if env == "production":
         cookie_domain = ".tech4uacademy.es"
-        samesite = "Lax"
+        samesite_access = "Lax"
+        samesite_refresh = "Strict"
     else:
         cookie_domain = None
-        samesite = "Lax"
+        samesite_access = "Lax"
+        samesite_refresh = "Lax"
 
     response.set_cookie(
         key="tech4u_token",
-        value=token,
+        value=access_token,
         httponly=True,
         secure=secure_cookie,
-        samesite=samesite,
+        samesite=samesite_access,
         domain=cookie_domain,
         path="/",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
+    response.set_cookie(
+        key="tech4u_refresh",
+        value=refresh_token,
+        httponly=True,
+        secure=secure_cookie,
+        samesite=samesite_refresh,
+        domain=cookie_domain,
+        path="/",
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
+    )
+
     return TokenResponse(
-        access_token=token,
+        access_token=access_token,
+        refresh_token=refresh_token,
         token_type="bearer",
         user=UserOut.model_validate(user)
     )
@@ -274,17 +307,13 @@ def logout(response: Response):
     env = os.getenv("ENVIRONMENT", "development")
     cookie_domain = ".tech4uacademy.es" if env == "production" else None
 
-    # Clear both cookies (new tech4u_token and legacy access_token)
-    response.delete_cookie(
-        key="tech4u_token",
-        domain=cookie_domain,
-        path="/"
-    )
-    response.delete_cookie(
-        key="access_token",
-        domain=cookie_domain,
-        path="/"
-    )
+    # Clear all auth cookies
+    for cookie in ["tech4u_token", "tech4u_refresh", "access_token"]:
+        response.delete_cookie(
+            key=cookie,
+            domain=cookie_domain,
+            path="/"
+        )
     return {"detail": "Sesión cerrada"}
 
 
@@ -355,46 +384,70 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
-    """Issues a fresh token if the current one is valid (silent refresh for long sessions)."""
-    # Try tech4u_token first, fall back to access_token for backward compatibility
-    token = request.cookies.get("tech4u_token") or request.cookies.get("access_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="No hay sesión activa")
+    """Issues a fresh access token if the refresh token is valid."""
+    refresh_token = request.cookies.get("tech4u_refresh")
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="No hay token de refresco")
 
-    payload = decode_token(token)  # Raises 401 if invalid/expired
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Token inválido")
+    try:
+        payload = decode_token(refresh_token)
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Token de tipo incorrecto")
+            
+        user_id = payload.get("sub")
+        token_ver = payload.get("ver")
+        
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Token inválido")
 
-    user = db.query(User).filter(User.id == int(user_id)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        user = db.query(User).filter(User.id == int(user_id)).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    # SEC-05: incluir token_version en el payload del token renovado
-    new_token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
+        # Verificar versión del token (revocación selectiva)
+        if user.token_version != token_ver:
+            raise HTTPException(status_code=401, detail="Sesión revocada")
 
-    env = os.getenv("ENVIRONMENT", "development")
-    secure_cookie = os.getenv("COOKIE_SECURE", "False").lower() == "true"
+        # Generar nuevo access token
+        new_access_token = create_access_token({"sub": str(user.id), "ver": user.token_version or 0})
+        # Opcional: Rotar el refresh token (seguridad extra)
+        new_refresh_token = create_refresh_token({"sub": str(user.id), "ver": user.token_version or 0})
 
-    if env == "production":
-        cookie_domain = ".tech4uacademy.es"
-        samesite = "Lax"
-    else:
-        cookie_domain = None
-        samesite = "Lax"
+        env = os.getenv("ENVIRONMENT", "development")
+        secure_cookie = os.getenv("COOKIE_SECURE", "False").lower() == "true"
+        cookie_domain = ".tech4uacademy.es" if env == "production" else None
 
-    # SEC-12 FIX: solo emitir cookie actual
-    response.set_cookie(
-        key="tech4u_token",
-        value=new_token,
-        httponly=True,
-        secure=secure_cookie,
-        samesite=samesite,
-        domain=cookie_domain,
-        path="/",
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    )
-    return TokenResponse(access_token=new_token, token_type="bearer", user=UserOut.model_validate(user))
+        response.set_cookie(
+            key="tech4u_token",
+            value=new_access_token,
+            httponly=True,
+            secure=secure_cookie,
+            samesite="Lax" if env == "production" else "Lax",
+            domain=cookie_domain,
+            path="/",
+            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        )
+
+        response.set_cookie(
+            key="tech4u_refresh",
+            value=new_refresh_token,
+            httponly=True,
+            secure=secure_cookie,
+            samesite="Strict" if env == "production" else "Lax",
+            domain=cookie_domain,
+            path="/",
+            max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
+        )
+
+        return TokenResponse(
+            access_token=new_access_token,
+            refresh_token=new_refresh_token,
+            token_type="bearer",
+            user=UserOut.model_validate(user)
+        )
+    except Exception as e:
+        logger.error(f"Error en refresh_token: {e}")
+        raise HTTPException(status_code=401, detail="Sesión expirada o inválida")
 
 
 # ── Onboarding ────────────────────────────────────────────────────────────

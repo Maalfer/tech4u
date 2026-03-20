@@ -103,11 +103,12 @@ async def antibot_middleware(request: Request, call_next):
     if not user_agent:
         return Response(content="User-Agent is required", status_code=403)
 
-    # 2. Block known attack/scraping tools — NOT curl/wget (needed for health checks via nginx)
+    # 2. Block known attack/scraping tools
     blocked_patterns = [
         "python-requests", "aiohttp", "go-http-client",
         "headless", "selenium", "puppeteer",
         "sqlmap", "nikto", "nmap", "masscan", "zgrab",
+        "wget", "bot", "scanner", "crawl", "spider",
     ]
     if any(pattern in user_agent.lower() for pattern in blocked_patterns):
         return Response(content="Bot access denied", status_code=403)
@@ -167,8 +168,8 @@ async def security_middleware(request: Request, call_next):
 
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline'; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "script-src 'self'; "  # SEC-FIX: eliminado 'unsafe-inline'
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " # 'unsafe-inline' mantenido para compatibilidad con estilos dinámicos de React
         "font-src 'self' https://fonts.gstatic.com data:; "
         "img-src 'self' data: blob: https:; "
         "media-src 'self' blob: https:; "
