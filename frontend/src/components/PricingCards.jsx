@@ -116,11 +116,13 @@ function PlanCard({ plan, onSelectPlan, renderActions, compact, discount = 0, ap
     const Icon = plan.icon;
 
     // Calculate discounted price if applicable
+    // SEC-16: clamp discount between 0 and 100 to prevent negative prices
+    const safeDiscount = Math.max(0, Math.min(100, discount || 0));
     const numericPrice = parseFloat(plan.rawPrice);
     const planApplicable = applicablePlans === 'all' || applicablePlans === plan.id;
-    const hasDiscount = discount > 0 && discount <= 100 && planApplicable;
-    const finalPrice = hasDiscount 
-        ? (numericPrice * (1 - discount / 100)).toFixed(2)
+    const hasDiscount = safeDiscount > 0 && planApplicable;
+    const finalPrice = hasDiscount
+        ? (numericPrice * (1 - safeDiscount / 100)).toFixed(2)
         : plan.price;
 
     const displayPrice = hasDiscount ? finalPrice.replace('.', ',') : plan.price;

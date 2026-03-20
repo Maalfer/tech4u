@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
 from database import get_db, User, Coupon, UserCoursePurchase, UserCouponUsage, ProcessedStripeEvent
+from sqlalchemy import text
 from auth import get_current_user
 from dotenv import load_dotenv
 import logging
@@ -384,17 +385,15 @@ def create_checkout_session(
         # from origin servers and replaces the body with its own HTML error page,
         # breaking the frontend's ability to show a meaningful error message.
         # Use 400 (auth/config errors) or 503 (transient Stripe outage) instead.
-        logger.error(f"STRIPE_SESSION_ERROR: {str(e)} | User: {current_user.id} | Plan: {plan} | Amount: {final_amount}")
-        detail = f"Error de Stripe: {str(e)}"
-        
-        # En producción somos más cautos con el mensaje, pero loggeamos todo
-        if os.getenv("ENVIRONMENT", "development") == "production":
-            # Si el error es de configuración o autenticación, es crítico
-            if "api_key" in str(e).lower() or "authentication" in str(e).lower():
-                detail = "Error de configuración en el servidor de pagos. Por favor, contacta con soporte."
-            else:
-                detail = "El servicio de pagos ha devuelto un error. Inténtalo de nuevo o contacta con soporte."
-        
+        # SEC-08: loggear tipo de error internamente sin exponer detalles al cliente
+        logger.error(
+            f"STRIPE_SESSION_ERROR | type={type(e).__name__} | user={current_user.id} | plan={plan} | amount={final_amount}"
+        )
+        # Si es error de API key / auth → es crítico de infraestructura
+        if isinstance(e, stripe.AuthenticationError):
+            detail = "Error de configuración en el servidor de pagos. Contacta con soporte."
+        else:
+            detail = "El servicio de pagos ha devuelto un error. Inténtalo de nuevo o contacta con soporte."
         raise HTTPException(status_code=400, detail=detail)
 
 
@@ -450,13 +449,8 @@ def create_docente_checkout_session(
         )
         return {"url": session.url}
     except stripe.StripeError as e:
-        # SEC-08 FIX: loggear internamente, exponer mensaje genérico en producción
-        # Use 400 not 502 — Cloudflare intercepts 502 from origin and replaces with HTML
-        logger.error(f"Stripe docente checkout error: {str(e)}")
-        detail = f"Error de Stripe: {str(e)}"
-        if os.getenv("ENVIRONMENT", "development") == "production":
-            detail = "Error al procesar el pago con Stripe. Inténtalo de nuevo."
-        raise HTTPException(status_code=400, detail=detail)
+        logger.error(f"STRIPE_DOCENTE_ERROR | type={type(e).__name__} | user={current_user.id}")
+        raise HTTPException(status_code=400, detail="Error al procesar el pago con Stripe. Inténtalo de nuevo.")
 
 
 @router.get("/docente/verify-session")
@@ -475,11 +469,8 @@ def verify_docente_session(
     try:
         session_obj = stripe.checkout.Session.retrieve(session_id)
     except stripe.StripeError as e:
-        logger.error(f"Stripe session retrieve error: {str(e)}")
-        detail = f"Error de Stripe: {str(e)}"
-        if os.getenv("ENVIRONMENT", "development") == "production":
-            detail = "No se pudo verificar la sesión con Stripe."
-        raise HTTPException(status_code=400, detail=detail)
+        logger.error(f"STRIPE_RETRIEVE_ERROR | type={type(e).__name__} | session={session_id}")
+        raise HTTPException(status_code=400, detail="No se pudo verificar la sesión con Stripe.")
 
     if session_obj.payment_status != "paid":
         return {"success": False}
@@ -586,17 +577,20 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks, db
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Firma de webhook inválida")
 
-    # SEC: Idempotencia — evitar doble proceso si Stripe reintenta el mismo evento
-    already_processed = db.query(ProcessedStripeEvent).filter(
-        ProcessedStripeEvent.stripe_event_id == event["id"]
-    ).first()
-    if already_processed:
+    # SEC-10: Idempotencia atómica — ON CONFLICT DO NOTHING evita race condition
+    # si dos webhooks del mismo evento llegan simultáneamente.
+    result = db.execute(
+        text(
+            "INSERT INTO processed_stripe_events (stripe_event_id, event_type, processed_at) "
+            "VALUES (:id, :type, NOW()) ON CONFLICT (stripe_event_id) DO NOTHING"
+        ),
+        {"id": event["id"], "type": event["type"]}
+    )
+    db.commit()
+    if result.rowcount == 0:
+        # Fila ya existía — evento duplicado
         logger.info(f"STRIPE WEBHOOK: Evento ya procesado {event['id']}, ignorando reintento.")
         return {"status": "already_processed"}
-
-    # Marcar como procesado ANTES de actuar (optimistic lock)
-    db.add(ProcessedStripeEvent(stripe_event_id=event["id"], event_type=event["type"]))
-    db.commit()
 
     logger.info(f"STRIPE WEBHOOK: Recibido evento {event['type']} (id: {event['id']})")
 
@@ -753,11 +747,8 @@ def verify_session(
     try:
         session_obj = stripe.checkout.Session.retrieve(session_id)
     except stripe.StripeError as e:
-        logger.error(f"Stripe session retrieve error (fallback): {str(e)}")
-        detail = f"Error de Stripe: {str(e)}"
-        if os.getenv("ENVIRONMENT", "development") == "production":
-            detail = "Error al verificar el estado del pago."
-        raise HTTPException(status_code=400, detail=detail)
+        logger.error(f"STRIPE_VERIFY_FALLBACK_ERROR | type={type(e).__name__} | session={session_id} | user={current_user.id}")
+        raise HTTPException(status_code=400, detail="Error al verificar el estado del pago.")
 
     if session_obj.payment_status == "paid":
         # ── SEC-01 FIX: verificar que la sesión pertenece al usuario autenticado ──

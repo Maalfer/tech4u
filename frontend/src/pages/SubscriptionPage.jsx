@@ -31,16 +31,22 @@ export default function SubscriptionPage() {
 
     // ── Stripe checkout ───────────────────────────────────────────────────────
     const handleSubscribe = async (plan) => {
+        // SEC-00: el descuento de referido solo es válido para plan mensual
+        if (useReferralDiscount && plan !== 'monthly') {
+            setError('El descuento de referido (10%) solo es aplicable al plan mensual.');
+            return;
+        }
         setLoadingPlan(plan);
         setError('');
         try {
             const validCode = couponStatus === 'valid' && !useReferralDiscount && !useFreeMonth
                 ? couponInput.trim().toUpperCase() : null;
-            let url = `/subscriptions/create-checkout-session?plan=${plan}`;
-            if (validCode)           url += `&coupon_code=${validCode}`;
-            if (useReferralDiscount) url += `&use_referral_discount=true`;
-            if (useFreeMonth)        url += `&use_free_month=true`;
-            const res = await api.post(url);
+            // SEC-04: usar URLSearchParams para evitar inyección de parámetros
+            const params = new URLSearchParams({ plan });
+            if (validCode)           params.set('coupon_code', validCode);
+            if (useReferralDiscount) params.set('use_referral_discount', 'true');
+            if (useFreeMonth)        params.set('use_free_month', 'true');
+            const res = await api.post(`/subscriptions/create-checkout-session?${params}`);
             window.location.href = res.data.url;
         } catch (err) {
             const detail = err.response?.data?.detail;
@@ -59,7 +65,9 @@ export default function SubscriptionPage() {
         setUseFreeMonth(false);
         setError('');
         try {
-            const res = await api.get(`/subscriptions/validate-coupon?code=${couponInput.trim().toUpperCase()}`);
+            // SEC-04: URL encode para evitar inyección en parámetros
+            const params = new URLSearchParams({ code: couponInput.trim().toUpperCase() });
+            const res = await api.get(`/subscriptions/validate-coupon?${params}`);
             setCouponDiscount(res.data.discount_percent);
             setCouponApplicablePlans(res.data.applicable_plans || 'all');
             setCouponStatus('valid');
@@ -76,6 +84,8 @@ export default function SubscriptionPage() {
     // ── Render payment buttons per plan ──────────────────────────────────────
     const renderActions = (plan) => {
         const isFreeMonthOnly = useFreeMonth && plan.id !== 'monthly';
+        // SEC-17: bloquear pago mientras se valida el cupón para evitar race condition
+        const isValidatingOrLoading = isLoading || validatingCoupon;
 
         return (
             <div className="space-y-2 mt-auto">
@@ -88,7 +98,7 @@ export default function SubscriptionPage() {
                         }
                         handleSubscribe(plan.id);
                     }}
-                    disabled={isLoading || isFreeMonthOnly}
+                    disabled={isValidatingOrLoading || isFreeMonthOnly}
                     className={`w-full py-3.5 rounded-2xl font-black font-mono text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
                         ${plan.highlight
                             ? 'bg-neon text-black shadow-[0_0_18px_var(--neon-alpha-40)] hover:shadow-[0_0_35px_var(--neon-alpha-60)] hover:scale-[1.02]'
@@ -251,10 +261,11 @@ export default function SubscriptionPage() {
 
                 {/* ── Pricing cards with payment actions ── */}
                 <div className="max-w-5xl pt-4 pb-4">
-                    <PricingCards 
-                        renderActions={renderActions} 
+                    {/* SEC-00: el descuento de referido solo aplica al plan mensual */}
+                    <PricingCards
+                        renderActions={renderActions}
                         discount={useReferralDiscount ? 10 : couponDiscount}
-                        applicablePlans={useReferralDiscount ? 'all' : couponApplicablePlans}
+                        applicablePlans={useReferralDiscount ? 'monthly' : couponApplicablePlans}
                     />
                 </div>
 
