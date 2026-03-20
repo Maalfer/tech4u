@@ -4,7 +4,7 @@ import {
     Shield, Zap, Terminal, Globe, Database, MessageCircle,
     Code2, Cpu, Lock, Star, FlaskConical, Gift,
     Network, Mail, Server, ArrowRight, ChevronRight,
-    Check, Rocket, Sparkles, Flame, BarChart3, BookOpen
+    Check, Rocket, Sparkles, Flame, BarChart3, BookOpen, Tag
 } from 'lucide-react'
 import brandCombinedImg from '../assets/tech4u_logo.png'
 import PricingCards from '../components/PricingCards'
