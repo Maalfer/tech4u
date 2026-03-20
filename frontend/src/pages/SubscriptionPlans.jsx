@@ -2,8 +2,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
-    Shield, Zap, Lock, Star, ArrowRight, Target,
-    MessageCircle, Rocket, Terminal, CheckCircle, Users, TrendingUp, Cpu, Copy, Check, Gift, Flame
+    Shield, Zap, Lock, Star, ArrowRight,
+    MessageCircle, Rocket, Terminal, CheckCircle, Tag, Sparkles, Copy, Check, Gift, Flame
 } from 'lucide-react';
 import PricingCards from '../components/PricingCards';
 import logoImg from '../assets/tech4u_logo.png';
