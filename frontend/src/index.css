@@ -496,3 +496,47 @@
     color: #000;
   }
 }
+/* ── Lab Markdown Preview — override @uiw/react-markdown-preview defaults ─ */
+.lab-markdown .wmde-markdown,
+.lab-markdown .wmde-markdown-var {
+  background: transparent !important;
+  font-size: 11px !important;
+  color: #94a3b8;
+}
+.lab-markdown .wmde-markdown h1,
+.lab-markdown .wmde-markdown h2,
+.lab-markdown .wmde-markdown h3,
+.lab-markdown .wmde-markdown h4 {
+  color: #c6ff33;
+  border-bottom-color: rgba(198,255,51,0.1);
+  font-family: 'JetBrains Mono','Fira Code',monospace;
+  margin-top: 0.8em;
+}
+.lab-markdown .wmde-markdown code {
+  background: rgba(198,255,51,0.07) !important;
+  color: #c6ff33 !important;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+.lab-markdown .wmde-markdown pre {
+  background: rgba(0,0,0,0.4) !important;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+.lab-markdown .wmde-markdown pre code {
+  background: transparent !important;
+  padding: 0;
+}
+.lab-markdown .wmde-markdown blockquote {
+  border-left-color: rgba(198,255,51,0.4);
+  color: #64748b;
+}
+.lab-markdown .wmde-markdown strong {
+  color: #e2e8f0;
+}
+.lab-markdown .wmde-markdown a {
+  color: #57c7ff;
+}
+.lab-markdown .wmde-markdown ul, .lab-markdown .wmde-markdown ol {
+  padding-left: 1.2em;
+}

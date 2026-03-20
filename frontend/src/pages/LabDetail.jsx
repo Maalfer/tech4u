@@ -12,8 +12,7 @@ import Sidebar from '../components/Sidebar';
 import TerminalComponent from '../components/TerminalComponent';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import DOMPurify from 'dompurify';
-import SafeHTML from '../components/SafeHTML';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const DIFF_COLOR = {
@@ -256,10 +255,11 @@ export default function LabDetail() {
                                                 <h4 className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-3">
                                                     <Info className="w-3.5 h-3.5 text-neon" /> Teoría / Conceptos
                                                 </h4>
-                                                <div className="text-[11px] font-mono text-slate-400 leading-relaxed bg-white/[0.03] rounded-xl p-4 border border-white/[0.05]">
-                                                    <SafeHTML
-                                                        html={lab.description || 'Sin descripción.'}
-                                                        className="text-[11px] text-slate-300 leading-relaxed font-mono space-y-4"
+                                                <div className="lab-markdown bg-white/[0.03] rounded-xl p-4 border border-white/[0.05]">
+                                                    <MarkdownPreview
+                                                        source={lab.description || 'Sin descripción.'}
+                                                        wrapperElement={{ 'data-color-mode': 'dark' }}
+                                                        style={{ background: 'transparent', fontSize: '11px', fontFamily: "'JetBrains Mono','Fira Code',monospace" }}
                                                     />
                                                 </div>
                                             </section>
@@ -269,10 +269,11 @@ export default function LabDetail() {
                                                     <h4 className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-3">
                                                         <Zap className="w-3.5 h-3.5 text-neon" /> Guía Paso a Paso
                                                     </h4>
-                                                    <div className="text-[11px] font-mono text-slate-400 leading-relaxed bg-neon/[0.03] rounded-xl p-4 border border-neon/[0.08]">
-                                                        <SafeHTML
-                                                            html={lab.step_by_step_guide}
-                                                            className="text-[11px] text-slate-300 leading-relaxed font-mono space-y-4"
+                                                    <div className="lab-markdown bg-neon/[0.03] rounded-xl p-4 border border-neon/[0.08]">
+                                                        <MarkdownPreview
+                                                            source={lab.step_by_step_guide}
+                                                            wrapperElement={{ 'data-color-mode': 'dark' }}
+                                                            style={{ background: 'transparent', fontSize: '11px', fontFamily: "'JetBrains Mono','Fira Code',monospace" }}
                                                         />
                                                     </div>
                                                 </section>
@@ -363,10 +364,11 @@ export default function LabDetail() {
                                                 </p>
                                             </div>
                                             {lab.step_by_step_guide ? (
-                                                <div className="text-[11px] font-mono text-slate-400 leading-relaxed bg-white/[0.03] rounded-xl p-4 border border-white/[0.05]">
-                                                    <SafeHTML
-                                                        html={lab.step_by_step_guide}
-                                                        className="text-xs text-slate-400 leading-relaxed space-y-3"
+                                                <div className="lab-markdown bg-white/[0.03] rounded-xl p-4 border border-white/[0.05]">
+                                                    <MarkdownPreview
+                                                        source={lab.step_by_step_guide}
+                                                        wrapperElement={{ 'data-color-mode': 'dark' }}
+                                                        style={{ background: 'transparent', fontSize: '11px', fontFamily: "'JetBrains Mono','Fira Code',monospace" }}
                                                     />
                                                 </div>
                                             ) : (

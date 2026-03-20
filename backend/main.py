@@ -1820,12 +1820,29 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
 
         # 2. Start interactive bash via docker exec -it on the container name
         container_name = container.name
+
+        def _preexec_setup():
+            """Run in child AFTER dup2 but BEFORE exec:
+            1. Create a new session so this process has no controlling terminal.
+            2. Open the slave PTY by name — on Linux, opening a TTY when you are
+               a session leader without a controlling terminal sets it as the
+               controlling terminal automatically (no O_NOCTTY flag).
+            This mirrors what pty.spawn() does internally and is required so that
+            docker exec -it can properly set up raw mode and signal delivery.
+            """
+            os.setsid()
+            # fd 0 is slave_fd at this point (dup2'd by Popen before preexec_fn)
+            ttyname = os.ttyname(0)
+            fd = os.open(ttyname, os.O_RDWR)
+            os.close(fd)  # fd 0/1/2 already point to the slave; close extra ref
+
         process = subprocess.Popen(
             ["docker", "exec", "-it", container_name, "/bin/bash"],
             stdin=slave_fd,
             stdout=slave_fd,
             stderr=slave_fd,
             close_fds=True,
+            preexec_fn=_preexec_setup,
             env={**os.environ, "TERM": "xterm-256color"},
         )
         # The slave end is owned by the child process — close in parent
