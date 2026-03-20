@@ -11,6 +11,7 @@ import {
     Map, Compass, Terminal, TrendingUp, Database, Network, Server
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { ToolCoverComponent } from '../components/ToolCovers';
 
 import pj1 from '../assets/pj_lvl_1.png';
 import pj2 from '../assets/pj_lvl_2.png';
@@ -278,6 +279,45 @@ const COLOR_MAP = {
     teal: { border: 'border-teal-700/50', bg: 'bg-teal-900/20', text: 'text-teal-400', pill: 'bg-teal-900/30 text-teal-300 border-teal-700/40' },
     slate: { border: 'border-slate-700/50', bg: 'bg-slate-900/20', text: 'text-slate-400', pill: 'bg-slate-800/60 text-slate-300 border-slate-600/40' },
 };
+
+// ── WindowPreview component ──────────────────────────────────────────────────
+function WindowPreview({ title, icon, color = 'neon', children, toolId }) {
+    const c = COLOR_MAP[color] || COLOR_MAP.slate;
+    return (
+        <div className={`rounded-2xl border ${c.border} bg-black/40 overflow-hidden group shadow-2xl relative`}>
+            {/* Header */}
+            <div className={`px-4 py-3 border-b ${c.border} bg-white/5 flex items-center justify-between`}>
+                <div className="flex items-center gap-3">
+                    <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
+                    </div>
+                    <div className="h-4 w-px bg-white/10 mx-1" />
+                    <div className="flex items-center gap-2">
+                        <span className={c.text}>{icon}</span>
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400">{title}</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 opacity-40">
+                    <div className="w-12 h-1.5 rounded-full bg-white/10" />
+                </div>
+            </div>
+            
+            {/* Content Area */}
+            <div className="aspect-video relative overflow-hidden bg-[#050505]">
+                {toolId ? (
+                    <ToolCoverComponent toolId={toolId} />
+                ) : (
+                    children
+                )}
+                
+                {/* Overlay gloss */}
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/0 via-white/[0.02] to-white/[0.1]" />
+            </div>
+        </div>
+    );
+}
 
 // ── Section component (MUST be outside the main component to avoid remount on re-render) ──
 function Section({ id, title, icon, color = 'neon', children }) {
@@ -557,8 +597,8 @@ export default function ExploraAcademia() {
                     </div>
 
                     {/* ── SECCIONES ── */}
-                    <Section id="secciones" title="Todas las Secciones" icon={<Map className="w-4 h-4" />} color="violet">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <Section id="secciones" title="Herramientas y Secciones" icon={<Map className="w-4 h-4" />} color="violet">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {SECTIONS.map((s) => {
                                 const c = COLOR_MAP[s.color] || COLOR_MAP.slate;
                                 
@@ -577,34 +617,43 @@ export default function ExploraAcademia() {
                                 return (
                                     <div 
                                         key={s.id} 
-                                        className={`rounded-2xl border p-6 ${c.border} ${c.bg} group relative overflow-hidden transition-all ${
-                                            !enabled ? 'opacity-40 grayscale pointer-events-none' : 'hover:scale-[1.01]'
+                                        className={`rounded-2xl border ${c.border} ${c.bg} group relative overflow-hidden transition-all flex flex-col ${
+                                            !enabled ? 'opacity-40 grayscale pointer-events-none' : 'hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/50'
                                         }`}
                                     >
+                                        <div className="aspect-[16/10] relative overflow-hidden bg-black/40 border-b border-white/5">
+                                            <ToolCoverComponent toolId={s.id} />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                                            
+                                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                                <button onClick={() => enabled && navigate(s.path)} className={`text-[10px] font-mono px-3 py-1.5 rounded-lg border inline-flex items-center gap-2 backdrop-blur-md shadow-lg ${c.pill}`}>
+                                                    Acceder <ChevronRight className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        </div>
+
                                         {!enabled && (
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20 backdrop-blur-[2px]">
+                                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20 backdrop-blur-[2px]">
                                                 <div className="flex flex-col items-center gap-2">
-                                                    <Lock className="w-6 h-6 text-white/50" />
-                                                    <span className="text-[10px] font-black font-mono text-white/50 uppercase tracking-widest">Inhabilitado por docente</span>
+                                                    <Lock className="w-6 h-6 text-white/60" />
+                                                    <span className="text-[10px] font-black font-mono text-white/60 uppercase tracking-widest text-center px-4">Módulo inhabilitado</span>
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => enabled && navigate(s.path)} className={`text-[10px] font-mono px-2 py-1 rounded border inline-flex items-center gap-1 ${c.pill}`}>
-                                                Ir <ChevronRight className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
-                                                 style={{ background: `rgba(${s.accentRgb}, 0.1)`, borderColor: `rgba(${s.accentRgb}, 0.25)` }}>
-                                                <s.Icon size={18} style={{ color: s.accent }} />
+
+                                        <div className="p-5 flex-1 flex flex-col">
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-inner"
+                                                     style={{ background: `rgba(${s.accentRgb}, 0.1)`, borderColor: `rgba(${s.accentRgb}, 0.2)` }}>
+                                                    <s.Icon size={18} style={{ color: s.accent }} />
+                                                </div>
+                                                <div>
+                                                    <h3 className={`font-black text-base tracking-tight ${c.text}`}>{s.label}</h3>
+                                                    <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">{s.headline}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className={`font-black text-base ${c.text}`}>{s.label}</h3>
-                                                <p className="text-xs font-mono text-slate-500">{s.headline}</p>
-                                            </div>
+                                            <p className="text-xs font-mono text-slate-400 leading-relaxed line-clamp-3">{s.desc}</p>
                                         </div>
-                                        <p className="text-sm font-mono text-slate-300 leading-relaxed">{s.desc}</p>
                                     </div>
                                 );
                             })}
@@ -612,352 +661,157 @@ export default function ExploraAcademia() {
                     </Section>
 
                     {/* ── TEST CENTER ── */}
-                    <Section id="test-center" title="Modos de Test" icon={<Target className="w-4 h-4" />} color="green">
-                        <div className="mb-6 p-4 rounded-xl border border-neon/25 bg-neon/5 flex items-start gap-3">
-                            <Zap className="w-5 h-5 text-neon shrink-0 mt-0.5" />
-                            <p className="text-sm font-mono text-neon leading-relaxed">
-                                <span className="font-black">Regla de XP:</span> Algunos modos como el <span className="font-black">Modo Examen con 60 preguntas</span> otorgan experiencia. El resto de modos te entrenan pero no modifican tu nivel.
-                            </p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                                        {TEST_MODES.map((m) => {
-                                            const isXP = m.color === 'neon';
-                                            
-                                            // Enablement logic for student-class
-                                            let enabled = true;
-                                            if (user?.group_info) {
-                                                const e = user.group_info.enabled_modules || [];
-                                                if (m.id === 'tests') enabled = e.includes('tests');
-                                                else if (m.id === 'skilllabs') enabled = e.includes('skill_labs');
-                                                else if (m.id === 'flashcards') enabled = e.includes('theory');
-                                            }
-
-                                            return (
-                                                <div 
-                                                    key={m.name} 
-                                                    className={`rounded-2xl border p-6 relative overflow-hidden transition-all ${
-                                                        !enabled ? 'opacity-40 grayscale' : isXP ? 'border-neon/40 bg-neon/5 shadow-[0_0_20px_rgba(0,255,136,0.05)]' : 'border-white/5 bg-black/20'
-                                                    }`}
-                                                >
-                                                    {!enabled && (
-                                                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-20 backdrop-blur-[1px]">
-                                                            <Lock className="w-5 h-5 text-white/40" />
-                                                        </div>
-                                                    )}
-                                                    {isXP && enabled && <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-neon/60 to-transparent" />}
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        {m.icon}
-                                                        <h3 className="font-black text-base text-white">{m.name}</h3>
-                                                    </div>
-                                                    <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded border inline-block mb-3 ${m.badgeC}`}>{m.badge}</span>
-                                                    <p className="text-sm font-mono text-slate-400 leading-relaxed">{m.desc}</p>
+                    <Section id="test-center" title="Test Center" icon={<Target className="w-4 h-4" />} color="green">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-white mb-4 italic tracking-tight">Valida tus conocimientos</h3>
+                                <p className="text-slate-400 font-mono text-sm leading-relaxed mb-8">
+                                    El Test Center es el motor de evaluación de la academia. Practica con miles de preguntas reales extraídas de exámenes oficiales de ASIR, organizadas por módulos y dificultad.
+                                </p>
+                                <div className="grid grid-cols-1 gap-3">
+                                    {TEST_MODES.map((mode, i) => (
+                                        <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all group">
+                                            <div className="shrink-0">{mode.icon}</div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-sm font-bold text-white">{mode.name}</span>
+                                                    <span className={`text-[9px] px-1.5 py-0.5 rounded border ${mode.badgeC}`}>{mode.badge}</span>
                                                 </div>
-                                            );
-                                        })}
+                                                <p className="text-[11px] text-slate-500 font-mono line-clamp-1">{mode.desc}</p>
+                                            </div>
+                                            <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-neon transition-colors" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <WindowPreview title="Test Engine v2.0" icon={<Target className="w-3 h-3" />} color="green" toolId="test-center" />
                         </div>
                     </Section>
 
-                    {/* ── TERMINAL SKILLS (moved here from bottom) ── */}
+                    {/* ── TERMINAL SKILLS ── */}
                     <Section id="terminal-skills" title="Terminal Skills" icon={<Terminal className="w-4 h-4" />} color="emerald">
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
-                                    <h3 className="text-lg font-black uppercase italic mb-4 text-emerald-400">Domina la Línea de Comandos</h3>
-                                    <p className="text-sm text-slate-400 font-mono leading-relaxed mb-4">
-                                        No eres un SysAdmin si no te sientes cómodo en la terminal. En esta sección encontrarás un entorno real donde practicar sin miedo a romper nada (o rompiéndolo todo y volviendo a empezar).
-                                    </p>
-                                    <ul className="space-y-3">
-                                        {[
-                                            { t: 'Linux Fundamentals', d: 'Desde la navegación básica hasta la gestión de permisos avanzada.' },
-                                            { t: 'Gestión de Almacenamiento', d: 'LVM, particionamiento, RAID y cuotas de disco.' },
-                                            { t: 'Servidores & Servicios', d: 'Despliegue de Apache, Nginx, SSH, FTP y bases de datos.' },
-                                            { t: 'Laboratorios Guiados', d: 'Escenarios reales con objetivos específicos que debes cumplir.' }
-                                        ].map(item => (
-                                            <li key={item.t} className="flex gap-3">
-                                                <div className="mt-1"><Zap className="w-3.5 h-3.5 text-emerald-500" /></div>
-                                                <div>
-                                                    <p className="text-[11px] font-black uppercase text-white">{item.t}</p>
-                                                    <p className="text-[10px] text-slate-500 font-mono">{item.d}</p>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <AlertTriangle className="w-4 h-4 text-emerald-400" />
-                                        <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">Contenido Evolutivo</p>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 font-mono italic">
-                                        "Estamos añadiendo nuevos módulos y laboratorios constantemente. El mundo de la administración de sistemas es infinito, y tu entrenamiento también debe serlo."
-                                    </p>
-                                </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                            <div className="order-2 lg:order-1">
+                                <WindowPreview title="Linux Terminal" icon={<Terminal className="w-3 h-3" />} color="emerald" toolId="terminal-skills" />
                             </div>
-                            <div className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square md:aspect-auto">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-                                <div className="absolute inset-0 bg-emerald-500/10 animate-pulse" />
-                                <div className="absolute inset-0 flex items-center justify-center p-8">
-                                    <div className="w-full h-full bg-black/60 rounded-xl border border-white/5 p-4 font-mono text-[10px] text-emerald-400 overflow-hidden shadow-2xl group-hover:border-emerald-500/30 transition-all duration-700">
-                                        <p className="mb-1 opacity-50"># Acceso al sistema de entrenamiento...</p>
-                                        <p className="mb-1">tech4u@academy:~$ <span className="text-white animate-pulse">_</span></p>
-                                        <p className="mt-4 text-slate-500">{'>>'} Analizando capacidades del alumno...</p>
-                                        <p className="text-emerald-500/80">{'>>'} Cargando módulos de almacenamiento...</p>
-                                        <p className="text-emerald-500/60">{'>>'} Sincronizando laboratorios de red...</p>
-                                        <div className="absolute bottom-4 left-4 right-4 h-1 bg-white/5 rounded-full overflow-hidden">
-                                            <div className="h-full bg-emerald-500 w-2/3" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="absolute bottom-6 left-6 right-6 z-20">
-                                    <p className="text-xs font-black uppercase tracking-widest text-white mb-1">Entorno de Simulación</p>
-                                    <p className="text-[10px] font-mono text-slate-400">Terminal 100% funcional integrada en el navegador.</p>
-                                </div>
+                            <div className="order-1 lg:order-2">
+                                <h3 className="text-2xl font-black text-white mb-4 italic tracking-tight">Domina la consola</h3>
+                                <p className="text-slate-400 font-mono text-sm leading-relaxed mb-6">
+                                    No hay administrador de sistemas sin dominio de la terminal. En Terminal Skills te enfrentarás a retos reales de configuración, gestión de usuarios, permisos y redes directamente desde tu navegador.
+                                </p>
+                                <ul className="space-y-3 mb-8">
+                                    {[
+                                        'Entorno Linux real 100% interactivo',
+                                        'Retos guiados paso a paso',
+                                        'Validación automática de comandos',
+                                        'Preparación directa para el mundo laboral'
+                                    ].map((item, i) => (
+                                        <li key={i} className="flex items-center gap-3 text-xs font-mono text-slate-300">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button onClick={() => navigate('/skill-labs')} className="w-full py-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black uppercase text-sm tracking-widest hover:bg-emerald-500/20 transition-all">
+                                    Abrir Consola de Entrenamiento
+                                </button>
                             </div>
                         </div>
                     </Section>
 
                     {/* ── SQL SKILLS ── */}
                     <Section id="sql-skills" title="SQL Skills" icon={<Database className="w-4 h-4" />} color="violet">
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
-                                    <h3 className="text-lg font-black uppercase italic mb-4 text-violet-400">Domina el Lenguaje SQL</h3>
-                                    <p className="text-sm text-slate-400 font-mono leading-relaxed mb-4">
-                                        SQL Skills es la sección de ejercicios interactivos centrados en bases de datos y consultas SQL. Aprenderás a construir y ejecutar sentencias SQL reales mediante ejercicios de drag & drop diseñados para el módulo de Bases de Datos de ASIR.
-                                    </p>
-                                    <ul className="space-y-3">
-                                        {[
-                                            { t: 'SELECT & Filtrado', d: 'Domina WHERE, HAVING, ORDER BY y operadores lógicos.' },
-                                            { t: 'JOINs y Relaciones', d: 'INNER JOIN, LEFT JOIN, subconsultas y relaciones entre tablas.' },
-                                            { t: 'DDL: Definición de Datos', d: 'CREATE TABLE, ALTER, DROP e integridad referencial.' },
-                                            { t: 'DML: Manipulación de Datos', d: 'INSERT, UPDATE, DELETE y transacciones con COMMIT/ROLLBACK.' },
-                                        ].map(item => (
-                                            <li key={item.t} className="flex gap-3">
-                                                <div className="mt-1"><Database className="w-3.5 h-3.5 text-violet-500" /></div>
-                                                <div>
-                                                    <p className="text-[11px] font-black uppercase text-white">{item.t}</p>
-                                                    <p className="text-[10px] text-slate-500 font-mono">{item.d}</p>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-violet-500/5 border border-violet-500/10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Zap className="w-4 h-4 text-violet-400" />
-                                        <p className="text-[10px] font-black uppercase text-violet-400 tracking-widest">Método de Aprendizaje</p>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-white mb-4 italic tracking-tight">El lenguaje de los datos</h3>
+                                <p className="text-slate-400 font-mono text-sm leading-relaxed mb-6">
+                                    Aprende a diseñar y consultar bases de datos relacionales. Desde SELECT básicos hasta JOINs complejos y transacciones, SQL Skills te guía a través del temario de Bases de Datos de una forma visual e interactiva.
+                                </p>
+                                <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 space-y-3">
+                                    <div className="flex justify-between text-[10px] font-mono text-violet-400 uppercase tracking-widest">
+                                        <span>Progresión DB</span>
+                                        <span>75%</span>
                                     </div>
-                                    <p className="text-[10px] text-slate-400 font-mono italic">
-                                        "Cada ejercicio tiene 3 intentos. Si fallas, el sistema te revela la solución y te explica por qué. No se trata de memorizar sintaxis, se trata de entender la lógica relacional."
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square md:aspect-auto">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-                                <div className="absolute inset-0 bg-violet-500/10 animate-pulse" />
-                                <div className="absolute inset-0 flex items-center justify-center p-8">
-                                    <div className="w-full h-full bg-black/60 rounded-xl border border-white/5 p-4 font-mono text-[10px] text-violet-400 overflow-hidden shadow-2xl group-hover:border-violet-500/30 transition-all duration-700">
-                                        <p className="mb-1 opacity-50">-- Consulta SQL interactiva</p>
-                                        <p className="mb-1 text-white">SELECT <span className="text-violet-300">nombre, nivel</span></p>
-                                        <p className="mb-1 text-white">FROM <span className="text-cyan-400">alumnos</span></p>
-                                        <p className="mb-1 text-white">WHERE <span className="text-cyan-400">xp_total</span> <span className="text-violet-300">&gt;</span> <span className="text-amber-400">5000</span></p>
-                                        <p className="mb-1 text-white">ORDER BY <span className="text-cyan-400">xp_total</span> <span className="text-violet-300">DESC;</span></p>
-                                        <p className="mt-4 text-slate-500">{'>>'} Ejecutando consulta...</p>
-                                        <p className="text-violet-500/80">{'>>'} 42 filas devueltas ✓</p>
-                                        <p className="text-violet-500/60">{'>>'} Tiempo de ejecución: 0.003s</p>
-                                        <div className="absolute bottom-4 left-4 right-4 h-1 bg-white/5 rounded-full overflow-hidden">
-                                            <div className="h-full bg-violet-500 w-3/4" />
-                                        </div>
+                                    <div className="h-1.5 w-full bg-violet-950/30 rounded-full overflow-hidden">
+                                        <div className="h-full bg-violet-500 w-3/4 shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
                                     </div>
                                 </div>
-                                <div className="absolute bottom-6 left-6 right-6 z-20">
-                                    <p className="text-xs font-black uppercase tracking-widest text-white mb-1">Motor SQL Interactivo</p>
-                                    <p className="text-[10px] font-mono text-slate-400">Practica consultas reales con feedback inmediato.</p>
-                                </div>
                             </div>
+                            <WindowPreview title="SQL Query Editor" icon={<Database className="w-3 h-3" />} color="violet" toolId="sql-skills" />
                         </div>
                     </Section>
 
                     {/* ── NETLABS ── */}
                     <Section id="netlabs" title="NetLabs" icon={<Network className="w-4 h-4" />} color="teal">
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
-                                    <h3 className="text-lg font-black uppercase italic mb-4 text-teal-400">Laboratorios de Red Virtuales</h3>
-                                    <p className="text-sm text-slate-400 font-mono leading-relaxed mb-4">
-                                        NetLabs son los ejercicios interactivos especializados en redes locales y administración de infraestructura de red. Practica la configuración de VLANs, enrutamiento, subredes y protocolos de red con ejercicios de drag & drop avanzados.
-                                    </p>
-                                    <ul className="space-y-3">
-                                        {[
-                                            { t: 'Subnetting & CIDR', d: 'Cálculo de subredes, máscaras de red, rangos de host y broadcast.' },
-                                            { t: 'VLANs & Switching', d: 'Configuración de VLANs, trunking y protocolo 802.1Q.' },
-                                            { t: 'Routing & Protocolos', d: 'OSPF, RIP, rutas estáticas y análisis de tablas de enrutamiento.' },
-                                            { t: 'Servicios de Red', d: 'DHCP, DNS, NAT y configuración de servicios TCP/IP esenciales.' },
-                                        ].map(item => (
-                                            <li key={item.t} className="flex gap-3">
-                                                <div className="mt-1"><Network className="w-3.5 h-3.5 text-teal-500" /></div>
-                                                <div>
-                                                    <p className="text-[11px] font-black uppercase text-white">{item.t}</p>
-                                                    <p className="text-[10px] text-slate-500 font-mono">{item.d}</p>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-teal-500/5 border border-teal-500/10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <AlertTriangle className="w-4 h-4 text-teal-400" />
-                                        <p className="text-[10px] font-black uppercase text-teal-400 tracking-widest">Próximamente</p>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 font-mono italic">
-                                        "NetLabs está en desarrollo activo. Los primeros laboratorios de subnetting y configuración VLAN se lanzarán próximamente. Mantente en racha para ser el primero en acceder."
-                                    </p>
-                                </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                            <div className="order-2 lg:order-1">
+                                <WindowPreview title="Network Simulator" icon={<Network className="w-3 h-3" />} color="teal" toolId="netlabs" />
                             </div>
-                            <div className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square md:aspect-auto">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-                                <div className="absolute inset-0 bg-teal-500/10 animate-pulse" />
-                                <div className="absolute inset-0 flex items-center justify-center p-8">
-                                    <div className="w-full h-full bg-black/60 rounded-xl border border-white/5 p-4 font-mono text-[10px] text-teal-400 overflow-hidden shadow-2xl group-hover:border-teal-500/30 transition-all duration-700">
-                                        <p className="mb-1 opacity-50"># Configuración de infraestructura de red</p>
-                                        <p className="mb-1">ip route add <span className="text-cyan-400">192.168.10.0/24</span></p>
-                                        <p className="mb-1 pl-4">via <span className="text-teal-300">10.0.0.1</span> dev eth0</p>
-                                        <p className="mt-2 mb-1 text-slate-400">vlan database</p>
-                                        <p className="mb-1 pl-4 text-cyan-400">vlan 10 name ADMINISTRACION</p>
-                                        <p className="mb-1 pl-4 text-cyan-400">vlan 20 name DESARROLLO</p>
-                                        <p className="mt-4 text-slate-500">{'>>'} Verificando conectividad...</p>
-                                        <p className="text-teal-500/80">{'>>'} PING 192.168.10.1: OK ✓</p>
-                                        <div className="absolute bottom-4 left-4 right-4 h-1 bg-white/5 rounded-full overflow-hidden">
-                                            <div className="h-full bg-teal-500 w-1/2" />
-                                        </div>
+                            <div className="order-1 lg:order-2">
+                                <h3 className="text-2xl font-black text-white mb-4 italic tracking-tight">Infraestructura y Redes</h3>
+                                <p className="text-slate-400 font-mono text-sm leading-relaxed mb-6">
+                                    Configura routers, switches y firewalls en un entorno virtual seguro. Aprende subnetting, VLANs y enrutamiento dinámico con laboratorios prácticos diseñados para el mundo real.
+                                </p>
+                                <div className="space-y-4 mb-8">
+                                    <div className="p-3 rounded-lg bg-teal-500/5 border border-teal-500/10 flex items-center gap-3">
+                                        <Zap className="w-4 h-4 text-teal-400" />
+                                        <span className="text-[11px] font-mono text-slate-300">Laboratorios de Subnetting Avanzado</span>
                                     </div>
-                                </div>
-                                <div className="absolute bottom-6 left-6 right-6 z-20">
-                                    <p className="text-xs font-black uppercase tracking-widest text-white mb-1">Simulador de Red</p>
-                                    <p className="text-[10px] font-mono text-slate-400">Configura redes virtuales directamente desde el navegador.</p>
+                                    <div className="p-3 rounded-lg bg-teal-500/5 border border-teal-500/10 flex items-center gap-3">
+                                        <Network className="w-4 h-4 text-teal-400" />
+                                        <span className="text-[11px] font-mono text-slate-300">Configuración de Switches Cisco/HPE</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </Section>
 
-                    {/* ── WINDOWS SERVER LABS ── */}
+                    {/* ── WINDOWS SERVER ── */}
                     <Section id="winlabs" title="Windows Server" icon={<Server className="w-4 h-4" />} color="blue">
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
-                                    <h3 className="text-lg font-black uppercase italic mb-4 text-blue-400">Administra Infraestructura Real</h3>
-                                    <p className="text-sm text-slate-400 font-mono leading-relaxed mb-4">
-                                        Los laboratorios de Windows Server te sumergen en escenarios reales de administración de sistemas. Desde la instalación de Active Directory hasta la configuración de políticas de grupo, cada lab simula un entorno empresarial auténtico con terminal PowerShell integrado.
-                                    </p>
-                                    <ul className="space-y-3">
-                                        {[
-                                            { t: 'Active Directory & AD DS', d: 'Instala el dominio, crea OUs, usuarios y grupos con PowerShell.' },
-                                            { t: 'GPOs & Directivas de Grupo', d: 'Configura políticas de seguridad, escritorio y software corporativo.' },
-                                            { t: 'DHCP, DNS & Servicios de Red', d: 'Despliega y administra los servicios de red fundamentales.' },
-                                            { t: 'Hyper-V & Virtualización', d: 'Crea y gestiona máquinas virtuales en entorno Windows Server.' },
-                                        ].map(item => (
-                                            <li key={item.t} className="flex gap-3">
-                                                <div className="mt-1"><Server className="w-3.5 h-3.5 text-blue-500" /></div>
-                                                <div>
-                                                    <p className="text-[11px] font-black uppercase text-white">{item.t}</p>
-                                                    <p className="text-[10px] text-slate-500 font-mono">{item.d}</p>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Zap className="w-4 h-4 text-blue-400" />
-                                        <p className="text-[10px] font-black uppercase text-blue-400 tracking-widest">Terminal PowerShell Integrado</p>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-white mb-4 italic tracking-tight">Administración Empresarial</h3>
+                                <p className="text-slate-400 font-mono text-sm leading-relaxed mb-6">
+                                    Domina el ecosistema de Microsoft para empresas. Desde la gestión de Active Directory hasta la configuración de GPOs y servicios de red, Windows Server es una pieza clave en cualquier infraestructura IT avanzada.
+                                </p>
+                                <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                                        <Server className="text-blue-400" />
                                     </div>
-                                    <p className="text-[10px] text-slate-400 font-mono italic">
-                                        "Cada laboratorio tiene un terminal PowerShell interactivo. Escribe los comandos reales, valida tu configuración paso a paso y descubre la solución si te atascas. Aprende haciendo, no memorizando."
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square md:aspect-auto">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-                                <div className="absolute inset-0 bg-blue-500/10 animate-pulse" />
-                                <div className="absolute inset-0 flex items-center justify-center p-8">
-                                    <div className="w-full h-full bg-black/60 rounded-xl border border-white/5 p-4 font-mono text-[10px] text-blue-400 overflow-hidden shadow-2xl group-hover:border-blue-500/30 transition-all duration-700">
-                                        <p className="mb-1 opacity-50"># Configurando Active Directory...</p>
-                                        <p className="mb-1">PS C:\{'>'} <span className="text-white animate-pulse">_</span></p>
-                                        <p className="mt-3 text-slate-400">{'>'} Install-WindowsFeature AD-Domain-Services</p>
-                                        <p className="text-blue-300/80">{'>'} Install-ADDSForest -DomainName "empresa.local"</p>
-                                        <p className="mt-2 text-slate-500">{'>'} Configurando DNS integrado...</p>
-                                        <p className="text-blue-500/80">{'>'} Creando OUs y estructura de dominio...</p>
-                                        <p className="text-blue-400/60">{'>'} Dominio activo ✓</p>
-                                        <div className="absolute bottom-4 left-4 right-4 h-1 bg-white/5 rounded-full overflow-hidden">
-                                            <div className="h-full bg-blue-500 w-3/4" />
-                                        </div>
+                                    <div className="flex-1 text-xs font-mono text-slate-400 italic leading-relaxed">
+                                        "El 90% de las empresas Fortune 500 utilizan Active Directory. Tu formación no estaría completa sin dominar este entorno."
                                     </div>
                                 </div>
-                                <div className="absolute bottom-6 left-6 right-6 z-20">
-                                    <p className="text-xs font-black uppercase tracking-widest text-white mb-1">Terminal PowerShell</p>
-                                    <p className="text-[10px] font-mono text-slate-400">Comandos reales validados paso a paso en el navegador.</p>
-                                </div>
                             </div>
+                            <WindowPreview title="Windows Server Hub" icon={<Server className="w-3 h-3" />} color="blue" toolId="winlabs" />
                         </div>
                     </Section>
 
-                    {/* ── FLASHCARDS DETAIL ── */}
+                    {/* ── FLASHCARDS ── */}
                     <Section id="flashcards-detail" title="Flashcards" icon={<CreditCard className="w-4 h-4" />} color="purple">
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
-                                    <h3 className="text-lg font-black uppercase italic mb-4 text-purple-400">Repaso Visual Ultrarrápido</h3>
-                                    <p className="text-sm text-slate-400 font-mono leading-relaxed mb-4">
-                                        Las Flashcards son tarjetas de repaso interactivas organizadas por asignatura. Voltea la tarjeta para ver la respuesta, evalúa tu propio conocimiento y el sistema adapta las siguientes tarjetas a tus áreas de mejora.
-                                    </p>
-                                    <ul className="space-y-3">
-                                        {[
-                                            { t: 'Repaso por Asignatura', d: 'Bases de Datos, Redes, SO, Hardware y Lenguaje de Marcas.' },
-                                            { t: 'Auto-evaluación Activa', d: 'Marca si lo sabías o no. El sistema prioriza tus puntos débiles.' },
-                                            { t: 'Ideal antes de Exámenes', d: 'Repasa 20-30 tarjetas en 5 minutos para fijar conceptos clave.' },
-                                            { t: 'Terminología Técnica ASIR', d: 'Definiciones, acrónimos y conceptos del temario oficial.' },
-                                        ].map(item => (
-                                            <li key={item.t} className="flex gap-3">
-                                                <div className="mt-1"><CreditCard className="w-3.5 h-3.5 text-purple-500" /></div>
-                                                <div>
-                                                    <p className="text-[11px] font-black uppercase text-white">{item.t}</p>
-                                                    <p className="text-[10px] text-slate-500 font-mono">{item.d}</p>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-purple-500/5 border border-purple-500/10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Star className="w-4 h-4 text-purple-400" />
-                                        <p className="text-[10px] font-black uppercase text-purple-400 tracking-widest">Tip de Estudio</p>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 font-mono italic">
-                                        "Haz 15 minutos de flashcards al día como calentamiento antes de un examen de 60 preguntas. El repaso espaciado activa la memoria a largo plazo y mejora tus resultados."
-                                    </p>
-                                </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                            <div className="order-2 lg:order-1">
+                                <WindowPreview title="Flashcards Engine" icon={<CreditCard className="w-3 h-3" />} color="purple" toolId="theory" />
                             </div>
-                            <div className="relative group rounded-2xl overflow-hidden border border-white/10">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-                                <div className="absolute inset-0 bg-purple-500/10 animate-pulse" />
-                                <div className="absolute inset-0 flex items-center justify-center p-8">
-                                    <div className="relative w-full max-w-xs mx-auto">
-                                        <div className="rounded-2xl border border-purple-500/30 bg-purple-900/20 p-6 text-center shadow-2xl group-hover:border-purple-400/50 transition-all duration-700">
-                                            <p className="text-[9px] font-mono text-purple-400/60 uppercase tracking-widest mb-3">Redes · OSI Model</p>
-                                            <p className="text-sm font-black text-white mb-4">¿Qué capa del modelo OSI gestiona el enrutamiento entre redes?</p>
-                                            <div className="w-full h-px bg-white/10 my-4" />
-                                            <p className="text-[10px] font-mono text-purple-300 mb-3">— Respuesta —</p>
-                                            <div className="p-3 rounded-xl bg-black/40 border border-emerald-500/20">
-                                                <p className="text-xs font-black text-emerald-400">Capa 3 — Red (Network Layer)</p>
-                                                <p className="text-[9px] font-mono text-slate-500 mt-1">Protocolo IP · Enrutadores · Direccionamiento lógico</p>
+                            <div className="order-1 lg:order-2">
+                                <h3 className="text-2xl font-black text-white mb-4 italic tracking-tight">Repaso Visual Ultrarrápido</h3>
+                                <p className="text-slate-400 font-mono text-sm leading-relaxed mb-6">
+                                    Las Flashcards son tarjetas de repaso interactivas organizadas por asignatura. Voltea la tarjeta para ver la respuesta, evalúa tu propio conocimiento y el sistema adapta las siguientes tarjetas a tus áreas de mejora.
+                                </p>
+                                <div className="space-y-4">
+                                    {[
+                                        { t: 'Repaso por Asignatura', d: 'Bases de Datos, Redes, SO, Hardware y Lenguaje de Marcas.' },
+                                        { t: 'Auto-evaluación Activa', d: 'Marca si lo sabías o no. El sistema prioriza tus puntos débiles.' }
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex items-start gap-4">
+                                            <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
+                                            <div>
+                                                <p className="text-sm font-bold text-white">{item.t}</p>
+                                                <p className="text-xs font-mono text-slate-500">{item.d}</p>
                                             </div>
                                         </div>
-                                        <div className="absolute -bottom-2 -right-2 w-full h-full rounded-2xl border border-white/5 bg-black/20 -z-10" />
-                                    </div>
-                                </div>
-                                <div className="absolute bottom-6 left-6 right-6 z-20">
-                                    <p className="text-xs font-black uppercase tracking-widest text-white mb-1">Tarjetas Interactivas</p>
-                                    <p className="text-[10px] font-mono text-slate-400">Voltea · Evalúa · Repite</p>
+                                    ))}
                                 </div>
                             </div>
                         </div>

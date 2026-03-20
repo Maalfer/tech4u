@@ -234,7 +234,7 @@ export default function App() {
               <Route path="/flashcards" element={<PremiumRoute><Flashcards /></PremiumRoute>} />
               <Route path="/ciberseguridad" element={<PremiumRoute><Cybersecurity /></PremiumRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/explora" element={<ProtectedRoute><ExploraAcademia /></ProtectedRoute>} />
+              <Route path="/explora" element={<ExploraAcademia />} />
               <Route path="/personaje" element={<ProtectedRoute><CharacterProfile /></ProtectedRoute>} />
               {/* /mundo and /mundo-virtual removed — functionality replaced */}
               <Route path="/shop" element={<ProtectedRoute><AcademyShop /></ProtectedRoute>} />

@@ -138,6 +138,9 @@ export default function LabDetail() {
             }
         } catch (err) {
             if (import.meta.env.DEV) console.error('Error completing lab:', err);
+            // Show the backend error message (e.g. "No has completado todos los retos (0/1)")
+            const detail = err?.response?.data?.detail;
+            if (detail) alert(detail);
         }
     };
 
@@ -195,9 +198,27 @@ export default function LabDetail() {
                                 <RotateCcw className={`w-3 h-3 ${startingLab ? 'animate-spin' : ''}`} />
                                 <span className="hidden sm:inline">Reiniciar</span>
                             </button>
+
+                            {/* Progress pill — only shown when there are challenges pending */}
+                            {!completed && challenges.length > 0 && completedCount < challenges.length && (
+                                <button
+                                    onClick={() => { setActiveTab('challenges'); setPanelOpen(true); }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider hover:bg-amber-500/20 transition-all"
+                                    title="Completa los retos antes de finalizar la misión"
+                                >
+                                    <Target className="w-3 h-3" />
+                                    <span className="hidden sm:inline">{completedCount}/{challenges.length} Retos</span>
+                                </button>
+                            )}
+
                             <button
                                 onClick={handleComplete}
-                                disabled={completed || !wsUrl}
+                                disabled={completed || !wsUrl || (challenges.length > 0 && completedCount < challenges.length)}
+                                title={
+                                    challenges.length > 0 && completedCount < challenges.length
+                                        ? `Completa los ${challenges.length - completedCount} reto(s) restantes primero`
+                                        : undefined
+                                }
                                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg font-black uppercase tracking-wider text-[10px] transition-all ${
                                     completed
                                         ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'

@@ -370,13 +370,169 @@ export function CoverOSI() {
     );
 }
 
+// ─── 6. TERMINAL SKILLS ── Emerald ──────────────────────────────────────────
+export function CoverTerminalSkills() {
+    return (
+        <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg"
+            width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="ts-bg" x1="0" y1="0" x2="0.3" y2="1">
+                    <stop offset="0%" stopColor="#000d08" />
+                    <stop offset="100%" stopColor="#000604" />
+                </linearGradient>
+                <radialGradient id="ts-g" cx="35%" cy="30%" r="55%">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                </radialGradient>
+                <pattern id="ts-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                    <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(16,185,129,0.08)" strokeWidth="0.5"/>
+                </pattern>
+            </defs>
+            <rect width="400" height="240" fill="url(#ts-bg)"/>
+            <rect width="400" height="240" fill="url(#ts-grid)"/>
+            <rect width="400" height="240" fill="url(#ts-g)"/>
+
+            <rect x="18" y="32" width="364" height="175" rx="10" 
+                fill="rgba(0,10,5,0.85)" stroke="rgba(16,185,129,0.25)" strokeWidth="1.5"/>
+            
+            <circle cx="34" cy="46" r="3" fill="#ef4444" />
+            <circle cx="46" cy="46" r="3" fill="#fbbf24" />
+            <circle cx="58" cy="46" r="3" fill="#22c55e" />
+
+            <text x="30" y="75" fontFamily="monospace" fontSize="10" fill="rgba(16,185,129,0.6)"># Acceso al sistema de entrenamiento...</text>
+            <text x="30" y="95" fontFamily="monospace" fontSize="11" fill="#fff">tech4u@academy:~$ <tspan fill="#10b981" className="animate-pulse">_</tspan></text>
+            
+            <text x="30" y="125" fontFamily="monospace" fontSize="9" fill="rgba(255,255,255,0.4)">{">>"} Analizando capacidades...</text>
+            <text x="30" y="140" fontFamily="monospace" fontSize="9" fill="rgba(16,185,129,0.8)">{">>"} Cargando módulos de almacenamiento...</text>
+            <text x="30" y="155" fontFamily="monospace" fontSize="9" fill="rgba(16,185,129,0.6)">{">>"} Sincronizando laboratorios de red...</text>
+
+            <rect x="30" y="180" width="340" height="2" rx="1" fill="rgba(255,255,255,0.05)" />
+            <rect x="30" y="180" width="220" height="2" rx="1" fill="#10b981" />
+        </svg>
+    );
+}
+
+// ─── 7. SQL SKILLS ── Violet ───────────────────────────────────────────────
+export function CoverSQLSkills() {
+    return (
+        <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg"
+            width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="ss-bg" x1="0" y1="0" x2="0.3" y2="1">
+                    <stop offset="0%" stopColor="#0a001a" />
+                    <stop offset="100%" stopColor="#05000d" />
+                </linearGradient>
+                <radialGradient id="ss-g" cx="35%" cy="30%" r="55%">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                </radialGradient>
+            </defs>
+            <rect width="400" height="240" fill="url(#ss-bg)"/>
+            <rect width="400" height="240" fill="url(#ss-g)"/>
+
+            <rect x="18" y="32" width="364" height="175" rx="10" 
+                fill="rgba(5,0,13,0.9)" stroke="rgba(139,92,246,0.3)" strokeWidth="1.5"/>
+            
+            <text x="30" y="65" fontFamily="monospace" fontSize="9" fill="rgba(139,92,246,0.6)">-- Consulta SQL interactiva</text>
+            
+            <text x="30" y="85" fontFamily="monospace" fontSize="11" fill="#fff" fontWeight="bold">SELECT <tspan fill="#a78bfa">nombre, nivel</tspan></text>
+            <text x="30" y="102" fontFamily="monospace" fontSize="11" fill="#fff" fontWeight="bold">FROM <tspan fill="#22d3ee">alumnos</tspan></text>
+            <text x="30" y="119" fontFamily="monospace" fontSize="11" fill="#fff" fontWeight="bold">WHERE <tspan fill="#22d3ee">rank</tspan> = <tspan fill="#fbbf24">'LEGENDARIO'</tspan>;</text>
+            
+            <text x="30" y="145" fontFamily="monospace" fontSize="9" fill="rgba(255,255,255,0.4)">{">>"} Ejecutando consulta...</text>
+            <text x="30" y="160" fontFamily="monospace" fontSize="9" fill="#8b5cf6" stopOpacity="0.8">{">>"} 12 filas devueltas ✓</text>
+            <text x="30" y="175" fontFamily="monospace" fontSize="9" fill="#8b5cf6" stopOpacity="0.6">{">>"} Latencia: 0.002s</text>
+
+            <rect x="30" y="192" width="340" height="2" rx="1" fill="rgba(255,255,255,0.05)" />
+            <rect x="30" y="192" width="280" height="2" rx="1" fill="#8b5cf6" />
+        </svg>
+    );
+}
+
+// ─── 8. TEST CENTER ── Neon ──────────────────────────────────────────────────
+export function CoverTestCenter() {
+    return (
+        <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg"
+            width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="tc-bg" x1="0" y1="0" x2="0.3" y2="1">
+                    <stop offset="0%" stopColor="#080d00" />
+                    <stop offset="100%" stopColor="#040600" />
+                </linearGradient>
+            </defs>
+            <rect width="400" height="240" fill="url(#tc-bg)"/>
+
+            <rect x="18" y="32" width="364" height="175" rx="10" 
+                fill="rgba(4,6,0,0.9)" stroke="rgba(198,255,51,0.3)" strokeWidth="1.5"/>
+            
+            <text x="30" y="65" fontFamily="monospace" fontSize="9" fill="rgba(198,255,51,0.6)" fontWeight="bold">[SISTEMA]: Inicializando Test Engine</text>
+            
+            <g transform="translate(30, 85)">
+                <rect width="180" height="40" rx="5" fill="rgba(198,255,51,0.05)" stroke="rgba(198,255,51,0.2)" />
+                <text x="10" y="25" fontFamily="monospace" fontSize="12" fill="#fff" fontWeight="bold">EXAMEN <tspan fill="#c6ff33">60 PREG.</tspan></text>
+            </g>
+
+            <g transform="translate(220, 85)">
+                <rect width="130" height="40" rx="5" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" />
+                <text x="10" y="25" fontFamily="monospace" fontSize="10" fill="rgba(255,255,255,0.4)">NIVEL: ASIR v2</text>
+            </g>
+            
+            <text x="30" y="145" fontFamily="monospace" fontSize="9" fill="rgba(255,255,255,0.4)">{">>"} Escaneando banco de preguntas...</text>
+            <text x="30" y="160" fontFamily="monospace" fontSize="9" fill="#c6ff33" stopOpacity="0.8">{">>"} 1.420 reactivos disponibles</text>
+            <text x="30" y="175" fontFamily="monospace" fontSize="9" fill="#c6ff33" stopOpacity="0.6">{">>"} Preparando entorno seguro...</text>
+
+            <rect x="30" y="192" width="340" height="2" rx="1" fill="rgba(255,255,255,0.05)" />
+            <rect x="30" y="192" width="160" height="2" rx="1" fill="#c6ff33" />
+        </svg>
+    );
+}
+
+// ─── 9. SKILL LABS ── Fuchsia ────────────────────────────────────────────────
+export function CoverSkillLabs() {
+    return (
+        <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg"
+            width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="sl-bg" x1="0" y1="0" x2="0.3" y2="1">
+                    <stop offset="0%" stopColor="#1a001a" />
+                    <stop offset="100%" stopColor="#0d000d" />
+                </linearGradient>
+            </defs>
+            <rect width="400" height="240" fill="url(#sl-bg)"/>
+
+            <rect x="18" y="32" width="364" height="175" rx="10" 
+                fill="rgba(13,0,13,0.9)" stroke="rgba(232,121,249,0.3)" strokeWidth="1.5"/>
+            
+            <text x="30" y="65" fontFamily="monospace" fontSize="9" fill="rgba(232,121,249,0.6)" fontWeight="bold">[LAB]: Módulo Interactivo v4.0</text>
+            
+            <g transform="translate(30, 85)">
+                <path d="M0,10 L40,10 M40,10 L60,0 M40,10 L60,20" stroke="#e879f9" strokeWidth="2" fill="none" opacity="0.6"/>
+                <rect x="65" y="-5" width="80" height="30" rx="4" fill="rgba(232,121,249,0.1)" stroke="#e879f9" />
+                <text x="75" y="15" fontFamily="monospace" fontSize="9" fill="#fff">D&D Core</text>
+            </g>
+
+            <text x="30" y="145" fontFamily="monospace" fontSize="9" fill="rgba(255,255,255,0.4)">{">>"} Iniciando simulación lógica...</text>
+            <text x="30" y="160" fontFamily="monospace" fontSize="9" fill="#e879f9" stopOpacity="0.8">{">>"} Cargando fragmentos de código...</text>
+            <text x="30" y="175" fontFamily="monospace" fontSize="9" fill="#e879f9" stopOpacity="0.6">{">>"} Validando integridad de la red...</text>
+
+            <rect x="30" y="192" width="340" height="2" rx="1" fill="rgba(255,255,255,0.05)" />
+            <rect x="30" y="192" width="100" height="2" rx="1" fill="#e879f9" />
+        </svg>
+    );
+}
+
 // ─── LOOKUP MAP ──────────────────────────────────────────────────────────────
 const TOOL_COVER_MAP = {
-    'subnet':  CoverSubnetting,
-    'binary':  CoverBinaryConverter,
-    'ports':   CoverPorts,
-    'chmod':   CoverChmod,
-    'osi':     CoverOSI,
+    'subnet':           CoverSubnetting,
+    'binary':           CoverBinaryConverter,
+    'ports':            CoverPorts,
+    'chmod':            CoverChmod,
+    'osi':              CoverOSI,
+    'terminal-skills':  CoverTerminalSkills,
+    'sql-skills':       CoverSQLSkills,
+    'test-center':      CoverTestCenter,
+    'skilllabs':        CoverSkillLabs,
+    'netlabs':          CoverSkillLabs, // Reuse for netlabs with different color potentially?
 };
 
 export function ToolCoverComponent({ toolId }) {
