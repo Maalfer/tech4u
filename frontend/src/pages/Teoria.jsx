@@ -364,7 +364,7 @@ export default function Teoria() {
                             <p className="text-slate-500 font-mono text-[10px] uppercase tracking-widest">No hay contenido disponible todavía</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
                             {subjects.map(s => (
                                 <SubjectCard key={s.id} subject={s} />
                             ))}
