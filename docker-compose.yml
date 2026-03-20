@@ -51,8 +51,6 @@ services:
       - VOLUMES=0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - tech4u-network
 
   # ⚙️ Backend (FastAPI)
   backend:
