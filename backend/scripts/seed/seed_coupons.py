@@ -34,6 +34,21 @@ def run():
             db.add(new_coupon_15)
             print("  ✅ Coupon BIENVENIDO15 created")
 
+        # 3. BIENVENIDOS100 (15% para los primeros 100 alumnos — oferta de lanzamiento)
+        existing_launch = db.query(Coupon).filter(Coupon.code == "BIENVENIDOS100").first()
+        if not existing_launch:
+            new_coupon_launch = Coupon(
+                code="BIENVENIDOS100",
+                discount_percent=15.0,
+                max_uses=100,
+                current_uses=0,
+                is_active=True,
+                description="Oferta de lanzamiento — 15% para los primeros 100 alumnos",
+                applicable_plans="all"
+            )
+            db.add(new_coupon_launch)
+            print("  ✅ Coupon BIENVENIDOS100 created")
+
         db.commit()
     except Exception as e:
         db.rollback()
