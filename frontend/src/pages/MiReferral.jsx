@@ -142,9 +142,9 @@ export default function MiReferral() {
                             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500 mb-5">Cómo funciona</p>
                             <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    { step: '01', icon: Share2,     color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/25', title: 'Comparte tu enlace', desc: 'Envía tu enlace único a tus compañeros de clase o conocidos.' },
-                                    { step: '02', icon: Users,      color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10 border-fuchsia-500/25', title: 'Se suscriben', desc: 'Cuando se registran con tu enlace y completan una suscripción, el referido se confirma.' },
-                                    { step: '03', icon: Trophy,     color: 'text-amber-400',  bg: 'bg-amber-500/10 border-amber-500/25',  title: 'Ganas recompensas', desc: 'Tú recibes un cupón del 10% por cada referido. Cada 10 referidos, ¡1 mes gratis!' },
+                                    { step: '01', icon: Share2,     color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/25', title: 'Comparte tu enlace', desc: 'Envía tu enlace único a tus compañeros. Se aplica automáticamente al registrarse.' },
+                                    { step: '02', icon: Users,      color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10 border-fuchsia-500/25', title: 'Pagan el plan mensual', desc: 'Por cada amigo que se suscriba, recibes 1 cupón del 10% (válido solo en plan mensual).' },
+                                    { step: '03', icon: Trophy,     color: 'text-amber-400',  bg: 'bg-amber-500/10 border-amber-500/25',  title: '10 referidos = 1 mes gratis', desc: 'Al llegar a 10 confirmados, los cupones del 10% se convierten en 1 mes 100% gratis.' },
                                 ].map(item => {
                                     const Icon = item.icon;
                                     return (
@@ -315,8 +315,9 @@ export default function MiReferral() {
                         <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
                             <Info className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
                             <p className="text-[11px] font-mono text-slate-500 leading-relaxed">
-                                Los cupones del 10% se aplican al pagar tu próxima suscripción en <span className="text-white font-bold">/suscripcion</span>.
-                                Los meses gratis se acumulan y se aplican automáticamente al renovar. Los referidos se confirman cuando la persona referida completa su primer pago.
+                                Los cupones del 10% son válidos <span className="text-white font-bold">solo para el plan mensual</span> y se usan en <span className="text-white font-bold">/suscripcion</span>.
+                                Al acumular 10 referidos confirmados, los cupones del 10% se canjean automáticamente por <span className="text-amber-400 font-bold">1 mes gratis</span> (plan mensual).
+                                Un referido se confirma cuando el invitado completa su primer pago.
                             </p>
                         </div>
 

@@ -210,7 +210,7 @@ export default function SubscriptionPlans() {
                     <div className="mt-12 mb-8 max-w-3xl mx-auto">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 rounded-2xl bg-neon/8 border border-neon/25">
                             <span className="text-slate-300 font-mono text-sm">
-                                <span className="text-lg">🎁</span> ¿Ya tienes cuenta? Comparte tu enlace de referido y consigue <strong className="text-neon">1 mes gratis</strong>
+                                <span className="text-lg">🤝</span> ¿Ya tienes cuenta? Invita a <strong className="text-neon">10 amigos</strong> y consigue <strong className="text-neon">1 mes gratis</strong>
                             </span>
                             <Link
                                 to="/mi-referral"

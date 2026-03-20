@@ -256,8 +256,13 @@ def create_checkout_session(
         else:
             raise HTTPException(status_code=400, detail="No tienes meses gratis acumulados.")
 
-    # 2. Descuento del 10% por Referido (No acumulable con cupones manuales)
+    # 2. Descuento del 10% por Referido (solo plan mensual, no acumulable con cupones)
     if use_referral_discount:
+        if plan != "monthly":
+            raise HTTPException(
+                status_code=400,
+                detail="Los cupones de referido del 10% solo son válidos para el plan mensual."
+            )
         if (current_user.pending_10p_discounts or 0) > 0:
             if coupon_code:
                 raise HTTPException(status_code=400, detail="El descuento de referido no es acumulable con otros cupones.")

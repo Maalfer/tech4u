@@ -103,11 +103,18 @@ def _confirm_referral_and_reward(db: Session, referred_user: User) -> bool:
     otorga la recompensa al referidor.
     Devuelve True si se confirmó algo, False en caso contrario.
     Llamado exclusivamente desde el webhook de Stripe.
+
+    Flujo de recompensas:
+    - Cada referido confirmado → +1 cupón del 10% (solo plan mensual)
+    - Al llegar a 10 confirmados → se invalidan los 10 cupones del 10%
+      y se genera +1 mes gratis (free_months_accumulated)
+    - Los meses gratis se aplican con `use_free_month=True` solo en plan mensual
     """
+    # SEC-RACE: bloquear la fila del referido para evitar doble confirmación concurrente
     referral = db.query(Referral).filter(
         Referral.referred_id == referred_user.id,
         Referral.status == "pending",
-    ).first()
+    ).with_for_update().first()
 
     if not referral:
         return False
@@ -116,21 +123,26 @@ def _confirm_referral_and_reward(db: Session, referred_user: User) -> bool:
     referral.status = "confirmed"
     referral.confirmed_at = datetime.utcnow()
 
-    # Obtener referidor
-    referrer = db.query(User).filter(User.id == referral.referrer_id).first()
+    # SEC-RACE: bloquear también la fila del referidor para evitar condición de carrera
+    referrer = db.query(User).filter(
+        User.id == referral.referrer_id
+    ).with_for_update().first()
+
     if not referrer:
         db.commit()
         return False
 
     # Actualizar contador total
-    referrer.referral_reward_count = (referrer.referral_reward_count or 0) + 1
+    new_count = (referrer.referral_reward_count or 0) + 1
+    referrer.referral_reward_count = new_count
 
-    # Recompensa base: +1 cupón del 10% por cada referido confirmado
-    referrer.pending_10p_discounts = (referrer.pending_10p_discounts or 0) + 1
-
-    # Hito: cada 10 referidos confirmados → +1 mes gratis
-    if referrer.referral_reward_count % 10 == 0:
+    # Hito de 10 referidos → invalidar los 10 cupones del 10% y dar 1 mes gratis
+    if new_count % 10 == 0:
+        referrer.pending_10p_discounts = 0   # Invalida todos los cupones del 10% acumulados
         referrer.free_months_accumulated = (referrer.free_months_accumulated or 0) + 1
+    else:
+        # Recompensa base: +1 cupón del 10% (solo plan mensual, se valida al usar)
+        referrer.pending_10p_discounts = (referrer.pending_10p_discounts or 0) + 1
 
     db.commit()
     return True
@@ -459,12 +471,16 @@ def admin_confirm_referral(
     referral.status = "confirmed"
     referral.confirmed_at = datetime.utcnow()
 
-    referrer = db.query(User).filter(User.id == referral.referrer_id).first()
+    referrer = db.query(User).filter(User.id == referral.referrer_id).with_for_update().first()
     if referrer:
-        referrer.referral_reward_count = (referrer.referral_reward_count or 0) + 1
-        referrer.pending_10p_discounts = (referrer.pending_10p_discounts or 0) + 1
-        if referrer.referral_reward_count % 10 == 0:
+        new_count = (referrer.referral_reward_count or 0) + 1
+        referrer.referral_reward_count = new_count
+        if new_count % 10 == 0:
+            # Hito: invalida los cupones del 10% y da 1 mes gratis
+            referrer.pending_10p_discounts = 0
             referrer.free_months_accumulated = (referrer.free_months_accumulated or 0) + 1
+        else:
+            referrer.pending_10p_discounts = (referrer.pending_10p_discounts or 0) + 1
 
     db.commit()
     return {"success": True, "message": "Referido confirmado y recompensa otorgada."}
@@ -511,14 +527,19 @@ def admin_flag_fraud(
 
     # Si ya estaba confirmado, revertir recompensas del referidor
     if was_confirmed:
-        referrer = db.query(User).filter(User.id == referral.referrer_id).first()
+        referrer = db.query(User).filter(User.id == referral.referrer_id).with_for_update().first()
         if referrer:
             current_count = referrer.referral_reward_count or 0
-            # Si este referido era el que disparó un hito (10º, 20º, 30º...), revertir el mes gratis
-            if current_count > 0 and current_count % 10 == 0:
-                referrer.free_months_accumulated = max(0, (referrer.free_months_accumulated or 0) - 1)
+            # Comprobar si este referido era el que disparó el hito (el count actual ES múltiplo de 10)
+            was_milestone = current_count > 0 and current_count % 10 == 0
             referrer.referral_reward_count = max(0, current_count - 1)
-            referrer.pending_10p_discounts = max(0, (referrer.pending_10p_discounts or 0) - 1)
+            if was_milestone:
+                # Revertir el mes gratis ganado en el hito
+                referrer.free_months_accumulated = max(0, (referrer.free_months_accumulated or 0) - 1)
+                # Los 10 cupones del 10% ya se invalidaron en el hito; no hay nada que revertir
+            else:
+                # Revertir el cupón del 10% que se dio por este referido
+                referrer.pending_10p_discounts = max(0, (referrer.pending_10p_discounts or 0) - 1)
 
     db.commit()
     return {
