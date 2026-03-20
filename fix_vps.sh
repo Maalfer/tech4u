@@ -34,7 +34,8 @@ echo "      Done."
 
 echo ""
 echo "[3/3] Rebuilding and restarting frontend..."
-docker compose restart frontend
+# Rebuild is necessary to pick up Vite static changes
+docker compose up -d --build frontend
 sleep 3
 echo "      Done."
 
