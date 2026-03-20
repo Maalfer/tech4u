@@ -20,12 +20,7 @@ from limiter import limiter
 import asyncio
 import json
 import os
-import pty
-import subprocess
 import select
-import struct
-import fcntl
-import termios
 import datetime
 import logging
 
@@ -1804,89 +1799,79 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
         await websocket.close(code=403) # Forbidden
         return
 
-    master_fd = None
-    slave_fd = None
-    process = None
+    exec_sock = None
 
     try:
-        # 1. Open a PTY pair
-        master_fd, slave_fd = pty.openpty()
+        # ── Docker SDK exec API ──────────────────────────────────────────────
+        # We bypass subprocess + PTY entirely and use the Docker HTTP API
+        # directly via docker-py.  With tty=True + socket=True, exec_start
+        # returns a SocketIO whose ._sock is a raw duplex socket carrying plain
+        # terminal bytes (no Docker multiplexing headers in TTY mode).
+        # This works reliably from inside a container (no docker CLI needed)
+        # and avoids every PTY/controlling-terminal complexity.
 
-        # Set a sensible default terminal size (80×24) so bash renders correctly.
-        # Docker containers don't have a controlling terminal, so pty.openpty()
-        # would otherwise inherit 0×0 which breaks readline / prompt rendering.
-        _default_winsize = struct.pack("HHHH", 24, 80, 0, 0)
-        fcntl.ioctl(master_fd, termios.TIOCSWINSZ, _default_winsize)
-
-        # 2. Start interactive bash via docker exec -it on the container name
-        container_name = container.name
-
-        def _preexec_setup():
-            """Run in child AFTER dup2 but BEFORE exec:
-            1. Create a new session so this process has no controlling terminal.
-            2. Open the slave PTY by name — on Linux, opening a TTY when you are
-               a session leader without a controlling terminal sets it as the
-               controlling terminal automatically (no O_NOCTTY flag).
-            This mirrors what pty.spawn() does internally and is required so that
-            docker exec -it can properly set up raw mode and signal delivery.
-            """
-            os.setsid()
-            # fd 0 is slave_fd at this point (dup2'd by Popen before preexec_fn)
-            ttyname = os.ttyname(0)
-            fd = os.open(ttyname, os.O_RDWR)
-            os.close(fd)  # fd 0/1/2 already point to the slave; close extra ref
-
-        process = subprocess.Popen(
-            ["docker", "exec", "-it", container_name, "/bin/bash"],
-            stdin=slave_fd,
-            stdout=slave_fd,
-            stderr=slave_fd,
-            close_fds=True,
-            preexec_fn=_preexec_setup,
-            env={**os.environ, "TERM": "xterm-256color"},
+        exec_resp = docker_launcher.client.api.exec_create(
+            container.id,
+            ["/bin/bash"],
+            stdin=True,
+            stdout=True,
+            stderr=True,
+            tty=True,
+            environment={"TERM": "xterm-256color"},
         )
-        # The slave end is owned by the child process — close in parent
-        os.close(slave_fd)
-        slave_fd = None
+        exec_id = exec_resp["Id"]
 
-        # 3. WebSocket → PTY input (binary = terminal data; text = control JSON)
-        async def websocket_to_pty():
+        exec_sock_obj = docker_launcher.client.api.exec_start(
+            exec_id,
+            tty=True,
+            socket=True,
+        )
+        exec_sock = exec_sock_obj._sock
+        exec_sock.setblocking(False)
+
+        # Apply initial 80×24 size after the exec is live
+        try:
+            docker_launcher.client.api.exec_resize(exec_id, height=24, width=80)
+        except Exception:
+            pass
+
+        # 3. WebSocket → container (binary = keystrokes; text = control JSON)
+        async def websocket_to_container():
             try:
                 while True:
                     msg = await websocket.receive()
-                    if process.poll() is not None:
-                        break
                     raw_bytes = msg.get("bytes")
                     raw_text  = msg.get("text")
                     if raw_bytes:
-                        os.write(master_fd, raw_bytes)
+                        await asyncio.to_thread(exec_sock.sendall, raw_bytes)
                     elif raw_text:
-                        # Control message — currently only "resize"
                         try:
                             ctrl = json.loads(raw_text)
                             if ctrl.get("type") == "resize":
                                 cols = max(1, int(ctrl.get("cols", 80)))
                                 rows = max(1, int(ctrl.get("rows", 24)))
-                                winsize = struct.pack("HHHH", rows, cols, 0, 0)
-                                fcntl.ioctl(master_fd, termios.TIOCSWINSZ, winsize)
-                        except (json.JSONDecodeError, ValueError, OSError):
+                                docker_launcher.client.api.exec_resize(
+                                    exec_id, height=rows, width=cols
+                                )
+                        except Exception:
                             pass
             except (WebSocketDisconnect, RuntimeError):
                 pass
             except Exception as e:
-                logger.error(f"[Terminal WS→PTY] {e}")
+                logger.error(f"[Terminal WS→Container] {e}")
 
-        # 4. PTY output → WebSocket (non-blocking via asyncio.to_thread)
-        async def pty_to_websocket():
+        # 4. Container output → WebSocket
+        async def container_to_websocket():
             try:
                 while True:
-                    if process.poll() is not None:
-                        break
                     readable, _, _ = await asyncio.to_thread(
-                        select.select, [master_fd], [], [], 0.1
+                        select.select, [exec_sock], [], [], 0.1
                     )
                     if readable:
-                        data = os.read(master_fd, 1024)
+                        try:
+                            data = exec_sock.recv(4096)
+                        except (OSError, BlockingIOError):
+                            break
                         if not data:
                             break
                         if websocket.client_state == WebSocketState.CONNECTED:
@@ -1896,13 +1881,13 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
             except (WebSocketDisconnect, RuntimeError, OSError):
                 pass
             except Exception as e:
-                logger.error(f"[Terminal PTY→WS] {e}")
+                logger.error(f"[Terminal Container→WS] {e}")
 
-        # Run both tasks, stop as soon as one finishes
+        # Run both tasks; stop as soon as one finishes
         done, pending = await asyncio.wait(
             [
-                asyncio.create_task(websocket_to_pty()),
-                asyncio.create_task(pty_to_websocket()),
+                asyncio.create_task(websocket_to_container()),
+                asyncio.create_task(container_to_websocket()),
             ],
             return_when=asyncio.FIRST_COMPLETED,
         )
@@ -1912,20 +1897,9 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
     except Exception as e:
         logger.error(f"[Terminal Critical] {e}")
     finally:
-        # Clean up subprocess and file descriptors
-        if process and process.poll() is None:
+        if exec_sock is not None:
             try:
-                process.terminate()
-            except Exception:
-                pass
-        if master_fd is not None:
-            try:
-                os.close(master_fd)
-            except Exception:
-                pass
-        if slave_fd is not None:
-            try:
-                os.close(slave_fd)
+                exec_sock.close()
             except Exception:
                 pass
         # NOTE: We intentionally do NOT kill the container here.
@@ -1933,8 +1907,6 @@ async def terminal_websocket(websocket: WebSocket, container_id: str):
         #   - POST /labs/{id}/start    → kill_all_for_user + new container
         #   - POST /labs/{id}/restart  → kill_all_for_user + new container
         #   - POST /labs/{id}/complete → kill_all_for_user
-        # Killing here causes React StrictMode (dev) to destroy the container
-        # on the first effect cleanup, before the second mount can reconnect.
         logger.debug(f"[Terminal] WS closed for container {container_id} — container kept alive")
         try:
             if websocket.client_state == status.WS_CONNECTED:
