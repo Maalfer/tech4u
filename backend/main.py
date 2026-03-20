@@ -40,7 +40,6 @@ if SENTRY_DSN:
         integrations=[FastApiIntegration(), SqlalchemyIntegration()],
         traces_sample_rate=0.1,
         environment=os.getenv("ENVIRONMENT", "production"),
-        debug=True,
     )
 
 app = FastAPI(
@@ -58,10 +57,6 @@ allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") i
 
 if frontend_url and frontend_url not in allowed_origins:
     allowed_origins.append(frontend_url)
-
-@app.get("/sentry-debug")
-async def trigger_error():
-    division_by_zero = 1 / 0
 
 app.add_middleware(
     CORSMiddleware,

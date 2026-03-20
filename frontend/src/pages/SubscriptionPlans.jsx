@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -158,7 +158,7 @@ export default function SubscriptionPlans() {
                                 <span className="text-lg">🎁</span> ¿Ya tienes cuenta? Comparte tu enlace de referido y consigue <strong className="text-neon">1 mes gratis</strong>
                             </span>
                             <Link
-                                to="/referral"
+                                to="/mi-referral"
                                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neon text-black font-bold font-mono text-xs uppercase tracking-wider hover:shadow-[0_0_20px_rgba(198,255,51,0.4)] transition-all whitespace-nowrap"
                             >
                                 Ver mi enlace <ArrowRight className="w-3 h-3" />
